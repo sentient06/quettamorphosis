@@ -267,29 +267,46 @@ const VOWELS = ['a','e','i','o','u','y','á','é','í','ó','ú','ý'];
  * Array of valid Sindarin diphthongs.
  * @type {string[]}
  */
-const DIPHTHONGS = ['ae', 'ai', 'au', 'ei', 'eu', 'oe', 'ui'];
-
 /**
- * Array of legal consonant clusters that can begin a syllable in Sindarin.
- * Uses single-char representations after digraph conversion: th→θ, dh→ð, ch→x, rh→ꝛ, lh→λ, gw→ƣ, ng→ŋ, wh→ʍ, ph→ɸ, ss→ſ
- * @type {string[]}
+ * Unified digraph-to-single-character mapping.
+ * Used by global functions for sound change rules.
+ * Note: 'wh' and 'hw' both map to 'ʍ' (different spellings of same sound)
+ * Note: 'kh' is an alternate spelling of 'ch', both map to 'x'
+ * Note: 'nth' and 'chw' are NOT included here - they are only used in SyllableAnalyser
+ *       for compound word handling. In sound change rules, 'nth' is 'n' + 'th' (two sounds).
  */
-const LEGAL_ONSETS = [
-  // Single consonants (these go with the following syllable in VCV patterns)
-  'b', 'c', 'd', 'f', 'g', 'h', 'l', 'm', 'n', 'p', 'r', 's', 't', 'v', 'w',
-  'θ', 'ð', 'x', 'ꝛ', 'λ', 'ƣ', 'ŋ', 'ʍ', 'ɸ',
-  // Two-consonant clusters that are truly indivisible medially
-  // Removed: dr, tr, θr, gl, gr (these split medially in Sindarin)
-  // Kept: s+consonant clusters, labial+liquid clusters
-  'bl', 'br', 'cl', 'cr', 'fl', 'fr', 'pl', 'pr',
-  'sc', 'sp', 'st', 'sl', 'sm', 'sn', 'sw',
-  'ƣl', 'ƣr',
-  // Prenasalized stop: ŋg stays together (ŋ is only used for the velar nasal phoneme)
-  // Note: mb and nd are NOT included because they often split (e.g., Gondor → Gon.dor)
-  'ŋg',
-  // Three-consonant clusters (rare)
-  'scr', 'spr', 'str',
-];
+const DIGRAPH_MAP = {
+  'ch': 'x',
+  'dh': 'ð',
+  'gw': 'ƣ',
+  'hw': 'ʍ',
+  'kh': 'x',   // alternate spelling of 'ch'
+  'lh': 'λ',
+  'ng': 'ŋ',
+  'ph': 'ɸ',
+  'rh': 'ꝛ',
+  'ss': 'ſ',
+  'th': 'θ',
+  'wh': 'ʍ',   // alternate spelling of 'hw'
+};
+
+// Pre-sorted digraphs by length descending for correct replacement order
+const SORTED_DIGRAPHS = Object.keys(DIGRAPH_MAP).sort((a, b) => b.length - a.length);
+
+// Reverse map for converting single chars back to digraphs
+// Note: 'x' maps back to 'ch' (not 'kh'), 'ʍ' maps back to 'hw' (not 'wh')
+const SINGLE_TO_DIGRAPH_MAP = {
+  'x': 'ch',
+  'ð': 'dh',
+  'ƣ': 'gw',
+  'ʍ': 'hw',
+  'λ': 'lh',
+  'ŋ': 'ng',
+  'ɸ': 'ph',
+  'ꝛ': 'rh',
+  'ſ': 'ss',
+  'θ': 'th',
+};
 
 /**
  * Converts digraphs to single characters for easier processing.
@@ -297,18 +314,12 @@ const LEGAL_ONSETS = [
  * @returns {string} String with digraphs replaced by single characters
  */
 function digraphsToSingle(str) {
-  return str
-    .replace(/ng/g, 'ŋ')
-    .replace(/wh/g, 'ʍ')
-    .replace(/ph/g, 'ɸ')
-    .replace(/dh/g, 'ð')
-    .replace(/th/g, 'θ')
-    .replace(/ch/g, 'x')
-    .replace(/kh/g, 'x')
-    .replace(/rh/g, 'ꝛ')
-    .replace(/lh/g, 'λ')
-    .replace(/ss/g, 'ſ')
-    .replace(/gw/g, 'ƣ');
+  let result = str;
+  for (const digraph of SORTED_DIGRAPHS) {
+    const regex = new RegExp(digraph, 'gi');
+    result = result.replace(regex, DIGRAPH_MAP[digraph]);
+  }
+  return result;
 }
 
 /**
@@ -317,26 +328,21 @@ function digraphsToSingle(str) {
  * @returns {string} String with single characters replaced by digraphs
  */
 function singleToDigraphs(str) {
-  return str
-    .replace(/ŋ/g, 'ng')
-    .replace(/ʍ/g, 'wh')
-    .replace(/ɸ/g, 'ph')
-    .replace(/ð/g, 'dh')
-    .replace(/θ/g, 'th')
-    .replace(/x/g, 'ch')
-    .replace(/λ/g, 'lh')
-    .replace(/ꝛ/g, 'rh')
-    .replace(/ſ/g, 'ss')
-    .replace(/ƣ/g, 'gw');
+  let result = str;
+  for (const [single, digraph] of Object.entries(SINGLE_TO_DIGRAPH_MAP)) {
+    const regex = new RegExp(single, 'g');
+    result = result.replace(regex, digraph);
+  }
+  return result;
 }
 
-/**
- * Checks if a two-character string is a valid Sindarin diphthong.
- * @param {string} str - The two-character string to check
- * @returns {boolean} True if the string is a diphthong
- */
-function isDiphthong(str) {
-  return DIPHTHONGS.includes(str.toLowerCase());
+// Singleton instance of SyllableAnalyser for the global syllabify function
+let _syllableAnalyser = null;
+function getSyllableAnalyser() {
+  if (!_syllableAnalyser) {
+    _syllableAnalyser = new SyllableAnalyser();
+  }
+  return _syllableAnalyser;
 }
 
 /**
@@ -344,120 +350,18 @@ function isDiphthong(str) {
  * Handles digraphs by converting them to single characters, syllabifying,
  * then converting back. Preserves original case.
  *
+ * This is a convenience wrapper around SyllableAnalyser.syllabify().
+ *
  * @param {string} word - The word to syllabify
+ * @param {boolean} compoundWord - If true, treats ng/nth as separate sounds (n+g, n+th) rather than digraphs
  * @returns {string[]} Array of syllables
  * @example
  * syllabify("Galadriel") // returns ["Ga", "lad", "ri", "el"]
  * syllabify("Eldamar")   // returns ["El", "da", "mar"]
  * syllabify("athelas")   // returns ["a", "the", "las"]
  */
-export function syllabify(word) {
-  const originalWord = word;
-  const lowerWord = word.toLowerCase();
-
-  // Convert digraphs to single characters
-  const converted = digraphsToSingle(lowerWord);
-
-  // 1. Detect nuclei (vowels and diphthongs)
-  const nuclei = [];
-  for (let i = 0; i < converted.length; i++) {
-    const two = converted.slice(i, i + 2);
-    if (isDiphthong(two)) {
-      nuclei.push({ start: i, end: i + 2 });
-      i++; // Skip next char as it's part of diphthong
-    } else if (converted[i].isVowel(false, false)) {
-      // isVowel(includeY=false, includeW=false) - only pure vowels
-      nuclei.push({ start: i, end: i + 1 });
-    }
-  }
-
-  // No vowels or single syllable
-  if (nuclei.length === 0) return [originalWord];
-  if (nuclei.length === 1) return [originalWord];
-
-  // 2. Split between nuclei using maximal onset principle
-  const syllableBoundaries = [0];
-
-  for (let n = 0; n < nuclei.length - 1; n++) {
-    const leftNucleus = nuclei[n];
-    const rightNucleus = nuclei[n + 1];
-    const between = converted.slice(leftNucleus.end, rightNucleus.start);
-
-    if (between.length === 0) {
-      // Adjacent vowels (hiatus) - split between them
-      syllableBoundaries.push(rightNucleus.start);
-    } else {
-      // Find maximal legal onset for the next syllable
-      let onsetLength = 0;
-      for (let k = between.length; k > 0; k--) {
-        const potentialOnset = between.slice(between.length - k);
-        if (LEGAL_ONSETS.includes(potentialOnset)) {
-          onsetLength = k;
-          break;
-        }
-      }
-      // Boundary is where the onset begins
-      const boundary = rightNucleus.start - onsetLength;
-      syllableBoundaries.push(boundary);
-    }
-  }
-
-  syllableBoundaries.push(converted.length);
-
-  // 3. Extract syllables from converted string
-  const convertedSyllables = [];
-  for (let i = 0; i < syllableBoundaries.length - 1; i++) {
-    convertedSyllables.push(converted.slice(syllableBoundaries[i], syllableBoundaries[i + 1]));
-  }
-
-  // 4. Convert back to digraphs
-  const syllables = convertedSyllables.map(syl => singleToDigraphs(syl));
-
-  // Mapping of digraphs to their single-character equivalents
-  const digraphToSingle = {
-    'th': 'θ', 'dh': 'ð', 'ch': 'x', 'kh': 'x',
-    'rh': 'ꝛ', 'lh': 'λ', 'ng': 'ŋ', 'wh': 'ʍ',
-    'ph': 'ɸ', 'ss': 'ſ', 'gw': 'ƣ',
-  };
-  const digraphList = Object.keys(digraphToSingle);
-
-  // 5. Restore original case by mapping back
-  // Build a case map from original word
-  const result = [];
-  let origIndex = 0;
-  for (const syl of syllables) {
-    let restoredSyl = '';
-    for (let i = 0; i < syl.length && origIndex < originalWord.length; i++) {
-      // Handle digraphs in output matching original
-      if (i < syl.length - 1) {
-        const digraph = syl.slice(i, i + 2).toLowerCase();
-        const origChar = originalWord[origIndex].toLowerCase();
-        const origDigraph = originalWord.slice(origIndex, origIndex + 2).toLowerCase();
-
-        if (digraphList.includes(digraph)) {
-          // Check if original has the digraph as ASCII (e.g., "th")
-          if (digraph === origDigraph) {
-            restoredSyl += originalWord.slice(origIndex, origIndex + 2);
-            origIndex += 2;
-            i++; // Skip next char in syl
-            continue;
-          }
-          // Check if original has the single-char equivalent (e.g., "θ")
-          if (origChar === digraphToSingle[digraph]) {
-            restoredSyl += originalWord[origIndex];
-            origIndex += 1;
-            i++; // Skip next char in syl (we consumed 2 chars from syllable but 1 from original)
-            continue;
-          }
-        }
-      }
-      restoredSyl += originalWord[origIndex];
-      origIndex++;
-    }
-    result.push(restoredSyl);
-  }
-
-  return result;
+export function syllabify(word, compoundWord = false) {
+  return getSyllableAnalyser().syllabify(word, compoundWord);
 }
 
 export function breakIntoVowelsAndConsonants(str) {
@@ -792,8 +696,14 @@ export class SyllableAnalyser {
       convertedSyllables.push(converted.slice(syllableBoundaries[i], syllableBoundaries[i + 1]));
     }
 
-    // 4. Convert back to digraphs
-    const syllables = convertedSyllables.map(syl => this.singleToDigraphs(syl));
+    // 4. Decide whether to convert back to digraphs or keep single chars
+    // If the original word contained any single-char phonetic symbols, keep them
+    const singleCharSymbols = Object.values(this.digraphMap);
+    const inputHadSingleChars = singleCharSymbols.some(sym => lowerWord.includes(sym));
+
+    const syllables = inputHadSingleChars
+      ? convertedSyllables  // Keep single chars as-is
+      : convertedSyllables.map(syl => this.singleToDigraphs(syl));  // Convert to digraphs
 
     // 5. Restore original case
     let origIndex = 0;
@@ -2234,8 +2144,8 @@ export const sindarinRules = {
           }
         }
         const fullStrResult = result.join('');
-        const singleCharsResult = digraphsToSingle(fullStrResult);
-        return revert ? fullStrResult : singleCharsResult;
+        // If input had digraphs (revert=true), convert result back to digraphs
+        return revert ? singleToDigraphs(fullStrResult) : fullStrResult;
       }
     },
   },

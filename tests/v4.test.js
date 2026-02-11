@@ -1072,7 +1072,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['05100'].mechanic('ȳlm')).toBe('ylm');
   });
 
-  it.only('05200 - [ī], [ū] often shortened in polysyllables', () => {
+  it('05200 - [ī], [ū] often shortened in polysyllables', () => {
     expect(sindarinRules['05200'].mechanic('abc')).toBe('abc');
     // Final syllable shortening:
     expect(sindarinRules['05200'].mechanic('ithīl')).toBe('ithil');
