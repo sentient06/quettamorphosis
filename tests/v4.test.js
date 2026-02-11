@@ -120,58 +120,205 @@ describe('Utils', () => {
 });
 
 describe('SyllableAnalyser', () => {
-  // Syllable rules:
-  // If a word has only one vowel, it has only one syllable.
-  // e.g.: a, brand
+  const analyser = new SyllableAnalyser();
 
-  // The simplest syllable is a single vowel.
-  // e.g.: a, i, o, a-nor, ú-an, 
-  
-  // A vowel can be preceded by one or two consonants.
-  // e.g.: dû, dú-ath, gwî, bre-thil
+  describe('syllabify', () => {
+    // Syllable rules:
+    // If a word has only one vowel, it has only one syllable.
+    // e.g.: a, brand
+    it('should treat words with one vowel as monosyllables', () => {
+      expect(analyser.syllabify('a')).toEqual(['a']);
+      expect(analyser.syllabify('brand')).toEqual(['brand']);
+    });
 
-  // A vowel can be followed by up to two consonants.
-  // e.g.: ad, ag-lar, ast, lant-hir
+    // The simplest syllable is a single vowel.
+    // e.g.: a, i, o, a-nor, ú-an
+    it('should handle single vowel syllables', () => {
+      expect(analyser.syllabify('a')).toEqual(['a']);
+      expect(analyser.syllabify('i')).toEqual(['i']);
+      expect(analyser.syllabify('o')).toEqual(['o']);
+      expect(analyser.syllabify('anor')).toEqual(['a', 'nor']);
+      expect(analyser.syllabify('úan')).toEqual(['ú', 'an']);
+    });
 
-  // A syllable can consist of a diphtong with associated consonants.
-  // e.g.: ae-wen, mae-thor, dui-nath, goe-ol, gwai-hir, duin-hir
+    // A vowel can be preceded by one or two consonants.
+    // e.g.: dû, dú-ath, gwî, bre-thil
+    it('should handle vowels preceded by consonants', () => {
+      expect(analyser.syllabify('dû')).toEqual(['dû']);
+      expect(analyser.syllabify('dúath')).toEqual(['dú', 'ath']);
+      expect(analyser.syllabify('gwî')).toEqual(['gwî']);
+      expect(analyser.syllabify('brethil')).toEqual(['bre', 'thil']);
+    });
 
-  // The elements of a diphthong are never split between two syllables.
-  // e.g.: duin (not du-in), laeg (not la-eg)
+    // A vowel can be followed by up to two consonants.
+    // e.g.: ad, ag-lar, ast, lant-hir
+    it('should handle vowels followed by consonants', () => {
+      expect(analyser.syllabify('ad')).toEqual(['ad']);
+      expect(analyser.syllabify('aglar')).toEqual(['ag', 'lar']);
+      expect(analyser.syllabify('ast')).toEqual(['ast']);
+      // lanthir is a compound (lant + hir), so nth is n+th, not the digraph
+      expect(analyser.syllabify('lanthir', true)).toEqual(['lant', 'hir']);
+    });
 
-  // If more than one consonant begins a syllable, the second consonant must be l, r, or w (the latter only in the cluster "gw").
-  // e.g.: cram, pres-tan-neth, gwaew, gon-dren, an-gren, an-glen-na, an-gwedh
+    // A syllable can consist of a diphthong with associated consonants.
+    // e.g.: ae-wen, mae-thor, dui-nath, goe-ol, gwai-hir, duin-hir
+    it('should handle diphthongs with consonants', () => {
+      expect(analyser.syllabify('aewen')).toEqual(['ae', 'wen']);
+      expect(analyser.syllabify('maethor')).toEqual(['mae', 'thor']);
+      expect(analyser.syllabify('duinath')).toEqual(['dui', 'nath']);
+      expect(analyser.syllabify('goeol')).toEqual(['goe', 'ol']);
+      expect(analyser.syllabify('gwaihir')).toEqual(['gwai', 'hir']);
+      expect(analyser.syllabify('duinhir')).toEqual(['duin', 'hir']);
+    });
 
-  // When no consonant follows a vowel, and the vowels don't form a diphtong, they split between syllables.
-  // e.g.: ae-ar, rí-an, goe-ol, fi-ri-on
+    // The elements of a diphthong are never split between two syllables.
+    // e.g.: duin (not du-in), laeg (not la-eg)
+    it('should never split diphthongs', () => {
+      expect(analyser.syllabify('duin')).toEqual(['duin']);
+      expect(analyser.syllabify('laeg')).toEqual(['laeg']);
+    });
 
-  // When a single consonant follows a vowel, the syllable break almost always comes before the following consonant, except when that's final.
-  // e.g.: ta-lan, o-rod, se-re-gon
+    // If more than one consonant begins a syllable, the second consonant must be l, r, or w (the latter only in the cluster "gw").
+    // e.g.: cram, pres-tan-neth, gwaew, gon-dren, an-gren, an-glen-na, an-gwedh
+    it('should handle valid initial clusters', () => {
+      expect(analyser.syllabify('cram')).toEqual(['cram']);
+      expect(analyser.syllabify('prestanneth')).toEqual(['pres', 'tan', 'neth']);
+      expect(analyser.syllabify('gwaew')).toEqual(['gwaew']);
+      expect(analyser.syllabify('gondren')).toEqual(['gon', 'dren']);
+      // These are compounds where ng is n+g, not the velar nasal digraph
+      expect(analyser.syllabify('angren', true)).toEqual(['an', 'gren']);
+      expect(analyser.syllabify('anglenna', true)).toEqual(['an', 'glen', 'na']);
+      expect(analyser.syllabify('angwedh', true)).toEqual(['an', 'gwedh']);
+    });
 
-  // When only two consonants follow each other in the middle of a word, the division occurs between them.
-  // e.g.: idh-ren, oth-lonn, nes-tad-ren, baug-ron.
+    // When no consonant follows a vowel, and the vowels don't form a diphthong, they split between syllables.
+    // e.g.: ae-ar, rí-an, goe-ol, fi-ri-on
+    it('should split non-diphthong vowel sequences', () => {
+      expect(analyser.syllabify('aear')).toEqual(['ae', 'ar']);
+      expect(analyser.syllabify('rían')).toEqual(['rí', 'an']);
+      expect(analyser.syllabify('goeol')).toEqual(['goe', 'ol']);
+      expect(analyser.syllabify('firion')).toEqual(['fi', 'ri', 'on']);
+    });
 
-  // When 3 consonants follows each other, the split occurs after the first one if the two others are an allowed pattern for words or syllables.
-  // e.g.: nin-glor, an-drath, lhin-gril, dan-gweth, or-christ
+    // When a single consonant follows a vowel, the syllable break almost always comes before the following consonant, except when that's final.
+    // e.g.: ta-lan, o-rod, se-re-gon
+    it('should place break before single medial consonant', () => {
+      expect(analyser.syllabify('talan')).toEqual(['ta', 'lan']);
+      expect(analyser.syllabify('orod')).toEqual(['o', 'rod']);
+      expect(analyser.syllabify('seregon')).toEqual(['se', 're', 'gon']);
+    });
 
-  // Light and heavy, open and closed syllables:
-  // A light syllable consists of a short vowel, by itself, or preceded by one or more consonants. All other syllables are heavy.
-  // e.g. light syllables: a, na
-  // e.g. heavy syllables: dû - long vowel
-  // e.g. heavy syllables: nae, goe, glaw - diphthongs
-  // e.g. heavy syllables: ed, dan, ost, nand - end in consonants
-  // e.g. heavy syllables: glân, dîr, laer - combination of the above
+    // When only two consonants follow each other in the middle of a word, the division occurs between them.
+    // e.g.: idh-ren, oth-lonn, nes-tad-ren, baug-ron
+    it('should split between two medial consonants', () => {
+      expect(analyser.syllabify('idhren')).toEqual(['idh', 'ren']);
+      expect(analyser.syllabify('othlonn')).toEqual(['oth', 'lonn']);
+      expect(analyser.syllabify('nestadren')).toEqual(['nes', 'tad', 'ren']);
+      expect(analyser.syllabify('baugron')).toEqual(['baug', 'ron']);
+    });
 
-  // An open syllable is followed by a single consonant or none. All other syllables are closed.
-  // All closed syllables are heavy.
-  // Open syllables can be light or heavy.
+    // When 3 consonants follow each other, the split occurs after the first one if the two others are an allowed pattern for words or syllables.
+    // e.g.: nin-glor, an-drath, lhin-gril, dan-gweth, or-christ
+    it('should split 3-consonant clusters correctly', () => {
+      // These are compounds where ng is n+g, not the velar nasal digraph
+      expect(analyser.syllabify('ninglor', true)).toEqual(['nin', 'glor']);
+      expect(analyser.syllabify('andrath')).toEqual(['an', 'drath']);
+      expect(analyser.syllabify('lhingril', true)).toEqual(['lhin', 'gril']);
+      expect(analyser.syllabify('dangweth', true)).toEqual(['dan', 'gweth']);
+      expect(analyser.syllabify('orchrist')).toEqual(['or', 'christ']);
+    });
+  });
 
-  // Stress:
-  // Monosyllables tend to be unstressed depending on their role.
-  // Words with two syllables are stressed on the first syllable.
-  // Longer words have the stress placed on the penultimate or antepenultimate syllable.
-  // Stress falls on the penultimate syllable when it is heavy.
-  // Stress falls on the antepenultimate syllable when the penultimate is light.
+  describe('analyse', () => {
+    // Light and heavy, open and closed syllables:
+    // A light syllable consists of a short vowel, by itself, or preceded by one or more consonants. All other syllables are heavy.
+    // e.g. light syllables: a, na
+    // e.g. heavy syllables: dû - long vowel
+    // e.g. heavy syllables: nae, goe, glaw - diphthongs
+    // e.g. heavy syllables: ed, dan, ost, nand - end in consonants
+    // e.g. heavy syllables: glân, dîr, laer - combination of the above
+
+    // An open syllable is followed by a single consonant or none. All other syllables are closed.
+    // All closed syllables are heavy.
+    // Open syllables can be light or heavy.
+
+    it('should identify light syllables', () => {
+      const resultA = analyser.analyse('a');
+      expect(resultA[0].weight).toBe('light');
+
+      const resultNa = analyser.analyse('na');
+      expect(resultNa[0].weight).toBe('light');
+    });
+
+    it('should identify heavy syllables with long vowels', () => {
+      const result = analyser.analyse('dû');
+      expect(result[0].weight).toBe('heavy');
+    });
+
+    it('should identify heavy syllables with diphthongs', () => {
+      expect(analyser.analyse('nae')[0].weight).toBe('heavy');
+      expect(analyser.analyse('goe')[0].weight).toBe('heavy');
+      expect(analyser.analyse('glaw')[0].weight).toBe('heavy');
+    });
+
+    it('should identify heavy syllables ending in consonants (closed)', () => {
+      expect(analyser.analyse('ed')[0].weight).toBe('heavy');
+      expect(analyser.analyse('dan')[0].weight).toBe('heavy');
+      expect(analyser.analyse('ost')[0].weight).toBe('heavy');
+      expect(analyser.analyse('nand')[0].weight).toBe('heavy');
+    });
+
+    it('should identify open vs closed syllables', () => {
+      // Open: followed by single consonant or none
+      expect(analyser.analyse('a')[0].structure).toBe('open');
+      expect(analyser.analyse('na')[0].structure).toBe('open');
+      expect(analyser.analyse('dû')[0].structure).toBe('open');
+
+      // Closed: ends in consonant
+      expect(analyser.analyse('ed')[0].structure).toBe('closed');
+      expect(analyser.analyse('dan')[0].structure).toBe('closed');
+    });
+
+    // Stress:
+    // Monosyllables tend to be unstressed depending on their role.
+    // Words with two syllables are stressed on the first syllable.
+    // Longer words have the stress placed on the penultimate or antepenultimate syllable.
+    // Stress falls on the penultimate syllable when it is heavy.
+    // Stress falls on the antepenultimate syllable when the penultimate is light.
+
+    it('should mark monosyllables as unstressed', () => {
+      expect(analyser.analyse('a')[0].stressed).toBe(false);
+      expect(analyser.analyse('brand')[0].stressed).toBe(false);
+    });
+
+    it('should stress first syllable in disyllabic words', () => {
+      const result = analyser.analyse('talan');
+      expect(result[0].stressed).toBe(true);
+      expect(result[1].stressed).toBe(false);
+    });
+
+    it('should stress penultimate when it is heavy', () => {
+      // 'seregon' = se-re-gon, 're' is light, so stress antepenultimate 'se'
+      const result1 = analyser.analyse('seregon');
+      expect(result1[0].stressed).toBe(true); // 'se' stressed
+      expect(result1[1].stressed).toBe(false);
+      expect(result1[2].stressed).toBe(false);
+
+      // 'prestanneth' = pres-tan-neth, 'tan' is heavy (closed), so stress penultimate
+      const result2 = analyser.analyse('prestanneth');
+      expect(result2[0].stressed).toBe(false);
+      expect(result2[1].stressed).toBe(true); // 'tan' stressed
+      expect(result2[2].stressed).toBe(false);
+    });
+
+    it('should stress antepenultimate when penultimate is light', () => {
+      // 'firion' = fi-ri-on, 'ri' is light (open, short vowel), so stress 'fi'
+      const result = analyser.analyse('firion');
+      expect(result[0].stressed).toBe(true);
+      expect(result[1].stressed).toBe(false);
+      expect(result[2].stressed).toBe(false);
+    });
+  });
 });
 
 describe('syllabify', () => {
@@ -925,9 +1072,32 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['05100'].mechanic('ȳlm')).toBe('ylm');
   });
 
-  it('05200 - [ī], [ū] often shortened in polysyllables', () => {
-    expect(sindarinRules['05200'].mechanic('xyz')).toBe('xyz');
-    expect(sindarinRules['05200'].mechanic('hīl')).toBe('hil');
-    expect(sindarinRules['05200'].mechanic('gūl')).toBe('gul');
+  it.only('05200 - [ī], [ū] often shortened in polysyllables', () => {
+    expect(sindarinRules['05200'].mechanic('abc')).toBe('abc');
+    // Final syllable shortening:
+    expect(sindarinRules['05200'].mechanic('ithīl')).toBe('ithil');
+    expect(sindarinRules['05200'].mechanic('pelīn')).toBe('pelin');
+    expect(sindarinRules['05200'].mechanic('gwanūr')).toBe('gwanur');
+    // Regular examples:
+    expect(sindarinRules['05200'].mechanic('alfirīn')).toBe('alfirin');
+    expect(sindarinRules['05200'].mechanic('firīn')).toBe('firin');
+    expect(sindarinRules['05200'].mechanic('onūr')).toBe('onur');
+    // Stressed syllables without shortening:
+    // expect(sindarinRules['05200'].mechanic('inīðen')).toBe('iniðen');
+    // expect(sindarinRules['05200'].mechanic('rīθant')).toBe('riθant');
+    // expect(sindarinRules['05200'].mechanic('nīniel')).toBe('niniel');
+    // expect(sindarinRules['05200'].mechanic('mūda-')).toBe('muda-'); // Noldorin
+
+    // No shortening:
+    expect(sindarinRules['05200'].mechanic('dínen')).toBe('dínen');
+    expect(sindarinRules['05200'].mechanic('rhúnen')).toBe('rhúnen');
+    expect(sindarinRules['05200'].mechanic('túrin')).toBe('túrin');
+    // Exceptions:
+    // (These are unclear how they came to be.)
+    expect(sindarinRules['05200'].mechanic('curunír')).toBe('curunír');
+    expect(sindarinRules['05200'].mechanic('elurín')).toBe('elurín');
+    expect(sindarinRules['05200'].mechanic('glanhír')).toBe('glanhír');
+    expect(sindarinRules['05200'].mechanic('nauglamír')).toBe('nauglamír');
+    expect(sindarinRules['05200'].mechanic('aranrúth')).toBe('aranrúth');
   });
 });

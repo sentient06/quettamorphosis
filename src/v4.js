@@ -636,6 +636,296 @@ export class SyllableAnalyser {
   // Long consonants:
   // Long consonants are written as double consonants.
   // Except for 'mm' and 'ss'.
+
+  /**
+   * Convert digraphs to single characters using the class's digraphMap.
+   * Handles 3-character digraphs first (chw, nth).
+   * @param {string} str - The string to convert
+   * @param {boolean} compoundWord - If true, skip digraph conversion entirely (for compound words where digraphs may span morpheme boundaries)
+   * @returns {string} String with digraphs replaced by single characters
+   */
+  digraphsToSingle(str, compoundWord = false) {
+    // For compound words, don't convert any digraphs - they may span morpheme boundaries
+    if (compoundWord) {
+      return str;
+    }
+    let result = str;
+    // Sort by length descending to handle 3-char digraphs first
+    const sortedDigraphs = Object.keys(this.digraphMap).sort((a, b) => b.length - a.length);
+    for (const digraph of sortedDigraphs) {
+      const regex = new RegExp(digraph, 'gi');
+      result = result.replace(regex, this.digraphMap[digraph]);
+    }
+    return result;
+  }
+
+  /**
+   * Convert single characters back to digraphs.
+   * @param {string} str - The string to convert
+   * @returns {string} String with single characters replaced by digraphs
+   */
+  singleToDigraphs(str) {
+    let result = str;
+    // Reverse the map and sort by value length descending
+    const reverseMap = {};
+    for (const [digraph, single] of Object.entries(this.digraphMap)) {
+      reverseMap[single] = digraph;
+    }
+    for (const [single, digraph] of Object.entries(reverseMap)) {
+      result = result.replace(new RegExp(single, 'g'), digraph);
+    }
+    return result;
+  }
+
+  /**
+   * Check if a two-character string is a diphthong.
+   * @param {string} str - The string to check
+   * @returns {boolean} True if it's a diphthong
+   */
+  isDiphthong(str) {
+    return this.legalDiphthongs.includes(str.toLowerCase());
+  }
+
+  /**
+   * Check if a cluster is a valid initial cluster (can begin a syllable).
+   * @param {string} cluster - The cluster to check
+   * @returns {boolean} True if it's a valid initial cluster
+   */
+  isValidOnset(cluster) {
+    if (cluster.length === 0) return true;
+    if (cluster.length === 1) {
+      // Single consonant - check if it's a valid consonant
+      const c = cluster.toLowerCase();
+      return this.legalConsonants.includes(c) ||
+             Object.values(this.digraphMap).includes(c) ||
+             this.validInitialConsonants.includes(c) ||
+             this.lenitedInitialConsonants.includes(c);
+    }
+    // Multi-character cluster
+    const lowerCluster = cluster.toLowerCase();
+    return this.validInitialClusters.includes(lowerCluster) ||
+           this.lenitedInitialClusters.includes(lowerCluster);
+  }
+
+  /**
+   * Split a word into syllables following the Sindarin syllable rules.
+   * @param {string} word - The word to syllabify
+   * @param {boolean} compoundWord - If true, treats ng/nth as separate sounds (n+g, n+th) rather than digraphs
+   * @returns {string[]} Array of syllables
+   */
+  syllabify(word, compoundWord = false) {
+    const originalWord = word;
+    const lowerWord = word.toLowerCase();
+
+    // Convert digraphs to single characters
+    // For compound words, only convert "safe" digraphs (th, dh, ch, etc.) not ng/nth
+    const converted = this.digraphsToSingle(lowerWord, compoundWord);
+
+    // 1. Detect nuclei (vowels and diphthongs)
+    const nuclei = [];
+    for (let i = 0; i < converted.length; i++) {
+      const two = converted.slice(i, i + 2);
+      if (this.isDiphthong(two)) {
+        nuclei.push({ start: i, end: i + 2 });
+        i++; // Skip next char as it's part of diphthong
+      } else if (converted[i].isVowel(false, false)) {
+        // isVowel(includeY=false, includeW=false) - only pure vowels
+        nuclei.push({ start: i, end: i + 1 });
+      }
+    }
+
+    // No vowels or single syllable
+    if (nuclei.length === 0) return [originalWord];
+    if (nuclei.length === 1) return [originalWord];
+
+    // 2. Split between nuclei based on consonant rules
+    const syllableBoundaries = [0];
+
+    for (let n = 0; n < nuclei.length - 1; n++) {
+      const leftNucleus = nuclei[n];
+      const rightNucleus = nuclei[n + 1];
+      const between = converted.slice(leftNucleus.end, rightNucleus.start);
+
+      if (between.length === 0) {
+        // Adjacent vowels (hiatus) - split between them
+        // Rule: When no consonant follows a vowel, and the vowels don't form a diphthong, they split between syllables.
+        syllableBoundaries.push(rightNucleus.start);
+      } else if (between.length === 1) {
+        // Single consonant between vowels
+        // Rule: When a single consonant follows a vowel, the syllable break almost always comes before the following consonant, except when that's final.
+        // Check if this is the last syllable boundary and the consonant is final
+        if (n === nuclei.length - 2 && rightNucleus.end === converted.length) {
+          // The consonant precedes the final vowel - goes with the final syllable
+          syllableBoundaries.push(leftNucleus.end);
+        } else {
+          // Consonant goes with the following syllable
+          syllableBoundaries.push(leftNucleus.end);
+        }
+      } else if (between.length === 2) {
+        // Two consonants
+        // Rule: When only two consonants follow each other in the middle of a word, the division occurs between them.
+        // No exceptions - always split between them in medial position.
+        syllableBoundaries.push(leftNucleus.end + 1);
+      } else if (between.length === 3) {
+        // Three consonants
+        // Rule: When 3 consonants follow each other, the split occurs after the first one if the two others are an allowed pattern for words or syllables.
+        const lastTwo = between.slice(1);
+        if (this.isValidOnset(lastTwo)) {
+          // Split after first consonant
+          syllableBoundaries.push(leftNucleus.end + 1);
+        } else {
+          // Split after second consonant
+          syllableBoundaries.push(leftNucleus.end + 2);
+        }
+      } else {
+        // 4+ consonants - split in the middle (this shouldn't happen in legal Sindarin)
+        const mid = Math.floor(between.length / 2);
+        syllableBoundaries.push(leftNucleus.end + mid);
+      }
+    }
+
+    syllableBoundaries.push(converted.length);
+
+    // 3. Extract syllables from converted string
+    const convertedSyllables = [];
+    for (let i = 0; i < syllableBoundaries.length - 1; i++) {
+      convertedSyllables.push(converted.slice(syllableBoundaries[i], syllableBoundaries[i + 1]));
+    }
+
+    // 4. Convert back to digraphs
+    const syllables = convertedSyllables.map(syl => this.singleToDigraphs(syl));
+
+    // 5. Restore original case
+    let origIndex = 0;
+    const casedSyllables = syllables.map(syl => {
+      let cased = '';
+      for (const char of [...syl]) {
+        if (origIndex < originalWord.length) {
+          const origChar = originalWord[origIndex];
+          if (origChar === origChar.toUpperCase() && origChar !== origChar.toLowerCase()) {
+            cased += char.toUpperCase();
+          } else {
+            cased += char;
+          }
+          origIndex++;
+        } else {
+          cased += char;
+        }
+      }
+      return cased;
+    });
+
+    return casedSyllables;
+  }
+
+  /**
+   * Check if a syllable contains a long vowel (has a macron or acute accent).
+   * @param {string} syllable - The syllable to check
+   * @returns {boolean} True if it contains a long vowel
+   */
+  hasLongVowel(syllable) {
+    for (const char of [...syllable]) {
+      if (char.isVowel(false, false)) {
+        const mark = char.getMark();
+        // Long vowels have macron (¯), acute (´), or circumflex (^)
+        if (mark === '¯' || mark === '´' || mark === '^') {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check if a syllable contains a diphthong.
+   * @param {string} syllable - The syllable to check
+   * @returns {boolean} True if it contains a diphthong
+   */
+  containsDiphthong(syllable) {
+    const lower = syllable.toLowerCase().removeMarks();
+    for (const diph of this.legalDiphthongs) {
+      if (lower.includes(diph)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check if a syllable ends in a consonant.
+   * @param {string} syllable - The syllable to check
+   * @returns {boolean} True if it ends in a consonant
+   */
+  endsInConsonant(syllable) {
+    const lastChar = syllable.nth(-1);
+    return lastChar.isConsonant();
+  }
+
+  /**
+   * Analyse a word and return detailed data on each syllable.
+   * @param {string} word - The word to analyse
+   * @param {boolean} compoundWord - If true, treats ng/nth as separate sounds (n+g, n+th) rather than digraphs
+   * @returns {Object[]} Array of syllable analysis objects
+   */
+  analyse(word, compoundWord = false) {
+    const syllables = this.syllabify(word, compoundWord);
+    const result = [];
+
+    for (let i = 0; i < syllables.length; i++) {
+      const syllable = syllables[i];
+
+      // Determine weight (light or heavy)
+      // Light: short vowel, by itself, or preceded by consonants (open syllable with short vowel)
+      // Heavy: long vowel, diphthong, or ends in consonant
+      const hasLong = this.hasLongVowel(syllable);
+      const hasDiph = this.containsDiphthong(syllable);
+      const endsConsonant = this.endsInConsonant(syllable);
+
+      let weight;
+      if (hasLong || hasDiph || endsConsonant) {
+        weight = 'heavy';
+      } else {
+        weight = 'light';
+      }
+
+      // Determine structure (open or closed)
+      // Closed: ends in consonant
+      // Open: ends in vowel (or diphthong's final vowel)
+      const structure = endsConsonant ? 'closed' : 'open';
+
+      result.push({
+        syllable,
+        weight,
+        structure,
+        stressed: false // Will be set below
+      });
+    }
+
+    // Determine stress
+    if (syllables.length === 1) {
+      // Monosyllables: unstressed
+      result[0].stressed = false;
+    } else if (syllables.length === 2) {
+      // Disyllabic: stress first syllable
+      result[0].stressed = true;
+    } else {
+      // Polysyllabic: stress penultimate if heavy, antepenultimate if penultimate is light
+      const penultimate = result[result.length - 2];
+      if (penultimate.weight === 'heavy') {
+        penultimate.stressed = true;
+      } else {
+        // Stress antepenultimate (third from last)
+        if (result.length >= 3) {
+          result[result.length - 3].stressed = true;
+        } else {
+          // If only 2 syllables and penultimate is light, stress first anyway
+          result[0].stressed = true;
+        }
+      }
+    }
+
+    return result;
+  }
 }
 
 
@@ -1916,8 +2206,37 @@ export const sindarinRules = {
     description: '[ī], [ū] often shortened in polysyllables',
     url: 'https://eldamo.org/content/words/word-302560565.html',
     mechanic: (str) => {
-      // TODO: implement
-      return str;
+      const { found } = findFirstOf(['ī', 'ū'], str);
+      if (!found) return str;
+
+      const singleCharsStr = digraphsToSingle(str);
+      const revert = shouldRevertToDigraphs(str, singleCharsStr);
+
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(singleCharsStr);
+      const isPollysyllable = syllableData.length > 1;
+      
+      if (isPollysyllable) {
+        console.log({str, singleCharsStr, syllableData, isPollysyllable, revert});
+        const result = [];
+        for (let i = 0; i < syllableData.length; i++) {
+          const { syllable, weight, stressed } = syllableData[i];
+          if (stressed === false) {
+            const { matched } = findFirstOf(['ī', 'ū'], syllable);
+            console.log({ syllable, matched });
+            if (matched) {
+              result.push(syllable.replace(matched, matched.removeVowelMarks()));
+            } else {
+              result.push(syllable);
+            }
+          } else {
+            result.push(syllable);
+          }
+        }
+        const fullStrResult = result.join('');
+        const singleCharsResult = digraphsToSingle(fullStrResult);
+        return revert ? fullStrResult : singleCharsResult;
+      }
     },
   },
   '05300': {
