@@ -1100,4 +1100,15 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['05200'].mechanic('nauglamír')).toBe('nauglamír');
     expect(sindarinRules['05200'].mechanic('aranrúth')).toBe('aranrúth');
   });
+
+  it.only('05300 - [awa] sometimes became [au]', () => {
+    expect(sindarinRules['05300'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['05300'].mechanic('glawar')).toBe('glaur');
+    expect(sindarinRules['05300'].mechanic('awadhel')).toBe('audhel');
+    expect(sindarinRules['05300'].mechanic('cawathon')).toBe('cauthon'); // Marked with a ? by JRRT
+    
+    // Presumed stress on the "aw" (all words above have stress on "aw"):
+    // expect(sindarinRules['05300'].mechanic('awarth')).toBe('awarth');
+    // expect(sindarinRules['05300'].mechanic('gawad')).toBe('gawad');
+  });
 });

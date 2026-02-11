@@ -2121,19 +2121,15 @@ export const sindarinRules = {
 
       const singleCharsStr = digraphsToSingle(str);
       const revert = shouldRevertToDigraphs(str, singleCharsStr);
-
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(singleCharsStr);
       const isPollysyllable = syllableData.length > 1;
-      
       if (isPollysyllable) {
-        console.log({str, singleCharsStr, syllableData, isPollysyllable, revert});
         const result = [];
         for (let i = 0; i < syllableData.length; i++) {
-          const { syllable, weight, stressed } = syllableData[i];
+          const { syllable, stressed } = syllableData[i];
           if (stressed === false) {
             const { matched } = findFirstOf(['ī', 'ū'], syllable);
-            console.log({ syllable, matched });
             if (matched) {
               result.push(syllable.replace(matched, matched.removeVowelMarks()));
             } else {
@@ -2144,7 +2140,6 @@ export const sindarinRules = {
           }
         }
         const fullStrResult = result.join('');
-        // If input had digraphs (revert=true), convert result back to digraphs
         return revert ? singleToDigraphs(fullStrResult) : fullStrResult;
       }
     },
@@ -2153,8 +2148,38 @@ export const sindarinRules = {
     pattern: '[awa] > [au]',
     description: '[awa] sometimes became [au]',
     url: 'https://eldamo.org/content/words/word-671129175.html',
+    // This rule is unclear because all examples seem to stress the "aw" at the beginning, because
+    // these words have 2 syllables.
+    // Also, all examples are iffy, as even the one example available seems to be an older form.
     mechanic: (str) => {
-      // TODO: implement
+      const { found } = findFirstOf(['awa'], str);
+      if (found) {
+        const singleCharsStr = digraphsToSingle(str);
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const analyser = new SyllableAnalyser();
+        const syllableData = analyser.analyse(singleCharsStr);
+        const result = [];
+        // console.log({ str });
+        let foundAw = false;
+        for (let i = 0; i < syllableData.length; i++) {
+          const { syllable, stressed } = syllableData[i];
+          // console.log({ syllable, stressed, foundAw });
+          if (foundAw && stressed === false && syllable.substring(0, 1) === 'a') {
+            // console.log('found a', result);
+            result[i-1] = result[i-1].replace('aw', 'au');
+            result.push(syllable.substring(1));
+            foundAw = false;
+          } else {
+            const awIndex = syllable.indexOf('aw');
+            foundAw = awIndex > -1;
+            result.push(syllable);
+          }
+        }
+        const fullStrResult = result.join('');
+        // console.log({ result });
+        // console.log('-------------');
+        return revert ? singleToDigraphs(fullStrResult) : fullStrResult;
+      }
       return str;
     },
   },
