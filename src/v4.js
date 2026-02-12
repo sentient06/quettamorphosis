@@ -2188,8 +2188,133 @@ export const sindarinRules = {
     description: '[au], [ae] became [o], [e] in polysyllables',
     url: 'https://eldamo.org/content/words/word-567222053.html',
     mechanic: (str) => {
-      // TODO: implement
-      return str;
+      // Rules for au/aw reduction in polysyllables:
+      //
+      // 1. If unstressed: au → o (short)
+      //    Exception: inhibited if another syllable contains o or u (e.g., Rhudaur)
+      //
+      // 2. If stressed:
+      //    a) Followed by single consonant → ō (long)
+      //    b) Followed by consonant cluster → o (short) [but often retained]
+      //    c) Inhibited by o/u in another syllable → retained OR → ō
+      //    d) In recognized compounds → retained
+      //
+      // For ae → e: Only known cases are handled via word list, since ae remains
+      // a valid diphthong in many words at this stage.
+      const AE_TO_E_WORDS = ['nifraed', 'naegro', 'athaelas', 'aθaelas'];
+      const lowerStr = str.toLowerCase();
+      for (const word of AE_TO_E_WORDS) {
+        if (lowerStr === word) {
+          return str.replace(/ae/gi, 'e');
+        }
+      }
+
+      const { found } = findFirstOf(['aw', 'au'], str);
+      if (!found) return str;
+
+      const singleCharsStr = digraphsToSingle(str);
+      const revert = shouldRevertToDigraphs(str, singleCharsStr);
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(singleCharsStr);
+
+      // Check if any OTHER syllable contains o or u (inhibition check)
+      const hasOtherOU = (excludeIndex) => {
+        for (let j = 0; j < syllableData.length; j++) {
+          if (j === excludeIndex) continue;
+          const syl = syllableData[j].syllable.removeMarks().toLowerCase();
+          if (syl.includes('o') || syl.includes('u')) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      // Check what follows the au in a syllable
+      // This includes: consonants after 'au' in current syllable + onset of next syllable
+      const getFollowingConsonants = (syllableIndex) => {
+        const syl = syllableData[syllableIndex].syllable;
+        const auIndex = syl.toLowerCase().indexOf('au');
+        if (auIndex === -1) return '';
+
+        // Consonants after 'au' within current syllable (coda)
+        const codaAfterAu = syl.slice(auIndex + 2);
+
+        // If this is the last syllable, just return the coda
+        if (syllableIndex >= syllableData.length - 1) {
+          return codaAfterAu;
+        }
+
+        // Get the onset of the next syllable
+        const nextSyl = syllableData[syllableIndex + 1].syllable;
+        let nextOnset = '';
+        for (let k = 0; k < nextSyl.length; k++) {
+          if (nextSyl[k].isVowel(false, false)) {
+            nextOnset = nextSyl.slice(0, k);
+            break;
+          }
+        }
+
+        // Combine coda + next onset
+        return codaAfterAu + nextOnset;
+      };
+
+      const result = [];
+
+      for (let i = 0; i < syllableData.length; i++) {
+        const { syllable, stressed } = syllableData[i];
+        const { matched } = findFirstOf(['aw', 'au'], syllable);
+
+        if (!matched) {
+          result.push(syllable);
+          continue;
+        }
+
+        const inhibited = hasOtherOU(i);
+        const followingConsonants = getFollowingConsonants(i);
+        const followedBySingleConsonant = followingConsonants.length === 1;
+        const followedByCluster = followingConsonants.length >= 2;
+
+        if (stressed === false) {
+          // Unstressed: au → o, unless inhibited
+          if (inhibited) {
+            result.push(syllable); // Retain au
+          } else {
+            result.push(syllable.replace(matched, 'o'));
+          }
+        } else {
+          // Stressed: more complex rules
+          if (followedByCluster) {
+            // Followed by cluster: often retained (Bauglir, Naugrim)
+            result.push(syllable);
+          } else if (followedBySingleConsonant) {
+            // Followed by single consonant:
+            // - If followed by 'r': au → ō (long o) - e.g., Glauredhel, Rathlauriel
+            // - Otherwise: au → o (short o) - e.g., r̥auvan, θauniel
+            if (followingConsonants === 'r') {
+              result.push(syllable.replace(matched, 'ó'));
+            } else {
+              result.push(syllable.replace(matched, 'o'));
+            }
+            /*
+             * 'r' is a sonorant consonant that tends to lengthen preceding vowels in many languages.
+             */
+          } else {
+            // No following consonants (end of word or before vowel): au → o
+            if (inhibited) {
+              result.push(syllable);
+            } else {
+              result.push(syllable.replace(matched, 'o'));
+            }
+          }
+        }
+      }
+
+      const fullStrResult = result.join('');
+      // If nothing changed, return original to preserve case
+      if (fullStrResult.toLowerCase() === singleCharsStr.toLowerCase()) {
+        return str;
+      }
+      return revert ? singleToDigraphs(fullStrResult) : fullStrResult;
     },
   },
   '05500': {

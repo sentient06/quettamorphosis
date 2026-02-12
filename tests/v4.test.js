@@ -1101,7 +1101,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['05200'].mechanic('aranrúth')).toBe('aranrúth');
   });
 
-  it.only('05300 - [awa] sometimes became [au]', () => {
+  it('05300 - [awa] sometimes became [au]', () => {
     expect(sindarinRules['05300'].mechanic('abc')).toBe('abc');
     expect(sindarinRules['05300'].mechanic('glawar')).toBe('glaur');
     expect(sindarinRules['05300'].mechanic('awadhel')).toBe('audhel');
@@ -1110,5 +1110,31 @@ describe('Sindarin rules', () => {
     // Presumed stress on the "aw" (all words above have stress on "aw"):
     // expect(sindarinRules['05300'].mechanic('awarth')).toBe('awarth');
     // expect(sindarinRules['05300'].mechanic('gawad')).toBe('gawad');
+  });
+
+  it('05400 - [au], [ae] became [o], [e] in polysyllables', () => {
+    expect(sindarinRules['05400'].mechanic('abc')).toBe('abc');
+    // Regular examples:
+    expect(sindarinRules['05400'].mechanic('aegnaur')).toBe('aegnor');
+    expect(sindarinRules['05400'].mechanic('arθaur')).toBe('arθor');
+    expect(sindarinRules['05400'].mechanic('elau')).toBe('elo');
+    expect(sindarinRules['05400'].mechanic('findraud')).toBe('findrod');
+    expect(sindarinRules['05400'].mechanic('magalaur')).toBe('magalor');
+    expect(sindarinRules['05400'].mechanic('r̥auvan')).toBe('r̥ovan');
+    expect(sindarinRules['05400'].mechanic('θauniel')).toBe('θoniel');
+
+    // Exceptions:
+    expect(sindarinRules['05400'].mechanic('Bauglir')).toBe('Bauglir');
+    expect(sindarinRules['05400'].mechanic('Naugrim')).toBe('Naugrim');
+    expect(sindarinRules['05400'].mechanic('Rhudaur')).toBe('Rhudaur');
+
+    // Long o:
+    expect(sindarinRules['05400'].mechanic('Glauredhel')).toBe('Glóredhel');
+    expect(sindarinRules['05400'].mechanic('Rathlauriel')).toBe('Rathlóriel');
+
+    // Ae to e:
+    expect(sindarinRules['05400'].mechanic('nifraed')).toBe('nifred');
+    expect(sindarinRules['05400'].mechanic('naegro')).toBe('negro');
+    expect(sindarinRules['05400'].mechanic('athaelas')).toBe('athelas');
   });
 });
