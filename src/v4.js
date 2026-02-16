@@ -1697,7 +1697,7 @@ export const sindarinRules = {
     description: 'short vowels vanished before morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-2749565259.html',
     input: [
-      { name: 'guess', type: 'boolean', default: true, description: 'Whether to guess boundary if no marker' },
+      { name: 'guess', type: 'boolean', default: true, description: 'Guess the syllable boundary if there is no marker' },
       { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
     ],
     /**
@@ -1832,7 +1832,7 @@ export const sindarinRules = {
     pattern: '[œi] > [ui|y]',
     description: '[œi] became [ui] or [y]',
     url: 'https://eldamo.org/content/words/word-1787434575.html',
-    input: [{ name: 'useUi', type: 'boolean', default: false, description: 'Whether to use [ui] instead of [y]' }],
+    input: [{ name: 'useUi', type: 'boolean', default: false, description: 'Use [ui] instead of [y]' }],
     mechanic: (str, { useUi = false } = {}) => {
       return str.replace(/œi/g, useUi ? 'ui' : 'y');
     },
@@ -1949,7 +1949,7 @@ export const sindarinRules = {
     description: 'nasals vanished before morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-3282356701.html',
     input: [
-      { name: 'guess', type: 'boolean', default: true, description: 'Whether to guess boundary if no marker' },
+      { name: 'guess', type: 'boolean', default: true, description: 'Guess the syllable boundary if there is no marker' },
       { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
     ],
     /**
