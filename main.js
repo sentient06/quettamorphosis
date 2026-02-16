@@ -4,21 +4,42 @@ const originalInput = document.getElementById('input');
 const originalOutput = document.getElementById('output');
 const firstRule = '00100';
 const ruleResults = {};
+const ruleState = JSON.parse(localStorage.getItem("rules") || "{}");
+const originalInputFromStorage = localStorage.getItem("original-input") || "";
+
+originalInput.addEventListener('input', (e) => {
+  localStorage.setItem("original-input", e.target.value);
+});
+
+console.log( { originalInputFromStorage });
 
 const ruleKeys = Object.keys(sindarinRules);
 
 function draw(type, parent, options = {}) {
   const $element = document.createElement(type);
-  const { innerHtml = '', callback = { trigger: null, callback: null }, ...otherOptions } = options;
+  const { innerHtml = '', callback = { trigger: null, callback: null }, checked, ...otherOptions } = options;
   $element.innerHTML = innerHtml;
   Object.entries(otherOptions).forEach(([key, value]) => {
     $element.setAttribute(key, value);
   });
+  // Handle 'checked' - set both property and attribute for CSS :checked to work
+  if (checked === true) {
+    $element.checked = true;
+    $element.setAttribute('checked', 'checked');
+  } else if (checked === false) {
+    $element.checked = false;
+    $element.removeAttribute('checked');
+  }
   if (callback.trigger && callback.callback) {
     $element.addEventListener(callback.trigger, callback.callback);
   }
   parent.appendChild($element);
   return $element;
+}
+
+function getPreviousRule(currentRuleId) {
+  const index = ruleKeys.indexOf(currentRuleId);
+  return ruleKeys[index - 1];
 }
 
 function getNextRule(currentRuleId) {
@@ -35,9 +56,54 @@ function rerunRule(ruleId) {
   }
 }
 
-function drawRule(ruleId, nextRuleId) {
+function toggleRule(ruleId, isEnabled) {
+  ruleState[ruleId] = isEnabled;
+  localStorage.setItem("rules", JSON.stringify(ruleState));
+  // Update the rule div's class
+  const $rule = document.getElementById(`rule-${ruleId}`);
+  
+  console.log(`Toggle rule ${ruleId} to ${ruleState[ruleId]}`);
+  
+  const previousRuleId = getPreviousRule(ruleId);
+  const nextRuleId = getNextRule(ruleId);
+  const followingRule = getNextRule(nextRuleId);
+
+  console.log(`- previous rule is ${previousRuleId}`);
+  console.log(`- next rule is ${nextRuleId}`);
+  console.log(`- following rule is ${followingRule}`);
+
+  const outputValue = previousRuleId ? document.getElementById(`output-${previousRuleId}`).value : originalInput.value;
+
+  console.log(`- value to be used: "${outputValue}"`);
+
+  if (outputValue && !isEnabled) {
+    const $nextInput = document.getElementById(`input-${nextRuleId}`);
+    $nextInput.value = outputValue;
+    runRule(nextRuleId, outputValue, followingRule);
+  }
+
+  if (isEnabled) {
+    rerunRule(ruleId);
+  }
+  
+  if ($rule) {
+    $rule.classList.toggle('rule-enabled', isEnabled);
+  }
+}
+
+function drawRule(ruleId, nextRuleId, isEnabled = true) {
   const rule = sindarinRules[ruleId];
-  const $rule = draw('div', wrapper, { class: 'rule', id: `rule-${ruleId}` });
+  const ruleClass = isEnabled ? 'rule rule-enabled' : 'rule';
+  const $rule = draw('div', wrapper, { class: ruleClass, id: `rule-${ruleId}` });
+  draw('input', $rule, {
+    type: 'checkbox',
+    checked: isEnabled,
+    class: 'rule-toggle',
+    callback: {
+      trigger: 'change',
+      callback: (e) => toggleRule(ruleId, e.target.checked)
+    }
+  });
   draw('div', $rule, { class: 'rule-id', innerHtml: ruleId });
   draw('div', $rule, { class: 'rule-pattern', innerHtml: rule.pattern });
   draw('div', $rule, { class: 'rule-description', innerHtml: rule.description });
@@ -118,6 +184,13 @@ function drawRule(ruleId, nextRuleId) {
 function runRule(ruleId, input, nextRuleId) {
   console.log('Running rule', ruleId);
   const rule = sindarinRules[ruleId];
+  if (ruleState[ruleId] === false) {
+    const $nextInput = document.getElementById(`input-${nextRuleId}`);
+    $nextInput.value = input;
+    const followingRule = getNextRule(nextRuleId);
+    runRule(nextRuleId, input, followingRule);
+    return;
+  }
 
   // Collect extra parameters from input fields if the rule has them
   const options = {};
@@ -145,7 +218,8 @@ function runRule(ruleId, input, nextRuleId) {
     });
   }
 
-  const output = rule.mechanic(input, options);
+  const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
+  const output = isEnabled ? rule.mechanic(input, options) : input;
 
   // Track if this rule caused a change
   if (input !== output) {
@@ -180,8 +254,17 @@ function runRule(ruleId, input, nextRuleId) {
 
 ruleKeys.forEach((rule, index, array) => {
   const nextRule = array[index + 1];
-  drawRule(rule, nextRule);
+  const isEnabled = ruleState[rule] !== undefined ? ruleState[rule] : true;
+  drawRule(rule, nextRule, isEnabled);
 });
+
+if (originalInputFromStorage) {
+  originalInput.value = originalInputFromStorage;
+  const $input = document.getElementById(`input-${firstRule}`);
+  $input.value = originalInputFromStorage;
+  const secondRule = getNextRule(firstRule);
+  runRule(firstRule, originalInputFromStorage, secondRule);
+}
 
 originalInput.addEventListener('input', (e) => {
   const firstInput = e.target.value;

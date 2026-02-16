@@ -23,6 +23,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  opacity: 0.5;
+}
+
+.rule.rule-enabled {
+  opacity: 1;
 }
 
 .rule .rule-id {
