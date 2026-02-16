@@ -1,4 +1,4 @@
-// Extensing the String prototype
+// Extending the String prototype
 
 Object.defineProperty(String.prototype, 'normaliseToOne', {
   value() {
