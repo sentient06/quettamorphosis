@@ -273,7 +273,13 @@ originalInput.addEventListener('input', (e) => {
 const $helpers = document.querySelector('#userInput .helpers');
 $helpers.addEventListener('click', (e) => {
   const char = e.target.innerHTML;
-  originalInput.value += char;
+  const start = originalInput.selectionStart;
+  const end = originalInput.selectionEnd;
+  const value = originalInput.value;
+  originalInput.value = value.slice(0, start) + char + value.slice(end);
+  // Move cursor to after the inserted character
+  const newPos = start + char.length;
+  originalInput.setSelectionRange(newPos, newPos);
   originalInput.dispatchEvent(new Event('input'));
   originalInput.focus();
 });
