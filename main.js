@@ -3,6 +3,7 @@ const wrapper = document.getElementById('wrapper');
 const originalInput = document.getElementById('input');
 const originalOutput = document.getElementById('output');
 const firstRule = '00100';
+const ruleResults = {};
 
 const ruleKeys = Object.keys(sindarinRules);
 
@@ -20,9 +21,23 @@ function draw(type, parent, options = {}) {
   return $element;
 }
 
+function getNextRule(currentRuleId) {
+  const index = ruleKeys.indexOf(currentRuleId);
+  return ruleKeys[index + 1];
+}
+
+// Re-run a rule from its current input value
+function rerunRule(ruleId) {
+  const $input = document.getElementById(`input-${ruleId}`);
+  if ($input && $input.value) {
+    const nextRuleId = getNextRule(ruleId);
+    runRule(ruleId, $input.value, nextRuleId);
+  }
+}
+
 function drawRule(ruleId, nextRuleId) {
   const rule = sindarinRules[ruleId];
-  const $rule = draw('div', wrapper, { class: 'rule' });
+  const $rule = draw('div', wrapper, { class: 'rule', id: `rule-${ruleId}` });
   draw('div', $rule, { class: 'rule-id', innerHtml: ruleId });
   draw('div', $rule, { class: 'rule-pattern', innerHtml: rule.pattern });
   draw('div', $rule, { class: 'rule-description', innerHtml: rule.description });
@@ -40,6 +55,10 @@ function drawRule(ruleId, nextRuleId) {
         type: inputType,
         id: `input-${ruleId}-${input.name}`,
         placeholder: description,
+        callback: {
+          trigger: 'change',
+          callback: () => rerunRule(ruleId),
+        },
       };
       if (inputType === 'checkbox') {
         if (input.default) {
@@ -52,6 +71,28 @@ function drawRule(ruleId, nextRuleId) {
       if (inputType === 'checkbox') {
         draw('label', $inputRules, { for: `input-${ruleId}-${input.name}`, innerHtml: description });
       }
+    });
+  }
+
+  if (rule.hasOwnProperty('dependsOn')) {
+    const $dependencies = draw('div', $rule, { class: 'rule-dependencies' });
+    rule.dependsOn.forEach((dependency) => {
+      // Create a checkbox for each dependency param that can be overridden
+      const checkboxId = `dep-${ruleId}-${dependency.param}`;
+      draw('input', $dependencies, {
+        type: 'checkbox',
+        id: checkboxId,
+        'data-rule': dependency.rule,
+        'data-param': dependency.param,
+        callback: {
+          trigger: 'change',
+          callback: () => rerunRule(ruleId),
+        },
+      });
+      draw('label', $dependencies, {
+        for: checkboxId,
+        innerHtml: `${dependency.param} (from ${dependency.rule})`,
+      });
     });
   }
 
@@ -74,11 +115,6 @@ function drawRule(ruleId, nextRuleId) {
   });
 }
 
-function getNextRule(currentRuleId) {
-  const index = ruleKeys.indexOf(currentRuleId);
-  return ruleKeys[index + 1];
-}
-
 function runRule(ruleId, input, nextRuleId) {
   console.log('Running rule', ruleId);
   const rule = sindarinRules[ruleId];
@@ -98,7 +134,30 @@ function runRule(ruleId, input, nextRuleId) {
     });
   }
 
+  if (rule.dependsOn) {
+    rule.dependsOn.forEach((dependency) => {
+      const checkboxId = `dep-${ruleId}-${dependency.param}`;
+      const $checkbox = document.getElementById(checkboxId);
+      if ($checkbox) {
+        // Read from checkbox (allows manual override)
+        options[dependency.param] = $checkbox.checked;
+      }
+    });
+  }
+
   const output = rule.mechanic(input, options);
+
+  // Track if this rule caused a change
+  if (input !== output) {
+    ruleResults[ruleId] = output;
+  } else {
+    delete ruleResults[ruleId];
+  }
+
+  // Auto-update any dependency checkboxes that depend on this rule
+  document.querySelectorAll(`input[data-rule="${ruleId}"]`).forEach(($depCheckbox) => {
+    $depCheckbox.checked = input !== output;
+  });
   console.log({ input, output, options });
 
   const $output = document.getElementById(`output-${ruleId}`);
@@ -110,6 +169,7 @@ function runRule(ruleId, input, nextRuleId) {
   // }
   if (!nextRuleId) {
     originalOutput.value = output;
+    console.log({ ruleResults });
     return;
   }
   const $nextInput = document.getElementById(`input-${nextRuleId}`);
