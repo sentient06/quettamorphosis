@@ -236,11 +236,6 @@ function runRule(ruleId, input, nextRuleId) {
 
   const $output = document.getElementById(`output-${ruleId}`);
   $output.value = output;
-  // if (input !== output) {
-  //   $output.value = output;
-  // } else {
-  //   $output.value = input;
-  // }
   if (!nextRuleId) {
     originalOutput.value = output;
     console.log({ ruleResults });
@@ -273,4 +268,12 @@ originalInput.addEventListener('input', (e) => {
   $input.value = firstInput;
   const secondRule = getNextRule(firstRule);
   runRule(firstRule, firstInput, secondRule);
+});
+
+const $helpers = document.querySelector('#userInput .helpers');
+$helpers.addEventListener('click', (e) => {
+  const char = e.target.innerHTML;
+  originalInput.value += char;
+  originalInput.dispatchEvent(new Event('input'));
+  originalInput.focus();
 });

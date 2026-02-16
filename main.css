@@ -12,6 +12,24 @@
     width: 100%;
 }
 
+#userInput .input-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+#userInput .helpers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    padding: 1px;
+    border: none;
+}
+
+#userInput .output-wrapper {
+}
+
 #wrapper {
   margin-top: 100px;
 }
