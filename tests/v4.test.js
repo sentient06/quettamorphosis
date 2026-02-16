@@ -1137,4 +1137,55 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['05400'].mechanic('naegro')).toBe('negro');
     expect(sindarinRules['05400'].mechanic('athaelas')).toBe('athelas');
   });
+
+  it('05500 - [lð] became [ll]', () => {
+    expect(sindarinRules['05500'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['05500'].mechanic('elð')).toBe('ell');
+    expect(sindarinRules['05500'].mechanic('eldh')).toBe('ell');
+    expect(sindarinRules['05500'].mechanic('kolð')).toBe('koll');
+    expect(sindarinRules['05500'].mechanic('melðond')).toBe('mellond');
+    expect(sindarinRules['05500'].mechanic('meldhond')).toBe('mellond');
+    expect(sindarinRules['05500'].mechanic('tindūmielð')).toBe('tindūmiell');
+  });
+
+  it('05600 - [nl] became [ll]', () => {
+    expect(sindarinRules['05600'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['05600'].mechanic('mithrenlass')).toBe('mithrellass');
+    expect(sindarinRules['05600'].mechanic('Finenlach')).toBe('Finellach');
+    expect(sindarinRules['05600'].mechanic('caranluin')).toBe('caralluin');
+    expect(sindarinRules['05600'].mechanic('minlamad')).toBe('minlamad');
+    expect(sindarinRules['05600'].mechanic('Gonlin')).toBe('Gonlin');
+    expect(sindarinRules['05600'].mechanic('Mindonluin')).toBe('Mindolluin');
+  });
+
+  it.only('05700 - [mb|nd] became [mm|nn]', () => {
+    expect(sindarinRules['05700'].mechanic('abc')).toBe('abc');
+    // mb > mm:
+    expect(sindarinRules['05700'].mechanic('ambar')).toBe('ammar');
+    expect(sindarinRules['05700'].mechanic('ambarθ')).toBe('ammarθ');
+    expect(sindarinRules['05700'].mechanic('dymb')).toBe('dymm');
+    expect(sindarinRules['05700'].mechanic('galaðremben')).toBe('galaðremmen');
+    expect(sindarinRules['05700'].mechanic('l̥imb')).toBe('l̥imm');
+    // Medial nd > nn:
+    expect(sindarinRules['05700'].mechanic('edlandor')).toBe('edlannor');
+    expect(sindarinRules['05700'].mechanic('gelendil')).toBe('gelennil');
+    expect(sindarinRules['05700'].mechanic('pelendor')).toBe('pelennor');
+    expect(sindarinRules['05700'].mechanic('roxand')).toBe('roxann');
+    // Odd cases:
+    // Need to ask about this one:
+    // expect(sindarinRules['05700'].mechanic('andond')).toBe('andonn');
+    // These seem to be general examples of nn in late Sindarin (all monosyllables):
+    // expect(sindarinRules['05700'].mechanic('grond')).toBe('gronn');
+    // expect(sindarinRules['05700'].mechanic('θind')).toBe('θinn');
+    // Exceptions:
+    expect(sindarinRules['05700'].mechanic('thond')).toBe('thond');
+    expect(sindarinRules['05700'].mechanic('Andros')).toBe('Andros');
+    expect(sindarinRules['05700'].mechanic('nand')).toBe('nand');
+    expect(sindarinRules['05700'].mechanic('band')).toBe('band');
+    expect(sindarinRules['05700'].mechanic('gond')).toBe('gond');
+    expect(sindarinRules['05700'].mechanic('gwend')).toBe('gwend');
+    expect(sindarinRules['05700'].mechanic('lond')).toBe('lond');
+    expect(sindarinRules['05700'].mechanic('rond')).toBe('rond');
+    // Ask about the case of elmbereth!
+  });
 });

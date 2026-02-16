@@ -2322,8 +2322,13 @@ export const sindarinRules = {
     description: '[lð] became [ll]',
     url: 'https://eldamo.org/content/words/word-226282629.html',
     mechanic: (str) => {
-      // TODO: implement
-      return str;
+      const singleCharsStr = digraphsToSingle(str);
+      const revert = shouldRevertToDigraphs(str, singleCharsStr);
+      if (!singleCharsStr.includes('lð')) return str;
+
+      const result = singleCharsStr.replace('lð', 'll');
+      if (revert) return singleToDigraphs(result);
+      return result;
     },
   },
   '05600': {
@@ -2331,8 +2336,16 @@ export const sindarinRules = {
     description: '[nl] became [ll]',
     url: 'https://eldamo.org/content/words/word-2759811879.html',
     mechanic: (str) => {
-      // TODO: implement
-      return str;
+      const singleCharsStr = digraphsToSingle(str);
+      const revert = shouldRevertToDigraphs(str, singleCharsStr);
+      if (!singleCharsStr.includes('nl')) return str;
+
+      const exceptions = ['minlamad', 'gonlin'];
+      if (exceptions.includes(singleCharsStr.toLowerCase())) return str;
+
+      const result = singleCharsStr.replace('nl', 'll');
+      if (revert) return singleToDigraphs(result);
+      return result;
     },
   },
   '05700': {
@@ -2340,7 +2353,36 @@ export const sindarinRules = {
     description: '[mb], [nd] became [mm], [nn]',
     url: 'https://eldamo.org/content/words/word-868023175.html',
     mechanic: (str) => {
-      // TODO: implement
+      const singleCharsStr = digraphsToSingle(str);
+      const revert = shouldRevertToDigraphs(str, singleCharsStr);
+      if (!singleCharsStr.includes('mb') && !singleCharsStr.includes('nd')) return str;
+
+      const { found, matched, charIndex, nextChar } = findFirstOf(['mb', 'nd'], singleCharsStr);
+
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(singleCharsStr);
+
+      console.log(str, singleCharsStr, { found, matched, charIndex, nextChar }, syllableData);
+
+      if (found) {
+        if (matched === 'nd') {
+          if (syllableData.length === 1) {
+            const { weight } = syllableData[0];
+            if (weight === 'heavy') {
+              return str;
+            }
+            if (charIndex === singleCharsStr.length - 2) return str;
+          }
+          if (nextChar === 'r') return str;
+        }
+        const replacements = {
+          'mb': 'mm',
+          'nd': 'nn',
+        }
+        const result = singleCharsStr.replace(matched, replacements[matched]);
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
       return str;
     },
   },
