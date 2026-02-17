@@ -42,11 +42,17 @@
   padding-top: 10px;  
 }
 
-#userInput .helpers {
+.userInput {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.userInput .helpers {
     display: flex;
     flex-wrap: wrap;
     gap: 1px;
-    padding: 1px;
+    padding-left: 3px;
     border: none;
 }
 

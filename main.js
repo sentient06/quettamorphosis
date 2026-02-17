@@ -300,7 +300,7 @@ originalInput.addEventListener('input', (e) => {
   runRule(firstRule, firstInput, secondRule);
 });
 
-const $helpers = document.querySelector('#userInput .helpers');
+const $helpers = document.querySelector('.userInput .helpers');
 $helpers.addEventListener('click', (e) => {
   const char = e.target.innerHTML;
   const start = originalInput.selectionStart;
