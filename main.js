@@ -2,7 +2,6 @@ import { sindarinRules } from './src/v4.js';
 const wrapper = document.getElementById('wrapper');
 const originalInput = document.getElementById('input');
 const originalOutput = document.getElementById('output');
-const firstRule = '00100';
 const ruleResults = {};
 const ruleState = JSON.parse(localStorage.getItem("rules") || "{}");
 const originalInputFromStorage = localStorage.getItem("original-input") || "";
@@ -18,6 +17,8 @@ const ruleKeys = Object.keys(sindarinRules).sort((a, b) => {
   const orderB = sindarinRules[b].orderId;
   return orderA.localeCompare(orderB);
 });
+
+const firstRule = ruleKeys[0];
 
 function draw(type, parent, options = {}) {
   const $element = document.createElement(type);
@@ -97,20 +98,32 @@ function toggleRule(ruleId, isEnabled) {
 
 function drawRule(ruleId, nextRuleId, isEnabled = true) {
   const rule = sindarinRules[ruleId];
-  const ruleClass = isEnabled ? 'rule rule-enabled' : 'rule';
+  const isDefaultEnabled = rule?.skip ? false : isEnabled;
+  const ruleClass = isDefaultEnabled ? 'rule rule-enabled' : 'rule';
   const $rule = draw('div', wrapper, { class: ruleClass, id: `rule-${ruleId}` });
-  draw('input', $rule, {
+
+  const $label = draw('label', $rule, { for: `toggle-${ruleId}`, class: 'rule-label' });
+
+  draw('input', $label, {
+    id: `toggle-${ruleId}`,
     type: 'checkbox',
-    checked: isEnabled,
+    checked: isDefaultEnabled,
     class: 'rule-toggle',
     callback: {
       trigger: 'change',
       callback: (e) => toggleRule(ruleId, e.target.checked)
     }
   });
-  draw('div', $rule, { class: 'rule-id', innerHtml: ruleId });
+
+  draw('span', $label, { class: 'rule-id', innerHtml: ruleId });
+  draw('div', $rule, { class: 'rule-order-id', innerHtml: rule.orderId });
   draw('div', $rule, { class: 'rule-pattern', innerHtml: rule.pattern });
   draw('div', $rule, { class: 'rule-description', innerHtml: rule.description });
+  if (rule.hasOwnProperty('info')) {
+    rule.info.forEach((info) => {
+      draw('div', $rule, { class: 'rule-info', innerHtml: info });
+    });
+  }
   const $anchorWrapper = draw('div', $rule, { class: 'rule-anchor' });
   draw('a', $anchorWrapper, { innerHtml: 'source', href: rule.url, target: '_blank' });
 

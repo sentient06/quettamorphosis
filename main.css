@@ -48,20 +48,34 @@
   opacity: 1;
 }
 
+.rule .rule-label {
+  margin-bottom: 10px;
+}
+
 .rule .rule-id {
-  font-size: 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.rule .rule-order-id {
+  font-size: 1rem;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 .rule .rule-pattern {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 .rule .rule-description {
-  font-size: 1rem;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.rule .rule-info {
+  font-size: 0.8rem;
   margin-bottom: 10px;
 }
 

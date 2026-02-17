@@ -2448,7 +2448,7 @@ export const sindarinRules = {
     pattern: '[CCC] > [CC]',
     description: 'middle consonants frequently vanished in clusters',
     url: 'https://eldamo.org/content/words/word-3868328117.html',
-    info: ['This is a placeholder for all the Sandhi sound changes that occur in Sindarin compounds at morpheme boundaries.'],
+    info: ['This is a placeholder for all the Sandhi sound changes that occur in Sindarin compounds at morpheme boundaries.', 'This rule is skipped by default.'],
     skip: true,
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str);
