@@ -260,7 +260,7 @@ function runRule(ruleId, input, nextRuleId) {
   $output.value = output;
   if (!nextRuleId) {
     originalOutput.value = output;
-    console.log({ ruleResults });
+    printResults();
     return;
   }
   const $nextInput = document.getElementById(`input-${nextRuleId}`);
@@ -305,3 +305,22 @@ $helpers.addEventListener('click', (e) => {
   originalInput.dispatchEvent(new Event('input'));
   originalInput.focus();
 });
+
+function printResults() {
+  const rulesUsed = Object.keys(ruleResults).sort((a, b) => {
+    const orderA = sindarinRules[a].orderId;
+    const orderB = sindarinRules[b].orderId;
+    return orderA.localeCompare(orderB);
+  });
+  document.getElementById('results').innerHTML = rulesUsed.map((ruleId) => {
+    const anchor = `<a href="#rule-${ruleId}">${sindarinRules[ruleId].orderId}</a>`;
+    return `${anchor} - ${ruleResults[ruleId]}`;
+  }).join('\n');
+  rulesUsed.forEach((ruleId) => {
+    console.log(`${sindarinRules[ruleId].orderId} - ${ruleResults[ruleId]}`);
+  });
+}
+
+// Set sticky header height CSS variable for scroll-margin-top
+const topWrapper = document.querySelector('.top-wrapper');
+document.documentElement.style.setProperty('--sticky-h', topWrapper.offsetHeight + 'px');

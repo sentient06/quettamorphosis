@@ -1,4 +1,8 @@
-#userInput {
+:root {
+  --sticky-h: 200px; /* approximate height of sticky header */
+}
+
+.top-wrapper {
     background-color: #f0f0f0;
     display: flex;
     flex-direction: column;
@@ -6,10 +10,16 @@
     padding: 10px;
     border: 1px solid #000;
     margin-bottom: 20px;
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     width: 100%;
+    box-sizing: border-box;
+    z-index: 100;
+}
+
+[id] {
+  scroll-margin-top: calc(var(--sticky-h) + 20px);
 }
 
 #userInput .input-wrapper {
@@ -27,11 +37,18 @@
     border: none;
 }
 
-#userInput .output-wrapper {
+.top-wrapper .result-wrapper {
+  padding-top: 10px;  
+}
+
+#results {
+  margin-top: 5px;
+  margin-bottom: 0px;
+  font-size: 0.75rem;
 }
 
 #wrapper {
-  margin-top: 100px;
+  margin-top: 20px;
 }
 
 .rule {
