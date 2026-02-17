@@ -1346,4 +1346,11 @@ describe('Sindarin rules', () => {
     // [-uw] > [-u]:
     expect(sindarinRules['70600889'].mechanic('r̥auw')).toBe('r̥au');
   });
+
+  it('07000 - [ou] became [au]', () => {
+    expect(sindarinRules['2476983755'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['2476983755'].mechanic('l̥ou')).toBe('l̥aw');
+    expect(sindarinRules['2476983755'].mechanic('lou')).toBe('law');
+    expect(sindarinRules['2476983755'].mechanic('orou', { useFinalU: true })).toBe('orau');
+  });
 });

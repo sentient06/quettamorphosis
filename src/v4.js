@@ -2691,6 +2691,25 @@ export const sindarinRules = {
       return str;
     },
   },
+  '2476983755': {
+    orderId: '07000',
+    pattern: '[ou] > [au]',
+    description: '[ou] became [au]',
+    url: 'https://eldamo.org/content/words/word-2476983755.html',
+    input: [{ name: 'useFinalU', type: 'boolean', default: false, description: 'Use "au" at end of words instead of "aw"' }],
+    mechanic: (str, { useFinalU = false } = {}) => {
+      if (str.includes('ou')) {
+        const result = str.replace('ou', 'au');
+        if (useFinalU === false) {
+          if (result.nth(-2, 2) === 'au') {
+            return result.substring(0, result.length - 2) + 'aw';
+          }
+        }
+        return result;
+      }
+      return str;
+    },
+  },
 
 // [n] assimilated to following labial - [n+{mb}] > [m+{mb}] - 06100 - https://eldamo.org/content/words/word-1126284559.html
 // [œ] became [e] - [œ] > [e] - 06200 - https://eldamo.org/content/words/word-1838610927.html
