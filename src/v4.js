@@ -2579,6 +2579,21 @@ export const sindarinRules = {
       return str;
     },
   },
+  '311523279': {
+    orderId: '06400',
+    pattern: '[ŋg-|-ŋg] > [ŋ-|-ŋ]',
+    description: 'final and initial [ŋg] became [ŋ]',
+    url: 'https://eldamo.org/content/words/word-311523279.html',
+    mechanic: (str) => {
+      if (str.startsWith('ŋg')) {
+        return str.replace('ŋg', 'ŋ');
+      }
+      if (str.endsWith('ŋg')) {
+        return str.slice(0, -2) + 'ŋ';
+      }
+      return str;
+    },
+  },
 
 // [n] assimilated to following labial - [n+{mb}] > [m+{mb}] - 06100 - https://eldamo.org/content/words/word-1126284559.html
 // [œ] became [e] - [œ] > [e] - 06200 - https://eldamo.org/content/words/word-1838610927.html

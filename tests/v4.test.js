@@ -1259,4 +1259,17 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1742178057'].mechanic('lissuin')).toBe('lissuin');
     expect(sindarinRules['1742178057'].mechanic('ninniach')).toBe('ninniach');
   });
+
+  it('06400 - final and initial [ŋg] became [ŋ]', () => {
+    expect(sindarinRules['311523279'].mechanic('abc')).toBe('abc');
+    // Initial:
+    expect(sindarinRules['311523279'].mechanic('ŋguruthos')).toBe('ŋuruthos');
+    // Final:
+    expect(sindarinRules['311523279'].mechanic('aŋg')).toBe('aŋ');
+    expect(sindarinRules['311523279'].mechanic('laŋg')).toBe('laŋ');
+    expect(sindarinRules['311523279'].mechanic('riŋg')).toBe('riŋ');
+    // Ignore medial:
+    expect(sindarinRules['311523279'].mechanic('baŋgab')).toBe('baŋgab'); // Non-existent word
+    expect(sindarinRules['311523279'].mechanic('baŋgabaŋg')).toBe('baŋgabaŋ'); // Non-existent word
+  });
 });
