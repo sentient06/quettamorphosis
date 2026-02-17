@@ -13,7 +13,11 @@ originalInput.addEventListener('input', (e) => {
 
 console.log( { originalInputFromStorage });
 
-const ruleKeys = Object.keys(sindarinRules);
+const ruleKeys = Object.keys(sindarinRules).sort((a, b) => {
+  const orderA = sindarinRules[a].orderId;
+  const orderB = sindarinRules[b].orderId;
+  return orderA.localeCompare(orderB);
+});
 
 function draw(type, parent, options = {}) {
   const $element = document.createElement(type);

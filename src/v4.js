@@ -843,7 +843,8 @@ export class SyllableAnalyser {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 export const sindarinRules = {
-  '00100': {
+  '2002760597': {
+    orderId: '00100',
     pattern: '[w-] > [gw-]',
     description: 'initial [w] became [gw]',
     url: 'https://eldamo.org/content/words/word-2002760597.html',
@@ -855,7 +856,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '00200': {
+  '3057844573': {
+    orderId: '00200',
     pattern: '[{mb|nd|ŋg}-] > [{bdg}-]',
     description: 'initial nasals vanished before stops',
     url: 'https://eldamo.org/content/words/word-3057844573.html',
@@ -867,7 +869,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '00300': {
+  '876455981': {
+    orderId: '00300',
     pattern: '[-V{mn}] > [-Vø]',
     description: 'final nasals vanished after vowels',
     url: 'https://eldamo.org/content/words/word-876455981.html',
@@ -881,7 +884,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '00400': {
+  '3841187313': {
+    orderId: '00400',
     pattern: '[s{ɸθx}-] > [{ɸθx}-]',
     description: 'initial [s] vanished before spirants',
     url: 'https://eldamo.org/content/words/word-3841187313.html',
@@ -896,7 +900,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '00500': {
+  '2178021811': {
+    orderId: '00500',
     pattern: '[j̊-] > [x-]',
     description: 'initial voiceless [j̊] became [x]',
     url: 'https://eldamo.org/content/words/word-2178021811.html',
@@ -908,7 +913,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '00600': {
+  '1590520649': {
+    orderId: '00600',
     pattern: '[{rl}{bdg}] > [{rl}{vðɣ}]',
     description: 'voiced stops became spirants after liquids',
     url: 'https://eldamo.org/content/words/word-1590520649.html',
@@ -930,7 +936,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '00700': {
+  '1951748921': {
+    orderId: '00700',
     pattern: '[z{bg}] > [ð{βɣ}]',
     description: '[zb], [zg] became [ðβ], [ðɣ]',
     url: 'https://eldamo.org/content/words/word-1951748921.html',
@@ -945,7 +952,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '00800': {
+  '1593810649': {
+    orderId: '00800',
     pattern: '[-{ĭŭ}{C|CC}a] > [-{eo}{C|CC}a]',
     description: 'short [i], [u] became [e], [o] preceding final [a]',
     url: 'https://eldamo.org/content/words/word-1593810649.html',
@@ -980,7 +988,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '00900': {
+  '1726791627': {
+    orderId: '00900',
     pattern: '[V{bdg}] > [V{vðɣ}]',
     description: 'voiced stops became spirants after vowels',
     url: 'https://eldamo.org/content/words/word-1726791627.html',
@@ -1002,7 +1011,8 @@ export const sindarinRules = {
       return aStr.join('');
     },
   },
-  '01000': {
+  '890563133': {
+    orderId: '01000',
     pattern: '[ɸ|β] > [f|v]',
     description: '[ɸ], [β] became [f], [v]',
     url: 'https://eldamo.org/content/words/word-890563133.html',
@@ -1010,7 +1020,8 @@ export const sindarinRules = {
       return str.replaceAll('ɸ', 'f').replaceAll('β', 'v');
     },
   },
-  '01100': {
+  '1679623085': {
+    orderId: '01100',
     pattern: '[CjV] > [CiV]',
     description: 'medial [j] became [i]',
     url: 'https://eldamo.org/content/words/word-1679623085.html',
@@ -1027,7 +1038,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '01200': {
+  '2646655607': {
+    orderId: '01200',
     pattern: '[-{ĕŏ}{C|CC}i] > [-{iu}{C|CC}i]',
     description: 'short [e], [o] became [i], [u] in syllable before final [i]',
     url: 'https://eldamo.org/content/words/word-2646655607.html',
@@ -1055,7 +1067,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '01300': {
+  '3958031275': {
+    orderId: '01300',
     pattern: '[{ăŏŭ}{C|CC}i] > [{eœy}{C|CC}i]',
     description: 'short [a], [o], [u] became [e], [œ], [y] preceding [i]',
     url: 'https://eldamo.org/content/words/word-3958031275.html',
@@ -1150,7 +1163,8 @@ export const sindarinRules = {
       return result;
     },
   },
-  '01400': {
+  '3889365613': {
+    orderId: '01400',
     pattern: '[ē|ō] > [ī|ū]',
     description: '[ē], [ō] became [ī], [ū]',
     url: 'https://eldamo.org/content/words/word-3889365613.html',
@@ -1178,7 +1192,8 @@ export const sindarinRules = {
       return result;
     },
   },
-  '01500': {
+  '539122737': {
+    orderId: '01500',
     pattern: '[V{ɣ}{lrmn}] > [Vi{lrmn}]',
     description: '[ɣ] vocalized before [l], [r], [m], [n]',
     url: 'https://eldamo.org/content/words/word-539122737.html',
@@ -1197,7 +1212,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '01600': {
+  '4002924749': {
+    orderId: '01600',
     pattern: '[Vx{θ}|Vɸ{θ}] > [Vi{θ}|Vu{θ}]',
     description: '[x], [ɸ] vocalized between a vowel and [θ]',
     url: 'https://eldamo.org/content/words/word-4002924749.html',
@@ -1229,7 +1245,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '01700': {
+  '2422841513': {
+    orderId: '01700',
     pattern: '[xʲ] > [ix]',
     description: 'non-initial [xʲ] vocalized to [ix]',
     url: 'https://eldamo.org/content/words/word-2422841513.html',
@@ -1253,7 +1270,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '01800': {
+  '659168127': {
+    orderId: '01800',
     pattern: '[{ij}u|jui] > [ȳ|jui]',
     description: '[iu] and [ju] became [ȳ]',
     url: 'https://eldamo.org/content/words/word-659168127.html',
@@ -1272,7 +1290,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '01900': {
+  '2740073851': {
+    orderId: '01900',
     pattern: '[ŭ|uC{uw}|u{mnŋ}] > [o|uC{uw}|u{mnŋ}]',
     description: 'short [u] often became [o]',
     url: 'https://eldamo.org/content/words/word-2740073851.html',
@@ -1305,7 +1324,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02000': {
+  '3258926163': {
+    orderId: '02000',
     pattern: '[{nŋ}m] > [{nŋ}w]',
     description: '[nm], [ŋm] became [nw], [ŋw]',
     url: 'https://eldamo.org/content/words/word-3258926163.html',
@@ -1316,7 +1336,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02100': {
+  '3707785609': {
+    orderId: '02100',
     pattern: '[Vŋ{nw}] > [V̄{nw}]',
     description: '[ŋ] vanished with compensatory lengthening',
     url: 'https://eldamo.org/content/words/word-3707785609.html',
@@ -1338,7 +1359,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02200': {
+  '558704171': {
+    orderId: '02200',
     pattern: '[ǭ] > [au]',
     description: '[ǭ] became [au]',
     url: 'https://eldamo.org/content/words/word-558704171.html',
@@ -1349,7 +1371,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02300': {
+  '2387695245': {
+    orderId: '02300',
     pattern: '[ę̄] > [ai]',
     description: '[ę̄] became [ai]',
     url: 'https://eldamo.org/content/words/word-2387695245.html',
@@ -1360,7 +1383,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02400': {
+  '813787869': {
+    orderId: '02400',
     pattern: '[-S{ĕăŏ}] > [-Sø]',
     description: 'short final vowels vanished',
     url: 'https://eldamo.org/content/words/word-813787869.html',
@@ -1377,7 +1401,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02500': {
+  '2399289739': {
+    orderId: '02500',
     pattern: '[-VCi] > [-ViC]',
     description: 'final [i] intruded into preceding syllable',
     url: 'https://eldamo.org/content/words/word-2399289739.html',
@@ -1411,7 +1436,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02600': {
+  '4211011237': {
+    orderId: '02600',
     pattern: '[-Cw] > [-uC]', // Originally this is [-xw] > [-ux]
     description: 'final [w] sometimes intruded into preceding syllables',
     url: 'https://eldamo.org/content/words/word-4211011237.html',
@@ -1431,7 +1457,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02700': {
+  '4287595571': {
+    orderId: '02700',
     pattern: '[x-|x{lr}-] > [h-|{l̥r̥}-]',
     description: 'initial [x-] became [h-]',
     url: 'https://eldamo.org/content/words/word-4287595571.html',
@@ -1453,7 +1480,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02800': {
+  '2240258959': {
+    orderId: '02800',
     pattern: '[V{ptk}] > [V{bdg}]',
     description: 'voiceless stops voiced after vowels',
     url: 'https://eldamo.org/content/words/word-2240258959.html',
@@ -1484,7 +1512,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '02900': {
+  '1053424933': {
+    orderId: '02900',
     pattern: '[C*V̆C] > [C*V̄C]',
     description: 'short vowels generally lengthened in monosyllables',
     url: 'https://eldamo.org/content/words/word-1053424933.html',
@@ -1558,7 +1587,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '03000': {
+  '916418731': {
+    orderId: '03000',
     pattern: '[-Cɣ|-Cɣi] > [-Ca|-Cī]',
     description: 'final [ɣ] became [a] after a consonant',
     url: 'https://eldamo.org/content/words/word-916418731.html',
@@ -1580,7 +1610,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '03100': {
+  '2139740021': {
+    orderId: '03100',
     pattern: '[{lrð}ɣV] > [{lrð}iV]',
     description: '[ɣ] became [i] between sonants and vowels',
     url: 'https://eldamo.org/content/words/word-2139740021.html',
@@ -1609,7 +1640,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '03200': {
+  '4164672875': {
+    orderId: '03200',
     pattern: '[ɣ] > [ø]',
     description: '[ɣ] otherwise vanished',
     url: 'https://eldamo.org/content/words/word-4164672875.html',
@@ -1626,7 +1658,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '03300': {
+  '677308549': {
+    orderId: '03300',
     pattern: '[-wi] > [-y]',
     description: 'final [-wi] became [-y]',
     url: 'https://eldamo.org/content/words/word-677308549.html',
@@ -1637,7 +1670,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '03400': {
+  '875184187': {
+    orderId: '03400',
     pattern: '[Vh] > [Vø]',
     description: '[h] vanished after vowels',
     url: 'https://eldamo.org/content/words/word-875184187.html',
@@ -1658,7 +1692,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '03500': {
+  '1815401039': {
+    orderId: '03500',
     pattern: '[-S{ĭŭ}|-uCu|-Sī] > [-Sø|-uCu|-Sĭ]',
     description: 'final [i], [u] generally vanished',
     url: 'https://eldamo.org/content/words/word-1815401039.html',
@@ -1692,7 +1727,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '03600': {
+  '2749565259': {
+    orderId: '03600',
     pattern: '[C{ĭĕăŏŭ}+C] > [Cø+C]',
     description: 'short vowels vanished before morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-2749565259.html',
@@ -1791,7 +1827,8 @@ export const sindarinRules = {
       return [...firstHalf, ...secondHalf].join('');
     },
   },
-  '03700': {
+  '941153689': {
+    orderId: '03700',
     pattern: '[ai|oi] > [ae|oe]',
     description: '[ai], [oi] became [ae], [oe]',
     url: 'https://eldamo.org/content/words/word-941153689.html',
@@ -1799,7 +1836,8 @@ export const sindarinRules = {
       return str.replace(/ai/g, 'ae').replace(/oi/g, 'oe');
     },
   },
-  '03800': {
+  '1660291111': {
+    orderId: '03800',
     pattern: '[-eiC|-ei] > [-aiC|-ai]',
     description: 'later [ei] became [ai] in final syllables',
     url: 'https://eldamo.org/content/words/word-1660291111.html',
@@ -1820,7 +1858,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '03900': {
+  '3257758901': {
+    orderId: '03900',
     pattern: '[y{iu}] > [ui]',
     description: 'diphthongs [yi], [yu] became [ui]',
     url: 'https://eldamo.org/content/words/word-3257758901.html',
@@ -1828,7 +1867,8 @@ export const sindarinRules = {
       return str.replace(/yi/g, 'ui').replace(/yu/g, 'ui');
     },
   },
-  '04000': {
+  '1787434575': {
+    orderId: '04000',
     pattern: '[œi] > [ui|y]',
     description: '[œi] became [ui] or [y]',
     url: 'https://eldamo.org/content/words/word-1787434575.html',
@@ -1837,11 +1877,12 @@ export const sindarinRules = {
       return str.replace(/œi/g, useUi ? 'ui' : 'y');
     },
   },
-  '04100': {
+  '1105959911': {
+    orderId: '04100',
     pattern: '[nr] > [ðr]',
     description: '[nr] became [ðr]',
     url: 'https://eldamo.org/content/words/word-1105959911.html',
-    dependsOn: [{ rule: '03600', param: 'cluster' }],
+    dependsOn: [{ rule: '2749565259', param: 'cluster' }],
     /**
      * This logic depends on 03600:
      * Where n and r came into contact in compounds after the loss of vowels at morpheme
@@ -1858,7 +1899,8 @@ export const sindarinRules = {
       return str.replace(/nr/g, 'ðr');
     },
   },
-  '04200': {
+  '2090293737': {
+    orderId: '04200',
     pattern: '[{θð}Sθ] > [{θð}Ss]',
     description: 'dissimilation of dental spirants',
     url: 'https://eldamo.org/content/words/word-2090293737.html',
@@ -1874,7 +1916,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '04300': {
+  '298324969': {
+    orderId: '04300',
     pattern: '[ls|rs] > [lθ|ss]',
     description: '[ls], [rs] became [lθ], [ss]',
     url: 'https://eldamo.org/content/words/word-298324969.html',
@@ -1891,7 +1934,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '04400': {
+  '1531741019': {
+    orderId: '04400',
     pattern: '[-{mf|nθ|ŋx|lθ}] > [-{mp|nt|ŋk|lt}]',
     description: 'final [mf], [nθ], [ŋx], [lθ] became [mp], [nt], [ŋk], [lt]',
     url: 'https://eldamo.org/content/words/word-1531741019.html',
@@ -1920,7 +1964,8 @@ export const sindarinRules = {
       return result;
     },
   },
-  '04500': {
+  '1856165973': {
+    orderId: '04500',
     pattern: '[{mnŋ}{fθxs}{lr}] > [ø{fθxs}{lr}]',
     description: 'nasals vanished before spirantal clusters',
     url: 'https://eldamo.org/content/words/word-1856165973.html',
@@ -1944,7 +1989,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '04600': {
+  '3282356701': {
+    orderId: '04600',
     pattern: '[-{mnŋ}·{fθxsmnŋl}-] > [-ø·{fθxsmnŋl}-]',
     description: 'nasals vanished before morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-3282356701.html',
@@ -2010,7 +2056,8 @@ export const sindarinRules = {
       return [...firstHalf, ...secondHalf].join('');
     },
   },
-  '04700': {
+  '3841960279': {
+    orderId: '04700',
     pattern: '[ð{mnŋ}] > [ø{mnŋ}]',
     description: '[ð] vanished before nasals at morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-3841960279.html',
@@ -2028,7 +2075,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '04800': {
+  '3123278727': {
+    orderId: '04800',
     pattern: '[-{mnŋ}{vðɣ}-] > [-{mnŋ}{bdg}-]',
     description: 'voiced spirants restopped after nasals',
     url: 'https://eldamo.org/content/words/word-3123278727.html',
@@ -2051,7 +2099,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '04900': {
+  '2996915415': {
+    orderId: '04900',
     pattern: '[-{mf|nθ|ŋx|lθ}-] > [-{mm|nn|ŋg|l̥l̥}-]',
     description: 'medial [mf], [nθ], [ŋx], [lθ] became [mm], [nn], [ŋg], [ll]',
     url: 'https://eldamo.org/content/words/word-2996915415.html',
@@ -2073,7 +2122,8 @@ export const sindarinRules = {
       return str;
     }
   },
-  '05000': {
+  '725943271': {
+    orderId: '05000',
     pattern: '[m̥|n̥] > [m|n]',
     description: 'voiceless nasals were voiced',
     url: 'https://eldamo.org/content/words/word-725943271.html',
@@ -2081,7 +2131,8 @@ export const sindarinRules = {
       return str.replace(/m̥/g, 'm').replace(/n̥/g, 'n');
     },
   },
-  '05100': {
+  '2083930569': {
+    orderId: '05100',
     pattern: '[V̄CC] > [V̆CC]',
     description: 'long vowels shortened before clusters',
     url: 'https://eldamo.org/content/words/word-2083930569.html',
@@ -2111,7 +2162,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '05200': {
+  '302560565': {
+    orderId: '05200',
     pattern: '[ī|ū] > [ĭ|ŭ]',
     description: '[ī], [ū] often shortened in polysyllables',
     url: 'https://eldamo.org/content/words/word-302560565.html',
@@ -2144,7 +2196,8 @@ export const sindarinRules = {
       }
     },
   },
-  '05300': {
+  '671129175': {
+    orderId: '05300',
     pattern: '[awa] > [au]',
     description: '[awa] sometimes became [au]',
     url: 'https://eldamo.org/content/words/word-671129175.html',
@@ -2183,7 +2236,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '05400': {
+  '567222053': {
+    orderId: '05400',
     pattern: '[ˌau|ˌae] > [o|e]',
     description: '[au], [ae] became [o], [e] in polysyllables',
     url: 'https://eldamo.org/content/words/word-567222053.html',
@@ -2317,7 +2371,8 @@ export const sindarinRules = {
       return revert ? singleToDigraphs(fullStrResult) : fullStrResult;
     },
   },
-  '05500': {
+  '226282629': {
+    orderId: '05500',
     pattern: '[lð] > [ll]',
     description: '[lð] became [ll]',
     url: 'https://eldamo.org/content/words/word-226282629.html',
@@ -2331,7 +2386,8 @@ export const sindarinRules = {
       return result;
     },
   },
-  '05600': {
+  '2759811879': {
+    orderId: '05600',
     pattern: '[nl] > [ll]',
     description: '[nl] became [ll]',
     url: 'https://eldamo.org/content/words/word-2759811879.html',
@@ -2348,7 +2404,8 @@ export const sindarinRules = {
       return result;
     },
   },
-  '05700': {
+  '868023175': {
+    orderId: '05700',
     pattern: '[mb|nd] > [mm|nn]',
     description: '[mb], [nd] became [mm], [nn]',
     url: 'https://eldamo.org/content/words/word-868023175.html',
@@ -2386,7 +2443,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '05800': {
+  '3868328117': {
+    orderId: '05800',
     pattern: '[CCC] > [CC]',
     description: 'middle consonants frequently vanished in clusters',
     url: 'https://eldamo.org/content/words/word-3868328117.html',
@@ -2414,7 +2472,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '05900': {
+  '3736793827': {
+    orderId: '05900',
     pattern: '[Vs{lr}] > [Vθ{lr}]',
     description: 'medial [s] became [θ] before [l], [r]',
     url: 'https://eldamo.org/content/words/word-3736793827.html',
@@ -2433,7 +2492,8 @@ export const sindarinRules = {
       return str;
     },
   },
-  '06000': {
+  '586391091': {
+    orderId: '06000',
     pattern: '[wo] > [o]',
     description: '[wo] became [o]',
     url: 'https://eldamo.org/content/words/word-586391091.html',
@@ -2446,25 +2506,38 @@ export const sindarinRules = {
       return str;
     },
   },
+  '1126284559': {
+    orderId: '06100',
+    pattern: '[n+{mb}] > [m+{mb}]',
+    description: '[n] assimilated to following labial',
+    url: 'https://eldamo.org/content/words/word-1126284559.html',
+    mechanic: (str) => {
+      const { found, charIndex, nextChar } = findFirstOf(['n'], str);
+      if (found) {
+        const nextTwo = str.slice(charIndex + 1, charIndex + 3);
+        if (nextTwo === 'mb' || ['b', 'm'].includes(nextChar)) return str.replace('n', 'm');
+      }
+      return str;
+    },
+  },
 
+// [n] assimilated to following labial - [n+{mb}] > [m+{mb}] - 06100 - https://eldamo.org/content/words/word-1126284559.html
+// [œ] became [e] - [œ] > [e] - 06200 - https://eldamo.org/content/words/word-1838610927.html
+// final [ll], [nn], [ss] shortened in polysyllables - [-SS{ll|nn|ss}] > [-SS{l|n|s}] - 06300 - https://eldamo.org/content/words/word-1742178057.html
+// final and initial [ŋg] became [ŋ] - [ŋg-|-ŋg] > [ŋ-|-ŋ] - 06400 - https://eldamo.org/content/words/word-311523279.html
+// non-initial [m] usually became [v] - [Vm|{lr}m|m{mbp}] > [Vv|{lr}v|m{mbp}] - 06500 - https://eldamo.org/content/words/word-1951379117.html
+// [ðv] became [ðw] - [ðv] > [ðw] - 06600 - https://eldamo.org/content/words/word-2192660503.html
+// [mm] shortened - [mm] > [m] - 06700 - https://eldamo.org/content/words/word-3689144303.html
+// final [v] became [w] after [ae], [oe], and sometimes [i] - [-{ae|oe}v] > [-{ae|oe}w] - 06800 - https://eldamo.org/content/words/word-3909760699.html
+// final [w], [v] vanished after [u] - [-u{vw}] > [-u] - 06900 - https://eldamo.org/content/words/word-70600889.html
+// [ou] became [au] - [ou] > [au] - 07000 - https://eldamo.org/content/words/word-2476983755.html
 
-// [n] assimilated to following labial - [n+{mb}] > [m+{mb}] - 06100
-// [œ] became [e] - [œ] > [e] - 06200
-// final [ll], [nn], [ss] shortened in polysyllables - [-SS{ll|nn|ss}] > [-SS{l|n|s}] - 06300
-// final and initial [ŋg] became [ŋ] - [ŋg-|-ŋg] > [ŋ-|-ŋ] - 06400
-// non-initial [m] usually became [v] - [Vm|{lr}m|m{mbp}] > [Vv|{lr}v|m{mbp}] - 06500
-// [ðv] became [ðw] - [ðv] > [ðw] - 06600
-// [mm] shortened - [mm] > [m] - 06700
-// final [v] became [w] after [ae], [oe], and sometimes [i] - [-{ae|oe}v] > [-{ae|oe}w] - 06800
-// final [w], [v] vanished after [u] - [-u{vw}] > [-u] - 06900
-// [ou] became [au] - [ou] > [au] - 07000
-
-// long voiceless spirants shortened - [θθ|xx] > [θ|x] - 07100
-// final [l], [r] usually became syllabic - [-C{lr}] > [-Co{lr}] - 07200
-// final [vn] sometimes became [von] - [-vn] > [-von] - 07300
-// final [w] usually became [u] - [-Cw|-aw] > [-Cu|-au] - 07400
-// final [rr] became [r] - [-rr] > [-r] - 07500
-// [sk], [sp] usually became [sg], [sb] - [s{pk}] > [s{bg}] - 07600
-// medial [x] became [h] in Gondorian pronunciation - [-x-] > [-h-] - 07700
-// voiced spirants unvoiced before voiceless spirants - [{vð}{hx}] > [{fθ}] - 07800
+// long voiceless spirants shortened - [θθ|xx] > [θ|x] - 07100 - https://eldamo.org/content/words/word-1206014597.html
+// final [l], [r] usually became syllabic - [-C{lr}] > [-Co{lr}] - 07200 - https://eldamo.org/content/words/word-1942165347.html
+// final [vn] sometimes became [von] - [-vn] > [-von] - 07300 - https://eldamo.org/content/words/word-2569469231.html
+// final [w] usually became [u] - [-Cw|-aw] > [-Cu|-au] - 07400 - https://eldamo.org/content/words/word-798091205.html
+// final [rr] became [r] - [-rr] > [-r] - 07500 - https://eldamo.org/content/words/word-1254294665.html
+// [sk], [sp] usually became [sg], [sb] - [s{pk}] > [s{bg}] - 07600 - https://eldamo.org/content/words/word-1759587217.html
+// medial [x] became [h] in Gondorian pronunciation - [-x-] > [-h-] - 07700 - https://eldamo.org/content/words/word-4188321265.html
+// voiced spirants unvoiced before voiceless spirants - [{vð}{hx}] > [{fθ}] - 07800 - https://eldamo.org/content/words/word-132402625.html
 };
