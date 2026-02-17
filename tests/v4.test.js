@@ -1232,4 +1232,31 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1838610927'].mechanic('gœria-')).toBe('geria-');
     expect(sindarinRules['1838610927'].mechanic('θœly')).toBe('θely');
   });
+
+  it('06300 - final [ll], [nn], [ss] shortened in polysyllables', () => {
+    expect(sindarinRules['1742178057'].mechanic('abc')).toBe('abc');
+    // -SSll > -SSl:
+    expect(sindarinRules['1742178057'].mechanic('galadriell')).toBe('galadriel');
+    expect(sindarinRules['1742178057'].mechanic('tengyll', { yAsVowel: true })).toBe('tengyl'); // Monosyllable!?
+    expect(sindarinRules['1742178057'].mechanic('terxill')).toBe('terxil');
+    expect(sindarinRules['1742178057'].mechanic('tinnūmiell')).toBe('tinnūmiel');
+    // -SSnn > -SSn:
+    expect(sindarinRules['1742178057'].mechanic('annonn')).toBe('annon');
+    expect(sindarinRules['1742178057'].mechanic('glewellinn')).toBe('glewellin');
+    expect(sindarinRules['1742178057'].mechanic('mellonn')).toBe('mellon');
+    // -SSss > -SSs:
+    expect(sindarinRules['1742178057'].mechanic('avrass')).toBe('avras');
+    expect(sindarinRules['1742178057'].mechanic('falass')).toBe('falas');
+    expect(sindarinRules['1742178057'].mechanic('karaðrass')).toBe('karadhras');
+    expect(sindarinRules['1742178057'].mechanic('karaðraſ')).toBe('karaðras');
+    // Monosyllables are not affected:
+    expect(sindarinRules['1742178057'].mechanic('lass')).toBe('lass');
+    expect(sindarinRules['1742178057'].mechanic('noss')).toBe('noss');
+    expect(sindarinRules['1742178057'].mechanic('ball')).toBe('ball'); // Non-existent word
+    expect(sindarinRules['1742178057'].mechanic('bann')).toBe('bann'); // Non-existent word
+    // Medial clusters are not affected:
+    expect(sindarinRules['1742178057'].mechanic('uimallen')).toBe('uimallen');
+    expect(sindarinRules['1742178057'].mechanic('lissuin')).toBe('lissuin');
+    expect(sindarinRules['1742178057'].mechanic('ninniach')).toBe('ninniach');
+  });
 });

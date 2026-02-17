@@ -179,9 +179,9 @@ Object.defineProperty(String.prototype, 'addMark', {
 });
 
 Object.defineProperty(String.prototype, 'nth', {
-  value(n) {
+  value(n, length = 1) {
     const index = n < 0 ? this.length + n : n;
-    return this.charAt(index) || '';
+    return this.substring(index, index + length) || '';
   }
 });
 
@@ -454,6 +454,15 @@ export function findFirstOf(chars, str) {
 
 
 export class SyllableAnalyser {
+  // Options for vowel detection
+  includeY = false;
+  includeW = false;
+
+  constructor(options = {}) {
+    if (options.includeY !== undefined) this.includeY = options.includeY;
+    if (options.includeW !== undefined) this.includeW = options.includeW;
+  }
+
   legalVowels = [
     'a', 'á', 'e', 'é', 'i', 'í', 'o', 'ó', 'u', 'ú', 'y'
   ];
@@ -632,8 +641,7 @@ export class SyllableAnalyser {
       if (this.isDiphthong(two)) {
         nuclei.push({ start: i, end: i + 2 });
         i++; // Skip next char as it's part of diphthong
-      } else if (converted[i].isVowel(false, false)) {
-        // isVowel(includeY=false, includeW=false) - only pure vowels
+      } else if (converted[i].isVowel(this.includeY, this.includeW)) {
         nuclei.push({ start: i, end: i + 1 });
       }
     }
@@ -1862,6 +1870,8 @@ export const sindarinRules = {
     orderId: '03900',
     pattern: '[y{iu}] > [ui]',
     description: 'diphthongs [yi], [yu] became [ui]',
+    skip: true,
+    info: ['This rule has no attested direct examples, it is mostly concerned with explaining plural formation.'],
     url: 'https://eldamo.org/content/words/word-3257758901.html',
     mechanic: (str) => {
       return str.replace(/yi/g, 'ui').replace(/yu/g, 'ui');
@@ -1871,6 +1881,8 @@ export const sindarinRules = {
     orderId: '04000',
     pattern: '[œi] > [ui|y]',
     description: '[œi] became [ui] or [y]',
+    skip: true,
+    info: ['There is only one example of this rule. It also is mostly concerned with explaining plural formation.'],
     url: 'https://eldamo.org/content/words/word-1787434575.html',
     input: [{ name: 'useUi', type: 'boolean', default: false, description: 'Use [ui] instead of [y]' }],
     mechanic: (str, { useUi = false } = {}) => {
@@ -2501,7 +2513,8 @@ export const sindarinRules = {
     mechanic: (str) => {
       const { found, charIndex } = findFirstOf(['wo'], str);
       if (found) {
-        const result = str.replace('wo', 'o');
+        const result = str.slice(0, charIndex) + 'o' + str.slice(charIndex + 2);
+        // const result = str.replace('wo', 'o');
         return singleToDigraphs(result);
       }
       return str;
@@ -2529,6 +2542,39 @@ export const sindarinRules = {
     mechanic: (str) => {
       if (str.includes('œ')) {
         return str.replace('œ', 'e');
+      }
+      return str;
+    },
+  },
+  '1742178057': {
+    orderId: '06300',
+    pattern: '[-SS{ll|nn|ss}] > [-SS{l|n|s}]',
+    description: 'final [ll], [nn], [ss] shortened in polysyllables',
+    url: 'https://eldamo.org/content/words/word-1742178057.html',
+    input: [{ name: 'yAsVowel', type: 'boolean', default: false, description: 'Consider y as a vowel when determining syllables' }],
+    mechanic: (str, { yAsVowel = false } = {}) => {
+      if (str.endsWith('ll') || str.endsWith('nn') || str.endsWith('ss') || str.endsWith('ſ')) {
+        const singleCharsStr = digraphsToSingle(str);
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const analyser = new SyllableAnalyser({ includeY: yAsVowel });
+        const syllableData = analyser.analyse(singleCharsStr);
+
+        if (syllableData.length > 1) {
+          const lastSyllable = syllableData[syllableData.length - 1].syllable;
+          const { found, matched, charIndex, nextChar } = findFirstOf(['ll', 'nn', 'ss', 'ſ'], lastSyllable);
+          const replacements = {
+            'll': 'l',
+            'nn': 'n',
+            'ss': 's',
+            'ſ': 's',
+          };
+          const finalChars = lastSyllable.nth(-matched.length, matched.length);
+          if (found && finalChars === matched) {
+            const result = singleCharsStr.slice(0, -matched.length) + replacements[matched];
+            if (revert) return singleToDigraphs(result);
+            return result;
+          }
+        }
       }
       return str;
     },
