@@ -1334,4 +1334,16 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3909760699'].mechanic('l̥oev')).toBe('l̥oew');
     expect(sindarinRules['3909760699'].mechanic('oev')).toBe('oew');
   });
+
+  it('06900 - final [w], [v] vanished after [u]', () => {
+    expect(sindarinRules['70600889'].mechanic('abc')).toBe('abc');
+    // [-ov] > [-ou]:
+    expect(sindarinRules['70600889'].mechanic('orov')).toBe('orou');
+    // [-uv] > [-u]:
+    expect(sindarinRules['70600889'].mechanic('arauv')).toBe('arau');
+    expect(sindarinRules['70600889'].mechanic('drūv')).toBe('drū');
+    expect(sindarinRules['70600889'].mechanic('hiθlūv')).toBe('hiθlū');
+    // [-uw] > [-u]:
+    expect(sindarinRules['70600889'].mechanic('r̥auw')).toBe('r̥au');
+  });
 });

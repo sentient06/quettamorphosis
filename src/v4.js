@@ -2675,6 +2675,22 @@ export const sindarinRules = {
       return str;
     },
   },
+  '70600889': {
+    orderId: '06900',
+    pattern: '[-u{vw}] > [-u]',
+    description: 'final [w], [v] vanished after [u]',
+    url: 'https://eldamo.org/content/words/word-70600889.html',
+    mechanic: (str) => {
+      const unmarkedStr = str.removeMarks();
+      if (unmarkedStr.nth(-2, 2) === 'ov') {
+        return str.substring(0, str.length - 2) + 'ou';
+      }
+      if (['uv', 'uw'].includes(unmarkedStr.nth(-2, 2))) {
+        return str.substring(0, str.length - 1);
+      }
+      return str;
+    },
+  },
 
 // [n] assimilated to following labial - [n+{mb}] > [m+{mb}] - 06100 - https://eldamo.org/content/words/word-1126284559.html
 // [œ] became [e] - [œ] > [e] - 06200 - https://eldamo.org/content/words/word-1838610927.html
