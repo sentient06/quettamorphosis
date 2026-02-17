@@ -1307,4 +1307,11 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1951379117'].mechanic('gamp')).toBe('gamp');
     expect(sindarinRules['1951379117'].mechanic('nimp')).toBe('nimp');
   });
+
+  it('06600 - [ðv] became [ðw]', () => {
+    expect(sindarinRules['2192660503'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['2192660503'].mechanic('buðv')).toBe('buðw');
+    expect(sindarinRules['2192660503'].mechanic('haðv')).toBe('haðw');
+    expect(sindarinRules['2192660503'].mechanic('haðva-')).toBe('haðwa-');
+  });
 });
