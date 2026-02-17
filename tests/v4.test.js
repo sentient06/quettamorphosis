@@ -1223,4 +1223,13 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1126284559'].mechanic('lenbas')).toBe('lembas');
     expect(sindarinRules['1126284559'].mechanic('danmen-')).toBe('dammen-');
   });
+
+  it('06200 - [œ] became [e]', () => {
+    expect(sindarinRules['1838610927'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['1838610927'].mechanic('œgyl')).toBe('egyl');
+    expect(sindarinRules['1838610927'].mechanic('œnnin')).toBe('ennin');
+    expect(sindarinRules['1838610927'].mechanic('gœlyð')).toBe('gelyð');
+    expect(sindarinRules['1838610927'].mechanic('gœria-')).toBe('geria-');
+    expect(sindarinRules['1838610927'].mechanic('θœly')).toBe('θely');
+  });
 });
