@@ -2095,7 +2095,7 @@ export const sindarinRules = {
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str);
       const { found, charIndex, nextChar } = findFirstOf(['m', 'n', 'ŋ'], singleCharsStr);
-      if (found) {
+      if (found && nextChar !== '') {
         const revert = shouldRevertToDigraphs(str, singleCharsStr);
         if ('vðɣ'.includes(nextChar)) {
           const replacements = {
