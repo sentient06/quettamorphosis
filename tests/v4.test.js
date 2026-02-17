@@ -1023,6 +1023,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3841960279'].mechanic('heleðmorn')).toBe('helemorn');
     expect(sindarinRules['3841960279'].mechanic('geleðndil')).toBe('gelendil');
     expect(sindarinRules['3841960279'].mechanic('geleðŋdil')).toBe('geleŋdil'); // Non-existent word
+    // Shouldn't affect end of words:
+    expect(sindarinRules['3841960279'].mechanic('goloð')).toBe('goloð');
   });
 
   it('04800 - voiced spirants restopped after nasals', () => {

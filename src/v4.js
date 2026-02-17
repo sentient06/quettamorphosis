@@ -2078,7 +2078,7 @@ export const sindarinRules = {
       const { found, nextChar } = findFirstOf(['ð'], singleCharsStr);
       if (found) {
         const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        if ('mnŋ'.includes(nextChar)) {
+        if (nextChar !== '' && 'mnŋ'.includes(nextChar)) {
           const result = singleCharsStr.replace('ð', '');
           if (revert) return singleToDigraphs(result);
           return result;
