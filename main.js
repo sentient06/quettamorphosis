@@ -62,7 +62,16 @@ function rerunRule(ruleId) {
 }
 
 function toggleRule(ruleId, isEnabled) {
-  ruleState[ruleId] = isEnabled;
+  const rule = sindarinRules[ruleId];
+  const isDefaultSkipped = rule?.skip === true;
+
+  // Only persist to localStorage if user is overriding a non-default-skipped rule
+  if (isDefaultSkipped) {
+    // Don't persist default-skipped rules - they're always skipped
+    delete ruleState[ruleId];
+  } else {
+    ruleState[ruleId] = isEnabled;
+  }
   localStorage.setItem("rules", JSON.stringify(ruleState));
   // Update the rule div's class
   const $rule = document.getElementById(`rule-${ruleId}`);
@@ -103,7 +112,6 @@ function drawRule(ruleId, nextRuleId, isEnabled = true) {
   const $rule = draw('div', wrapper, { class: ruleClass, id: `rule-${ruleId}` });
 
   const $label = draw('label', $rule, { for: `toggle-${ruleId}`, class: 'rule-label' });
-
   draw('input', $label, {
     id: `toggle-${ruleId}`,
     type: 'checkbox',
@@ -312,9 +320,19 @@ function printResults() {
     const orderB = sindarinRules[b].orderId;
     return orderA.localeCompare(orderB);
   });
-  document.getElementById('results').innerHTML = rulesUsed.map((ruleId) => {
+  document.getElementById('results-tripped').innerHTML = rulesUsed.map((ruleId) => {
     const anchor = `<a href="#rule-${ruleId}">${sindarinRules[ruleId].orderId}</a>`;
     return `${anchor} - ${ruleResults[ruleId]}`;
+  }).join('\n');
+  // Get all skipped rules: user-disabled OR default-skipped
+  const skippedRules = ruleKeys.filter(ruleId => {
+    const rule = sindarinRules[ruleId];
+    const isDefaultSkipped = rule?.skip === true;
+    const isUserDisabled = ruleState[ruleId] === false;
+    return isDefaultSkipped || isUserDisabled;
+  });
+  document.getElementById('results-skipped').innerHTML = skippedRules.map((ruleId) => {
+    return `<a href="#rule-${ruleId}">${sindarinRules[ruleId].orderId}</a>`;
   }).join('\n');
   rulesUsed.forEach((ruleId) => {
     console.log(`${sindarinRules[ruleId].orderId} - ${ruleResults[ruleId]}`);
@@ -324,3 +342,9 @@ function printResults() {
 // Set sticky header height CSS variable for scroll-margin-top
 const topWrapper = document.querySelector('.top-wrapper');
 document.documentElement.style.setProperty('--sticky-h', topWrapper.offsetHeight + 'px');
+
+document.getElementById('reset').addEventListener('click', () => {
+  localStorage.removeItem("rules");
+  localStorage.removeItem("original-input");
+  location.reload();
+});

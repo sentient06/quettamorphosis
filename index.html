@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quettamorphosis</title>
-  <link rel="stylesheet" href="main.css?a=1">
+  <link rel="stylesheet" href="main.css">
 </head>
 <body>
   <h1>Quettamorphosis</h1>
+  <div class="controls">
+    <button id="reset">Reset</button>
+  </div>
   <div class="top-wrapper">
     <div class="input-wrapper">
-      <strong>Input</strong>
+      <div class="title">Input</div>
       <div id="userInput">
         <input type="text" id="input" placeholder="Enter text to transform" />
         <div class="helpers">
@@ -44,11 +47,14 @@
       </div>
     </div>
     <div class="result-wrapper">
-      <strong>Results <small>(tripped rules)</small> </strong>
+      <div class="title">Results <small>(tripped rules)</small></div>
       <div class="output-wrapper">
         <input type="text" id="output" placeholder="Result" />
       </div>
-      <pre id="results"></pre>
+      <div class="results">
+        <div id="results-tripped"></div>
+        <div id="results-skipped"></div>
+      </div>
     </div>
   </div>
   <div id="wrapper"></div>
