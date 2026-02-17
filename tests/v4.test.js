@@ -1158,7 +1158,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['05600'].mechanic('Mindonluin')).toBe('Mindolluin');
   });
 
-  it.only('05700 - [mb|nd] became [mm|nn]', () => {
+  it('05700 - [mb|nd] became [mm|nn]', () => {
     expect(sindarinRules['05700'].mechanic('abc')).toBe('abc');
     // mb > mm:
     expect(sindarinRules['05700'].mechanic('ambar')).toBe('ammar');
@@ -1187,5 +1187,34 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['05700'].mechanic('lond')).toBe('lond');
     expect(sindarinRules['05700'].mechanic('rond')).toBe('rond');
     // Ask about the case of elmbereth!
+  });
+
+  it('05800 - middle consonants frequently vanished in clusters', () => {
+    // This rule is a placeholder and all tests experimental.
+    expect(sindarinRules['05800'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['05800'].mechanic('elmbereth')).toBe('elbereth');
+    expect(sindarinRules['05800'].mechanic('findrod')).toBe('finrod');
+    expect(sindarinRules['05800'].mechanic('gondndor')).toBe('gondor');
+    // expect(sindarinRules['05800'].mechanic('lennmbas')).toBe('lenbas');
+    expect(sindarinRules['05800'].mechanic('milmbar')).toBe('milbar');
+    expect(sindarinRules['05800'].mechanic('morŋgoθ')).toBe('morgoθ');
+    // expect(sindarinRules['05800'].mechanic('tenngyll')).toBe('tengyll');
+  });
+
+  it('05900 - medial [s] became [θ] before [l], [r]', () => {
+    expect(sindarinRules['05900'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['05900'].mechanic('kasrae')).toBe('kathrae');
+    expect(sindarinRules['05900'].mechanic('oslond')).toBe('othlond');
+    expect(sindarinRules['05900'].mechanic('casrae')).toBe('cathrae'); // cas-raya
+    // Doesn't match initial and final clusters:
+    expect(sindarinRules['05900'].mechanic('asl')).toBe('asl');
+    expect(sindarinRules['05900'].mechanic('sra')).toBe('sra');
+  });
+
+  it.only('06000 - [wo] became [o]', () => {
+    expect(sindarinRules['06000'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['06000'].mechanic('gwo-')).toBe('go-');
+    expect(sindarinRules['06000'].mechanic('gwolass')).toBe('golass');
+    expect(sindarinRules['06000'].mechanic('gwovannen')).toBe('govannen');
   });
 });

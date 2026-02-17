@@ -2390,8 +2390,27 @@ export const sindarinRules = {
     pattern: '[CCC] > [CC]',
     description: 'middle consonants frequently vanished in clusters',
     url: 'https://eldamo.org/content/words/word-3868328117.html',
+    info: ['This is a placeholder for all the Sandhi sound changes that occur in Sindarin compounds at morpheme boundaries.'],
+    skip: true,
     mechanic: (str) => {
-      // TODO: implement
+      const singleCharsStr = digraphsToSingle(str);
+      const revert = shouldRevertToDigraphs(str, singleCharsStr);
+      const vcPattern = breakIntoVowelsAndConsonants(singleCharsStr);
+      console.log({ str, singleCharsStr, vcPattern });
+      if (vcPattern.includes('CCC')) {
+        let result = singleCharsStr;
+        const index = vcPattern.indexOf('CCC');
+        const char = singleCharsStr.charAt(index);
+        const nextChar = singleCharsStr.charAt(index + 2);
+        const removeExtra = char === nextChar;
+        if (!removeExtra) {
+          result = singleCharsStr.slice(0, index + 1) + singleCharsStr.slice(index + 2);
+        } else {
+          result = singleCharsStr.slice(0, index + 1) + singleCharsStr.slice(index + 3);
+        }
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
       return str;
     },
   },
@@ -2400,7 +2419,17 @@ export const sindarinRules = {
     description: 'medial [s] became [θ] before [l], [r]',
     url: 'https://eldamo.org/content/words/word-3736793827.html',
     mechanic: (str) => {
-      // TODO: implement
+      const { found, matched, charIndex, nextChar } = findFirstOf(['sl', 'sr'], str);
+
+      if (found) {
+        const replacements = {
+          'sl': 'θl',
+          'sr': 'θr',
+        };
+        if (charIndex === 0 || charIndex === str.length - 2) return str;
+        const result = str.replace(matched, replacements[matched]);
+        return singleToDigraphs(result);
+      }
       return str;
     },
   },
@@ -2409,7 +2438,11 @@ export const sindarinRules = {
     description: '[wo] became [o]',
     url: 'https://eldamo.org/content/words/word-586391091.html',
     mechanic: (str) => {
-      // TODO: implement
+      const { found, charIndex } = findFirstOf(['wo'], str);
+      if (found) {
+        const result = str.replace('wo', 'o');
+        return singleToDigraphs(result);
+      }
       return str;
     },
   },
