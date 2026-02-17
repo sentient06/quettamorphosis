@@ -2594,6 +2594,17 @@ export const sindarinRules = {
       return str;
     },
   },
+  '1951379117': {
+    orderId: '06500',
+    pattern: '[Vm|{lr}m|m{mbp}] > [Vv|{lr}v|m{mbp}]',
+    description: 'non-initial [m] usually became [v]',
+    url: 'https://eldamo.org/content/words/word-1951379117.html',
+    skip: true,
+    mechanic: (str) => {
+      // TODO: implement
+      return str;
+    },
+  },
 
 // [n] assimilated to following labial - [n+{mb}] > [m+{mb}] - 06100 - https://eldamo.org/content/words/word-1126284559.html
 // [œ] became [e] - [œ] > [e] - 06200 - https://eldamo.org/content/words/word-1838610927.html

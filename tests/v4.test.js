@@ -1272,4 +1272,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['311523279'].mechanic('baŋgab')).toBe('baŋgab'); // Non-existent word
     expect(sindarinRules['311523279'].mechanic('baŋgabaŋg')).toBe('baŋgabaŋ'); // Non-existent word
   });
+
+  it('06500 - [Vm|{lr}m|m{mbp}] > [Vv|{lr}v|m{mbp}]', () => {
+    expect(sindarinRules['1951379117'].mechanic('abc')).toBe('abc');
+  });
 });
