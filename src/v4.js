@@ -2620,7 +2620,7 @@ export const sindarinRules = {
       if (str.includes('m')) {
         const singleCharsStr = digraphsToSingle(str);
         const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['m'], singleCharsStr);
+        const { found, charIndex, nextChar, prevChar } = findFirstOf(['m'], singleCharsStr);
         if (found) {
           let result = singleCharsStr;
           if (prevChar.isVowel()) {
@@ -2659,6 +2659,18 @@ export const sindarinRules = {
     mechanic: (str) => {
       if (str.includes('mm')) {
         return str.replace('mm', 'm');
+      }
+      return str;
+    },
+  },
+  '3909760699': {
+    orderId: '06800',
+    pattern: '[-{ae|oe}v] > [-{ae|oe}w]',
+    description: 'final [v] became [w] after [ae], [oe], and sometimes [i]',
+    url: 'https://eldamo.org/content/words/word-3909760699.html',
+    mechanic: (str) => {
+      if (['aev', 'oev'].includes(str.nth(-3, 3))) {
+        return str.substring(0, str.length - 1) + 'w';
       }
       return str;
     },

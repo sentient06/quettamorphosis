@@ -1326,4 +1326,12 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3689144303'].mechanic('remmen')).toBe('remen');
     expect(sindarinRules['3689144303'].mechanic('tumm')).toBe('tum');
   });
+
+  it('06800 - final [v] became [w] after [ae], [oe], and sometimes [i]', () => {
+    expect(sindarinRules['3909760699'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['3909760699'].mechanic('gwaev')).toBe('gwaew');
+    expect(sindarinRules['3909760699'].mechanic('raev')).toBe('raew');
+    expect(sindarinRules['3909760699'].mechanic('l̥oev')).toBe('l̥oew');
+    expect(sindarinRules['3909760699'].mechanic('oev')).toBe('oew');
+  });
 });
