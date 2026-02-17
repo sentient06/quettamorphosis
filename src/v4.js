@@ -1099,23 +1099,31 @@ export const sindarinRules = {
       let result = str;
 
       // Helper to check if a pattern is valid
+      // Returns: false (invalid), 'single' (only transform closest vowel), 'multi' (transform all)
       const isValidStart = (start, isMultiVowel) => {
         // Don't cross diphthong boundaries (no vowel immediately before start)
         if (start > 0 && vcPattern.charAt(start - 1) === 'V') {
           return false;
         }
-        // For multi-vowel patterns, check for blocking vowels (i, e, y) before start
+        // For multi-vowel patterns, check vowels before start
         if (isMultiVowel) {
+          let hasVowelBefore = false;
           for (let k = 0; k < start; k++) {
             if (vcPattern.charAt(k) === 'V') {
               const vowel = unmarkedStr.charAt(k);
+              // Blocking vowels (i, e, y) invalidate the pattern entirely
               if (vowel === 'i' || vowel === 'e' || vowel === 'y') {
                 return false;
               }
+              hasVowelBefore = true;
             }
           }
+          // If there's a non-blocking vowel before, only transform closest vowel to 'i'
+          if (hasVowelBefore) {
+            return 'single';
+          }
         }
-        return true;
+        return 'multi';
       };
 
       // Find all positions where 'i' appears as a vowel
@@ -1132,7 +1140,8 @@ export const sindarinRules = {
 
           const start = i - (len - 1);
           const pattern = vcPattern.substring(start, i + 1);
-          if (pattern !== patternStr || !isValidStart(start, multi)) continue;
+          const validResult = isValidStart(start, multi);
+          if (pattern !== patternStr || !validResult) continue;
 
           // Check all vowels in the pattern are transformable (a/o/u)
           const allTransformable = vowelPos.every(pos => {
@@ -1141,7 +1150,9 @@ export const sindarinRules = {
           });
 
           if (allTransformable) {
-            bestMatch = { start, vowelPositions: vowelPos };
+            // If 'single', only use the last vowel position (closest to 'i')
+            const positionsToUse = validResult === 'single' ? [vowelPos[vowelPos.length - 1]] : vowelPos;
+            bestMatch = { start, vowelPositions: positionsToUse };
             break; // Found longest match, stop searching
           }
         }
@@ -1155,12 +1166,18 @@ export const sindarinRules = {
           // Transform each vowel at the specified positions
           for (const pos of vowelPositions) {
             const vowel = unmarkedSegment.charAt(pos);
+            const originalChar = segment.charAt(pos);
+            const mark = originalChar.getMark();
+            let replacement = '';
             if (vowel === 'a') {
-              newSegment = newSegment.replaceWithMark('a', 'e');
+              replacement = 'e'.addMark(mark);
             } else if (vowel === 'o') {
-              newSegment = newSegment.replaceWithMark('o', 'œ');
+              replacement = 'œ'.addMark(mark);
             } else if (vowel === 'u') {
-              newSegment = newSegment.replaceWithMark('u', 'y');
+              replacement = 'y'.addMark(mark);
+            }
+            if (replacement) {
+              newSegment = newSegment.substring(0, pos) + replacement + newSegment.substring(pos + 1);
             }
           }
 

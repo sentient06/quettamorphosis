@@ -546,6 +546,9 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3958031275'].mechanic('tainakulli')).toBe('tainakylli');
       expect(sindarinRules['3958031275'].mechanic('ukli')).toBe('ykli');
     });
+    it('others', () => {
+      expect(sindarinRules['3958031275'].mechanic('calatariɣell')).toBe('calateriɣell');
+    });
   });
 
   it('01400 - [ē], [ō] became [ī], [ū]', () => {
