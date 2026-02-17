@@ -238,6 +238,11 @@ function runRule(ruleId, input, nextRuleId) {
   const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
   const output = isEnabled ? rule.mechanic(input, options) : input;
 
+  if (!output) {
+    console.warn(`Rule ${ruleId} (${rule.orderId}) returned no output!`);
+    console.log({ isEnabled, state: ruleState[ruleId], rule, input });
+  }
+
   // Track if this rule caused a change
   if (input !== output) {
     ruleResults[ruleId] = output;

@@ -2194,6 +2194,7 @@ export const sindarinRules = {
         const fullStrResult = result.join('');
         return revert ? singleToDigraphs(fullStrResult) : fullStrResult;
       }
+      return str;
     },
   },
   '671129175': {
