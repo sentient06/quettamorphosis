@@ -441,6 +441,7 @@ export function findFirstOf(chars, str) {
         matched: c,
         charIndex: i,
         nextChar: str.nth(i + c.length),
+        prevChar: str.nth(i - 1),
       };
     }
   }
@@ -449,6 +450,7 @@ export function findFirstOf(chars, str) {
     matched: null,
     charIndex: -1,
     nextChar: null,
+    prevChar: null,
   }
 }
 
@@ -2432,8 +2434,6 @@ export const sindarinRules = {
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(singleCharsStr);
 
-      console.log(str, singleCharsStr, { found, matched, charIndex, nextChar }, syllableData);
-
       if (found) {
         if (matched === 'nd') {
           if (syllableData.length === 1) {
@@ -2467,7 +2467,7 @@ export const sindarinRules = {
       const singleCharsStr = digraphsToSingle(str);
       const revert = shouldRevertToDigraphs(str, singleCharsStr);
       const vcPattern = breakIntoVowelsAndConsonants(singleCharsStr);
-      console.log({ str, singleCharsStr, vcPattern });
+      // console.log({ str, singleCharsStr, vcPattern });
       if (vcPattern.includes('CCC')) {
         let result = singleCharsStr;
         const index = vcPattern.indexOf('CCC');
@@ -2601,7 +2601,25 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1951379117.html',
     skip: true,
     mechanic: (str) => {
-      // TODO: implement
+      if (str.includes('m')) {
+        const singleCharsStr = digraphsToSingle(str);
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['m'], singleCharsStr);
+        if (found) {
+          let result = singleCharsStr;
+          if (prevChar.isVowel()) {
+            result = singleCharsStr.substring(0, charIndex) + 'v' + singleCharsStr.substring(charIndex + 1);
+          }
+          if (['l', 'r', 'ð'].includes(prevChar)) {
+            result = singleCharsStr.substring(0, charIndex) + 'v' + singleCharsStr.substring(charIndex + 1);
+          }
+          if (['m', 'b', 'p'].includes(nextChar)) {
+            result = singleCharsStr;
+          }
+          if (revert) return singleToDigraphs(result);
+          return result;
+        }
+      }
       return str;
     },
   },

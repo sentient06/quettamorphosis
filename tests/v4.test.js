@@ -114,8 +114,8 @@ describe('Utils', () => {
   });
 
   it('findFirstOf should return the first occurrence of a character in a string', () => {
-    expect(findFirstOf(['a', 'e', 'i', 'o', 'u'], 'banana')).toEqual({ found: true, matched: 'a', charIndex: 1, nextChar: 'n' });
-    expect(findFirstOf(['an'], 'banana')).toEqual({ found: true, matched: 'an', charIndex: 1, nextChar: 'a' });
+    expect(findFirstOf(['a', 'e', 'i', 'o', 'u'], 'banana')).toEqual({ found: true, matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b' });
+    expect(findFirstOf(['an'], 'banana')).toEqual({ found: true, matched: 'an', charIndex: 1, nextChar: 'a', prevChar: 'b' });
   });
 });
 
@@ -1277,5 +1277,31 @@ describe('Sindarin rules', () => {
 
   it('06500 - [Vm|{lr}m|m{mbp}] > [Vv|{lr}v|m{mbp}]', () => {
     expect(sindarinRules['1951379117'].mechanic('abc')).toBe('abc');
+    // [Vm] > [Vv]:
+    expect(sindarinRules['1951379117'].mechanic('araum')).toBe('arauv');
+    expect(sindarinRules['1951379117'].mechanic('dūm')).toBe('dūv');
+    expect(sindarinRules['1951379117'].mechanic('helemorn')).toBe('helevorn');
+    expect(sindarinRules['1951379117'].mechanic('hiθlūm')).toBe('hiθlūv');
+    expect(sindarinRules['1951379117'].mechanic('laman')).toBe('lavan');
+    expect(sindarinRules['1951379117'].mechanic('tinnūmiel')).toBe('tinnūviel');
+    // [lm] > [lv]:
+    expect(sindarinRules['1951379117'].mechanic('nindalm')).toBe('nindalv');
+    expect(sindarinRules['1951379117'].mechanic('talm')).toBe('talv');
+    expect(sindarinRules['1951379117'].mechanic('ylm')).toBe('ylv');
+    // [rm] > [rv]:
+    expect(sindarinRules['1951379117'].mechanic('barm')).toBe('barv'); // Non-existent word
+    // [ðm] > [ðv]:
+    expect(sindarinRules['1951379117'].mechanic('haðm')).toBe('haðv');
+    expect(sindarinRules['1951379117'].mechanic('haðma-')).toBe('haðva-');
+    // [mm] > [mm]:
+    expect(sindarinRules['1951379117'].mechanic('domm')).toBe('domm');
+    expect(sindarinRules['1951379117'].mechanic('galaðremmen')).toBe('galaðremmen');
+    expect(sindarinRules['1951379117'].mechanic('nimm')).toBe('nimm');
+    expect(sindarinRules['1951379117'].mechanic('tumm')).toBe('tumm');
+    // [mb] > [mb]:
+    expect(sindarinRules['1951379117'].mechanic('ambō')).toBe('ambō'); // Not on Eldamo's examples
+    // [mp] > [mp]:
+    expect(sindarinRules['1951379117'].mechanic('gamp')).toBe('gamp');
+    expect(sindarinRules['1951379117'].mechanic('nimp')).toBe('nimp');
   });
 });
