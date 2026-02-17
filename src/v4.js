@@ -2651,6 +2651,18 @@ export const sindarinRules = {
       return str;
     },
   },
+  '3689144303': {
+    orderId: '06700',
+    pattern: '[mm] > [m]',
+    description: '[mm] shortened',
+    url: 'https://eldamo.org/content/words/word-3689144303.html',
+    mechanic: (str) => {
+      if (str.includes('mm')) {
+        return str.replace('mm', 'm');
+      }
+      return str;
+    },
+  },
 
 // [n] assimilated to following labial - [n+{mb}] > [m+{mb}] - 06100 - https://eldamo.org/content/words/word-1126284559.html
 // [œ] became [e] - [œ] > [e] - 06200 - https://eldamo.org/content/words/word-1838610927.html

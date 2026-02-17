@@ -1314,4 +1314,16 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2192660503'].mechanic('haðv')).toBe('haðw');
     expect(sindarinRules['2192660503'].mechanic('haðva-')).toBe('haðwa-');
   });
+
+  it('06700 - [mm] shortened', () => {
+    expect(sindarinRules['3689144303'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['3689144303'].mechanic('ammar')).toBe('amar');
+    expect(sindarinRules['3689144303'].mechanic('ammarθ')).toBe('amarθ');
+    expect(sindarinRules['3689144303'].mechanic('eglammar')).toBe('eglamar');
+    expect(sindarinRules['3689144303'].mechanic('galaðremmen')).toBe('galaðremen');
+    expect(sindarinRules['3689144303'].mechanic('kamm')).toBe('kam');
+    expect(sindarinRules['3689144303'].mechanic('l̥imm')).toBe('l̥im');
+    expect(sindarinRules['3689144303'].mechanic('remmen')).toBe('remen');
+    expect(sindarinRules['3689144303'].mechanic('tumm')).toBe('tum');
+  });
 });
