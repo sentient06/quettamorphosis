@@ -2599,7 +2599,6 @@ export const sindarinRules = {
     pattern: '[Vm|{lr}m|m{mbp}] > [Vv|{lr}v|m{mbp}]',
     description: 'non-initial [m] usually became [v]',
     url: 'https://eldamo.org/content/words/word-1951379117.html',
-    skip: true,
     mechanic: (str) => {
       if (str.includes('m')) {
         const singleCharsStr = digraphsToSingle(str);
