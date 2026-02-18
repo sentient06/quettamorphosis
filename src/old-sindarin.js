@@ -21,7 +21,6 @@ export const oldSindarinRules = {
     pattern: '[-SVi] > [-Sī]',
     description: 'final i-diphthongs became long [ī] in polysyllables',
     url: 'https://eldamo.org/content/words/word-71909447.html',
-    skip: true,
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str);
       const analyser = new SyllableAnalyser();
@@ -51,7 +50,6 @@ export const oldSindarinRules = {
     pattern: '[ŋ-] > [ŋg-]',
     description: 'initial [ŋ] became [ŋg] or [g]',
     url: 'https://eldamo.org/content/words/word-1989991061.html',
-    skip: true,
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str).replaceAll('ñ', 'ŋ');
       if (singleCharsStr.startsWith('ŋ')) {

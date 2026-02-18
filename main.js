@@ -1,4 +1,5 @@
 import { sindarinRules } from './src/sindarin.js';
+import { oldSindarinRules } from './src/old-sindarin.js';
 
 // =============================================================================
 // DOM Elements
@@ -17,18 +18,49 @@ const $resultsSkipped = document.getElementById('results-skipped');
 // State
 // =============================================================================
 
-const ruleResults = {};
+const osRuleResults = {};
+const sindarinRuleResults = {};
 const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
+const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
 
 // =============================================================================
 // Rule Utilities
 // =============================================================================
 
-const ruleKeys = Object.keys(sindarinRules).sort((a, b) => {
+// Separate rule keys for each language, sorted by orderId
+const osRuleKeys = Object.keys(oldSindarinRules).sort((a, b) => {
+  return oldSindarinRules[a].orderId.localeCompare(oldSindarinRules[b].orderId);
+});
+
+const sindarinRuleKeys = Object.keys(sindarinRules).sort((a, b) => {
   return sindarinRules[a].orderId.localeCompare(sindarinRules[b].orderId);
 });
 
-const firstRuleId = ruleKeys[0];
+// Combined keys: OS first, then Sindarin
+const allRuleKeys = [...osRuleKeys, ...sindarinRuleKeys];
+
+const firstRuleId = allRuleKeys[0];
+
+// Helper to get rules object for a given ruleId
+function getRulesObject(ruleId) {
+  if (oldSindarinRules[ruleId]) return oldSindarinRules;
+  if (sindarinRules[ruleId]) return sindarinRules;
+  return null;
+}
+
+// Helper to get results object for a given ruleId
+function getResultsObject(ruleId) {
+  if (oldSindarinRules[ruleId]) return osRuleResults;
+  if (sindarinRules[ruleId]) return sindarinRuleResults;
+  return null;
+}
+
+// Helper to get language name for a given ruleId
+function getLanguage(ruleId) {
+  if (oldSindarinRules[ruleId]) return 'old-sindarin';
+  if (sindarinRules[ruleId]) return 'sindarin';
+  return null;
+}
 
 function draw(type, parent, options = {}) {
   const $element = document.createElement(type);
@@ -53,13 +85,103 @@ function draw(type, parent, options = {}) {
 }
 
 function getPreviousRule(currentRuleId) {
-  const index = ruleKeys.indexOf(currentRuleId);
-  return ruleKeys[index - 1];
+  const index = allRuleKeys.indexOf(currentRuleId);
+  return allRuleKeys[index - 1];
 }
 
 function getNextRule(currentRuleId) {
-  const index = ruleKeys.indexOf(currentRuleId);
-  return ruleKeys[index + 1];
+  const index = allRuleKeys.indexOf(currentRuleId);
+  return allRuleKeys[index + 1];
+}
+
+// Create a language wrapper with header and skip checkbox
+function createLanguageWrapper(langId, langName) {
+  const isSkipped = languageState[langId] === false;
+  const wrapperClass = isSkipped ? 'language-wrapper language-skipped' : 'language-wrapper';
+
+  const $langWrapper = draw('div', $wrapper, {
+    class: wrapperClass,
+    id: `lang-${langId}`
+  });
+
+  const $header = draw('div', $langWrapper, { class: 'language-header' });
+  draw('h2', $header, { innerHtml: langName });
+
+  const $skipLabel = draw('label', $header);
+  draw('input', $skipLabel, {
+    type: 'checkbox',
+    id: `skip-${langId}`,
+    checked: !isSkipped,
+    callback: {
+      trigger: 'change',
+      callback: (e) => toggleLanguage(langId, e.target.checked)
+    }
+  });
+  draw('span', $skipLabel, { innerHtml: ' Enable all' });
+
+  return $langWrapper;
+}
+
+// Check if a rule is effectively enabled (language AND rule must both be enabled)
+function isRuleEffectivelyEnabled(ruleId) {
+  const langId = getLanguage(ruleId);
+  const rulesObj = getRulesObject(ruleId);
+  const rule = rulesObj[ruleId];
+
+  // Language must be enabled (default true)
+  const langEnabled = languageState[langId] !== false;
+
+  // Rule must be enabled: check user override, then default (skip means disabled by default)
+  const ruleEnabled = ruleState[ruleId] !== undefined
+    ? ruleState[ruleId]
+    : (rule?.skip !== true);
+
+  return langEnabled && ruleEnabled;
+}
+
+// Update visual state of a rule based on effective enabled state
+function updateRuleVisualState(ruleId) {
+  const $rule = document.getElementById(`rule-${ruleId}`);
+  const $toggle = document.getElementById(`toggle-${ruleId}`);
+  const isEnabled = isRuleEffectivelyEnabled(ruleId);
+
+  if ($rule) {
+    $rule.classList.toggle('rule-enabled', isEnabled);
+  }
+  if ($toggle) {
+    $toggle.checked = isEnabled;
+  }
+}
+
+// Toggle an entire language on/off
+function toggleLanguage(langId, isEnabled) {
+  languageState[langId] = isEnabled;
+  localStorage.setItem('languages', JSON.stringify(languageState));
+
+  const $langWrapper = document.getElementById(`lang-${langId}`);
+  if ($langWrapper) {
+    $langWrapper.classList.toggle('language-skipped', !isEnabled);
+  }
+
+  // Clear results for this language (they will be repopulated on re-run if enabled)
+  const ruleKeys = langId === 'old-sindarin' ? osRuleKeys : sindarinRuleKeys;
+  const resultsObj = langId === 'old-sindarin' ? osRuleResults : sindarinRuleResults;
+  ruleKeys.forEach((ruleId) => {
+    delete resultsObj[ruleId];
+    updateRuleVisualState(ruleId);
+  });
+
+  // Re-run from the first rule to update the chain
+  const storedInput = $originalInput.value;
+  if (storedInput) {
+    const $firstRuleInput = document.getElementById(`input-${firstRuleId}`);
+    $firstRuleInput.value = storedInput;
+    const secondRuleId = getNextRule(firstRuleId);
+    runRule(firstRuleId, storedInput, secondRuleId);
+  } else {
+    // No input to re-run, but still update the results display
+    printResults();
+  }
 }
 
 // Re-run a rule from its current input value
@@ -72,18 +194,26 @@ function rerunRule(ruleId) {
 }
 
 function toggleRule(ruleId, isEnabled) {
-  const rule = sindarinRules[ruleId];
+  const rulesObj = getRulesObject(ruleId);
+  const rule = rulesObj[ruleId];
   const isDefaultSkipped = rule?.skip === true;
 
-  // Only persist to localStorage if user is overriding a non-default-skipped rule
-  if (isDefaultSkipped) {
+  // Save the rule's own state (regardless of language state)
+  if (isDefaultSkipped && isEnabled) {
+    // Enabling a default-skipped rule - save override
+    ruleState[ruleId] = true;
+  } else if (isDefaultSkipped && !isEnabled) {
+    // Disabling a default-skipped rule - remove override (back to default)
     delete ruleState[ruleId];
   } else {
+    // Normal rule - save state
     ruleState[ruleId] = isEnabled;
   }
   localStorage.setItem('rules', JSON.stringify(ruleState));
 
-  const $rule = document.getElementById(`rule-${ruleId}`);
+  // Update visual state based on effective enabled (considers language too)
+  updateRuleVisualState(ruleId);
+
   const previousRuleId = getPreviousRule(ruleId);
   const nextRuleId = getNextRule(ruleId);
   const followingRuleId = getNextRule(nextRuleId);
@@ -92,32 +222,32 @@ function toggleRule(ruleId, isEnabled) {
     ? document.getElementById(`output-${previousRuleId}`).value
     : $originalInput.value;
 
-  if (outputValue && !isEnabled) {
+  // Check effective enabled state for execution
+  const effectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
+
+  if (outputValue && !effectivelyEnabled) {
     const $nextInput = document.getElementById(`input-${nextRuleId}`);
     $nextInput.value = outputValue;
     runRule(nextRuleId, outputValue, followingRuleId);
   }
 
-  if (isEnabled) {
+  if (effectivelyEnabled) {
     rerunRule(ruleId);
-  }
-
-  if ($rule) {
-    $rule.classList.toggle('rule-enabled', isEnabled);
   }
 }
 
-function drawRule(ruleId, nextRuleId, isEnabled = true) {
-  const rule = sindarinRules[ruleId];
-  const isDefaultEnabled = rule?.skip ? false : isEnabled;
-  const ruleClass = isDefaultEnabled ? 'rule rule-enabled' : 'rule';
-  const $rule = draw('div', $wrapper, { class: ruleClass, id: `rule-${ruleId}` });
+function drawRule(ruleId, nextRuleId, $parentContainer) {
+  const rulesObj = getRulesObject(ruleId);
+  const rule = rulesObj[ruleId];
+  const isEffectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
+  const ruleClass = isEffectivelyEnabled ? 'rule rule-enabled' : 'rule';
+  const $rule = draw('div', $parentContainer, { class: ruleClass, id: `rule-${ruleId}` });
 
   const $label = draw('label', $rule, { for: `toggle-${ruleId}`, class: 'rule-label' });
   draw('input', $label, {
     id: `toggle-${ruleId}`,
     type: 'checkbox',
-    checked: isDefaultEnabled,
+    checked: isEffectivelyEnabled,
     class: 'rule-toggle',
     callback: {
       trigger: 'change',
@@ -209,14 +339,22 @@ function drawRule(ruleId, nextRuleId, isEnabled = true) {
 }
 
 function runRule(ruleId, input, nextRuleId) {
-  const rule = sindarinRules[ruleId];
+  const rulesObj = getRulesObject(ruleId);
+  const resultsObj = getResultsObject(ruleId);
+  const rule = rulesObj[ruleId];
 
-  // Skip disabled rules - pass input directly to next rule
-  if (ruleState[ruleId] === false) {
-    const $nextInput = document.getElementById(`input-${nextRuleId}`);
-    $nextInput.value = input;
-    const followingRuleId = getNextRule(nextRuleId);
-    runRule(nextRuleId, input, followingRuleId);
+console.log('runRule', ruleId, input, nextRuleId, isRuleEffectivelyEnabled(ruleId));
+
+  // Skip if rule is not effectively enabled (language disabled OR rule disabled)
+  if (!isRuleEffectivelyEnabled(ruleId)) {
+    if (nextRuleId) {
+      const $nextInput = document.getElementById(`input-${nextRuleId}`);
+      $nextInput.value = input;
+      runRule(nextRuleId, input, getNextRule(nextRuleId));
+    } else {
+      $originalOutput.value = input;
+      printResults();
+    }
     return;
   }
 
@@ -248,9 +386,9 @@ function runRule(ruleId, input, nextRuleId) {
 
   // Track rule result
   if (input !== output) {
-    ruleResults[ruleId] = output;
+    resultsObj[ruleId] = output;
   } else {
-    delete ruleResults[ruleId];
+    delete resultsObj[ruleId];
   }
 
   // Auto-update dependency checkboxes that depend on this rule
@@ -279,27 +417,53 @@ function runRule(ruleId, input, nextRuleId) {
 // =============================================================================
 
 function printResults() {
-  // Get rules that caused changes (sorted by orderId)
-  const rulesUsed = Object.keys(ruleResults).sort((a, b) => {
-    return sindarinRules[a].orderId.localeCompare(sindarinRules[b].orderId);
-  });
+  // Helper to format tripped rules for a language
+  function formatTripped(rulesObj, resultsObj) {
+    const rulesUsed = Object.keys(resultsObj).sort((a, b) => {
+      return rulesObj[a].orderId.localeCompare(rulesObj[b].orderId);
+    });
+    return rulesUsed.map((ruleId) => {
+      const anchor = `<a href="#rule-${ruleId}">${rulesObj[ruleId].orderId}</a>`;
+      return `${anchor} - ${resultsObj[ruleId]}`;
+    }).join('\n');
+  }
 
-  // Display rules that were triggered
-  $resultsTripped.innerHTML = rulesUsed.map((ruleId) => {
-    const anchor = `<a href="#rule-${ruleId}">${sindarinRules[ruleId].orderId}</a>`;
-    return `${anchor} - ${ruleResults[ruleId]}`;
-  }).join('\n');
+  // Helper to format skipped rules for a language
+  function formatSkipped(rulesObj, ruleKeys) {
+    const skippedRules = ruleKeys.filter((ruleId) => {
+      const rule = rulesObj[ruleId];
+      return rule?.skip === true || ruleState[ruleId] === false;
+    });
+    return skippedRules.map((ruleId) => {
+      return `<a href="#rule-${ruleId}">${rulesObj[ruleId].orderId}</a>`;
+    }).join('\n');
+  }
 
-  // Get all skipped rules: user-disabled OR default-skipped
-  const skippedRules = ruleKeys.filter((ruleId) => {
-    const rule = sindarinRules[ruleId];
-    return rule?.skip === true || ruleState[ruleId] === false;
-  });
+  // Build tripped results: OS first, then Sindarin
+  const osTripped = formatTripped(oldSindarinRules, osRuleResults);
+  const sindarinTripped = formatTripped(sindarinRules, sindarinRuleResults);
 
-  // Display skipped rules
-  $resultsSkipped.innerHTML = skippedRules.map((ruleId) => {
-    return `<a href="#rule-${ruleId}">${sindarinRules[ruleId].orderId}</a>`;
-  }).join('\n');
+  let trippedHtml = '';
+  if (osTripped) {
+    trippedHtml += '<strong>Old Sindarin:</strong>\n' + osTripped + '\n\n';
+  }
+  if (sindarinTripped) {
+    trippedHtml += '<strong>Sindarin:</strong>\n' + sindarinTripped;
+  }
+  $resultsTripped.innerHTML = trippedHtml.trim();
+
+  // Build skipped results: OS first, then Sindarin
+  const osSkipped = formatSkipped(oldSindarinRules, osRuleKeys);
+  const sindarinSkipped = formatSkipped(sindarinRules, sindarinRuleKeys);
+
+  let skippedHtml = '';
+  if (osSkipped) {
+    skippedHtml += '<strong>Old Sindarin:</strong>\n' + osSkipped + '\n\n';
+  }
+  if (sindarinSkipped) {
+    skippedHtml += '<strong>Sindarin:</strong>\n' + sindarinSkipped;
+  }
+  $resultsSkipped.innerHTML = skippedHtml.trim();
 }
 
 // =============================================================================
@@ -339,6 +503,7 @@ $helpers.addEventListener('click', (e) => {
 // Handle reset button
 $resetButton.addEventListener('click', () => {
   localStorage.removeItem('rules');
+  localStorage.removeItem('languages');
   localStorage.removeItem('original-input');
   location.reload();
 });
@@ -350,11 +515,23 @@ $resetButton.addEventListener('click', () => {
 // Set sticky header height CSS variable for scroll-margin-top
 document.documentElement.style.setProperty('--sticky-h', $topWrapper.offsetHeight + 'px');
 
-// Draw all rules
-ruleKeys.forEach((ruleId, index, array) => {
-  const nextRuleId = array[index + 1];
+// Create language wrappers
+const $osWrapper = createLanguageWrapper('old-sindarin', 'Old Sindarin');
+const $sindarinWrapper = createLanguageWrapper('sindarin', 'Sindarin');
+
+// Draw Old Sindarin rules
+osRuleKeys.forEach((ruleId, index) => {
+  const nextRuleId = allRuleKeys[index + 1];
   const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
-  drawRule(ruleId, nextRuleId, isEnabled);
+  drawRule(ruleId, nextRuleId, $osWrapper, isEnabled);
+});
+
+// Draw Sindarin rules
+sindarinRuleKeys.forEach((ruleId, index) => {
+  const globalIndex = osRuleKeys.length + index;
+  const nextRuleId = allRuleKeys[globalIndex + 1];
+  const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
+  drawRule(ruleId, nextRuleId, $sindarinWrapper, isEnabled);
 });
 
 // Restore input from storage and run rules

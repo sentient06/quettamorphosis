@@ -100,6 +100,42 @@
   margin-top: 20px;
 }
 
+.language-wrapper {
+  border: 1px solid #999;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #fafafa;
+}
+
+.language-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.language-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.language-header label {
+  font-size: 0.9rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.language-wrapper.language-skipped {
+  opacity: 0.4;
+}
+
+.language-wrapper.language-skipped .rule {
+  pointer-events: none;
+}
+
 .rule {
   border: 1px solid #000;
   margin-bottom: 20px;
