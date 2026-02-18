@@ -1371,7 +1371,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1206014597'].mechanic('rokkō')).toBe('rochō');
   });
 
-  it.only('07200 - final [l], [r] became syllabic', () => {
+  it('07200 - final [l], [r] became syllabic', () => {
     expect(sindarinRules['1942165347'].mechanic('aeu')).toBe('aeu');
     expect(sindarinRules['1942165347'].mechanic('naθl')).toBe('naθol');
     expect(sindarinRules['1942165347'].mechanic('ogl')).toBe('ogol');
@@ -1381,5 +1381,11 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1942165347'].mechanic('ygl')).toBe('ygil');
     expect(sindarinRules['1942165347'].mechanic('dagr')).toBe('dagor');
     expect(sindarinRules['1942165347'].mechanic('sadr')).toBe('sador');
+  });
+
+  it('07300 - final [vn] became [von]', () => {
+    expect(sindarinRules['2569469231'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['2569469231'].mechanic('dravn')).toBe('dravon'); // Noldorin
+    expect(sindarinRules['2569469231'].mechanic('tavn')).toBe('tavn'); // Only (counter) example
   });
 });

@@ -2760,6 +2760,21 @@ export const sindarinRules = {
       return str;
     },
   },
+  '2569469231': {
+    orderId: '07300',
+    pattern: '[-vn] > [-von]',
+    description: 'final [vn] sometimes became [von]',
+    url: 'https://eldamo.org/content/words/word-2569469231.html',
+    skip: true,
+    info: ['This rule has only Noldorin examples and one Sindarin counter-example.', 'This rule is disabled by default.'],
+    mechanic: (str) => {
+      if (str.nth(-2, 2) === 'vn') {
+        if (str === 'tavn') return str;
+        return str.substring(0, str.length - 2) + 'von';
+      }
+      return str;
+    },
+  },
 
 // long voiceless spirants shortened - [θθ|xx] > [θ|x] - 07100 - https://eldamo.org/content/words/word-1206014597.html
 // final [l], [r] usually became syllabic - [-C{lr}] > [-Co{lr}] - 07200 - https://eldamo.org/content/words/word-1942165347.html
