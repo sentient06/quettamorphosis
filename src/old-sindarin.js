@@ -72,7 +72,7 @@ export const oldSindarinRules = {
         const singleCharsStr = digraphsToSingle(str.toNormalScript());
         const revert = shouldRevertToDigraphs(str, singleCharsStr);
         console.log({ str, singleCharsStr, revert });
-        const { found, matched, charIndex, nextChar } = findFirstOf(['bd', 'gd'], singleCharsStr);
+        const { found, matched } = findFirstOf(['bd', 'gd'], singleCharsStr);
         if (found) {
           const replacements = {
             'bd': 'ud',
@@ -85,17 +85,26 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '107931923': {
-  //   orderId: '00400',
-  //   pattern: '[ɣ{mnlr}] > [g{mnlr}]',
-  //   description: '[ɣ] became [g] before nasals and liquids',
-  //   url: 'https://eldamo.org/content/words/word-107931923.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '107931923': {
+    orderId: '00400',
+    pattern: '[ɣ{mnlr}] > [g{mnlr}]',
+    description: '[ɣ] became [g] before nasals and liquids',
+    url: 'https://eldamo.org/content/words/word-107931923.html',
+    skip: true,
+    mechanic: (str) => {
+      if (str.includes('ɣ')) {
+        const singleCharsStr = digraphsToSingle(str.toNormalScript());
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const { charIndex, nextChar } = findFirstOf(['ɣ'], singleCharsStr);
+        if (nextChar === 'r') {
+          const result = singleCharsStr.substring(0, charIndex) + 'g' + singleCharsStr.substring(charIndex + 1);
+          if (revert) return singleToDigraphs(result);
+          return result;
+        }
+      }
+      return str;
+    },
+  },
   // '1117448055': {
   //   orderId: '00500',
   //   pattern: '[{ɣh}-] > [ø-]',

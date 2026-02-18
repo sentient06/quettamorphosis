@@ -33,9 +33,12 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['4282797219'].mechanic('snagdē')).toBe('snaidē');
   });
 
-//   it('00400 - [ɣ] became [g] before nasals and liquids', () => {
-//     expect(oldSindarinRules['107931923'].mechanic('abc')).toBe('abc');
-//   });
+  it('00400 - [ɣ] became [g] before nasals and liquids', () => {
+    expect(oldSindarinRules['107931923'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['107931923'].mechanic('taɣra')).toBe('tagra');
+    // Negative:
+    expect(oldSindarinRules['107931923'].mechanic('taɣda')).toBe('taɣda'); // Non-existent word
+  });
 
 //   it('00500 - initial [ɣ]/[h] vanished', () => {
 //     expect(oldSindarinRules['1117448055'].mechanic('abc')).toBe('abc');
