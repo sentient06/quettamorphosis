@@ -1785,6 +1785,9 @@ export const sindarinRules = {
         const revert = shouldRevertToDigraphs(str, singleCharsStr);
         const { found, charIndex, nextChar, prevChar } = findFirstOf(['m'], singleCharsStr);
         if (found) {
+          if (charIndex === 0) {
+            return str;
+          }
           let result = singleCharsStr;
           if (prevChar.isVowel()) {
             result = singleCharsStr.substring(0, charIndex) + 'v' + singleCharsStr.substring(charIndex + 1);
