@@ -1353,4 +1353,21 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2476983755'].mechanic('lou')).toBe('law');
     expect(sindarinRules['2476983755'].mechanic('orou', { useFinalU: true })).toBe('orau');
   });
+
+  it('07100 - long voiceless spirants shortened', () => {
+    expect(sindarinRules['1206014597'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['1206014597'].mechanic('axx')).toBe('ax');
+    expect(sindarinRules['1206014597'].mechanic('exxad-')).toBe('exad-');
+    expect(sindarinRules['1206014597'].mechanic('exxant')).toBe('exant');
+    expect(sindarinRules['1206014597'].mechanic('roxx')).toBe('rox');
+    expect(sindarinRules['1206014597'].mechanic('roχχ')).toBe('roχ');
+    expect(sindarinRules['1206014597'].mechanic('groθθ')).toBe('groθ');
+    expect(sindarinRules['1206014597'].mechanic('lebeθθron')).toBe('lebeθron');
+    expect(sindarinRules['1206014597'].mechanic('morgoθθ')).toBe('morgoθ');
+    // Using roman clusters:
+    expect(sindarinRules['1206014597'].mechanic('morgotth')).toBe('morgoth');
+    expect(sindarinRules['1206014597'].mechanic('appharkha')).toBe('afarcha');
+    expect(sindarinRules['1206014597'].mechanic('apɸarkha')).toBe('afarcha');
+    expect(sindarinRules['1206014597'].mechanic('rokkō')).toBe('rochō');
+  });
 });

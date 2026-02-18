@@ -2710,17 +2710,36 @@ export const sindarinRules = {
       return str;
     },
   },
-
-// [n] assimilated to following labial - [n+{mb}] > [m+{mb}] - 06100 - https://eldamo.org/content/words/word-1126284559.html
-// [œ] became [e] - [œ] > [e] - 06200 - https://eldamo.org/content/words/word-1838610927.html
-// final [ll], [nn], [ss] shortened in polysyllables - [-SS{ll|nn|ss}] > [-SS{l|n|s}] - 06300 - https://eldamo.org/content/words/word-1742178057.html
-// final and initial [ŋg] became [ŋ] - [ŋg-|-ŋg] > [ŋ-|-ŋ] - 06400 - https://eldamo.org/content/words/word-311523279.html
-// non-initial [m] usually became [v] - [Vm|{lr}m|m{mbp}] > [Vv|{lr}v|m{mbp}] - 06500 - https://eldamo.org/content/words/word-1951379117.html
-// [ðv] became [ðw] - [ðv] > [ðw] - 06600 - https://eldamo.org/content/words/word-2192660503.html
-// [mm] shortened - [mm] > [m] - 06700 - https://eldamo.org/content/words/word-3689144303.html
-// final [v] became [w] after [ae], [oe], and sometimes [i] - [-{ae|oe}v] > [-{ae|oe}w] - 06800 - https://eldamo.org/content/words/word-3909760699.html
-// final [w], [v] vanished after [u] - [-u{vw}] > [-u] - 06900 - https://eldamo.org/content/words/word-70600889.html
-// [ou] became [au] - [ou] > [au] - 07000 - https://eldamo.org/content/words/word-2476983755.html
+  '1206014597': {
+    orderId: '07100',
+    pattern: '[θθ|xx] > [θ|x]',
+    description: 'long voiceless spirants shortened',
+    url: 'https://eldamo.org/content/words/word-1206014597.html',
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str);
+      const reverted = singleToDigraphs(singleCharsStr);
+      console.log({ str, singleCharsStr, reverted });
+      const revert = shouldRevertToDigraphs(str, singleCharsStr);
+      const clusterMap = {
+        'χχ': 'χ',
+        'θθ': 'θ',
+        'tth': 'θ',
+        'tθ': 'θ',
+        'xx': 'x',
+        'kk': 'x',
+        'pph': 'f',
+        'pɸ': 'f',
+      };
+      const clusterOpts = Object.keys(clusterMap);
+      const { found, matched } = findFirstOf(clusterOpts, singleCharsStr);
+      if (found) {
+        const result = singleCharsStr.replace(matched, clusterMap[matched]);
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
 
 // long voiceless spirants shortened - [θθ|xx] > [θ|x] - 07100 - https://eldamo.org/content/words/word-1206014597.html
 // final [l], [r] usually became syllabic - [-C{lr}] > [-Co{lr}] - 07200 - https://eldamo.org/content/words/word-1942165347.html
