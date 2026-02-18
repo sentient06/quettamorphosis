@@ -144,6 +144,7 @@
   flex-direction: column;
   align-items: flex-start;
   opacity: 0.5;
+  position: relative;
 }
 
 .rule.rule-enabled {
@@ -182,8 +183,11 @@
 }
 
 .rule .rule-anchor {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   font-size: 0.8rem;
-  margin-bottom: 10px;
+/*  margin-bottom: 10px;*/
 }
 
 .rule .rule-inputs {

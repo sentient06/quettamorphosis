@@ -264,11 +264,9 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
       draw('div', $rule, { class: 'rule-info', innerHtml: info });
     });
   }
-  const $anchorWrapper = draw('div', $rule, { class: 'rule-anchor' });
-  draw('a', $anchorWrapper, { innerHtml: 'source', href: rule.url, target: '_blank' });
 
   if (rule.hasOwnProperty('input')) {
-    const $inputRules = draw('div', $rule, { class: 'rule-inputs' });
+    const $inputRules = draw('div', $rule, { class: 'rule-options' });
     rule.input.forEach((input) => {
       // { name: 'guess', type: 'boolean', default: true, description: 'Whether to guess boundary if no marker' },
       // { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
@@ -290,9 +288,12 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
       } else {
         inputAttrs.value = input.default || '';
       }
-      draw('input', $inputRules, inputAttrs);
+      const $optWrapper = draw('div', $inputRules);
       if (inputType === 'checkbox') {
-        draw('label', $inputRules, { for: `input-${ruleId}-${input.name}`, innerHtml: description });
+        draw('input', $optWrapper, inputAttrs);
+        draw('label', $optWrapper, { for: `input-${ruleId}-${input.name}`, innerHtml: description });
+      } else {
+        draw('input', $optWrapper, inputAttrs);
       }
     });
   }
@@ -336,6 +337,9 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     id: `output-${ruleId}`,
     placeholder: 'Output',
   });
+
+  const $anchorWrapper = draw('div', $rule, { class: 'rule-anchor' });
+  draw('a', $anchorWrapper, { innerHtml: 'source', href: rule.url, target: '_blank' });
 }
 
 function runRule(ruleId, input, nextRuleId) {
