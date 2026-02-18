@@ -2740,6 +2740,26 @@ export const sindarinRules = {
       return str;
     },
   },
+  '1942165347': {
+    orderId: '07200',
+    pattern: '[-C{lr}] > [-Co{lr}]',
+    description: 'final [l], [r] usually became syllabic',
+    url: 'https://eldamo.org/content/words/word-1942165347.html',
+    mechanic: (str) => {
+      const lastChar = str.nth(-1);
+      if (['l', 'r'].includes(lastChar)) {
+        const secondLastChar = str.nth(-2);
+        if (secondLastChar.isConsonant()) {
+          // Only exception:
+          if (str === 'ygl') {
+            return 'ygil';
+          }
+          return str.substring(0, str.length - 1) + 'o' + lastChar;
+        }
+      }
+      return str;
+    },
+  },
 
 // long voiceless spirants shortened - [θθ|xx] > [θ|x] - 07100 - https://eldamo.org/content/words/word-1206014597.html
 // final [l], [r] usually became syllabic - [-C{lr}] > [-Co{lr}] - 07200 - https://eldamo.org/content/words/word-1942165347.html

@@ -1370,4 +1370,16 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1206014597'].mechanic('apɸarkha')).toBe('afarcha');
     expect(sindarinRules['1206014597'].mechanic('rokkō')).toBe('rochō');
   });
+
+  it.only('07200 - final [l], [r] became syllabic', () => {
+    expect(sindarinRules['1942165347'].mechanic('aeu')).toBe('aeu');
+    expect(sindarinRules['1942165347'].mechanic('naθl')).toBe('naθol');
+    expect(sindarinRules['1942165347'].mechanic('ogl')).toBe('ogol');
+    expect(sindarinRules['1942165347'].mechanic('oθl')).toBe('oθol');
+    expect(sindarinRules['1942165347'].mechanic('tagl')).toBe('tagol');
+    expect(sindarinRules['1942165347'].mechanic('taxl')).toBe('taxol');
+    expect(sindarinRules['1942165347'].mechanic('ygl')).toBe('ygil');
+    expect(sindarinRules['1942165347'].mechanic('dagr')).toBe('dagor');
+    expect(sindarinRules['1942165347'].mechanic('sadr')).toBe('sador');
+  });
 });
