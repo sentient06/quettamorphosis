@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { SyllableAnalyser, breakIntoVowelsAndConsonants, findFirstOf, syllabify } from "../src/utils.js";
+import { SyllableAnalyser, SINDARIN_PROFILE, breakIntoVowelsAndConsonants, findFirstOf, syllabify } from "../src/utils.js";
 
 describe('String extended functions', () => {
   it('isVowel should identify vowels', () => {
@@ -120,7 +120,7 @@ describe('Utils', () => {
 });
 
 describe('SyllableAnalyser', () => {
-  const analyser = new SyllableAnalyser();
+  const analyser = new SyllableAnalyser({ profile: SINDARIN_PROFILE });
 
   describe('syllabify', () => {
     // Syllable rules:
