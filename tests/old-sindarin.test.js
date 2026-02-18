@@ -15,7 +15,7 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['71909447'].mechanic('tonōi')).toBe('tonī');
   });
 
-  it.only('00200 - initial [ŋ] became [ŋg] or [g]', () => {
+  it('00200 - initial [ŋ] became [ŋg] or [g]', () => {
     expect(oldSindarinRules['1989991061'].mechanic('abc')).toBe('abc');
     // There are not many examples and the ones existent are ambiguous.
     expect(oldSindarinRules['1989991061'].mechanic('ñgalatārigel')).toBe('galatārigel');
@@ -23,9 +23,15 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1989991061'].mechanic('ŋab')).toBe('gab'); // Non-existent word
   });
 
-//   it('00300 - first in pair of voiced stops vocalized', () => {
-//     expect(oldSindarinRules['4282797219'].mechanic('abc')).toBe('abc');
-//   });
+  it('00300 - first in pair of voiced stops vocalized', () => {
+    expect(oldSindarinRules['4282797219'].mechanic('abc')).toBe('abc');
+    // [Vbd] > [Vud]:
+    expect(oldSindarinRules['4282797219'].mechanic('kʰabdā')).toBe('chaudā');
+    expect(oldSindarinRules['4282797219'].mechanic('labdē')).toBe('laudē');
+    // [Vgd] > [Vid]:
+    expect(oldSindarinRules['4282797219'].mechanic('negdē')).toBe('neidē');
+    expect(oldSindarinRules['4282797219'].mechanic('snagdē')).toBe('snaidē');
+  });
 
 //   it('00400 - [ɣ] became [g] before nasals and liquids', () => {
 //     expect(oldSindarinRules['107931923'].mechanic('abc')).toBe('abc');

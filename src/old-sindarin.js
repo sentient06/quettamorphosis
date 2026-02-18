@@ -62,17 +62,30 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '4282797219': {
-  //   orderId: '00300',
-  //   pattern: '[Vb{bdg}|Vg{bdg}] > [Vu{bdg}|Vi{bdg}]',
-  //   description: 'first in pair of voiced stops vocalized',
-  //   url: 'https://eldamo.org/content/words/word-4282797219.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '4282797219': {
+    orderId: '00300',
+    pattern: '[Vb{bdg}|Vg{bdg}] > [Vu{bdg}|Vi{bdg}]',
+    description: 'first in pair of voiced stops vocalized',
+    url: 'https://eldamo.org/content/words/word-4282797219.html',
+    skip: true,
+    mechanic: (str) => {
+      if (str.includes('d')) {
+        const singleCharsStr = digraphsToSingle(str.toNormalScript());
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        console.log({ str, singleCharsStr, revert });
+        const { found, matched, charIndex, nextChar } = findFirstOf(['bd', 'gd'], singleCharsStr);
+        if (found) {
+          const replacements = {
+            'bd': 'ud',
+            'gd': 'id',
+          }
+          const result = singleCharsStr.replace(matched, replacements[matched]);
+          return revert ? singleToDigraphs(result) : result;
+        }
+      }
+      return str;
+    },
+  },
   // '107931923': {
   //   orderId: '00400',
   //   pattern: '[ɣ{mnlr}] > [g{mnlr}]',
