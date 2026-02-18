@@ -105,17 +105,19 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1117448055': {
-  //   orderId: '00500',
-  //   pattern: '[{ɣh}-] > [ø-]',
-  //   description: 'initial [ɣ]/[h] vanished',
-  //   url: 'https://eldamo.org/content/words/word-1117448055.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1117448055': {
+    orderId: '00500',
+    pattern: '[{ɣh}-] > [ø-]',
+    description: 'initial [ɣ]/[h] vanished',
+    url: 'https://eldamo.org/content/words/word-1117448055.html',
+    skip: true,
+    mechanic: (str) => {
+      if (str.startsWith('ɣ')) {
+        return str.slice(1);
+      }
+      return str;
+    },
+  },
   // '345959193': {
   //   orderId: '00600',
   //   pattern: '[{kkʰg}j-|skj-|ŋgj] > [{kkʰg}-|sk-|ŋg]',

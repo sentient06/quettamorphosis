@@ -40,9 +40,13 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['107931923'].mechanic('taɣda')).toBe('taɣda'); // Non-existent word
   });
 
-//   it('00500 - initial [ɣ]/[h] vanished', () => {
-//     expect(oldSindarinRules['1117448055'].mechanic('abc')).toBe('abc');
-//   });
+  it('00500 - initial [ɣ]/[h] vanished', () => {
+    expect(oldSindarinRules['1117448055'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['1117448055'].mechanic('ɣekā-')).toBe('ekā-');
+    expect(oldSindarinRules['1117448055'].mechanic('ɣeklambar')).toBe('eklambar');
+    expect(oldSindarinRules['1117448055'].mechanic('ɣenet')).toBe('enet');
+    expect(oldSindarinRules['1117448055'].mechanic('ɣor-')).toBe('or-');
+  });
 
 //   it('00600 - [j] was lost after initial velars', () => {
 //     expect(oldSindarinRules['345959193'].mechanic('abc')).toBe('abc');
