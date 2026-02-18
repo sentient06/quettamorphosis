@@ -1,4 +1,4 @@
-import { sindarinRules } from './src/v4.js';
+import { sindarinRules } from './src/sindarin.js';
 const wrapper = document.getElementById('wrapper');
 const originalInput = document.getElementById('input');
 const originalOutput = document.getElementById('output');
