@@ -46,11 +46,13 @@ export const sindarinRules = {
     description: 'final nasals vanished after vowels',
     url: 'https://eldamo.org/content/words/word-876455981.html',
     mechanic: (str) => {
-      const lastChar = str.nth(-1);
-      const penultimateChar = str.nth(-2);
-      const isPenultimateVowel = penultimateChar.isVowel();
-      if (isPenultimateVowel && (lastChar === 'm' || lastChar === 'n')) {
-        return str.substring(0, str.length - 1);
+      if (str.endsWith('m') || str.endsWith('n')) {
+        const lastChar = str.nth(-1);
+        const penultimateChar = str.nth(-2);
+        const isPenultimateVowel = penultimateChar.isVowel();
+        if (isPenultimateVowel && (lastChar === 'm' || lastChar === 'n')) {
+          return str.substring(0, str.length - 1);
+        }
       }
       return str;
     },
@@ -217,7 +219,7 @@ export const sindarinRules = {
     mechanic: (str) => {
       const syllables = syllabify(str);
       const lastSyllable = syllables[syllables.length - 1].removeMarks();
-      if (lastSyllable.indexOf('i') !== -1) {
+      if (lastSyllable.indexOf('i') !== -1 && syllables.length > 1) {
         const secondLastSyllable = syllables[syllables.length - 2];
         const secondLastSyllableUnmarked = secondLastSyllable.removeMarks();
         const eIndex = secondLastSyllableUnmarked.indexOf('e');

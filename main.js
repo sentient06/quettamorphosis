@@ -70,7 +70,7 @@ function draw(type, parent, options = {}) {
     $element.setAttribute(key, value);
   });
   // Handle 'checked' - set both property and attribute for CSS :checked to work
-  if (checked === true) {
+  if (checked === 'checked') {
     $element.checked = true;
     $element.setAttribute('checked', 'checked');
   } else if (checked === false) {
@@ -347,7 +347,7 @@ function runRule(ruleId, input, nextRuleId) {
   const resultsObj = getResultsObject(ruleId);
   const rule = rulesObj[ruleId];
 
-console.log('runRule', ruleId, input, nextRuleId, isRuleEffectivelyEnabled(ruleId));
+  console.log('runRule', ruleId, input, nextRuleId, isRuleEffectivelyEnabled(ruleId));
 
   // Skip if rule is not effectively enabled (language disabled OR rule disabled)
   if (!isRuleEffectivelyEnabled(ruleId)) {
@@ -416,6 +416,26 @@ console.log('runRule', ruleId, input, nextRuleId, isRuleEffectivelyEnabled(ruleI
   runRule(nextRuleId, output, getNextRule(nextRuleId));
 }
 
+function resetRule(ruleId) {
+  const $input = document.getElementById(`input-${ruleId}`);
+  const $output = document.getElementById(`output-${ruleId}`);
+  $input.value = "";
+  $output.value = "";
+}
+
+function resetAllRules() {
+  allRuleKeys.forEach((k) => {
+    resetRule(k);
+  });
+}
+
+function softResetPage() {
+  resetAllRules();
+  $originalOutput.value = "";
+  $resultsTripped.innerHTML = "";
+  $resultsSkipped.innerHTML = "";
+}
+
 // =============================================================================
 // Results Display
 // =============================================================================
@@ -479,7 +499,10 @@ $originalInput.addEventListener('input', (e) => {
   localStorage.setItem('original-input', e.target.value);
 
   const inputValue = e.target.value;
-  if (inputValue === '') return;
+  if (inputValue === '') {
+    softResetPage();
+    return;
+  }
 
   const $firstRuleInput = document.getElementById(`input-${firstRuleId}`);
   $firstRuleInput.value = inputValue;
