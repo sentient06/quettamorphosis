@@ -2775,6 +2775,22 @@ export const sindarinRules = {
       return str;
     },
   },
+  '798091205': {
+    orderId: '07400',
+    pattern: '[-Cw|-aw] > [-Cu|-au]',
+    description: 'final [w] usually became [u]',
+    url: 'https://eldamo.org/content/words/word-798091205.html',
+    mechanic: (str) => {
+      const lastChar = str.nth(-1);
+      if (lastChar === 'w') {
+        const secondLastChar = str.nth(-2);
+        if (secondLastChar.isConsonant() || secondLastChar === 'a') {
+          return str.substring(0, str.length - 1) + 'u';
+        }
+      }
+      return str;
+    },
+  },
 
 // long voiceless spirants shortened - [θθ|xx] > [θ|x] - 07100 - https://eldamo.org/content/words/word-1206014597.html
 // final [l], [r] usually became syllabic - [-C{lr}] > [-Co{lr}] - 07200 - https://eldamo.org/content/words/word-1942165347.html

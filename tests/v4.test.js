@@ -1388,4 +1388,13 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2569469231'].mechanic('dravn')).toBe('dravon'); // Noldorin
     expect(sindarinRules['2569469231'].mechanic('tavn')).toBe('tavn'); // Only (counter) example
   });
+
+  it.only('07400 - final [w] usually became [u]', () => {
+    expect(sindarinRules['798091205'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['798091205'].mechanic('alw')).toBe('alu');
+    expect(sindarinRules['798091205'].mechanic('buðw')).toBe('buðu');
+    expect(sindarinRules['798091205'].mechanic('gwanw')).toBe('gwanu');
+    expect(sindarinRules['798091205'].mechanic('kurw')).toBe('kuru');
+    expect(sindarinRules['798091205'].mechanic('faw')).toBe('fau');
+  });
 });
