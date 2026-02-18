@@ -46,17 +46,24 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1989991061': {
-  //   orderId: '00200',
-  //   pattern: '[ŋ-] > [ŋg-]',
-  //   description: 'initial [ŋ] became [ŋg] or [g]',
-  //   url: 'https://eldamo.org/content/words/word-1989991061.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1989991061': {
+    orderId: '00200',
+    pattern: '[ŋ-] > [ŋg-]',
+    description: 'initial [ŋ] became [ŋg] or [g]',
+    url: 'https://eldamo.org/content/words/word-1989991061.html',
+    skip: true,
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str).replaceAll('ñ', 'ŋ');
+      if (singleCharsStr.startsWith('ŋ')) {
+        const nextChar = singleCharsStr.nth(1);
+        const i = nextChar === 'g' ? 2 : 1;
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const result = 'g' + singleCharsStr.substring(i, singleCharsStr.length);
+        return revert ? singleToDigraphs(result) : result;
+      }
+      return str;
+    },
+  },
   // '4282797219': {
   //   orderId: '00300',
   //   pattern: '[Vb{bdg}|Vg{bdg}] > [Vu{bdg}|Vi{bdg}]',

@@ -469,6 +469,7 @@ export const SINDARIN_PROFILE = {
     'hw': 'ʍ',
     'lh': 'λ',
     'ng': 'ŋ',
+    'ñ': 'ŋ',
     'nth': 'ꞥ',
     'ph': 'ɸ',
     'rh': 'ꝛ',

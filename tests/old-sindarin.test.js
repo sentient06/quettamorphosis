@@ -15,9 +15,13 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['71909447'].mechanic('tonōi')).toBe('tonī');
   });
 
-//   it('00200 - initial [ŋ] became [ŋg] or [g]', () => {
-//     expect(oldSindarinRules['1989991061'].mechanic('abc')).toBe('abc');
-//   });
+  it.only('00200 - initial [ŋ] became [ŋg] or [g]', () => {
+    expect(oldSindarinRules['1989991061'].mechanic('abc')).toBe('abc');
+    // There are not many examples and the ones existent are ambiguous.
+    expect(oldSindarinRules['1989991061'].mechanic('ñgalatārigel')).toBe('galatārigel');
+    expect(oldSindarinRules['1989991061'].mechanic('ŋgalatārigel')).toBe('galatārigel');
+    expect(oldSindarinRules['1989991061'].mechanic('ŋab')).toBe('gab'); // Non-existent word
+  });
 
 //   it('00300 - first in pair of voiced stops vocalized', () => {
 //     expect(oldSindarinRules['4282797219'].mechanic('abc')).toBe('abc');
