@@ -452,68 +452,90 @@ export function findFirstOf(chars, str) {
   }
 }
 
-export class SyllableAnalyser {
-  // Options for vowel detection
-  includeY = false;
-  includeW = false;
+// =============================================================================
+// Language Profiles
+// =============================================================================
 
-  constructor(options = {}) {
-    if (options.includeY !== undefined) this.includeY = options.includeY;
-    if (options.includeW !== undefined) this.includeW = options.includeW;
-  }
-
-  legalVowels = [
-    'a', 'á', 'e', 'é', 'i', 'í', 'o', 'ó', 'u', 'ú', 'y'
-  ];
-  legalDiphthongs = [
-    'ae', 'ai', 'au', 'aw', 'ei', 'oe', 'ui'
-  ];
-  legalConsonants = [
-    'b', 'c', 'k', 'd', 'f', 'g', 'h', 'i', 'l', 'm', 'n', 'p', 'r', 's', 't', 'v', 'w'
-  ];
-  legalDigraphs = [
-    'ch', 'chw', 'dh', 'hw', 'lh', 'ng', 'nth', 'ph', 'rh', 'th'
-  ];
-  digraphMap = {
+export const SINDARIN_PROFILE = {
+  diphthongs: ['ae', 'ai', 'au', 'aw', 'ei', 'oe', 'ui'],
+  vowels: ['a', 'á', 'e', 'é', 'i', 'í', 'o', 'ó', 'u', 'ú', 'y'],
+  consonants: ['b', 'c', 'k', 'd', 'f', 'g', 'h', 'i', 'l', 'm', 'n', 'p', 'r', 's', 't', 'v', 'w'],
+  digraphs: ['ch', 'chw', 'dh', 'hw', 'lh', 'ng', 'nth', 'ph', 'rh', 'th'],
+  digraphMap: {
     'ch': 'x',
-    'chw': 'ꭓ', //'xʍ',
+    'chw': 'ꭓ',
     'dh': 'ð',
     'gw': 'ƣ',
     'hw': 'ʍ',
     'lh': 'λ',
     'ng': 'ŋ',
-    'nth': 'ꞥ',// 'nθ',
+    'nth': 'ꞥ',
     'ph': 'ɸ',
     'rh': 'ꝛ',
     'th': 'θ',
-  };
-  validInitialConsonants = [
-    'b', 'c', 'd', 'f', 'g', 'h', 'ʍ', 'i', 'l', 'λ', 'm', 'n', 'p', 'r', 'ꝛ', 's', 't', 'θ'
-  ];
-  validInitialClusters = [
-    'bl', 'br', 'cl', 'cr', 'dr', 'fl', 'gl', 'gr', 'gw', 'pr', 'tr'
-  ];
-  lenitedInitialConsonants = [
-    'b', 'x', 'ꭓ', 'd', 'ð', 'g', 'g', 'h', 'i', 'l', 'm', 'n', 'ŋ', 'r', 'θ', 'v', 'w'
-  ];
-  lenitedInitialClusters = [
-    'br', 'xl', 'xr', 'dr', 'ðr', 'fl', 'fr', 'ml', 'mr', 'θl', 'θr', 'vl', 'vr'
-  ];
-  validFinalConsonants = [
-    'b', 'x', 'd', 'ð', 'ɸ', 'w'
-  ];
-  validFinalClusters = [
-    'fn', 'lx', 'lɸ', 'll', 'lt', 'lv', 'mp', 'nc', 'nd', 'nt', 'rx', 'rð', 'rn', 'rθ', 'rv', 'sg', 'sp', 'st'
-  ];
-  finalClusterAlternateSpelling = {
-    'f': 'v',
-    'lf': 'lv',
-    'rf': 'rv'
-  };
-  alternateSpelling = {
-    'm': 'mm',
-    's': 'ss'
-  };
+  },
+  validInitialConsonants: ['b', 'c', 'd', 'f', 'g', 'h', 'ʍ', 'i', 'l', 'λ', 'm', 'n', 'p', 'r', 'ꝛ', 's', 't', 'θ'],
+  validInitialClusters: ['bl', 'br', 'cl', 'cr', 'dr', 'fl', 'gl', 'gr', 'gw', 'pr', 'tr'],
+  lenitedInitialConsonants: ['b', 'x', 'ꭓ', 'd', 'ð', 'g', 'g', 'h', 'i', 'l', 'm', 'n', 'ŋ', 'r', 'θ', 'v', 'w'],
+  lenitedInitialClusters: ['br', 'xl', 'xr', 'dr', 'ðr', 'fl', 'fr', 'ml', 'mr', 'θl', 'θr', 'vl', 'vr'],
+  validFinalConsonants: ['b', 'x', 'd', 'ð', 'ɸ', 'w'],
+  validFinalClusters: ['fn', 'lx', 'lɸ', 'll', 'lt', 'lv', 'mp', 'nc', 'nd', 'nt', 'rx', 'rð', 'rn', 'rθ', 'rv', 'sg', 'sp', 'st'],
+  finalClusterAlternateSpelling: { 'f': 'v', 'lf': 'lv', 'rf': 'rv' },
+  alternateSpelling: { 'm': 'mm', 's': 'ss' },
+};
+
+export const OLD_SINDARIN_PROFILE = {
+  ...SINDARIN_PROFILE,
+  diphthongs: ['ai', 'ui', 'iu'],
+};
+
+// =============================================================================
+// SyllableAnalyser Class
+// =============================================================================
+
+export class SyllableAnalyser {
+  // Options for vowel detection
+  includeY = false;
+  includeW = false;
+
+  // Default values (Sindarin)
+  legalVowels = SINDARIN_PROFILE.vowels;
+  legalDiphthongs = SINDARIN_PROFILE.diphthongs;
+  legalConsonants = SINDARIN_PROFILE.consonants;
+  legalDigraphs = SINDARIN_PROFILE.digraphs;
+  digraphMap = SINDARIN_PROFILE.digraphMap;
+  validInitialConsonants = SINDARIN_PROFILE.validInitialConsonants;
+  validInitialClusters = SINDARIN_PROFILE.validInitialClusters;
+  lenitedInitialConsonants = SINDARIN_PROFILE.lenitedInitialConsonants;
+  lenitedInitialClusters = SINDARIN_PROFILE.lenitedInitialClusters;
+  validFinalConsonants = SINDARIN_PROFILE.validFinalConsonants;
+  validFinalClusters = SINDARIN_PROFILE.validFinalClusters;
+  finalClusterAlternateSpelling = SINDARIN_PROFILE.finalClusterAlternateSpelling;
+  alternateSpelling = SINDARIN_PROFILE.alternateSpelling;
+
+  constructor(options = {}) {
+    // Vowel detection options
+    if (options.includeY !== undefined) this.includeY = options.includeY;
+    if (options.includeW !== undefined) this.includeW = options.includeW;
+
+    // Apply language profile if provided
+    if (options.profile) {
+      const p = options.profile;
+      if (p.vowels) this.legalVowels = p.vowels;
+      if (p.diphthongs) this.legalDiphthongs = p.diphthongs;
+      if (p.consonants) this.legalConsonants = p.consonants;
+      if (p.digraphs) this.legalDigraphs = p.digraphs;
+      if (p.digraphMap) this.digraphMap = p.digraphMap;
+      if (p.validInitialConsonants) this.validInitialConsonants = p.validInitialConsonants;
+      if (p.validInitialClusters) this.validInitialClusters = p.validInitialClusters;
+      if (p.lenitedInitialConsonants) this.lenitedInitialConsonants = p.lenitedInitialConsonants;
+      if (p.lenitedInitialClusters) this.lenitedInitialClusters = p.lenitedInitialClusters;
+      if (p.validFinalConsonants) this.validFinalConsonants = p.validFinalConsonants;
+      if (p.validFinalClusters) this.validFinalClusters = p.validFinalClusters;
+      if (p.finalClusterAlternateSpelling) this.finalClusterAlternateSpelling = p.finalClusterAlternateSpelling;
+      if (p.alternateSpelling) this.alternateSpelling = p.alternateSpelling;
+    }
+  }
 
   /**
    * Convert digraphs to single characters using the class's digraphMap.
