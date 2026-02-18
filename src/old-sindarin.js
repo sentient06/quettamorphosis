@@ -71,7 +71,6 @@ export const oldSindarinRules = {
       if (str.includes('d')) {
         const singleCharsStr = digraphsToSingle(str.toNormalScript());
         const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        console.log({ str, singleCharsStr, revert });
         const { found, matched } = findFirstOf(['bd', 'gd'], singleCharsStr);
         if (found) {
           const replacements = {

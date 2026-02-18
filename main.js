@@ -1,5 +1,6 @@
 import { sindarinRules } from './src/sindarin.js';
 import { oldSindarinRules } from './src/old-sindarin.js';
+import { SyllableAnalyser, digraphsToSingle, singleToDigraphs } from './src/utils.js';
 
 // =============================================================================
 // DOM Elements
@@ -247,7 +248,7 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   draw('input', $label, {
     id: `toggle-${ruleId}`,
     type: 'checkbox',
-    checked: isEffectivelyEnabled,
+    checked: isEffectivelyEnabled ? 'checked' : '',
     class: 'rule-toggle',
     callback: {
       trigger: 'change',
@@ -347,10 +348,9 @@ function runRule(ruleId, input, nextRuleId) {
   const resultsObj = getResultsObject(ruleId);
   const rule = rulesObj[ruleId];
 
-  console.log('runRule', ruleId, input, nextRuleId, isRuleEffectivelyEnabled(ruleId));
-
   // Skip if rule is not effectively enabled (language disabled OR rule disabled)
   if (!isRuleEffectivelyEnabled(ruleId)) {
+    console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', 'N/A'.padEnd(10, ' '), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
     if (nextRuleId) {
       const $nextInput = document.getElementById(`input-${nextRuleId}`);
       $nextInput.value = input;
@@ -387,6 +387,8 @@ function runRule(ruleId, input, nextRuleId) {
 
   const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
   const output = isEnabled ? rule.mechanic(input, options) : input;
+
+  console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
 
   // Track rule result
   if (input !== output) {
@@ -571,3 +573,27 @@ if (storedInput) {
   const secondRuleId = getNextRule(firstRuleId);
   runRule(firstRuleId, storedInput, secondRuleId);
 }
+
+// =============================================================================
+// Live debugging tools
+// =============================================================================
+
+const sAnalyser = new SyllableAnalyser();
+
+console.log('Type debug() to debug.');
+
+window.debug = (str) => {
+  if (!str) {
+    return 'Usage: debug(\'word\')';
+  }
+  const toSingle = digraphsToSingle(str);
+  const toDigraphs = singleToDigraphs(str);
+  const toSingleAndToDigraphs = singleToDigraphs(toSingle);
+  const syllables = sAnalyser.analyse(str);
+  return {
+    toSingle,
+    toDigraphs,
+    toSingleAndToDigraphs,
+    syllables,
+  };
+};

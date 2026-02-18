@@ -274,18 +274,22 @@ const VOWELS = ['a','e','i','o','u','y','á','é','í','ó','ú','ý'];
  *       for compound word handling. In sound change rules, 'nth' is 'n' + 'th' (two sounds).
  */
 const DIGRAPH_MAP = {
-  'ch': 'x',
   'dh': 'ð',
   'gw': 'ƣ',
   'hw': 'ʍ',
+  'ch': 'x',   // spirant
   'kh': 'x',   // alternate spelling of 'ch'
+  'kʰ': 'ꝁ',   // aspirated voiceless stop
   'lh': 'λ',
   'ng': 'ŋ',
-  'ph': 'ɸ',
+  'ph': 'ɸ',   // spirant
+  'pʰ': 'ƥ',   // aspirated voiceless stop
   'rh': 'ꝛ',
   'ss': 'ſ',
-  'th': 'θ',
+  'th': 'θ',   // spirant
+  'tʰ': 'ŧ',   // aspirated voiceless stop
   'wh': 'ʍ',   // alternate spelling of 'hw'
+  'gh': 'ɣ',
 };
 
 // Pre-sorted digraphs by length descending for correct replacement order
@@ -294,16 +298,20 @@ const SORTED_DIGRAPHS = Object.keys(DIGRAPH_MAP).sort((a, b) => b.length - a.len
 // Reverse map for converting single chars back to digraphs
 // Note: 'x' maps back to 'ch' (not 'kh'), 'ʍ' maps back to 'hw' (not 'wh')
 const SINGLE_TO_DIGRAPH_MAP = {
-  'x': 'ch',
   'ð': 'dh',
   'ƣ': 'gw',
-  'ʍ': 'hw',
+  'x': 'ch',   // spirant
+  'ꝁ': 'kʰ',   // aspirated voiceless stop
   'λ': 'lh',
   'ŋ': 'ng',
-  'ɸ': 'ph',
+  'ɸ': 'ph',   // spirant
+  'ƥ': 'pʰ',   // aspirated voiceless stop
   'ꝛ': 'rh',
   'ſ': 'ss',
-  'θ': 'th',
+  'θ': 'th',   // spirant
+  'ŧ': 'tʰ',   // aspirated voiceless stop
+  'ʍ': 'wh',   // alternate spelling of 'hw'
+  'ɣ': 'gh',
 };
 
 /**
@@ -468,8 +476,8 @@ export const SINDARIN_PROFILE = {
     'gw': 'ƣ',
     'hw': 'ʍ',
     'lh': 'λ',
-    'ng': 'ŋ',
     'ñ': 'ŋ',
+    'ng': 'ŋ',
     'nth': 'ꞥ',
     'ph': 'ɸ',
     'rh': 'ꝛ',
