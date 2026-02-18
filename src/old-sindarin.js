@@ -90,7 +90,6 @@ export const oldSindarinRules = {
     pattern: '[ɣ{mnlr}] > [g{mnlr}]',
     description: '[ɣ] became [g] before nasals and liquids',
     url: 'https://eldamo.org/content/words/word-107931923.html',
-    skip: true,
     mechanic: (str) => {
       if (str.includes('ɣ')) {
         const singleCharsStr = digraphsToSingle(str.toNormalScript());
@@ -110,7 +109,6 @@ export const oldSindarinRules = {
     pattern: '[{ɣh}-] > [ø-]',
     description: 'initial [ɣ]/[h] vanished',
     url: 'https://eldamo.org/content/words/word-1117448055.html',
-    skip: true,
     mechanic: (str) => {
       if (str.startsWith('ɣ')) {
         return str.slice(1);
