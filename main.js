@@ -1,24 +1,34 @@
 import { sindarinRules } from './src/sindarin.js';
-const wrapper = document.getElementById('wrapper');
-const originalInput = document.getElementById('input');
-const originalOutput = document.getElementById('output');
+
+// =============================================================================
+// DOM Elements
+// =============================================================================
+
+const $wrapper = document.getElementById('wrapper');
+const $originalInput = document.getElementById('input');
+const $originalOutput = document.getElementById('output');
+const $topWrapper = document.querySelector('.top-wrapper');
+const $helpers = document.querySelector('.userInput .helpers');
+const $resetButton = document.getElementById('reset');
+const $resultsTripped = document.getElementById('results-tripped');
+const $resultsSkipped = document.getElementById('results-skipped');
+
+// =============================================================================
+// State
+// =============================================================================
+
 const ruleResults = {};
-const ruleState = JSON.parse(localStorage.getItem("rules") || "{}");
-const originalInputFromStorage = localStorage.getItem("original-input") || "";
+const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
 
-originalInput.addEventListener('input', (e) => {
-  localStorage.setItem("original-input", e.target.value);
-});
-
-console.log( { originalInputFromStorage });
+// =============================================================================
+// Rule Utilities
+// =============================================================================
 
 const ruleKeys = Object.keys(sindarinRules).sort((a, b) => {
-  const orderA = sindarinRules[a].orderId;
-  const orderB = sindarinRules[b].orderId;
-  return orderA.localeCompare(orderB);
+  return sindarinRules[a].orderId.localeCompare(sindarinRules[b].orderId);
 });
 
-const firstRule = ruleKeys[0];
+const firstRuleId = ruleKeys[0];
 
 function draw(type, parent, options = {}) {
   const $element = document.createElement(type);
@@ -67,39 +77,31 @@ function toggleRule(ruleId, isEnabled) {
 
   // Only persist to localStorage if user is overriding a non-default-skipped rule
   if (isDefaultSkipped) {
-    // Don't persist default-skipped rules - they're always skipped
     delete ruleState[ruleId];
   } else {
     ruleState[ruleId] = isEnabled;
   }
-  localStorage.setItem("rules", JSON.stringify(ruleState));
-  // Update the rule div's class
+  localStorage.setItem('rules', JSON.stringify(ruleState));
+
   const $rule = document.getElementById(`rule-${ruleId}`);
-  
-  console.log(`Toggle rule ${ruleId} to ${ruleState[ruleId]}`);
-  
   const previousRuleId = getPreviousRule(ruleId);
   const nextRuleId = getNextRule(ruleId);
-  const followingRule = getNextRule(nextRuleId);
+  const followingRuleId = getNextRule(nextRuleId);
 
-  console.log(`- previous rule is ${previousRuleId}`);
-  console.log(`- next rule is ${nextRuleId}`);
-  console.log(`- following rule is ${followingRule}`);
-
-  const outputValue = previousRuleId ? document.getElementById(`output-${previousRuleId}`).value : originalInput.value;
-
-  console.log(`- value to be used: "${outputValue}"`);
+  const outputValue = previousRuleId
+    ? document.getElementById(`output-${previousRuleId}`).value
+    : $originalInput.value;
 
   if (outputValue && !isEnabled) {
     const $nextInput = document.getElementById(`input-${nextRuleId}`);
     $nextInput.value = outputValue;
-    runRule(nextRuleId, outputValue, followingRule);
+    runRule(nextRuleId, outputValue, followingRuleId);
   }
 
   if (isEnabled) {
     rerunRule(ruleId);
   }
-  
+
   if ($rule) {
     $rule.classList.toggle('rule-enabled', isEnabled);
   }
@@ -109,7 +111,7 @@ function drawRule(ruleId, nextRuleId, isEnabled = true) {
   const rule = sindarinRules[ruleId];
   const isDefaultEnabled = rule?.skip ? false : isEnabled;
   const ruleClass = isDefaultEnabled ? 'rule rule-enabled' : 'rule';
-  const $rule = draw('div', wrapper, { class: ruleClass, id: `rule-${ruleId}` });
+  const $rule = draw('div', $wrapper, { class: ruleClass, id: `rule-${ruleId}` });
 
   const $label = draw('label', $rule, { for: `toggle-${ruleId}`, class: 'rule-label' });
   draw('input', $label, {
@@ -207,37 +209,35 @@ function drawRule(ruleId, nextRuleId, isEnabled = true) {
 }
 
 function runRule(ruleId, input, nextRuleId) {
-  console.log('Running rule', ruleId);
   const rule = sindarinRules[ruleId];
+
+  // Skip disabled rules - pass input directly to next rule
   if (ruleState[ruleId] === false) {
     const $nextInput = document.getElementById(`input-${nextRuleId}`);
     $nextInput.value = input;
-    const followingRule = getNextRule(nextRuleId);
-    runRule(nextRuleId, input, followingRule);
+    const followingRuleId = getNextRule(nextRuleId);
+    runRule(nextRuleId, input, followingRuleId);
     return;
   }
 
-  // Collect extra parameters from input fields if the rule has them
+  // Collect extra parameters from input fields
   const options = {};
   if (rule.input) {
     rule.input.forEach((inputDef) => {
       const $input = document.getElementById(`input-${ruleId}-${inputDef.name}`);
       if ($input) {
-        if (inputDef.type === 'boolean') {
-          options[inputDef.name] = $input.checked;
-        } else {
-          options[inputDef.name] = $input.value || inputDef.default;
-        }
+        options[inputDef.name] = inputDef.type === 'boolean'
+          ? $input.checked
+          : ($input.value || inputDef.default);
       }
     });
   }
 
+  // Collect dependency overrides
   if (rule.dependsOn) {
     rule.dependsOn.forEach((dependency) => {
-      const checkboxId = `dep-${ruleId}-${dependency.param}`;
-      const $checkbox = document.getElementById(checkboxId);
+      const $checkbox = document.getElementById(`dep-${ruleId}-${dependency.param}`);
       if ($checkbox) {
-        // Read from checkbox (allows manual override)
         options[dependency.param] = $checkbox.checked;
       }
     });
@@ -246,105 +246,124 @@ function runRule(ruleId, input, nextRuleId) {
   const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
   const output = isEnabled ? rule.mechanic(input, options) : input;
 
-  if (!output) {
-    console.warn(`Rule ${ruleId} (${rule.orderId}) returned no output!`);
-    console.log({ isEnabled, state: ruleState[ruleId], rule, input });
-  }
-
-  // Track if this rule caused a change
+  // Track rule result
   if (input !== output) {
     ruleResults[ruleId] = output;
   } else {
     delete ruleResults[ruleId];
   }
 
-  // Auto-update any dependency checkboxes that depend on this rule
+  // Auto-update dependency checkboxes that depend on this rule
   document.querySelectorAll(`input[data-rule="${ruleId}"]`).forEach(($depCheckbox) => {
     $depCheckbox.checked = input !== output;
   });
-  console.log({ input, output, options });
 
+  // Update output field
   const $output = document.getElementById(`output-${ruleId}`);
   $output.value = output;
+
+  // Continue to next rule or finish
   if (!nextRuleId) {
-    originalOutput.value = output;
+    $originalOutput.value = output;
     printResults();
     return;
   }
+
   const $nextInput = document.getElementById(`input-${nextRuleId}`);
   $nextInput.value = output;
-  const followingRule = getNextRule(nextRuleId);
-  runRule(nextRuleId, output, followingRule);
+  runRule(nextRuleId, output, getNextRule(nextRuleId));
 }
 
-ruleKeys.forEach((rule, index, array) => {
-  const nextRule = array[index + 1];
-  const isEnabled = ruleState[rule] !== undefined ? ruleState[rule] : true;
-  drawRule(rule, nextRule, isEnabled);
-});
-
-if (originalInputFromStorage) {
-  originalInput.value = originalInputFromStorage;
-  const $input = document.getElementById(`input-${firstRule}`);
-  $input.value = originalInputFromStorage;
-  const secondRule = getNextRule(firstRule);
-  runRule(firstRule, originalInputFromStorage, secondRule);
-}
-
-originalInput.addEventListener('input', (e) => {
-  const firstInput = e.target.value;
-  if (firstInput === '') return;
-  const $input = document.getElementById(`input-${firstRule}`);
-  $input.value = firstInput;
-  const secondRule = getNextRule(firstRule);
-  runRule(firstRule, firstInput, secondRule);
-});
-
-const $helpers = document.querySelector('.userInput .helpers');
-$helpers.addEventListener('click', (e) => {
-  const char = e.target.innerHTML;
-  const start = originalInput.selectionStart;
-  const end = originalInput.selectionEnd;
-  const value = originalInput.value;
-  originalInput.value = value.slice(0, start) + char + value.slice(end);
-  // Move cursor to after the inserted character
-  const newPos = start + char.length;
-  originalInput.setSelectionRange(newPos, newPos);
-  originalInput.dispatchEvent(new Event('input'));
-  originalInput.focus();
-});
+// =============================================================================
+// Results Display
+// =============================================================================
 
 function printResults() {
+  // Get rules that caused changes (sorted by orderId)
   const rulesUsed = Object.keys(ruleResults).sort((a, b) => {
-    const orderA = sindarinRules[a].orderId;
-    const orderB = sindarinRules[b].orderId;
-    return orderA.localeCompare(orderB);
+    return sindarinRules[a].orderId.localeCompare(sindarinRules[b].orderId);
   });
-  document.getElementById('results-tripped').innerHTML = rulesUsed.map((ruleId) => {
+
+  // Display rules that were triggered
+  $resultsTripped.innerHTML = rulesUsed.map((ruleId) => {
     const anchor = `<a href="#rule-${ruleId}">${sindarinRules[ruleId].orderId}</a>`;
     return `${anchor} - ${ruleResults[ruleId]}`;
   }).join('\n');
+
   // Get all skipped rules: user-disabled OR default-skipped
-  const skippedRules = ruleKeys.filter(ruleId => {
+  const skippedRules = ruleKeys.filter((ruleId) => {
     const rule = sindarinRules[ruleId];
-    const isDefaultSkipped = rule?.skip === true;
-    const isUserDisabled = ruleState[ruleId] === false;
-    return isDefaultSkipped || isUserDisabled;
+    return rule?.skip === true || ruleState[ruleId] === false;
   });
-  document.getElementById('results-skipped').innerHTML = skippedRules.map((ruleId) => {
+
+  // Display skipped rules
+  $resultsSkipped.innerHTML = skippedRules.map((ruleId) => {
     return `<a href="#rule-${ruleId}">${sindarinRules[ruleId].orderId}</a>`;
   }).join('\n');
-  rulesUsed.forEach((ruleId) => {
-    console.log(`${sindarinRules[ruleId].orderId} - ${ruleResults[ruleId]}`);
-  });
 }
 
-// Set sticky header height CSS variable for scroll-margin-top
-const topWrapper = document.querySelector('.top-wrapper');
-document.documentElement.style.setProperty('--sticky-h', topWrapper.offsetHeight + 'px');
+// =============================================================================
+// Event Handlers
+// =============================================================================
 
-document.getElementById('reset').addEventListener('click', () => {
-  localStorage.removeItem("rules");
-  localStorage.removeItem("original-input");
+// Handle input changes - save to storage and run rules
+$originalInput.addEventListener('input', (e) => {
+  localStorage.setItem('original-input', e.target.value);
+
+  const inputValue = e.target.value;
+  if (inputValue === '') return;
+
+  const $firstRuleInput = document.getElementById(`input-${firstRuleId}`);
+  $firstRuleInput.value = inputValue;
+
+  const secondRuleId = getNextRule(firstRuleId);
+  runRule(firstRuleId, inputValue, secondRuleId);
+});
+
+// Handle helper character insertion
+$helpers.addEventListener('click', (e) => {
+  const char = e.target.innerHTML;
+  const start = $originalInput.selectionStart;
+  const end = $originalInput.selectionEnd;
+  const value = $originalInput.value;
+
+  $originalInput.value = value.slice(0, start) + char + value.slice(end);
+
+  // Move cursor to after the inserted character
+  const newPos = start + char.length;
+  $originalInput.setSelectionRange(newPos, newPos);
+  $originalInput.dispatchEvent(new Event('input'));
+  $originalInput.focus();
+});
+
+// Handle reset button
+$resetButton.addEventListener('click', () => {
+  localStorage.removeItem('rules');
+  localStorage.removeItem('original-input');
   location.reload();
 });
+
+// =============================================================================
+// Initialization
+// =============================================================================
+
+// Set sticky header height CSS variable for scroll-margin-top
+document.documentElement.style.setProperty('--sticky-h', $topWrapper.offsetHeight + 'px');
+
+// Draw all rules
+ruleKeys.forEach((ruleId, index, array) => {
+  const nextRuleId = array[index + 1];
+  const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
+  drawRule(ruleId, nextRuleId, isEnabled);
+});
+
+// Restore input from storage and run rules
+const storedInput = localStorage.getItem('original-input') || '';
+if (storedInput) {
+  $originalInput.value = storedInput;
+  const $firstRuleInput = document.getElementById(`input-${firstRuleId}`);
+  $firstRuleInput.value = storedInput;
+
+  const secondRuleId = getNextRule(firstRuleId);
+  runRule(firstRuleId, storedInput, secondRuleId);
+}
