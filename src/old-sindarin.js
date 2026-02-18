@@ -67,7 +67,6 @@ export const oldSindarinRules = {
     pattern: '[Vb{bdg}|Vg{bdg}] > [Vu{bdg}|Vi{bdg}]',
     description: 'first in pair of voiced stops vocalized',
     url: 'https://eldamo.org/content/words/word-4282797219.html',
-    skip: true,
     mechanic: (str) => {
       if (str.includes('d')) {
         const singleCharsStr = digraphsToSingle(str.toNormalScript());
