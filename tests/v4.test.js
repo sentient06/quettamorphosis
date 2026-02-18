@@ -1405,4 +1405,12 @@ describe('Sindarin rules', () => {
     // Only example, and it's Noldorin:
     expect(sindarinRules['1254294665'].mechanic('gaerr')).toBe('gaer');
   });
+
+  it('07600 - [sk], [sp] usually became [sg], [sb]', () => {
+    expect(sindarinRules['1759587217'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['1759587217'].mechanic('eskal')).toBe('esgal');
+    expect(sindarinRules['1759587217'].mechanic('espin')).toBe('esbin');
+    // Multiple replacements:
+    expect(sindarinRules['1759587217'].mechanic('aspaskab')).toBe('asbasgab'); // Non-existent word
+  });
 });

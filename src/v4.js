@@ -2803,10 +2803,19 @@ export const sindarinRules = {
       return str;
     },
   },
+  '1759587217': {
+    orderId: '07600',
+    pattern: '[s{pk}] > [s{bg}]',
+    description: '[sk], [sp] usually became [sg], [sb]',
+    url: 'https://eldamo.org/content/words/word-1759587217.html',
+    mechanic: (str) => {
+      if (str.includes('sp') || str.includes('sk')) {
+        return str.replace('sp', 'sb').replace('sk', 'sg');
+      }
+      return str;
+    },
+  },
 
-// long voiceless spirants shortened - [θθ|xx] > [θ|x] - 07100 - https://eldamo.org/content/words/word-1206014597.html
-// final [l], [r] usually became syllabic - [-C{lr}] > [-Co{lr}] - 07200 - https://eldamo.org/content/words/word-1942165347.html
-// final [vn] sometimes became [von] - [-vn] > [-von] - 07300 - https://eldamo.org/content/words/word-2569469231.html
 // final [w] usually became [u] - [-Cw|-aw] > [-Cu|-au] - 07400 - https://eldamo.org/content/words/word-798091205.html
 // final [rr] became [r] - [-rr] > [-r] - 07500 - https://eldamo.org/content/words/word-1254294665.html
 // [sk], [sp] usually became [sg], [sb] - [s{pk}] > [s{bg}] - 07600 - https://eldamo.org/content/words/word-1759587217.html
