@@ -2834,10 +2834,25 @@ export const sindarinRules = {
       return str;
     },
   },
-
-// final [w] usually became [u] - [-Cw|-aw] > [-Cu|-au] - 07400 - https://eldamo.org/content/words/word-798091205.html
-// final [rr] became [r] - [-rr] > [-r] - 07500 - https://eldamo.org/content/words/word-1254294665.html
-// [sk], [sp] usually became [sg], [sb] - [s{pk}] > [s{bg}] - 07600 - https://eldamo.org/content/words/word-1759587217.html
-// medial [x] became [h] in Gondorian pronunciation - [-x-] > [-h-] - 07700 - https://eldamo.org/content/words/word-4188321265.html
-// voiced spirants unvoiced before voiceless spirants - [{vð}{hx}] > [{fθ}] - 07800 - https://eldamo.org/content/words/word-132402625.html
+  '132402625': {
+    orderId: '07800',
+    pattern: '[{vð}{hx}] > [{fθ}]',
+    description: 'voiced spirants unvoiced before voiceless spirants',
+    url: 'https://eldamo.org/content/words/word-132402625.html',
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str);
+      const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['h'], singleCharsStr);
+      if (found) {
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        if (['v', 'ð'].includes(prevChar)) {
+          const result = singleCharsStr
+            .replace('vh', 'f')
+            .replace('ðh', 'θ');
+          if (revert) return singleToDigraphs(result);
+          return result;
+        }
+      }
+      return str;
+    },
+  },
 };

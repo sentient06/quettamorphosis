@@ -1424,4 +1424,10 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['4188321265'].mechanic('rox')).toBe('rox'); // Non-existent word
     expect(sindarinRules['4188321265'].mechanic('χan')).toBe('χan'); // Non-existent word
   });
+
+  it('07800 - voiced spirants unvoiced before voiceless spirants', () => {
+    expect(sindarinRules['132402625'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['132402625'].mechanic('iovhog')).toBe('iofog'); // iovhug / jovhug (Noldorin)
+    expect(sindarinRules['132402625'].mechanic('galaðhir')).toBe('galaθir');
+  });
 });
