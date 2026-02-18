@@ -1385,16 +1385,24 @@ describe('Sindarin rules', () => {
 
   it('07300 - final [vn] became [von]', () => {
     expect(sindarinRules['2569469231'].mechanic('abc')).toBe('abc');
-    expect(sindarinRules['2569469231'].mechanic('dravn')).toBe('dravon'); // Noldorin
-    expect(sindarinRules['2569469231'].mechanic('tavn')).toBe('tavn'); // Only (counter) example
+    // Noldorin:
+    expect(sindarinRules['2569469231'].mechanic('dravn')).toBe('dravon');
+    // Only Sindarin (counter) example:
+    expect(sindarinRules['2569469231'].mechanic('tavn')).toBe('tavn');
   });
 
-  it.only('07400 - final [w] usually became [u]', () => {
+  it('07400 - final [w] usually became [u]', () => {
     expect(sindarinRules['798091205'].mechanic('abc')).toBe('abc');
     expect(sindarinRules['798091205'].mechanic('alw')).toBe('alu');
     expect(sindarinRules['798091205'].mechanic('buðw')).toBe('buðu');
     expect(sindarinRules['798091205'].mechanic('gwanw')).toBe('gwanu');
     expect(sindarinRules['798091205'].mechanic('kurw')).toBe('kuru');
     expect(sindarinRules['798091205'].mechanic('faw')).toBe('fau');
+  });
+
+  it('07500 - final [rr] became [r]', () => {
+    expect(sindarinRules['1254294665'].mechanic('abc')).toBe('abc');
+    // Only example, and it's Noldorin:
+    expect(sindarinRules['1254294665'].mechanic('gaerr')).toBe('gaer');
   });
 });

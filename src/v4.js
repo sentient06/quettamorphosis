@@ -2791,6 +2791,18 @@ export const sindarinRules = {
       return str;
     },
   },
+  '1254294665': {
+    orderId: '07500',
+    pattern: '[-rr] > [-r]',
+    description: 'final [rr] became [r]',
+    url: 'https://eldamo.org/content/words/word-1254294665.html',
+    mechanic: (str) => {
+      if (str.nth(-2, 2) === 'rr') {
+        return str.substring(0, str.length - 1);
+      }
+      return str;
+    },
+  },
 
 // long voiceless spirants shortened - [θθ|xx] > [θ|x] - 07100 - https://eldamo.org/content/words/word-1206014597.html
 // final [l], [r] usually became syllabic - [-C{lr}] > [-Co{lr}] - 07200 - https://eldamo.org/content/words/word-1942165347.html
