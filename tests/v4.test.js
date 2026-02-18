@@ -1413,4 +1413,15 @@ describe('Sindarin rules', () => {
     // Multiple replacements:
     expect(sindarinRules['1759587217'].mechanic('aspaskab')).toBe('asbasgab'); // Non-existent word
   });
+
+  it('07700 - medial [x] became [h] in Gondorian pronunciation', () => {
+    expect(sindarinRules['4188321265'].mechanic('abc')).toBe('abc');
+    expect(sindarinRules['4188321265'].mechanic('rochan')).toBe('rohan');
+    expect(sindarinRules['4188321265'].mechanic('roxan')).toBe('rohan');
+    expect(sindarinRules['4188321265'].mechanic('roχan')).toBe('rohan');
+    // Don't apply to initials and finals:
+    expect(sindarinRules['4188321265'].mechanic('xan')).toBe('xan'); // Non-existent word
+    expect(sindarinRules['4188321265'].mechanic('rox')).toBe('rox'); // Non-existent word
+    expect(sindarinRules['4188321265'].mechanic('χan')).toBe('χan'); // Non-existent word
+  });
 });

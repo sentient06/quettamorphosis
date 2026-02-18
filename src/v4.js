@@ -2815,6 +2815,25 @@ export const sindarinRules = {
       return str;
     },
   },
+  '4188321265': {
+    orderId: '07700',
+    pattern: '[-x-] > [-h-]',
+    description: 'medial [x] became [h] in Gondorian pronunciation',
+    url: 'https://eldamo.org/content/words/word-4188321265.html',
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str).replace('χ', 'x');
+      if (singleCharsStr.includes('x')) {
+        const initial = singleCharsStr.nth(0);
+        const final = singleCharsStr.nth(-1);
+        if (initial === 'x' || final === 'x') return str;
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const result = singleCharsStr.replace('x', 'h');
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
 
 // final [w] usually became [u] - [-Cw|-aw] > [-Cu|-au] - 07400 - https://eldamo.org/content/words/word-798091205.html
 // final [rr] became [r] - [-rr] > [-r] - 07500 - https://eldamo.org/content/words/word-1254294665.html
