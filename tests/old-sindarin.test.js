@@ -48,9 +48,23 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1117448055'].mechanic('ɣor-')).toBe('or-');
   });
 
-//   it('00600 - [j] was lost after initial velars', () => {
-//     expect(oldSindarinRules['345959193'].mechanic('abc')).toBe('abc');
-//   });
+  it.only('00600 - [j] was lost after initial velars', () => {
+    expect(oldSindarinRules['345959193'].mechanic('abc')).toBe('abc');
+    // [kj-] > [k-]:
+    expect(oldSindarinRules['345959193'].mechanic('akjāwen')).toBe('akāwen');
+    expect(oldSindarinRules['345959193'].mechanic('kjawathāne')).toBe('kawathāne');
+    expect(oldSindarinRules['345959193'].mechanic('kjelepē')).toBe('kelepē');
+    // [kʰj-] > [kʰ-]:
+    expect(oldSindarinRules['345959193'].mechanic('kʰjabab')).toBe('kʰabab'); // Non-existent word
+    // [gj-] > [g-]:
+    expect(oldSindarinRules['345959193'].mechanic('gjabab')).toBe('gabab'); // Non-existent word
+    // [skj-] > [sk-]:
+    expect(oldSindarinRules['345959193'].mechanic('skjabab')).toBe('skabab'); // Non-existent word
+    // [ŋgj] > [ŋg]:
+    expect(oldSindarinRules['345959193'].mechanic('ŋgjabab')).toBe('ŋgabab'); // Non-existent word
+    // Replace all occurrences:
+    expect(oldSindarinRules['345959193'].mechanic('kjawathānekjāwen')).toBe('kawathānekāwen'); // Non-existent word
+  });
 
 //   it('00700 - medial [m] became [n] before [j], [w]', () => {
 //     expect(oldSindarinRules['1484184939'].mechanic('abc')).toBe('abc');

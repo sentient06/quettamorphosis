@@ -115,17 +115,33 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '345959193': {
-  //   orderId: '00600',
-  //   pattern: '[{kkʰg}j-|skj-|ŋgj] > [{kkʰg}-|sk-|ŋg]',
-  //   description: '[j] was lost after initial velars',
-  //   url: 'https://eldamo.org/content/words/word-345959193.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '345959193': {
+    orderId: '00600',
+    pattern: '[{kkʰg}j-|skj-|ŋgj] > [{kkʰg}-|sk-|ŋg]',
+    description: '[j] was lost after initial velars',
+    url: 'https://eldamo.org/content/words/word-345959193.html',
+    skip: true,
+    mechanic: (str) => {
+      // Convert digraphs first (before toNormalScript would destroy kʰ → kh distinction)
+      const singleCharsStr = digraphsToSingle(str);
+      // After digraph conversion: kʰ→ꝁ, so search for ꝁj (not kʰj)
+      const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['kj', 'ꝁj', 'gj', 'skj', 'ŋgj'], singleCharsStr);
+      if (found) {
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const replacements = {
+          'kj': 'k',
+          'ꝁj': 'ꝁ',
+          'gj': 'g',
+          'skj': 'sk',
+          'ŋgj': 'ŋg',
+        },
+        result = singleCharsStr.replaceAll(matched, replacements[matched]);
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
   // '1484184939': {
   //   orderId: '00700',
   //   pattern: '[m{jw}|-mw] > [n{jw}|-mm]',
