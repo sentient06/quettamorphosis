@@ -284,7 +284,6 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-300026073.html',
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str);
-      console.log({ singleCharsStr });
       if (singleCharsStr.endsWith('ŧ')) {
         const revert = shouldRevertToDigraphs(str, singleCharsStr);
         const result = singleCharsStr.substring(0, singleCharsStr.length - 1) + 't';
@@ -294,17 +293,22 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '3229649933': {
-  //   orderId: '01500',
-  //   pattern: '[-sj-|-sw-] > [-xʲ-|-xʷ-]',
-  //   description: 'medial [sj], [sw] became [xʲ], [xʷ]',
-  //   url: 'https://eldamo.org/content/words/word-3229649933.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '3229649933': {
+    orderId: '01500',
+    pattern: '[-sj-|-sw-] > [-xʲ-|-xʷ-]',
+    description: 'medial [sj], [sw] became [xʲ], [xʷ]',
+    url: 'https://eldamo.org/content/words/word-3229649933.html',
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str);
+      if (singleCharsStr.includes('sj') || singleCharsStr.includes('sw')) {
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const result = singleCharsStr.replaceAll('sj', 'ꜧ').replaceAll('sw', 'ƕ');
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
   // '2753394075': {
   //   orderId: '01600',
   //   pattern: '[-SV̄] > [-SV̆]',

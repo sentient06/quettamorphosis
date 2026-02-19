@@ -290,6 +290,8 @@ const DIGRAPH_MAP = {
   'tʰ': 'ŧ',   // aspirated voiceless stop
   'wh': 'ʍ',   // alternate spelling of 'hw'
   'gh': 'ɣ',
+  'xʲ': 'ꜧ',
+  'xʷ': 'ƕ',
 };
 
 // Pre-sorted digraphs by length descending for correct replacement order
@@ -312,6 +314,8 @@ const SINGLE_TO_DIGRAPH_MAP = {
   'ŧ': 'tʰ',   // aspirated voiceless stop
   'ʍ': 'wh',   // alternate spelling of 'hw'
   'ɣ': 'gh',
+  'ꜧ': 'xʲ',
+  'ƕ': 'xʷ',
 };
 
 /**

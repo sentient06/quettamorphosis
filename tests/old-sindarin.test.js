@@ -152,9 +152,13 @@ describe('Old Sindarin rules', () => {
     // The result is "khōt", but "ch" is equivalent to "kh".
   });
 
-//   it('01500 - medial [sj], [sw] became [xʲ], [xʷ]', () => {
-//     expect(oldSindarinRules['3229649933'].mechanic('abc')).toBe('abc');
-//   });
+  it('01500 - medial [sj], [sw] became [xʲ], [xʷ]', () => {
+    expect(oldSindarinRules['3229649933'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['3229649933'].mechanic('lisjā')).toBe('lixʲā');
+    expect(oldSindarinRules['3229649933'].mechanic('teswā')).toBe('texʷā');
+    // Made-up value to test multiple occurrences:
+    expect(oldSindarinRules['3229649933'].mechanic('tesjaswā')).toBe('texʲaxʷā');
+  });
 
 //   it('01600 - long final vowels were shortened', () => {
 //     expect(oldSindarinRules['2753394075'].mechanic('abc')).toBe('abc');
