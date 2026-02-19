@@ -278,17 +278,24 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '300026073': {
-  //   orderId: '01400',
-  //   pattern: '[-tʰ] > [-t]',
-  //   description: 'final [tʰ] became [t]',
-  //   url: 'https://eldamo.org/content/words/word-300026073.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '300026073': {
+    orderId: '01400',
+    pattern: '[-tʰ] > [-t]',
+    description: 'final [tʰ] became [t]',
+    url: 'https://eldamo.org/content/words/word-300026073.html',
+    skip: true,
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str);
+      console.log({ singleCharsStr });
+      if (singleCharsStr.endsWith('ŧ')) {
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const result = singleCharsStr.substring(0, singleCharsStr.length - 1) + 't';
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
   // '3229649933': {
   //   orderId: '01500',
   //   pattern: '[-sj-|-sw-] > [-xʲ-|-xʷ-]',

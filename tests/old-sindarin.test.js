@@ -145,9 +145,12 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1789116309'].mechanic('dadadad')).toBe('dadadā');
   });
 
-//   it('01400 - final [tʰ] became [t]', () => {
-//     expect(oldSindarinRules['300026073'].mechanic('abc')).toBe('abc');
-//   });
+  it('01400 - final [tʰ] became [t]', () => {
+    expect(oldSindarinRules['300026073'].mechanic('abc')).toBe('abc');
+    // Only example, from Noldorin:
+    expect(oldSindarinRules['300026073'].mechanic('khōtʰ')).toBe('chōt');
+    // The result is "khōt", but "ch" is equivalent to "kh".
+  });
 
 //   it('01500 - medial [sj], [sw] became [xʲ], [xʷ]', () => {
 //     expect(oldSindarinRules['3229649933'].mechanic('abc')).toBe('abc');
