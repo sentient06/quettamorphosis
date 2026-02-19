@@ -262,7 +262,6 @@ export const oldSindarinRules = {
     pattern: '[-Vd] > [-V̄ø]',
     description: 'final [d] spirantalized and vanished',
     url: 'https://eldamo.org/content/words/word-1789116309.html',
-    skip: true,
     mechanic: (str) => {
       if (str.endsWith('d')) {
         const singleCharsStr = digraphsToSingle(str);
@@ -283,7 +282,6 @@ export const oldSindarinRules = {
     pattern: '[-tʰ] > [-t]',
     description: 'final [tʰ] became [t]',
     url: 'https://eldamo.org/content/words/word-300026073.html',
-    skip: true,
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str);
       console.log({ singleCharsStr });
