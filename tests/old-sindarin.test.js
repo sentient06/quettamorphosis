@@ -66,7 +66,7 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['345959193'].mechanic('kjawathānekjāwen')).toBe('kawathānekāwen'); // Non-existent word
   });
 
-  it.only('00700 - medial [m] became [n] before [j], [w]', () => {
+  it('00700 - medial [m] became [n] before [j], [w]', () => {
     expect(oldSindarinRules['1484184939'].mechanic('abc')).toBe('abc');
     // [mj] > [nj]:
     expect(oldSindarinRules['1484184939'].mechanic('amja-')).toBe('anja-');
@@ -76,9 +76,16 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1484184939'].mechanic('abamw')).toBe('abamm'); // Non-existent word
   });
 
-//   it('00800 - initial [ml], [mr] became [bl], [br]', () => {
-//     expect(oldSindarinRules['1955360003'].mechanic('abc')).toBe('abc');
-//   });
+  it('00800 - initial [ml], [mr] became [bl], [br]', () => {
+    expect(oldSindarinRules['1955360003'].mechanic('abc')).toBe('abc');
+    // There are no Sindarin examples for this.
+    // Examples have been taken from Noldorin and Gnomish.
+    // Gnomish transformations are entirely ficticious.
+    // [ml-] > [bl-]:
+    expect(oldSindarinRules['1955360003'].mechanic('mloss')).toBe('bloss'); // Gnomish word, ficticious transformation
+    // [mr-] > [br-]:
+    expect(oldSindarinRules['1955360003'].mechanic('mrekāla')).toBe('brekāla'); // Noldorin
+  });
 
 //   it('00900 - initial syllabic [m], [n], [ŋ] became [am], [an], [aŋ]', () => {
 //     expect(oldSindarinRules['1024355367'].mechanic('abc')).toBe('abc');

@@ -163,17 +163,22 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1955360003': {
-  //   orderId: '00800',
-  //   pattern: '[m{lr}-] > [b{lr}-]',
-  //   description: 'initial [ml], [mr] became [bl], [br]',
-  //   url: 'https://eldamo.org/content/words/word-1955360003.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1955360003': {
+    orderId: '00800',
+    pattern: '[m{lr}-] > [b{lr}-]',
+    description: 'initial [ml], [mr] became [bl], [br]',
+    url: 'https://eldamo.org/content/words/word-1955360003.html',
+    skip: true,
+    mechanic: (str) => {
+      if (str.nth(0) === 'm') {
+        const nextChar = str.nth(1);
+        if (['l', 'r'].includes(nextChar)) {
+          return 'b' + str.substring(1);
+        }
+      }
+      return str;
+    },
+  },
   // '1024355367': {
   //   orderId: '00900',
   //   pattern: '[{ṃṇŋ̣}-] > [a{mnŋ}-]',
