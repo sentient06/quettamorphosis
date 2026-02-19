@@ -160,9 +160,22 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3229649933'].mechanic('tesjaswā')).toBe('texʲaxʷā');
   });
 
-//   it('01600 - long final vowels were shortened', () => {
-//     expect(oldSindarinRules['2753394075'].mechanic('abc')).toBe('abc');
-//   });
+  it('01600 - long final vowels were shortened', () => {
+    expect(oldSindarinRules['2753394075'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['2753394075'].mechanic('aklaripā')).toBe('aklaripa');
+    expect(oldSindarinRules['2753394075'].mechanic('glossōjā')).toBe('glossōja');
+    expect(oldSindarinRules['2753394075'].mechanic('pʰiniŋgornā')).toBe('pʰiniŋgorna');
+    expect(oldSindarinRules['2753394075'].mechanic('andūnē')).toBe('andūne');
+    expect(oldSindarinRules['2753394075'].mechanic('brassē')).toBe('brasse');
+    expect(oldSindarinRules['2753394075'].mechanic('kʰītʰilōmē')).toBe('kʰītʰilōme');
+    expect(oldSindarinRules['2753394075'].mechanic('kʰerunī')).toBe('kʰeruni');
+    expect(oldSindarinRules['2753394075'].mechanic('rembinī')).toBe('rembini');
+    expect(oldSindarinRules['2753394075'].mechanic('ŋgolodō')).toBe('ŋgolodo');
+    expect(oldSindarinRules['2753394075'].mechanic('ŋgorotʰūsō')).toBe('ŋgorotʰūso');
+    expect(oldSindarinRules['2753394075'].mechanic('kamprū')).toBe('kampru');
+    expect(oldSindarinRules['2753394075'].mechanic('kamprú')).toBe('kampru');
+    expect(oldSindarinRules['2753394075'].mechanic('kamprû')).toBe('kampru');
+  });
 
 //   it('01700 - [z] vanished before [d] lengthening preceding vowel', () => {
 //     expect(oldSindarinRules['1249932447'].mechanic('abc')).toBe('abc');

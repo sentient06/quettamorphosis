@@ -309,17 +309,20 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '2753394075': {
-  //   orderId: '01600',
-  //   pattern: '[-SV̄] > [-SV̆]',
-  //   description: 'long final vowels were shortened',
-  //   url: 'https://eldamo.org/content/words/word-2753394075.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '2753394075': {
+    orderId: '01600',
+    pattern: '[-SV̄] > [-SV̆]',
+    description: 'long final vowels were shortened',
+    url: 'https://eldamo.org/content/words/word-2753394075.html',
+    mechanic: (str) => {
+      const lastChar = str.nth(-1);
+      const mark = lastChar.getMark();
+      if (['¯', '´', '^'].includes(mark)) {
+        return str.substring(0, str.length - 1) + lastChar.removeMarks();
+      }
+      return str;
+    },
+  },
   // '1249932447': {
   //   orderId: '01700',
   //   pattern: '[Vzd] > [V̄d]',
