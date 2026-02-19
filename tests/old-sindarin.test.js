@@ -184,9 +184,14 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1249932447'].mechanic('rezda')).toBe('rēda');
   });
 
-//   it('01800 - syllabic initial [s] became [es]', () => {
-//     expect(oldSindarinRules['2107885715'].mechanic('abc')).toBe('abc');
-//   });
+  it('01800 - syllabic initial [s] became [es]', () => {
+    expect(oldSindarinRules['2107885715'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['2107885715'].mechanic('ṣkala')).toBe('eskala');
+    expect(oldSindarinRules['2107885715'].mechanic('ṣpine')).toBe('espine');
+    expect(oldSindarinRules['2107885715'].mechanic('ṣtenna')).toBe('estenna');
+    expect(oldSindarinRules['2107885715'].mechanic('stenna')).toBe('estenna');
+    expect(oldSindarinRules['2107885715'].mechanic('ṣtenta')).toBe('estenta');
+  });
 
 //   it('01900 - initial [s] unvoiced following consonants', () => {
 //     expect(oldSindarinRules['3923357111'].mechanic('abc')).toBe('abc');

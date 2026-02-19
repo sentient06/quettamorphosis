@@ -341,17 +341,21 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '2107885715': {
-  //   orderId: '01800',
-  //   pattern: '[ṣ-] > [es-]',
-  //   description: 'syllabic initial [s] became [es]',
-  //   url: 'https://eldamo.org/content/words/word-2107885715.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '2107885715': {
+    orderId: '01800',
+    pattern: '[ṣ-] > [es-]',
+    description: 'syllabic initial [s] became [es]',
+    url: 'https://eldamo.org/content/words/word-2107885715.html',
+    mechanic: (str) => {
+      if (str.startsWith('s') || str.startsWith('ṣ')) {
+        const secondChar = str.nth(1);
+        if (['c', 'k', 'p', 't'].includes(secondChar)) {
+          return 'es' + str.substring(1);
+        }
+      }
+      return str;
+    },
+  },
   // '3923357111': {
   //   orderId: '01900',
   //   pattern: '[s{jwmnrl}-] > [{j̊w̥m̥n̥l̥r̥}-]',
