@@ -87,9 +87,16 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1955360003'].mechanic('mrekāla')).toBe('brekāla'); // Noldorin
   });
 
-//   it('00900 - initial syllabic [m], [n], [ŋ] became [am], [an], [aŋ]', () => {
-//     expect(oldSindarinRules['1024355367'].mechanic('abc')).toBe('abc');
-//   });
+  it('00900 - initial syllabic [m], [n], [ŋ] became [am], [an], [aŋ]', () => {
+    // Ask about marking under the nasals: ṃ vs m
+    expect(oldSindarinRules['1024355367'].mechanic('abc')).toBe('abc');
+    // [ṃ-] > [am-]:
+    expect(oldSindarinRules['1024355367'].mechanic('mbar')).toBe('ambar');
+    // [ṇ-] > [an-]:
+    expect(oldSindarinRules['1024355367'].mechanic('ndūnē')).toBe('andūnē');
+    // [ŋ̣-] > [aŋ-]:
+    expect(oldSindarinRules['1024355367'].mechanic('ŋgolodō')).toBe('aŋgolodō');
+  });
 
 //   it('01000 - voiceless stops were voiced before nasals', () => {
 //     expect(oldSindarinRules['3463937975'].mechanic('abc')).toBe('abc');

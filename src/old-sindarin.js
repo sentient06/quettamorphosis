@@ -179,17 +179,28 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1024355367': {
-  //   orderId: '00900',
-  //   pattern: '[{ṃṇŋ̣}-] > [a{mnŋ}-]',
-  //   description: 'initial syllabic [m], [n], [ŋ] became [am], [an], [aŋ]',
-  //   url: 'https://eldamo.org/content/words/word-1024355367.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1024355367': {
+    orderId: '00900',
+    pattern: '[{ṃṇŋ̣}-] > [a{mnŋ}-]',
+    description: 'initial syllabic [m], [n], [ŋ] became [am], [an], [aŋ]',
+    url: 'https://eldamo.org/content/words/word-1024355367.html',
+    skip: true,
+    mechanic: (str) => {
+      const firstChar = str.nth(0);
+      if (['ṃ', 'ṇ', 'ŋ̣', 'm', 'n', 'ŋ'].includes(firstChar)) {
+        const replacements = {
+          'ṃ': 'am',
+          'ṇ': 'an',
+          'ŋ̣': 'aŋ',
+          'm': 'am',
+          'n': 'an',
+          'ŋ': 'aŋ',
+        };
+        return replacements[firstChar] + str.substring(1);
+      }
+      return str;
+    },
+  },
   // '3463937975': {
   //   orderId: '01000',
   //   pattern: '[{ptk}{mn}] > [{bdg}{mnŋ}]',
