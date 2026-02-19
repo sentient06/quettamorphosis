@@ -120,9 +120,14 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3463937975'].mechanic('tulukmē')).toBe('tulugmē');
   });
 
-//   it('01100 - [m] became [w] after aspirates', () => {
-//     expect(oldSindarinRules['3883770909'].mechanic('abc')).toBe('abc');
-//   });
+  it('01100 - [m] became [w] after aspirates', () => {
+    expect(oldSindarinRules['3883770909'].mechanic('abc')).toBe('abc');
+    // All examples are Noldorin (or non-existent):
+    expect(oldSindarinRules['3883770909'].mechanic('patʰmā')).toBe('patʰwā');
+    expect(oldSindarinRules['3883770909'].mechanic('abapʰma')).toBe('abapʰwa'); // Non-existent word
+    expect(oldSindarinRules['3883770909'].mechanic('abakʰma')).toBe('abakʰwa'); // Non-existent word
+
+  });
 
 //   it('01200 - [tʰn] became [ttʰ]', () => {
 //     expect(oldSindarinRules['1757900715'].mechanic('abc')).toBe('abc');

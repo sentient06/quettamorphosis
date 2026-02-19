@@ -223,17 +223,29 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '3883770909': {
-  //   orderId: '01100',
-  //   pattern: '[{ptk}ʰm] > [{ptk}ʰw]',
-  //   description: '[m] became [w] after aspirates',
-  //   url: 'https://eldamo.org/content/words/word-3883770909.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '3883770909': {
+    orderId: '01100',
+    pattern: '[{ptk}ʰm] > [{ptk}ʰw]',
+    description: '[m] became [w] after aspirates',
+    url: 'https://eldamo.org/content/words/word-3883770909.html',
+    skip: true,
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str);
+      const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['ŧm', 'ƥm', 'ꝁm'], singleCharsStr);
+      if (found) {
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const replacements = {
+          'ŧm': 'ŧw',
+          'ƥm': 'ƥw',
+          'ꝁm': 'ꝁw',
+        };
+        const result = singleCharsStr.replace(matched, replacements[matched]);
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
   // '1757900715': {
   //   orderId: '01200',
   //   pattern: '[tʰn] > [ttʰ]',
