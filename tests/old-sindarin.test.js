@@ -177,9 +177,12 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2753394075'].mechanic('kamprû')).toBe('kampru');
   });
 
-//   it('01700 - [z] vanished before [d] lengthening preceding vowel', () => {
-//     expect(oldSindarinRules['1249932447'].mechanic('abc')).toBe('abc');
-//   });
+  it('01700 - [z] vanished before [d] lengthening preceding vowel', () => {
+    expect(oldSindarinRules['1249932447'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['1249932447'].mechanic('ezde')).toBe('ēde');
+    expect(oldSindarinRules['1249932447'].mechanic('mizde')).toBe('mīde');
+    expect(oldSindarinRules['1249932447'].mechanic('rezda')).toBe('rēda');
+  });
 
 //   it('01800 - syllabic initial [s] became [es]', () => {
 //     expect(oldSindarinRules['2107885715'].mechanic('abc')).toBe('abc');

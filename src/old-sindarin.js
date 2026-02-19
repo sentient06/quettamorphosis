@@ -323,17 +323,24 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1249932447': {
-  //   orderId: '01700',
-  //   pattern: '[Vzd] > [V̄d]',
-  //   description: '[z] vanished before [d] lengthening preceding vowel',
-  //   url: 'https://eldamo.org/content/words/word-1249932447.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1249932447': {
+    orderId: '01700',
+    pattern: '[Vzd] > [V̄d]',
+    description: '[z] vanished before [d] lengthening preceding vowel',
+    url: 'https://eldamo.org/content/words/word-1249932447.html',
+    mechanic: (str) => {
+      if (str.includes('zd')) {
+        const singleCharsStr = digraphsToSingle(str);
+        const { found, charIndex, nextChar, prevChar  } = findFirstOf(['z'], singleCharsStr);
+        if (found && nextChar === 'd' && prevChar.isVowel()) {
+          const revert = shouldRevertToDigraphs(str, singleCharsStr);
+          const result = singleCharsStr.substring(0, charIndex - 1) + prevChar.addMark('¯') + singleCharsStr.substring(charIndex + 1);
+          return revert ? singleToDigraphs(result) : result;
+        }
+      }
+      return str;
+    },
+  },
   // '2107885715': {
   //   orderId: '01800',
   //   pattern: '[ṣ-] > [es-]',
