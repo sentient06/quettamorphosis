@@ -142,17 +142,27 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1484184939': {
-  //   orderId: '00700',
-  //   pattern: '[m{jw}|-mw] > [n{jw}|-mm]',
-  //   description: 'medial [m] became [n] before [j], [w]',
-  //   url: 'https://eldamo.org/content/words/word-1484184939.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1484184939': {
+    orderId: '00700',
+    pattern: '[m{jw}|-mw] > [n{jw}|-mm]',
+    description: 'medial [m] became [n] before [j], [w]',
+    url: 'https://eldamo.org/content/words/word-1484184939.html',
+    skip: true,
+    mechanic: (str) => {
+      if (str.includes('m')) {
+        const { found, matched, charIndex, nextChar } = findFirstOf(['m'], str);
+        if (found && charIndex > 0) {
+          if (['j', 'w'].includes(nextChar)) {
+            if (charIndex === str.length - 2 && nextChar === 'w') {
+              return str.substring(0, charIndex) + 'mm';
+            }
+            return str.substring(0, charIndex) + 'n' + str.substring(charIndex + 1);
+          }
+        }
+      }
+      return str;
+    },
+  },
   // '1955360003': {
   //   orderId: '00800',
   //   pattern: '[m{lr}-] > [b{lr}-]',

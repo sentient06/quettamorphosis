@@ -48,7 +48,7 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1117448055'].mechanic('ɣor-')).toBe('or-');
   });
 
-  it.only('00600 - [j] was lost after initial velars', () => {
+  it('00600 - [j] was lost after initial velars', () => {
     expect(oldSindarinRules['345959193'].mechanic('abc')).toBe('abc');
     // [kj-] > [k-]:
     expect(oldSindarinRules['345959193'].mechanic('akjāwen')).toBe('akāwen');
@@ -66,9 +66,15 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['345959193'].mechanic('kjawathānekjāwen')).toBe('kawathānekāwen'); // Non-existent word
   });
 
-//   it('00700 - medial [m] became [n] before [j], [w]', () => {
-//     expect(oldSindarinRules['1484184939'].mechanic('abc')).toBe('abc');
-//   });
+  it.only('00700 - medial [m] became [n] before [j], [w]', () => {
+    expect(oldSindarinRules['1484184939'].mechanic('abc')).toBe('abc');
+    // [mj] > [nj]:
+    expect(oldSindarinRules['1484184939'].mechanic('amja-')).toBe('anja-');
+    // [mw] > [nw]:
+    expect(oldSindarinRules['1484184939'].mechanic('amwa')).toBe('anwa'); // Non-existent word
+    // [-mw] > [-mm]:
+    expect(oldSindarinRules['1484184939'].mechanic('abamw')).toBe('abamm'); // Non-existent word
+  });
 
 //   it('00800 - initial [ml], [mr] became [bl], [br]', () => {
 //     expect(oldSindarinRules['1955360003'].mechanic('abc')).toBe('abc');
