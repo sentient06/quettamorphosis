@@ -196,6 +196,7 @@ function rerunRule(ruleId) {
 
 function toggleRule(ruleId, isEnabled) {
   const rulesObj = getRulesObject(ruleId);
+  const resultsObj = getResultsObject(ruleId);
   const rule = rulesObj[ruleId];
   const isDefaultSkipped = rule?.skip === true;
 
@@ -217,7 +218,6 @@ function toggleRule(ruleId, isEnabled) {
 
   const previousRuleId = getPreviousRule(ruleId);
   const nextRuleId = getNextRule(ruleId);
-  const followingRuleId = getNextRule(nextRuleId);
 
   const outputValue = previousRuleId
     ? document.getElementById(`output-${previousRuleId}`).value
@@ -226,13 +226,22 @@ function toggleRule(ruleId, isEnabled) {
   // Check effective enabled state for execution
   const effectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
 
-  if (outputValue && !effectivelyEnabled) {
-    const $nextInput = document.getElementById(`input-${nextRuleId}`);
-    $nextInput.value = outputValue;
-    runRule(nextRuleId, outputValue, followingRuleId);
-  }
+  if (!effectivelyEnabled) {
+    // Clear this rule's result since it's now disabled
+    delete resultsObj[ruleId];
 
-  if (effectivelyEnabled) {
+    // Pass input to next rule (skipping this one)
+    if (outputValue && nextRuleId) {
+      const $nextInput = document.getElementById(`input-${nextRuleId}`);
+      $nextInput.value = outputValue;
+      runRule(nextRuleId, outputValue, getNextRule(nextRuleId));
+    } else if (outputValue) {
+      // This was the last rule - update output and results
+      $originalOutput.value = outputValue;
+      printResults();
+    }
+  } else {
+    // Rule is enabled - re-run it
     rerunRule(ruleId);
   }
 }
@@ -490,6 +499,9 @@ function printResults() {
     skippedHtml += '<strong>Sindarin:</strong>\n' + sindarinSkipped;
   }
   $resultsSkipped.innerHTML = skippedHtml.trim();
+
+  // Update sticky header height since results may have changed the top-wrapper size
+  document.documentElement.style.setProperty('--sticky-h', $topWrapper.offsetHeight + 'px');
 }
 
 // =============================================================================
