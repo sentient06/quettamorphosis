@@ -98,9 +98,27 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1024355367'].mechanic('ŋgolodō')).toBe('aŋgolodō');
   });
 
-//   it('01000 - voiceless stops were voiced before nasals', () => {
-//     expect(oldSindarinRules['3463937975'].mechanic('abc')).toBe('abc');
-//   });
+  it('01000 - voiceless stops were voiced before nasals', () => {
+    expect(oldSindarinRules['3463937975'].mechanic('abc')).toBe('abc');
+    // Sindarin examples:
+    // [km] > [gm]:
+    expect(oldSindarinRules['3463937975'].mechanic('okma')).toBe('ogma');
+    expect(oldSindarinRules['3463937975'].mechanic('tekmā')).toBe('tegmā');
+    
+    // All the rest is Noldorin (or non-existent):
+    // [pn] > [bn]:
+    expect(oldSindarinRules['3463937975'].mechanic('lepnar')).toBe('lebnar');
+    // [tn] > [dn]:
+    expect(oldSindarinRules['3463937975'].mechanic('matna')).toBe('madna');
+    // [kn] > [gn]:
+    expect(oldSindarinRules['3463937975'].mechanic('ndakno')).toBe('ndagno');
+    // [pm] > [bm]:
+    expect(oldSindarinRules['3463937975'].mechanic('bapma')).toBe('babma'); // Non-existent word
+    // [tm] > [dm]:
+    expect(oldSindarinRules['3463937975'].mechanic('jatmē')).toBe('jadmē');
+    // [km] > [gm]:
+    expect(oldSindarinRules['3463937975'].mechanic('tulukmē')).toBe('tulugmē');
+  });
 
 //   it('01100 - [m] became [w] after aspirates', () => {
 //     expect(oldSindarinRules['3883770909'].mechanic('abc')).toBe('abc');

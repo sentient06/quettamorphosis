@@ -150,7 +150,7 @@ export const oldSindarinRules = {
     skip: true,
     mechanic: (str) => {
       if (str.includes('m')) {
-        const { found, matched, charIndex, nextChar } = findFirstOf(['m'], str);
+        const { found, charIndex, nextChar } = findFirstOf(['m'], str);
         if (found && charIndex > 0) {
           if (['j', 'w'].includes(nextChar)) {
             if (charIndex === str.length - 2 && nextChar === 'w') {
@@ -201,17 +201,28 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '3463937975': {
-  //   orderId: '01000',
-  //   pattern: '[{ptk}{mn}] > [{bdg}{mnŋ}]',
-  //   description: 'voiceless stops were voiced before nasals',
-  //   url: 'https://eldamo.org/content/words/word-3463937975.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '3463937975': {
+    orderId: '01000',
+    pattern: '[{ptk}{mn}] > [{bdg}{mnŋ}]',
+    description: 'voiceless stops were voiced before nasals',
+    url: 'https://eldamo.org/content/words/word-3463937975.html',
+    skip: true,
+    mechanic: (str) => {
+      const { found, matched, charIndex, nextChar } = findFirstOf(['pn', 'tn', 'kn', 'pm', 'tm', 'km'], str);
+      if (found) {
+        const replacements = {
+          'pn': 'bn',
+          'tn': 'dn',
+          'kn': 'gn',
+          'pm': 'bm',
+          'tm': 'dm',
+          'km': 'gm',
+        };
+        return str.replaceAll(matched, replacements[matched]);
+      }
+      return str;
+    },
+  },
   // '3883770909': {
   //   orderId: '01100',
   //   pattern: '[{ptk}ʰm] > [{ptk}ʰw]',
