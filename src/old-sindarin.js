@@ -231,7 +231,7 @@ export const oldSindarinRules = {
     skip: true,
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str);
-      const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['ŧm', 'ƥm', 'ꝁm'], singleCharsStr);
+      const { found, matched } = findFirstOf(['ŧm', 'ƥm', 'ꝁm'], singleCharsStr);
       if (found) {
         const revert = shouldRevertToDigraphs(str, singleCharsStr);
         const replacements = {
@@ -246,17 +246,24 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1757900715': {
-  //   orderId: '01200',
-  //   pattern: '[tʰn] > [ttʰ]',
-  //   description: '[tʰn] became [ttʰ]',
-  //   url: 'https://eldamo.org/content/words/word-1757900715.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1757900715': {
+    orderId: '01200',
+    pattern: '[tʰn] > [ttʰ]',
+    description: '[tʰn] became [ttʰ]',
+    url: 'https://eldamo.org/content/words/word-1757900715.html',
+    skip: true,
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str);
+      const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['ŧn'], singleCharsStr);
+      if (found) {
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const result = singleCharsStr.replace(matched, 'tŧ');
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
   // '1789116309': {
   //   orderId: '01300',
   //   pattern: '[-Vd] > [-V̄ø]',

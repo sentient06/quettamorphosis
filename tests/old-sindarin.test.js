@@ -129,9 +129,11 @@ describe('Old Sindarin rules', () => {
 
   });
 
-//   it('01200 - [tʰn] became [ttʰ]', () => {
-//     expect(oldSindarinRules['1757900715'].mechanic('abc')).toBe('abc');
-//   });
+  it('01200 - [tʰn] became [ttʰ]', () => {
+    expect(oldSindarinRules['1757900715'].mechanic('abc')).toBe('abc');
+    // Only one example, and it's Old Noldorin:
+    expect(oldSindarinRules['1757900715'].mechanic('patʰnā')).toBe('pattʰā');
+  });
 
 //   it('01300 - final [d] spirantalized and vanished', () => {
 //     expect(oldSindarinRules['1789116309'].mechanic('abc')).toBe('abc');
