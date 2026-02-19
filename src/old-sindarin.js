@@ -120,7 +120,6 @@ export const oldSindarinRules = {
     pattern: '[{kkʰg}j-|skj-|ŋgj] > [{kkʰg}-|sk-|ŋg]',
     description: '[j] was lost after initial velars',
     url: 'https://eldamo.org/content/words/word-345959193.html',
-    skip: true,
     mechanic: (str) => {
       // Convert digraphs first (before toNormalScript would destroy kʰ → kh distinction)
       const singleCharsStr = digraphsToSingle(str);
@@ -147,7 +146,6 @@ export const oldSindarinRules = {
     pattern: '[m{jw}|-mw] > [n{jw}|-mm]',
     description: 'medial [m] became [n] before [j], [w]',
     url: 'https://eldamo.org/content/words/word-1484184939.html',
-    skip: true,
     mechanic: (str) => {
       if (str.includes('m')) {
         const { found, charIndex, nextChar } = findFirstOf(['m'], str);
@@ -168,7 +166,6 @@ export const oldSindarinRules = {
     pattern: '[m{lr}-] > [b{lr}-]',
     description: 'initial [ml], [mr] became [bl], [br]',
     url: 'https://eldamo.org/content/words/word-1955360003.html',
-    skip: true,
     mechanic: (str) => {
       if (str.nth(0) === 'm') {
         const nextChar = str.nth(1);
@@ -184,7 +181,6 @@ export const oldSindarinRules = {
     pattern: '[{ṃṇŋ̣}-] > [a{mnŋ}-]',
     description: 'initial syllabic [m], [n], [ŋ] became [am], [an], [aŋ]',
     url: 'https://eldamo.org/content/words/word-1024355367.html',
-    skip: true,
     mechanic: (str) => {
       const firstChar = str.nth(0);
       if (['ṃ', 'ṇ', 'ŋ̣', 'm', 'n', 'ŋ'].includes(firstChar)) {
@@ -206,7 +202,6 @@ export const oldSindarinRules = {
     pattern: '[{ptk}{mn}] > [{bdg}{mnŋ}]',
     description: 'voiceless stops were voiced before nasals',
     url: 'https://eldamo.org/content/words/word-3463937975.html',
-    skip: true,
     mechanic: (str) => {
       const { found, matched, charIndex, nextChar } = findFirstOf(['pn', 'tn', 'kn', 'pm', 'tm', 'km'], str);
       if (found) {
@@ -228,7 +223,6 @@ export const oldSindarinRules = {
     pattern: '[{ptk}ʰm] > [{ptk}ʰw]',
     description: '[m] became [w] after aspirates',
     url: 'https://eldamo.org/content/words/word-3883770909.html',
-    skip: true,
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str);
       const { found, matched } = findFirstOf(['ŧm', 'ƥm', 'ꝁm'], singleCharsStr);
@@ -251,7 +245,6 @@ export const oldSindarinRules = {
     pattern: '[tʰn] > [ttʰ]',
     description: '[tʰn] became [ttʰ]',
     url: 'https://eldamo.org/content/words/word-1757900715.html',
-    skip: true,
     mechanic: (str) => {
       const singleCharsStr = digraphsToSingle(str);
       const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['ŧn'], singleCharsStr);
