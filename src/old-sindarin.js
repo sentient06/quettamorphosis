@@ -257,17 +257,27 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1789116309': {
-  //   orderId: '01300',
-  //   pattern: '[-Vd] > [-V̄ø]',
-  //   description: 'final [d] spirantalized and vanished',
-  //   url: 'https://eldamo.org/content/words/word-1789116309.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1789116309': {
+    orderId: '01300',
+    pattern: '[-Vd] > [-V̄ø]',
+    description: 'final [d] spirantalized and vanished',
+    url: 'https://eldamo.org/content/words/word-1789116309.html',
+    skip: true,
+    mechanic: (str) => {
+      if (str.endsWith('d')) {
+        const singleCharsStr = digraphsToSingle(str);
+        const penultimateChar = singleCharsStr.nth(-2);
+        if (penultimateChar.isVowel()) {
+          const revert = shouldRevertToDigraphs(str, singleCharsStr);
+          const longVowel = penultimateChar.addMark('¯');
+          const result = singleCharsStr.substring(0, singleCharsStr.length - 2) + longVowel;
+          if (revert) return singleToDigraphs(result);
+          return result;
+        }
+      }
+      return str;
+    },
+  },
   // '300026073': {
   //   orderId: '01400',
   //   pattern: '[-tʰ] > [-t]',

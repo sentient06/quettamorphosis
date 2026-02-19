@@ -135,9 +135,15 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1757900715'].mechanic('patʰnā')).toBe('pattʰā');
   });
 
-//   it('01300 - final [d] spirantalized and vanished', () => {
-//     expect(oldSindarinRules['1789116309'].mechanic('abc')).toBe('abc');
-//   });
+  it('01300 - final [d] spirantalized and vanished', () => {
+    expect(oldSindarinRules['1789116309'].mechanic('abc')).toBe('abc');
+    // Only one example:
+    expect(oldSindarinRules['1789116309'].mechanic('tad')).toBe('tā');
+    // These are all made up:
+    expect(oldSindarinRules['1789116309'].mechanic('badad')).toBe('badā');
+    expect(oldSindarinRules['1789116309'].mechanic('dadad')).toBe('dadā');
+    expect(oldSindarinRules['1789116309'].mechanic('dadadad')).toBe('dadadā');
+  });
 
 //   it('01400 - final [tʰ] became [t]', () => {
 //     expect(oldSindarinRules['300026073'].mechanic('abc')).toBe('abc');
