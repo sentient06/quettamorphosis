@@ -500,7 +500,7 @@ export const oldSindarinRules = {
         
         if (replacee && replacer) {
           const revert = shouldRevertToDigraphs(str, singleCharsStr);
-          const result = singleCharsStr.replace(replacee, replacer);
+          const result = singleCharsStr.replaceAll(replacee, replacer);
           if (revert && useSingleCharacters === false) return singleToDigraphs(result);
           return result;
         }
@@ -508,17 +508,18 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '2662025405': {
-  //   orderId: '02400',
-  //   pattern: '[eu] > [iu]',
-  //   description: '[eu] became [iu]',
-  //   url: 'https://eldamo.org/content/words/word-2662025405.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '2662025405': {
+    orderId: '02400',
+    pattern: '[eu] > [iu]',
+    description: '[eu] became [iu]',
+    url: 'https://eldamo.org/content/words/word-2662025405.html',
+    mechanic: (str) => {
+      if (str.includes('eu')) {
+        return str.replaceAll('eu', 'iu');
+      }
+      return str;
+    },
+  },
   // '2858643115': {
   //   orderId: '02500',
   //   pattern: '[ā|au] > [ǭ]',

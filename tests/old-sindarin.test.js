@@ -292,9 +292,14 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['883570327'].mechanic('rokkʰo', { useSingleCharacters: true })).toBe('roxxo');
   });
 
-//   it('02400 - [eu] became [iu]', () => {
-//     expect(oldSindarinRules['2662025405'].mechanic('abc')).toBe('abc');
-//   });
+  it('02400 - [eu] became [iu]', () => {
+    expect(oldSindarinRules['2662025405'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['2662025405'].mechanic('deule')).toBe('diule');
+    expect(oldSindarinRules['2662025405'].mechanic('deura')).toBe('diura');
+    expect(oldSindarinRules['2662025405'].mechanic('keule')).toBe('kiule');
+    expect(oldSindarinRules['2662025405'].mechanic('keurāna')).toBe('kiurāna');
+    expect(oldSindarinRules['2662025405'].mechanic('leuka')).toBe('liuka');
+  });
 
 //   it('02500 - [ā], [au] became [ǭ]', () => {
 //     expect(oldSindarinRules['2858643115'].mechanic('abc')).toBe('abc');
