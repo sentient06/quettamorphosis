@@ -8,6 +8,7 @@ import {
   restoreDigraphs,
   shouldRevertToDigraphs,
   findFirstOf,
+  findAllOf,
   SyllableAnalyser,
 } from './utils.js';
 
@@ -378,7 +379,6 @@ export const oldSindarinRules = {
     pattern: '[-se|-ste|-sse] > [-sa|-sta|-sse]',
     description: 'final [e] became [a] after single [s] and [st]',
     url: 'https://eldamo.org/content/words/word-1763851339.html',
-    skip: true,
     mechanic: (str) => {
       const lastChar = str.nth(-1);
       if (lastChar === 'e') {
@@ -432,17 +432,34 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1683955225': {
-  //   orderId: '02200',
-  //   pattern: '[{ptkmnŋlr}{ptk}] > [{ptkmnŋlr}{ptk}ʰ]',
-  //   description: 'voiceless stops aspirated after consonants except [s]',
-  //   url: 'https://eldamo.org/content/words/word-1683955225.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1683955225': {
+    orderId: '02200',
+    pattern: '[{ptkmnŋlr}{ptk}] > [{ptkmnŋlr}{ptk}ʰ]',
+    description: 'voiceless stops aspirated after consonants except [s]',
+    url: 'https://eldamo.org/content/words/word-1683955225.html',
+    mechanic: (str) => {
+      const singleCharsStr = digraphsToSingle(str);
+      const occurrences = findAllOf(['p', 't', 'k', 'c'], singleCharsStr);
+      if (occurrences.length > 0) {
+        const validConsonants = ['r', 'l', 'm', 'n', 'ŋ', 'd', 'b', 'g', 'p', 't', 'k', 'c', 'x'];
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const results = [];
+        for (const occurrence of occurrences) {
+          const { charIndex, prevChar } = occurrence;
+          if (validConsonants.includes(prevChar)) {
+            results.push(charIndex);
+          }
+        }
+        let result = singleCharsStr;
+        for (const charIndex of results) {
+          result = result.substring(0, charIndex + 1) + 'ʰ' + result.substring(charIndex + 1);
+        }
+        if (revert) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
   // '883570327': {
   //   orderId: '02300',
   //   pattern: '[{ptk}ʰ|{ptk}{ptk}ʰ] > [{ɸθx}|{ɸθx}{ɸθx}]',

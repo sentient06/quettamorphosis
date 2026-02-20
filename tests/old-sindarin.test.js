@@ -228,9 +228,47 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['798037075'].mechanic('skalja-', { useSingleCharacters: true })).toBe('sxalja-'); // Old Noldorin
   });
 
-//   it('02200 - voiceless stops aspirated after consonants except [s]', () => {
-//     expect(oldSindarinRules['1683955225'].mechanic('abc')).toBe('abc');
-//   });
+  it('02200 - voiceless stops aspirated after consonants except [s]', () => {
+    expect(oldSindarinRules['1683955225'].mechanic('xyz')).toBe('xyz');
+    // [pp] > [ppʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('eppel')).toBe('eppʰel');
+    // [pt] > [ptʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('lepta-')).toBe('leptʰa-');
+    // [tt] > [ttʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('grotta')).toBe('grottʰa');
+    // [tp] > [tpʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('batpa')).toBe('batpʰa'); // Non-existent word
+
+    // [kk] > [kkʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('rokko')).toBe('rokkʰo');
+    // [kt] > [ktʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('ekta')).toBe('ektʰa');
+    // [gt] > [gtʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('agta')).toBe('agtʰa'); // Non-existent word
+
+    // [np] > [npʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('enpet-')).toBe('enpʰet-');
+    // [mp] > [mpʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('gampa')).toBe('gampʰa');
+    // [nt] > [ntʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('anta-')).toBe('antʰa-');
+    // [ŋk] > [ŋkʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('taŋka')).toBe('taŋkʰa');
+    // [lp] > [lpʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('alpa')).toBe('alpʰa');
+    // [lt] > [ltʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('maltorne')).toBe('maltʰorne');
+    // [lk] > [lkʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('balka')).toBe('balkʰa');
+    // [rp] > [rpʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('karpa-')).toBe('karpʰa-');
+    // [rt] > [rtʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('ambarta')).toBe('ambartʰa');
+    // [rk] > [rkʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('urko')).toBe('urkʰo');
+    // [xt] > [xtʰ]:
+    expect(oldSindarinRules['1683955225'].mechanic('axta')).toBe('axtʰa'); // Non-existent word
+  });
 
 //   it('02300 - aspirates became voiceless spirants', () => {
 //     expect(oldSindarinRules['883570327'].mechanic('abc')).toBe('abc');
