@@ -534,17 +534,30 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '161840619': {
-  //   orderId: '02600',
-  //   pattern: '[VjV|-Vj] > [ViV|-Vi]',
-  //   description: '[j] became [i] after vowels',
-  //   url: 'https://eldamo.org/content/words/word-161840619.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '161840619': {
+    orderId: '02600',
+    pattern: '[VjV|-Vj] > [ViV|-Vi]',
+    description: '[j] became [i] after vowels',
+    url: 'https://eldamo.org/content/words/word-161840619.html',
+    mechanic: (str) => {
+      if (str.includes('j')) {
+        const { found, charIndex, nextChar, prevChar } = findFirstOf(['j'], str);
+        if (found) {
+          let result = str;
+          if (nextChar) {
+            if (prevChar.isVowel() && nextChar.isVowel()) {
+              result = str.substring(0, charIndex) + 'i' + str.substring(charIndex + 1);
+            }
+          }
+          if (prevChar.isVowel() && charIndex === str.length - 1) {
+            result = str.substring(0, charIndex) + 'i';
+          }
+          return result.replace('ii', 'ī');
+        }
+      }
+      return str;
+    },
+  },
   // '1942848653': {
   //   orderId: '02700',
   //   pattern: '[ei|ou] > [ī|ū]',

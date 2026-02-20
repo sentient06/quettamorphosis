@@ -324,9 +324,24 @@ describe('Old Sindarin rules', () => {
 
   });
 
-//   it('02600 - [j] became [i] after vowels', () => {
-//     expect(oldSindarinRules['161840619'].mechanic('abc')).toBe('abc');
-//   });
+  it('02600 - [j] became [i] after vowels', () => {
+    expect(oldSindarinRules['161840619'].mechanic('abc')).toBe('abc');
+    // [VjV] > [ViV]:
+    expect(oldSindarinRules['161840619'].mechanic('aθaja')).toBe('aθaia');
+    expect(oldSindarinRules['161840619'].mechanic('gwajalauto')).toBe('gwaialauto');
+    expect(oldSindarinRules['161840619'].mechanic('kasraja')).toBe('kasraia');
+    expect(oldSindarinRules['161840619'].mechanic('r̥aja')).toBe('r̥aia');
+    expect(oldSindarinRules['161840619'].mechanic('sarnije')).toBe('sarnīe');
+    expect(oldSindarinRules['161840619'].mechanic('waja')).toBe('waia');
+    expect(oldSindarinRules['161840619'].mechanic('wǭja')).toBe('wǭia');
+    // Not sure about this one:
+    // expect(oldSindarinRules['161840619'].mechanic('ɸereja')).toBe('ɸereiā');
+    // The a becomes long. It seems related to the preceding 'e', but I can't be sure without more data.
+    // [-Vj] > [-Vi]:
+    // These are all Old Noldorin:
+    expect(oldSindarinRules['161840619'].mechanic('mbǭj')).toBe('mbǭi');
+    expect(oldSindarinRules['161840619'].mechanic('nǭj')).toBe('nǭi');
+  });
 
 //   it('02700 - [ei], [ou] became [ī], [ū]', () => {
 //     expect(oldSindarinRules['1942848653'].mechanic('abc')).toBe('abc');
