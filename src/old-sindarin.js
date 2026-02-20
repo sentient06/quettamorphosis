@@ -520,17 +520,20 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '2858643115': {
-  //   orderId: '02500',
-  //   pattern: '[ā|au] > [ǭ]',
-  //   description: '[ā], [au] became [ǭ]',
-  //   url: 'https://eldamo.org/content/words/word-2858643115.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '2858643115': {
+    orderId: '02500',
+    pattern: '[ā|au] > [ǭ]',
+    description: '[ā], [au] became [ǭ]',
+    url: 'https://eldamo.org/content/words/word-2858643115.html',
+    mechanic: (str) => {
+      const { found, matched } = findFirstOf(['ā', 'á', 'â', 'au'], str);
+      if (found) {
+        const result = str.replaceAll(matched, 'ǭ');
+        return result;
+      }
+      return str;
+    },
+  },
   // '161840619': {
   //   orderId: '02600',
   //   pattern: '[VjV|-Vj] > [ViV|-Vi]',

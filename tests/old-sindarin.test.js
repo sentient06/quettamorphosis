@@ -301,9 +301,28 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2662025405'].mechanic('leuka')).toBe('liuka');
   });
 
-//   it('02500 - [ā], [au] became [ǭ]', () => {
-//     expect(oldSindarinRules['2858643115'].mechanic('abc')).toBe('abc');
-//   });
+  it('02500 - [ā], [au] became [ǭ]', () => {
+    expect(oldSindarinRules['2858643115'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['2858643115'].mechanic('agāle')).toBe('agǭle');
+    expect(oldSindarinRules['2858643115'].mechanic('amān')).toBe('amǭn');
+    expect(oldSindarinRules['2858643115'].mechanic('bakār')).toBe('bakǭr');
+    expect(oldSindarinRules['2858643115'].mechanic('gāja')).toBe('gǭja');
+    expect(oldSindarinRules['2858643115'].mechanic('gwābandina')).toBe('gwǭbandina');
+    expect(oldSindarinRules['2858643115'].mechanic('kawathāne')).toBe('kawathǭne');
+    expect(oldSindarinRules['2858643115'].mechanic('lindāna')).toBe('lindǭna');
+    expect(oldSindarinRules['2858643115'].mechanic('narāka')).toBe('narǭka');
+    expect(oldSindarinRules['2858643115'].mechanic('r̥āba')).toBe('r̥ǭba');
+    expect(oldSindarinRules['2858643115'].mechanic('tasāre')).toBe('tasǭre');
+    expect(oldSindarinRules['2858643115'].mechanic('wāja')).toBe('wǭja');
+    expect(oldSindarinRules['2858643115'].mechanic('xaðād')).toBe('xaðǭd');
+    expect(oldSindarinRules['2858643115'].mechanic('ɸindarāto')).toBe('ɸindarǭto');
+    // These are all Old Noldorin:
+    expect(oldSindarinRules['2858643115'].mechanic('glaure')).toBe('glǭre');
+    expect(oldSindarinRules['2858643115'].mechanic('gotʰombauko')).toBe('gotʰombǭko');
+    expect(oldSindarinRules['2858643115'].mechanic('pʰauka')).toBe('pʰǭka');
+    expect(oldSindarinRules['2858643115'].mechanic('tʰaurena')).toBe('tʰǭrena');
+
+  });
 
 //   it('02600 - [j] became [i] after vowels', () => {
 //     expect(oldSindarinRules['161840619'].mechanic('abc')).toBe('abc');
