@@ -193,9 +193,15 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2107885715'].mechanic('ṣtenta')).toBe('estenta');
   });
 
-//   it('01900 - initial [s] unvoiced following consonants', () => {
-//     expect(oldSindarinRules['3923357111'].mechanic('abc')).toBe('abc');
-//   });
+  it('01900 - initial [s] unvoiced following consonants', () => {
+    expect(oldSindarinRules['3923357111'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['3923357111'].mechanic('sjerwa')).toBe('jherwa');
+    expect(oldSindarinRules['3923357111'].mechanic('slasu')).toBe('lhasu');
+    expect(oldSindarinRules['3923357111'].mechanic('snaide')).toBe('nhaide');
+    expect(oldSindarinRules['3923357111'].mechanic('srāba')).toBe('rhāba');
+    expect(oldSindarinRules['3923357111'].mechanic('swa')).toBe('wha');
+    expect(oldSindarinRules['3923357111'].mechanic('swaiwar')).toBe('whaiwar');
+  });
 
 //   it('02000 - final [e] became [a] after single [s] and [st]', () => {
 //     expect(oldSindarinRules['1763851339'].mechanic('abc')).toBe('abc');

@@ -356,17 +356,24 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '3923357111': {
-  //   orderId: '01900',
-  //   pattern: '[s{jwmnrl}-] > [{j̊w̥m̥n̥l̥r̥}-]',
-  //   description: 'initial [s] unvoiced following consonants',
-  //   url: 'https://eldamo.org/content/words/word-3923357111.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '3923357111': {
+    orderId: '01900',
+    pattern: '[s{jwmnrl}-] > [{j̊w̥m̥n̥l̥r̥}-]',
+    description: 'initial [s] unvoiced following consonants',
+    url: 'https://eldamo.org/content/words/word-3923357111.html',
+    mechanic: (str) => {
+      if (str.startsWith('s')) {
+        const singleCharsStr = digraphsToSingle(str);
+        const { found, charIndex, nextChar, prevChar  } = findFirstOf(['sj', 'sw', 'sm', 'sn', 'sl', 'sr'], singleCharsStr);
+        if (found && charIndex === 0) {
+          const revert = shouldRevertToDigraphs(str, singleCharsStr);
+          const result = digraphsToSingle(`${singleCharsStr.nth(1)}h`) + singleCharsStr.substring(2);
+          return revert ? singleToDigraphs(result) : result;
+        }
+      }
+      return str;
+    },
+  },
   // '1763851339': {
   //   orderId: '02000',
   //   pattern: '[-se|-ste|-sse] > [-sa|-sta|-sse]',

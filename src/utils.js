@@ -280,18 +280,24 @@ const DIGRAPH_MAP = {
   'ch': 'x',   // spirant
   'kh': 'x',   // alternate spelling of 'ch'
   'kʰ': 'ꝁ',   // aspirated voiceless stop
-  'lh': 'λ',
+  // 'lh': 'λ',
   'ng': 'ŋ',
   'ph': 'ɸ',   // spirant
   'pʰ': 'ƥ',   // aspirated voiceless stop
-  'rh': 'ꝛ',
+  // 'rh': 'ꝛ',
   'ss': 'ſ',
   'th': 'θ',   // spirant
   'tʰ': 'ŧ',   // aspirated voiceless stop
-  'wh': 'ʍ',   // alternate spelling of 'hw'
+  // 'wh': 'ʍ',   // alternate spelling of 'hw'
   'gh': 'ɣ',
   'xʲ': 'ꜧ',
   'xʷ': 'ƕ',
+  // 'jh': 'j̊',
+  // 'wh': 'w̥',
+  // 'mh': 'm̥',
+  // 'nh': 'n̥',
+  // 'lh': 'l̥',
+  // 'rh': 'r̥', // This is a common consonantal encounter, risky to generalise
 };
 
 // Pre-sorted digraphs by length descending for correct replacement order
@@ -316,6 +322,12 @@ const SINGLE_TO_DIGRAPH_MAP = {
   'ɣ': 'gh',
   'ꜧ': 'xʲ',
   'ƕ': 'xʷ',
+  'j̊': 'jh',
+  'w̥': 'wh',
+  'm̥': 'mh',
+  'n̥': 'nh',
+  'l̥': 'lh',
+  'r̥': 'rh',
 };
 
 /**
