@@ -1466,6 +1466,8 @@ export const sindarinRules = {
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(singleCharsStr);
 
+      if (syllableData.length === 1) return str;
+
       // Check if any OTHER syllable contains o or u (inhibition check)
       const hasOtherOU = (excludeIndex) => {
         for (let j = 0; j < syllableData.length; j++) {

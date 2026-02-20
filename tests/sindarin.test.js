@@ -723,6 +723,9 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['567222053'].mechanic('nifraed')).toBe('nifred');
     expect(sindarinRules['567222053'].mechanic('naegro')).toBe('negro');
     expect(sindarinRules['567222053'].mechanic('athaelas')).toBe('athelas');
+
+    // Monosyllables are not affected:
+    expect(sindarinRules['567222053'].mechanic('laug')).toBe('laug');
   });
 
   it('05500 - [lð] became [ll]', () => {
