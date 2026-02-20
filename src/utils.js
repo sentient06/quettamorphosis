@@ -476,6 +476,25 @@ export function findFirstOf(chars, str) {
   }
 }
 
+export function findAllOf(chars, str) {
+  const results = [];
+  for (const c of chars) {
+    let i = str.indexOf(c);
+    while (i > -1) {
+      results.push({
+        matched: c,
+        charIndex: i,
+        nextChar: str.nth(i + c.length),
+        prevChar: str.nth(i - 1),
+      });
+      i = str.indexOf(c, i + c.length);
+    }
+  }
+  // Sort by charIndex so results are in order of appearance
+  results.sort((a, b) => a.charIndex - b.charIndex);
+  return results;
+}
+
 // =============================================================================
 // Language Profiles
 // =============================================================================

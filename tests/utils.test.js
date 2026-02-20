@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { SyllableAnalyser, SINDARIN_PROFILE, breakIntoVowelsAndConsonants, findFirstOf, syllabify } from "../src/utils.js";
+import { SyllableAnalyser, SINDARIN_PROFILE, breakIntoVowelsAndConsonants, findFirstOf, findAllOf, syllabify } from "../src/utils.js";
 
 describe('String extended functions', () => {
   it('isVowel should identify vowels', () => {
@@ -116,6 +116,26 @@ describe('Utils', () => {
   it('findFirstOf should return the first occurrence of a character in a string', () => {
     expect(findFirstOf(['a', 'e', 'i', 'o', 'u'], 'banana')).toEqual({ found: true, matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b' });
     expect(findFirstOf(['an'], 'banana')).toEqual({ found: true, matched: 'an', charIndex: 1, nextChar: 'a', prevChar: 'b' });
+  });
+
+  it('findAllOf should return all occurrences of characters in a string', () => {
+    expect(findAllOf(['a'], 'banana')).toEqual([
+      { matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b' },
+      { matched: 'a', charIndex: 3, nextChar: 'n', prevChar: 'n' },
+      { matched: 'a', charIndex: 5, nextChar: null, prevChar: 'n' },
+    ]);
+    expect(findAllOf(['an'], 'banana')).toEqual([
+      { matched: 'an', charIndex: 1, nextChar: 'a', prevChar: 'b' },
+      { matched: 'an', charIndex: 3, nextChar: 'a', prevChar: 'n' },
+    ]);
+    expect(findAllOf(['a', 'n'], 'banana')).toEqual([
+      { matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b' },
+      { matched: 'n', charIndex: 2, nextChar: 'a', prevChar: 'a' },
+      { matched: 'a', charIndex: 3, nextChar: 'n', prevChar: 'n' },
+      { matched: 'n', charIndex: 4, nextChar: 'a', prevChar: 'a' },
+      { matched: 'a', charIndex: 5, nextChar: null, prevChar: 'n' },
+    ]);
+    expect(findAllOf(['x', 'y', 'z'], 'banana')).toEqual([]);
   });
 });
 
