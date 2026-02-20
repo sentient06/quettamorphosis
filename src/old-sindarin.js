@@ -374,17 +374,35 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1763851339': {
-  //   orderId: '02000',
-  //   pattern: '[-se|-ste|-sse] > [-sa|-sta|-sse]',
-  //   description: 'final [e] became [a] after single [s] and [st]',
-  //   url: 'https://eldamo.org/content/words/word-1763851339.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1763851339': {
+    orderId: '02000',
+    pattern: '[-se|-ste|-sse] > [-sa|-sta|-sse]',
+    description: 'final [e] became [a] after single [s] and [st]',
+    url: 'https://eldamo.org/content/words/word-1763851339.html',
+    skip: true,
+    mechanic: (str) => {
+      const lastChar = str.nth(-1);
+      if (lastChar === 'e') {
+        const secondLastChar = str.nth(-2);
+        const thirdLastChar = str.nth(-3);
+        if (thirdLastChar === 's') {
+          if (secondLastChar === 't') {
+            return str.substring(0, str.length - 1) + 'a';
+          }
+          if (secondLastChar === 's') {
+            return str;
+          }
+        }
+        if (secondLastChar === 's') {
+          return str.substring(0, str.length - 1) + 'a';
+        }
+        if (thirdLastChar === 'r' && secondLastChar === 't') {
+          return str.substring(0, str.length - 1) + 'a';
+        }
+      }
+      return str;
+    },
+  },
   // '798037075': {
   //   orderId: '02100',
   //   pattern: '[s{ptk}-] > [s{ɸθx}-]',

@@ -203,9 +203,17 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3923357111'].mechanic('swaiwar')).toBe('whaiwar');
   });
 
-//   it('02000 - final [e] became [a] after single [s] and [st]', () => {
-//     expect(oldSindarinRules['1763851339'].mechanic('abc')).toBe('abc');
-//   });
+  it('02000 - final [e] became [a] after single [s] and [st]', () => {
+    expect(oldSindarinRules['1763851339'].mechanic('abc')).toBe('abc');
+    // [-se] > [-sa]:
+    expect(oldSindarinRules['1763851339'].mechanic('karakse')).toBe('karaksa'); // Old Noldorin
+    // [-ste] > [-sta]:
+    expect(oldSindarinRules['1763851339'].mechanic('pʰaste')).toBe('pʰasta'); // Old Noldorin
+    // [-rte] > [-rta]:
+    expect(oldSindarinRules['1763851339'].mechanic('kirte')).toBe('kirta');
+    // [-sse] > [-sse]:
+    expect(oldSindarinRules['1763851339'].mechanic('glasse')).toBe('glasse'); // Old Noldorin
+  });
 
 //   it('02100 - voiceless stops became spirants after initial [s]', () => {
 //     expect(oldSindarinRules['798037075'].mechanic('abc')).toBe('abc');
