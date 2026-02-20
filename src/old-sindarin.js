@@ -460,17 +460,54 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '883570327': {
-  //   orderId: '02300',
-  //   pattern: '[{ptk}ʰ|{ptk}{ptk}ʰ] > [{ɸθx}|{ɸθx}{ɸθx}]',
-  //   description: 'aspirates became voiceless spirants',
-  //   url: 'https://eldamo.org/content/words/word-883570327.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '883570327': {
+    orderId: '02300',
+    pattern: '[{ptk}ʰ|{ptk}{ptk}ʰ] > [{ɸθx}|{ɸθx}{ɸθx}]',
+    description: 'aspirates became voiceless spirants',
+    url: 'https://eldamo.org/content/words/word-883570327.html',
+    input: [
+      { name: 'useSingleCharacters', type: 'boolean', default: false, description: 'Use single characters instead of digraphs' },
+    ],
+    mechanic: (str, { useSingleCharacters } = { useSingleCharacters: false }) => {
+      const singleCharsStr = digraphsToSingle(str);
+      const { found, matched, prevChar } = findFirstOf(['ƥ', 'ŧ', 'ꝁ'], singleCharsStr);
+      if (found) {
+        const replacements = {
+          'pƥ': 'ɸɸ',
+          'pŧ': 'ɸθ',
+          'tŧ': 'θθ',
+          'tꝁ': 'xx',
+          'kŧ': 'xθ',
+          'kꝁ': 'xx',
+        };
+        const simpleReplacements = {
+          'ƥ': 'ɸ',
+          'ŧ': 'θ',
+          'ꝁ': 'x',
+        };
+
+        const sequence = `${prevChar}${matched}`;
+        let replacee = null;
+        let replacer = null;
+
+        if (replacements[sequence]) {
+          replacee = sequence;
+          replacer = replacements[sequence];
+        } else if (simpleReplacements[matched]) {
+          replacee = matched;
+          replacer = simpleReplacements[matched];
+        }
+        
+        if (replacee && replacer) {
+          const revert = shouldRevertToDigraphs(str, singleCharsStr);
+          const result = singleCharsStr.replace(replacee, replacer);
+          if (revert && useSingleCharacters === false) return singleToDigraphs(result);
+          return result;
+        }
+      }
+      return str;
+    },
+  },
   // '2662025405': {
   //   orderId: '02400',
   //   pattern: '[eu] > [iu]',

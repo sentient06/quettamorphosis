@@ -270,9 +270,27 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1683955225'].mechanic('axta')).toBe('axtʰa'); // Non-existent word
   });
 
-//   it('02300 - aspirates became voiceless spirants', () => {
-//     expect(oldSindarinRules['883570327'].mechanic('abc')).toBe('abc');
-//   });
+  it('02300 - aspirates became voiceless spirants', () => {
+    expect(oldSindarinRules['883570327'].mechanic('xyz')).toBe('xyz');
+    // [pʰ] > [ɸ]:
+    expect(oldSindarinRules['883570327'].mechanic('pʰelga', { useSingleCharacters: true })).toBe('ɸelga');
+    // [tʰ] > [θ]:
+    expect(oldSindarinRules['883570327'].mechanic('itʰil', { useSingleCharacters: true })).toBe('iθil');
+    // [kʰ] > [x]:
+    expect(oldSindarinRules['883570327'].mechanic('karkʰa', { useSingleCharacters: true })).toBe('karxa');
+    // [ppʰ] > [ɸɸ]:
+    expect(oldSindarinRules['883570327'].mechanic('eppʰel', { useSingleCharacters: true })).toBe('eɸɸel');
+    // [ptʰ] > [ɸθ]:
+    expect(oldSindarinRules['883570327'].mechanic('leptʰa-', { useSingleCharacters: true })).toBe('leɸθa-');
+    // [ttʰ] > [θθ]:
+    expect(oldSindarinRules['883570327'].mechanic('grottʰa', { useSingleCharacters: true })).toBe('groθθa');
+    // [tkʰ] > [xx]:
+    expect(oldSindarinRules['883570327'].mechanic('abatkʰa', { useSingleCharacters: true })).toBe('abaxxa'); // Non-existent word
+    // [ktʰ] > [xθ]:
+    expect(oldSindarinRules['883570327'].mechanic('ektʰa', { useSingleCharacters: true })).toBe('exθa');
+    // [kkʰ] > [xx]:
+    expect(oldSindarinRules['883570327'].mechanic('rokkʰo', { useSingleCharacters: true })).toBe('roxxo');
+  });
 
 //   it('02400 - [eu] became [iu]', () => {
 //     expect(oldSindarinRules['2662025405'].mechanic('abc')).toBe('abc');
