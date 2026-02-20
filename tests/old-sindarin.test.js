@@ -215,9 +215,18 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1763851339'].mechanic('glasse')).toBe('glasse'); // Old Noldorin
   });
 
-//   it('02100 - voiceless stops became spirants after initial [s]', () => {
-//     expect(oldSindarinRules['798037075'].mechanic('abc')).toBe('abc');
-//   });
+  it('02100 - voiceless stops became spirants after initial [s]', () => {
+    // In this rule, we really could use single characters representation instead of digraphs.
+    // However, it makes no sense to force it unless we use the same standard for all rules.
+    // Maybe we should just use single characters for all rules.
+    expect(oldSindarinRules['798037075'].mechanic('abc')).toBe('abc');
+    // [sp-] > [sɸ-]:
+    expect(oldSindarinRules['798037075'].mechanic('spinde', { useSingleCharacters: true })).toBe('sɸinde');
+    // [st-] > [sθ-]:
+    expect(oldSindarinRules['798037075'].mechanic('stenna', { useSingleCharacters: true })).toBe('sθenna');
+    // [sk-] > [sx-]:
+    expect(oldSindarinRules['798037075'].mechanic('skalja-', { useSingleCharacters: true })).toBe('sxalja-'); // Old Noldorin
+  });
 
 //   it('02200 - voiceless stops aspirated after consonants except [s]', () => {
 //     expect(oldSindarinRules['1683955225'].mechanic('abc')).toBe('abc');

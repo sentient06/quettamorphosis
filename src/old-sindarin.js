@@ -13,8 +13,7 @@ import {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
-
+// @TODO: implement single character for all rules.
 export const oldSindarinRules = {
   '71909447': {
     orderId: '00100',
@@ -403,17 +402,36 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '798037075': {
-  //   orderId: '02100',
-  //   pattern: '[s{ptk}-] > [s{ɸθx}-]',
-  //   description: 'voiceless stops became spirants after initial [s]',
-  //   url: 'https://eldamo.org/content/words/word-798037075.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '798037075': {
+    orderId: '02100',
+    pattern: '[s{ptk}-] > [s{ɸθx}-]',
+    description: 'voiceless stops became spirants after initial [s]',
+    url: 'https://eldamo.org/content/words/word-798037075.html',
+    input: [
+      { name: 'useSingleCharacters', type: 'boolean', default: false, description: 'Use single characters instead of digraphs' },
+    ],
+    mechanic: (str, { useSingleCharacters } = { useSingleCharacters: false }) => {
+      const firstChar = str.nth(0);
+      if (firstChar === 's') {
+        const singleCharsStr = digraphsToSingle(str);
+        const revert = shouldRevertToDigraphs(str, singleCharsStr);
+        const secondChar = str.nth(1);
+        let result = singleCharsStr;
+        if (secondChar === 'p') {
+          result = 'sɸ' + str.substring(2);
+        }
+        if (secondChar === 't') {
+          result = 'sθ' + str.substring(2);
+        }
+        if (secondChar === 'k') {
+          result = 'sx' + str.substring(2);
+        }
+        if (revert && useSingleCharacters === false) return singleToDigraphs(result);
+        return result;
+      }
+      return str;
+    },
+  },
   // '1683955225': {
   //   orderId: '02200',
   //   pattern: '[{ptkmnŋlr}{ptk}] > [{ptkmnŋlr}{ptk}ʰ]',
