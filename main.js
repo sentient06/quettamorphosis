@@ -71,7 +71,7 @@ function draw(type, parent, options = {}) {
     $element.setAttribute(key, value);
   });
   // Handle 'checked' - set both property and attribute for CSS :checked to work
-  if (checked === 'checked') {
+  if (checked === 'checked' || checked === true) {
     $element.checked = true;
     $element.setAttribute('checked', 'checked');
   } else if (checked === false) {
