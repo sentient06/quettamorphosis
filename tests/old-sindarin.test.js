@@ -411,9 +411,17 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3388236413'].mechanic('absaba')).toBe('absaba'); // Non-existent word
   });
 
-//   it('03100 - [p], [t], [k] spirantalized before [s]', () => {
-//     expect(oldSindarinRules['1516403107'].mechanic('abc')).toBe('abc');
-//   });
+  it('03100 - [p], [t], [k] spirantalized before [s]', () => {
+    expect(oldSindarinRules['1516403107'].mechanic('abc')).toBe('abc');
+    // [ps] > [ɸɸ]:
+    expect(oldSindarinRules['1516403107'].mechanic('apsa')).toBe('aɸɸa'); // Non-existent word
+    expect(oldSindarinRules['1516403107'].mechanic('abapsaba')).toBe('abaɸɸaba'); // Non-existent word
+    // [ks] > [xx]:
+    expect(oldSindarinRules['1516403107'].mechanic('akse')).toBe('axxe');
+    // [ts] > [θθ]:
+    expect(oldSindarinRules['1516403107'].mechanic('lotse')).toBe('loθθe');
+    expect(oldSindarinRules['1516403107'].mechanic('otsōja')).toBe('oθθōja');
+  });
 
 //   it('03200 - [rl] became [ll]', () => {
 //     expect(oldSindarinRules['1288402337'].mechanic('abc')).toBe('abc');

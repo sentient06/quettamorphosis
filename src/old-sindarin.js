@@ -612,17 +612,29 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1516403107': {
-  //   orderId: '03100',
-  //   pattern: '[ps|ts|ks] > [ɸɸ|θθ|xx]',
-  //   description: '[p], [t], [k] spirantalized before [s]',
-  //   url: 'https://eldamo.org/content/words/word-1516403107.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1516403107': {
+    orderId: '03100',
+    pattern: '[ps|ts|ks] > [ɸɸ|θθ|xx]',
+    description: '[p], [t], [k] spirantalized before [s]',
+    url: 'https://eldamo.org/content/words/word-1516403107.html',
+    mechanic: (str) => {
+      const occurrences = findAllOf(['ps', 'ts', 'ks'], str);
+      if (occurrences.length > 0) {
+        let result = str;
+        const replacements = {
+          'ps': 'ɸɸ',
+          'ts': 'θθ',
+          'ks': 'xx',
+        };
+        for (const occurrence of occurrences) {
+          const { matched, charIndex } = occurrence;
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+        }
+        return result;
+      }
+      return str;
+    },
+  },
   // '1288402337': {
   //   orderId: '03200',
   //   pattern: '[rl] > [ll]',
