@@ -237,7 +237,7 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['798037075'].mechanic('skalja-')).toBe('sxalja-'); // Old Noldorin
   });
 
-  it.only('02200 - voiceless stops aspirated after consonants except [s]', () => {
+  it('02200 - voiceless stops aspirated after consonants except [s]', () => {
     expect(oldSindarinRules['1683955225'].mechanic('xyz')).toBe('xyz');
     // [pp] > [ppʰ]:
     expect(oldSindarinRules['1683955225'].mechanic('eppel')).toBe('epƥel');
@@ -353,9 +353,15 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['161840619'].mechanic('nǭj')).toBe('nǭi');
   });
 
-//   it('02700 - [ei], [ou] became [ī], [ū]', () => {
-//     expect(oldSindarinRules['1942848653'].mechanic('abc')).toBe('abc');
-//   });
+  it('02700 - [ei], [ou] became [ī], [ū]', () => {
+    expect(oldSindarinRules['1942848653'].mechanic('abc')).toBe('abc');
+    // [ei] > [ī]:
+    expect(oldSindarinRules['1942848653'].mechanic('neide')).toBe('nīde');
+    expect(oldSindarinRules['1942848653'].mechanic('ɸereiā')).toBe('ɸerīa');
+    // [ou] > [ū]:
+    expect(oldSindarinRules['1942848653'].mechanic('θouo')).toBe('θūo');
+    expect(oldSindarinRules['1942848653'].mechanic('θouson')).toBe('θūson');
+  });
 
 //   it('02800 - [oi], [ǭi] became [ui], [oi]', () => {
 //     expect(oldSindarinRules['2010669085'].mechanic('abc')).toBe('abc');

@@ -516,17 +516,36 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1942848653': {
-  //   orderId: '02700',
-  //   pattern: '[ei|ou] > [ī|ū]',
-  //   description: '[ei], [ou] became [ī], [ū]',
-  //   url: 'https://eldamo.org/content/words/word-1942848653.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1942848653': {
+    orderId: '02700',
+    pattern: '[ei|ou] > [ī|ū]',
+    description: '[ei], [ou] became [ī], [ū]',
+    url: 'https://eldamo.org/content/words/word-1942848653.html',
+    mechanic: (str) => {
+      const occurrences = findAllOf(['ei', 'ou'], str);
+      if (occurrences.length > 0) {
+        let result = str;
+        const replacements = {
+          'ei': 'ī',
+          'ou': 'ū',
+        };
+        for(const occurrence of occurrences) {
+          const { matched, charIndex, nextChar, prevChar } = occurrence;
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+          if (nextChar) {
+            if (nextChar.isVowel()) {
+              const hasMark = nextChar.getMark();
+              if (hasMark) {
+                result = result.substring(0, result.length - 1) + nextChar.removeMarks();
+              }
+            }
+          }
+        }
+        return result;
+      }
+      return str;
+    },
+  },
   // '2010669085': {
   //   orderId: '02800',
   //   pattern: '[oi|ǭi] > [ui|oi]',

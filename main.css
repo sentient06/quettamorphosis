@@ -249,7 +249,6 @@
   box-sizing: border-box;
   z-index: 100;
   right: 100px;
-  /* bottom: 100px; */
   overflow: auto;
 }
 
