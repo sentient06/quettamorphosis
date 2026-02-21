@@ -591,17 +591,27 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '3388236413': {
-  //   orderId: '03000',
-  //   pattern: '[VsV|-Vs] > [VhV|-Vh]',
-  //   description: 'intervocalic [s] became [h]',
-  //   url: 'https://eldamo.org/content/words/word-3388236413.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '3388236413': {
+    orderId: '03000',
+    pattern: '[VsV|-Vs] > [VhV|-Vh]',
+    description: 'intervocalic [s] became [h]',
+    url: 'https://eldamo.org/content/words/word-3388236413.html',
+    mechanic: (str) => {
+      const occurrences = findAllOf(['s'], str);
+      if (occurrences.length > 0) {
+        let result = str;
+        for (const occurrence of occurrences) {
+          const { charIndex, prevChar, nextChar } = occurrence;
+          if (charIndex === 0 || nextChar === '') continue;
+          if (prevChar.isVowel() && nextChar.isVowel()) {
+            result = result.substring(0, charIndex) + 'h' + result.substring(charIndex + 1);
+          }
+        }
+        return result;
+      }
+      return str;
+    },
+  },
   // '1516403107': {
   //   orderId: '03100',
   //   pattern: '[ps|ts|ks] > [ɸɸ|θθ|xx]',

@@ -393,9 +393,23 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1716741635'].mechanic('sbaba')).toBe('sbaba'); // Non-existent word
   });
 
-//   it('03000 - intervocalic [s] became [h]', () => {
-//     expect(oldSindarinRules['3388236413'].mechanic('abc')).toBe('abc');
-//   });
+  it('03000 - intervocalic [s] became [h]', () => {
+    expect(oldSindarinRules['3388236413'].mechanic('abc')).toBe('abc');
+    expect(oldSindarinRules['3388236413'].mechanic('asa')).toBe('aha');
+    expect(oldSindarinRules['3388236413'].mechanic('asǭme')).toBe('ahǭme');
+    expect(oldSindarinRules['3388236413'].mechanic('ŋgoroθūso')).toBe('ŋgoroθūho');
+    expect(oldSindarinRules['3388236413'].mechanic('pelesendore')).toBe('pelehendore');
+    expect(oldSindarinRules['3388236413'].mechanic('tindōmiselde')).toBe('tindōmihelde');
+    expect(oldSindarinRules['3388236413'].mechanic('θūse')).toBe('θūhe');
+    expect(oldSindarinRules['3388236413'].mechanic('θūson')).toBe('θūhon');
+    expect(oldSindarinRules['3388236413'].mechanic('wanaso')).toBe('wanaho');
+    // Other s sounds are not affected:
+    expect(oldSindarinRules['3388236413'].mechanic('sababa')).toBe('sababa'); // Non-existent word
+    expect(oldSindarinRules['3388236413'].mechanic('ababas')).toBe('ababas'); // Non-existent word
+    expect(oldSindarinRules['3388236413'].mechanic('sbaba')).toBe('sbaba'); // Non-existent word
+    expect(oldSindarinRules['3388236413'].mechanic('asbaba')).toBe('asbaba'); // Non-existent word
+    expect(oldSindarinRules['3388236413'].mechanic('absaba')).toBe('absaba'); // Non-existent word
+  });
 
 //   it('03100 - [p], [t], [k] spirantalized before [s]', () => {
 //     expect(oldSindarinRules['1516403107'].mechanic('abc')).toBe('abc');
