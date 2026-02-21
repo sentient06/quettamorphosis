@@ -700,15 +700,26 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '2615312913': {
-  //   orderId: '03500',
-  //   pattern: '[bm|dn] > [mm|nn]',
-  //   description: '[bm], [dn] became [mm], [nn]',
-  //   url: 'https://eldamo.org/content/words/word-2615312913.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '2615312913': {
+    orderId: '03500',
+    pattern: '[bm|dn] > [mm|nn]',
+    description: '[bm], [dn] became [mm], [nn]',
+    url: 'https://eldamo.org/content/words/word-2615312913.html',
+    mechanic: (str) => {
+      const occurrences = findAllOf(['bm', 'dn'], str);
+      if (occurrences.length > 0) {
+        let result = str;
+        const replacements = {
+          'bm': 'mm',
+          'dn': 'nn',
+        };
+        for (const occurrence of occurrences) {
+          const { matched, charIndex } = occurrence;
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+        }
+        return result;
+      }
+      return str;
+    },
+  },
 };

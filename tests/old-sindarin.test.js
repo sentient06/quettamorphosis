@@ -450,7 +450,12 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2167009353'].mechanic('wuiar')).toBe('uiar');
   });
 
-//   it('03500 - [bm], [dn] became [mm], [nn]', () => {
-//     expect(oldSindarinRules['2615312913'].mechanic('abc')).toBe('abc');
-//   });
+  it('03500 - [bm], [dn] became [mm], [nn]', () => {
+    expect(oldSindarinRules['2615312913'].mechanic('abc')).toBe('abc');
+    // [bm] > [mm]:
+    expect(oldSindarinRules['2615312913'].mechanic('abma')).toBe('amma'); // Non-existent word
+    // [dn] > [nn]:
+    expect(oldSindarinRules['2615312913'].mechanic('padna')).toBe('panna'); // Old Noldorin
+    expect(oldSindarinRules['2615312913'].mechanic('madna')).toBe('manna'); // Old Noldorin
+  });
 });
