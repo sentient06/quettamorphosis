@@ -97,11 +97,11 @@ describe('Old Sindarin rules', () => {
     // Ask about marking under the nasals: ṃ vs m
     expect(oldSindarinRules['1024355367'].mechanic('abc')).toBe('abc');
     // [ṃ-] > [am-]:
-    expect(oldSindarinRules['1024355367'].mechanic('mbar')).toBe('ambar');
+    expect(oldSindarinRules['1024355367'].mechanic('ṃbar')).toBe('ambar');
     // [ṇ-] > [an-]:
-    expect(oldSindarinRules['1024355367'].mechanic('ndūnē')).toBe('andūnē');
+    expect(oldSindarinRules['1024355367'].mechanic('ṇdūnē')).toBe('andūnē');
     // [ŋ̣-] > [aŋ-]:
-    expect(oldSindarinRules['1024355367'].mechanic('ŋgolodō')).toBe('aŋgolodō');
+    expect(oldSindarinRules['1024355367'].mechanic('ŋ̣golodō')).toBe('aŋgolodō');
   });
 
   it('01000 - voiceless stops were voiced before nasals', () => {
