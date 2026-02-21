@@ -310,7 +310,7 @@ export const oldSindarinRules = {
     description: 'syllabic initial [s] became [es]',
     url: 'https://eldamo.org/content/words/word-2107885715.html',
     mechanic: (str) => {
-      if (str.startsWith('s') || str.startsWith('ṣ')) {
+      if (str.startsWith('ṣ')) {
         const secondChar = str.nth(1);
         if (['c', 'k', 'p', 't'].includes(secondChar)) {
           return 'es' + str.substring(1);
