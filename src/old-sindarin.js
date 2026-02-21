@@ -12,7 +12,6 @@ import {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// @TODO: implement single character for all rules.
 export const oldSindarinRules = {
   '71909447': {
     orderId: '00100',

@@ -653,6 +653,41 @@ export class SyllableAnalyser {
 
   /**
    * Split a word into syllables following the Sindarin syllable rules.
+   * 
+   * Syllable rules:
+   *   A syllable consists of a vocalic core with at least one vowel and attached consonants.
+   *   If a word has only one vowel, it has only one syllable.
+   *   The simplest syllable is a single vowel.
+   *   A vowel can be preceded by one or two consonants.
+   *   A vowel can be followed by up to two consonants.
+   *   A syllable can consist of a diphtong with associated consonants.
+   *   The elements of a diphthong are never split between two syllables.
+   *   If more than one consonant begins a syllable, the second consonant must be l, r, or w (the latter only in the cluster "gw").
+   *   When no consonant follows a vowel, and the vowels don't form a diphtong, they split between syllables.
+   *   When a single consonant follows a vowel, the syllable break almost always comes before the following consonant, except when that's final.
+   *   The rule above has an exception with the letter m.
+   *   When only two consonants follow each other in the middle of a word, the division occurs between them.
+   *   When 3 consonants follows each other, the split occurs after the first one if the two others are an allowed pattern for words or syllables.
+   *   4 consonants in the middle of a word are illegal.
+   *   All digraphs in this code must use the single character pattern for syllable logic.
+   *
+   *   Light and heavy, open and closed syllables:
+   *   A light syllable consists of a short vowel, by itself, or preceded by one or more consonants. All other syllables are heavy.
+   *   An open syllable is followed by a single consonant or none. All other syllables are closed.
+   *   All closed syllables are heavy.
+   *   Open syllables can be light or heavy.
+   *
+   *   Stress:
+   *   Monosyllables tend to be unstressed depending on their role.
+   *   Words with two syllables are stressed on the first syllable.
+   *   Longer words have the stress placed on the penultimate or antepenultimate syllable.
+   *   Stress falls on the penultimate syllable when it is heavy.
+   *   Stress falls on the antepenultimate syllable when the penultimate is light.
+   *
+   *   Long consonants:
+   *   Long consonants are written as double consonants.
+   *   Except for 'mm' and 'ss'.
+   * 
    * @param {string} word - The word to syllabify
    * @param {boolean} compoundWord - If true, treats ng/nth as separate sounds (n+g, n+th) rather than digraphs
    * @returns {string[]} Array of syllables
@@ -800,6 +835,30 @@ export class SyllableAnalyser {
   }
 
   /**
+   * Extract the vowel nucleus (single vowel or diphthong) with any marks.
+   * @param {string} syllable - The syllable to extract from
+   * @returns {string} The vowel nucleus with marks, or empty string
+   */
+  extractNucleus(syllable) {
+    const chars = [...syllable.normaliseToOne()];
+
+    // Find first vowel position
+    for (let i = 0; i < chars.length; i++) {
+      if (chars[i].removeMarks().isVowel(this.includeY, this.includeW)) {
+        // Check for diphthong (next char is also a vowel and together they form a legal diphthong)
+        if (i + 1 < chars.length) {
+          const pair = (chars[i] + chars[i + 1]).removeMarks().toLowerCase();
+          if (this.isDiphthong(pair)) {
+            return chars[i] + chars[i + 1];
+          }
+        }
+        return chars[i];
+      }
+    }
+    return '';
+  }
+
+  /**
    * Analyse a word and return detailed data on each syllable.
    * @param {string} word - The word to analyse
    * @param {boolean} compoundWord - If true, treats ng/nth as separate sounds (n+g, n+th) rather than digraphs
@@ -816,6 +875,7 @@ export class SyllableAnalyser {
       const hasLong = this.hasLongVowel(syllable);
       const hasDiph = this.containsDiphthong(syllable);
       const endsConsonant = this.endsInConsonant(syllable);
+      const nucleus = this.extractNucleus(syllable);
 
       let weight;
       if (hasLong || hasDiph || endsConsonant) {
@@ -831,7 +891,8 @@ export class SyllableAnalyser {
         syllable,
         weight,
         structure,
-        stressed: false // Will be set below
+        stressed: false, // Will be set below
+        nucleus,
       });
     }
 
@@ -861,5 +922,3 @@ export class SyllableAnalyser {
     return result;
   }
 }
-
-
