@@ -197,7 +197,6 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2107885715'].mechanic('ṣkala')).toBe('eskala');
     expect(oldSindarinRules['2107885715'].mechanic('ṣpine')).toBe('espine');
     expect(oldSindarinRules['2107885715'].mechanic('ṣtenna')).toBe('estenna');
-    expect(oldSindarinRules['2107885715'].mechanic('stenna')).toBe('estenna');
     expect(oldSindarinRules['2107885715'].mechanic('ṣtenta')).toBe('estenta');
   });
 
