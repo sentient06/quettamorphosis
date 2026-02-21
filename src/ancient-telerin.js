@@ -105,12 +105,21 @@ export const ancientTelerinRules = {
       return str;
     },
   },
-  'b': {
+  '1532676669': {
     orderId: '00300',
     pattern: '[{ttʰdnl}j-] > [{ttʰdnl}-]',
     description: '[j] was lost after initial dentals',
-    url: 'https://eldamo.org/content/words/word-b.html',
+    url: 'https://eldamo.org/content/words/word-1532676669.html',
+    skip: true,
     mechanic: (str) => {
+      if (['t', 'ŧ', 'd', 'n', 'l'].includes(str.nth(0))) {
+        if (str.nth(1) === 'j') {
+          return str.replace('j', '');
+        }
+        if (str.nth(1) === 'y') {
+          return str.replace('y', '');
+        }
+      }
       return str;
     },
   },

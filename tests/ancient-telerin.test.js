@@ -49,4 +49,24 @@ describe('Ancient Telerin rules', () => {
     // [ŋw] matches only at the beginning:
     expect(ancientTelerinRules['171120983'].mechanic('aŋwa')).toBe('aŋwa'); // Non-existent word
   });
+
+  it('1532676669 - [j] was lost after initial dentals', () => {
+    expect(ancientTelerinRules['1532676669'].mechanic('abc')).toBe('abc');
+    // All words are made up unless otherwise noted:
+    // [tj-] > [t-]:
+    expect(ancientTelerinRules['1532676669'].mechanic('tyab')).toBe('tab');
+    expect(ancientTelerinRules['1532676669'].mechanic('tjab')).toBe('tab');
+    // [tʰj-] > [tʰ-]:
+    expect(ancientTelerinRules['1532676669'].mechanic('ŧyab')).toBe('ŧab');
+    expect(ancientTelerinRules['1532676669'].mechanic('ŧjab')).toBe('ŧab');
+    // [dj-] > [d-]:
+    expect(ancientTelerinRules['1532676669'].mechanic('dyel')).toBe('del'); // √DYEL > N. deleb
+    expect(ancientTelerinRules['1532676669'].mechanic('djel')).toBe('del'); // √DYEL > N. deleb
+    // [nj-] > [n-]:
+    expect(ancientTelerinRules['1532676669'].mechanic('nyel')).toBe('nel'); // √NYEL > N. nell
+    expect(ancientTelerinRules['1532676669'].mechanic('njel')).toBe('nel'); // √NYEL > N. nell
+    // [lj-] > [l-]:
+    expect(ancientTelerinRules['1532676669'].mechanic('lyab')).toBe('lab');
+    expect(ancientTelerinRules['1532676669'].mechanic('ljab')).toBe('lab');
+  });
 });
