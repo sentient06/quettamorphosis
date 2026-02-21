@@ -50,7 +50,7 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['171120983'].mechanic('aŋwa')).toBe('aŋwa'); // Non-existent word
   });
 
-  it('1532676669 - [j] was lost after initial dentals', () => {
+  it('00300 - [j] was lost after initial dentals', () => {
     expect(ancientTelerinRules['1532676669'].mechanic('abc')).toBe('abc');
     // All words are made up unless otherwise noted:
     // [tj-] > [t-]:
@@ -70,9 +70,18 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['1532676669'].mechanic('ljab')).toBe('lab');
   });
 
-  it('1062284643 - [ln] became [ll]', () => {
+  it('00400 - [ln] became [ll]', () => {
     expect(ancientTelerinRules['1062284643'].mechanic('abc')).toBe('abc');
     expect(ancientTelerinRules['1062284643'].mechanic('ꝁolnina')).toBe('ꝁollina'); // kʰollina
     expect(ancientTelerinRules['1062284643'].mechanic('melnā')).toBe('mellā');
+  });
+
+  it('00500 - final voiceless stops and [s] vanished in polysyllables', () => {
+    expect(ancientTelerinRules['981459769'].mechanic('abc')).toBe('abc');
+    expect(ancientTelerinRules['981459769'].mechanic('nelek')).toBe('nele');
+    expect(ancientTelerinRules['981459769'].mechanic('ƥilik')).toBe('ƥili'); // pʰili
+    expect(ancientTelerinRules['981459769'].mechanic('usuk')).toBe('usu');
+    expect(ancientTelerinRules['981459769'].mechanic('kjelep')).toBe('kjele');
+    expect(ancientTelerinRules['981459769'].mechanic('ƥolos')).toBe('ƥolo'); // tʰolo
   });
 });

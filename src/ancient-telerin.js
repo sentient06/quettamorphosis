@@ -135,12 +135,15 @@ export const ancientTelerinRules = {
       return str;
     },
   },
-  'd': {
+  '981459769': {
     orderId: '00500',
     pattern: '[-SV{ptks}] > [-SVø]',
     description: 'final voiceless stops and [s] vanished in polysyllables',
-    url: 'https://eldamo.org/content/words/word-d.html',
+    url: 'https://eldamo.org/content/words/word-981459769.html',
     mechanic: (str) => {
+      if (['p', 't', 'k', 's'].includes(str.nth(-1))) {
+        return str.slice(0, -1);
+      }
       return str;
     },
   },
