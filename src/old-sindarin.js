@@ -635,17 +635,26 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1288402337': {
-  //   orderId: '03200',
-  //   pattern: '[rl] > [ll]',
-  //   description: '[rl] became [ll]',
-  //   url: 'https://eldamo.org/content/words/word-1288402337.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1288402337': {
+    orderId: '03200',
+    pattern: '[rl] > [ll]',
+    description: '[rl] became [ll]',
+    url: 'https://eldamo.org/content/words/word-1288402337.html',
+    skip: true,
+    info: ['This was not true of later or reformed compounds.', 'This rule is skipped by default.'],
+    mechanic: (str) => {
+      const occurrences = findAllOf(['rl'], str);
+      if (occurrences.length > 0) {
+        let result = str;
+        for (const occurrence of occurrences) {
+          const { charIndex } = occurrence;
+          result = result.substring(0, charIndex) + 'll' + result.substring(charIndex + 2);
+        }
+        return result;
+      }
+      return str;
+    },
+  },
   // '2851583127': {
   //   orderId: '03300',
   //   pattern: '[{ji|jui}-] > [{i|ui}-]',

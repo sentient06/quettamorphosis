@@ -423,9 +423,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1516403107'].mechanic('otsōja')).toBe('oθθōja');
   });
 
-//   it('03200 - [rl] became [ll]', () => {
-//     expect(oldSindarinRules['1288402337'].mechanic('abc')).toBe('abc');
-//   });
+  it('03200 - [rl] became [ll]', () => {
+    expect(oldSindarinRules['1288402337'].mechanic('abc')).toBe('abc');
+    // Only one example:
+    expect(oldSindarinRules['1288402337'].mechanic('glawarlinde')).toBe('glawallinde');
+  });
 
 //   it('03300 - [j] vanished before [i], [ui]', () => {
 //     expect(oldSindarinRules['2851583127'].mechanic('abc')).toBe('abc');
