@@ -1,5 +1,6 @@
 import { sindarinRules } from './src/sindarin.js';
 import { oldSindarinRules } from './src/old-sindarin.js';
+import { ancientTelerinRules } from './src/ancient-telerin.js';
 import { SyllableAnalyser, digraphsToSingle, singleToDigraphs } from './src/utils.js';
 import {
   preProcessingRules,
@@ -30,6 +31,7 @@ const $closeNotes = document.getElementById('close-notes');
 // State
 // =============================================================================
 
+const atRuleResults = {};
 const osRuleResults = {};
 const sindarinRuleResults = {};
 const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
@@ -40,6 +42,10 @@ const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
 // =============================================================================
 
 // Separate rule keys for each language, sorted by orderId
+const atRuleKeys = Object.keys(ancientTelerinRules).sort((a, b) => {
+  return ancientTelerinRules[a].orderId.localeCompare(ancientTelerinRules[b].orderId);
+});
+
 const osRuleKeys = Object.keys(oldSindarinRules).sort((a, b) => {
   return oldSindarinRules[a].orderId.localeCompare(oldSindarinRules[b].orderId);
 });
@@ -52,6 +58,7 @@ const sindarinRuleKeys = Object.keys(sindarinRules).sort((a, b) => {
 // Pre-processing → OS → Inter-language → Sindarin → Post-processing
 const allRuleKeys = [
   ...preProcessingRuleKeys,
+  ...atRuleKeys,
   ...osRuleKeys,
   ...interLanguageRuleKeys,
   ...sindarinRuleKeys,
@@ -68,6 +75,7 @@ function isConversionRule(ruleId) {
 // Helper to get rules object for a given ruleId
 function getRulesObject(ruleId) {
   if (preProcessingRules[ruleId]) return preProcessingRules;
+  if (ancientTelerinRules[ruleId]) return ancientTelerinRules;
   if (oldSindarinRules[ruleId]) return oldSindarinRules;
   if (interLanguageRules[ruleId]) return interLanguageRules;
   if (sindarinRules[ruleId]) return sindarinRules;
@@ -78,6 +86,7 @@ function getRulesObject(ruleId) {
 // Helper to get results object for a given ruleId
 // Note: Conversion rules don't track results (excluded from tripped/skipped)
 function getResultsObject(ruleId) {
+  if (ancientTelerinRules[ruleId]) return atRuleResults;
   if (oldSindarinRules[ruleId]) return osRuleResults;
   if (sindarinRules[ruleId]) return sindarinRuleResults;
   return null;
@@ -86,6 +95,7 @@ function getResultsObject(ruleId) {
 // Helper to get language/section name for a given ruleId
 function getLanguage(ruleId) {
   if (preProcessingRules[ruleId]) return 'pre-processing';
+  if (ancientTelerinRules[ruleId]) return 'ancient-telerin';
   if (oldSindarinRules[ruleId]) return 'old-sindarin';
   if (interLanguageRules[ruleId]) return 'inter-language';
   if (sindarinRules[ruleId]) return 'sindarin';
@@ -213,8 +223,8 @@ function toggleLanguage(langId, isEnabled) {
   }
 
   // Clear results for this language (they will be repopulated on re-run if enabled)
-  const ruleKeys = langId === 'old-sindarin' ? osRuleKeys : sindarinRuleKeys;
-  const resultsObj = langId === 'old-sindarin' ? osRuleResults : sindarinRuleResults;
+  const ruleKeys = langId === 'ancient-telerin' ? atRuleKeys : (langId === 'old-sindarin' ? osRuleKeys : sindarinRuleKeys);
+  const resultsObj = langId === 'ancient-telerin' ? atRuleResults : (langId === 'old-sindarin' ? osRuleResults : sindarinRuleResults);
   ruleKeys.forEach((ruleId) => {
     delete resultsObj[ruleId];
     updateRuleVisualState(ruleId);
@@ -532,11 +542,15 @@ function printResults() {
     }).join('\n');
   }
 
-  // Build tripped results: OS first, then Sindarin
+  // Build tripped results: Ancient Telerin, then OS, then Sindarin
+  const atTripped = formatTripped(ancientTelerinRules, atRuleResults);
   const osTripped = formatTripped(oldSindarinRules, osRuleResults);
   const sindarinTripped = formatTripped(sindarinRules, sindarinRuleResults);
 
   let trippedHtml = '';
+  if (atTripped) {
+    trippedHtml += '<strong>Ancient Telerin:</strong>\n' + atTripped + '\n\n';
+  }
   if (osTripped) {
     trippedHtml += '<strong>Old Sindarin:</strong>\n' + osTripped + '\n\n';
   }
@@ -545,11 +559,15 @@ function printResults() {
   }
   $resultsTripped.innerHTML = trippedHtml.trim();
 
-  // Build skipped results: OS first, then Sindarin
+  // Build skipped results: Ancient Telerin, then OS, then Sindarin
+  const atSkipped = formatSkipped(ancientTelerinRules, atRuleKeys);
   const osSkipped = formatSkipped(oldSindarinRules, osRuleKeys);
   const sindarinSkipped = formatSkipped(sindarinRules, sindarinRuleKeys);
 
   let skippedHtml = '';
+  if (atSkipped) {
+    skippedHtml += '<strong>Ancient Telerin:</strong>\n' + atSkipped + '\n\n';
+  }
   if (osSkipped) {
     skippedHtml += '<strong>Old Sindarin:</strong>\n' + osSkipped + '\n\n';
   }
@@ -641,7 +659,15 @@ if (preProcessingRuleKeys.length > 0) {
   });
 }
 
-// 2. Old Sindarin rules
+// 2. Ancient Telerin rules
+const $atWrapper = createLanguageWrapper('ancient-telerin', 'Ancient Telerin');
+atRuleKeys.forEach((ruleId) => {
+  const globalIndex = allRuleKeys.indexOf(ruleId);
+  const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+  drawRule(ruleId, nextRuleId, $atWrapper);
+});
+
+// 3. Old Sindarin rules
 const $osWrapper = createLanguageWrapper('old-sindarin', 'Old Sindarin');
 osRuleKeys.forEach((ruleId) => {
   const globalIndex = allRuleKeys.indexOf(ruleId);
@@ -649,7 +675,7 @@ osRuleKeys.forEach((ruleId) => {
   drawRule(ruleId, nextRuleId, $osWrapper);
 });
 
-// 3. Inter-language conversions (currently empty but structure is ready)
+// 4. Inter-language conversions (currently empty but structure is ready)
 if (interLanguageRuleKeys.length > 0) {
   const $interWrapper = createConversionWrapper('inter-language', 'OS → Sindarin Transition');
   interLanguageRuleKeys.forEach((ruleId) => {
@@ -659,7 +685,7 @@ if (interLanguageRuleKeys.length > 0) {
   });
 }
 
-// 4. Sindarin rules
+// 5. Sindarin rules
 const $sindarinWrapper = createLanguageWrapper('sindarin', 'Sindarin');
 sindarinRuleKeys.forEach((ruleId) => {
   const globalIndex = allRuleKeys.indexOf(ruleId);
@@ -667,7 +693,7 @@ sindarinRuleKeys.forEach((ruleId) => {
   drawRule(ruleId, nextRuleId, $sindarinWrapper);
 });
 
-// 5. Post-processing conversions
+// 6. Post-processing conversions
 if (postProcessingRuleKeys.length > 0) {
   const $postWrapper = createConversionWrapper('post-processing', 'Post-processing');
   postProcessingRuleKeys.forEach((ruleId) => {
