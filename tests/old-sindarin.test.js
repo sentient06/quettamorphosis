@@ -363,9 +363,17 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1942848653'].mechanic('θouson')).toBe('θūson');
   });
 
-//   it('02800 - [oi], [ǭi] became [ui], [oi]', () => {
-//     expect(oldSindarinRules['2010669085'].mechanic('abc')).toBe('abc');
-//   });
+  it('02800 - [oi], [ǭi] became [ui], [oi]', () => {
+    expect(oldSindarinRules['2010669085'].mechanic('abc')).toBe('abc');
+    // [oi] > [ui]:
+    expect(oldSindarinRules['2010669085'].mechanic('glossoia')).toBe('glossuia');
+    expect(oldSindarinRules['2010669085'].mechanic('oio')).toBe('uio');
+    expect(oldSindarinRules['2010669085'].mechanic('oiomalθina')).toBe('uiomalθina');
+    // [ǭi] > [oi]:
+    expect(oldSindarinRules['2010669085'].mechanic('gǭia')).toBe('goia');
+    expect(oldSindarinRules['2010669085'].mechanic('l̥ǭire')).toBe('l̥oire');
+    expect(oldSindarinRules['2010669085'].mechanic('ɸanǭia')).toBe('ɸanoia');
+  });
 
 //   it('02900 - medial [s] assimilated to following nasal', () => {
 //     expect(oldSindarinRules['1716741635'].mechanic('abc')).toBe('abc');

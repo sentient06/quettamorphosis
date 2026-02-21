@@ -530,7 +530,7 @@ export const oldSindarinRules = {
           'ou': 'ū',
         };
         for(const occurrence of occurrences) {
-          const { matched, charIndex, nextChar, prevChar } = occurrence;
+          const { matched, charIndex, nextChar } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
           if (nextChar) {
             if (nextChar.isVowel()) {
@@ -546,17 +546,28 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '2010669085': {
-  //   orderId: '02800',
-  //   pattern: '[oi|ǭi] > [ui|oi]',
-  //   description: '[oi], [ǭi] became [ui], [oi]',
-  //   url: 'https://eldamo.org/content/words/word-2010669085.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '2010669085': {
+    orderId: '02800',
+    pattern: '[oi|ǭi] > [ui|oi]',
+    description: '[oi], [ǭi] became [ui], [oi]',
+    url: 'https://eldamo.org/content/words/word-2010669085.html',
+    mechanic: (str) => {
+      const occurrences = findAllOf(['oi', 'ǭi'], str);
+      if (occurrences.length > 0) {
+        let result = str;
+        const replacements = {
+          'oi': 'ui',
+          'ǭi': 'oi',
+        };
+        for (const occurrence of occurrences) {
+          const { matched, charIndex } = occurrence;
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+        }
+        return result;
+      }
+      return str;
+    },
+  },
   // '1716741635': {
   //   orderId: '02900',
   //   pattern: '[-{sm|sn}-] > [-{mm|nn}-]',
