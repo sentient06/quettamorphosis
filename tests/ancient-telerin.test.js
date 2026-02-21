@@ -69,4 +69,10 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['1532676669'].mechanic('lyab')).toBe('lab');
     expect(ancientTelerinRules['1532676669'].mechanic('ljab')).toBe('lab');
   });
+
+  it('1062284643 - [ln] became [ll]', () => {
+    expect(ancientTelerinRules['1062284643'].mechanic('abc')).toBe('abc');
+    expect(ancientTelerinRules['1062284643'].mechanic('ꝁolnina')).toBe('ꝁollina'); // kʰollina
+    expect(ancientTelerinRules['1062284643'].mechanic('melnā')).toBe('mellā');
+  });
 });

@@ -123,12 +123,15 @@ export const ancientTelerinRules = {
       return str;
     },
   },
-  'c': {
+  '1062284643': {
     orderId: '00400',
     pattern: '[ln] > [ll]',
     description: '[ln] became [ll]',
-    url: 'https://eldamo.org/content/words/word-c.html',
+    url: 'https://eldamo.org/content/words/word-1062284643.html',
     mechanic: (str) => {
+      if (str.includes('ln')) {
+        return str.replace('ln', 'll');
+      }
       return str;
     },
   },
