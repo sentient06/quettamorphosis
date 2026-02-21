@@ -429,9 +429,15 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1288402337'].mechanic('glawarlinde')).toBe('glawallinde');
   });
 
-//   it('03300 - [j] vanished before [i], [ui]', () => {
-//     expect(oldSindarinRules['2851583127'].mechanic('abc')).toBe('abc');
-//   });
+  it('03300 - [j] vanished before [i], [ui]', () => {
+    // It looks like this is only for initial clusters. Double-check!
+    expect(oldSindarinRules['2851583127'].mechanic('abc')).toBe('abc');
+    // Only one example:
+    // [jui-] > [ui-]:
+    expect(oldSindarinRules['2851583127'].mechanic('juial')).toBe('uial');
+    // [ji] > [i]:
+    expect(oldSindarinRules['2851583127'].mechanic('jiabc')).toBe('iabc'); // Non-existent word
+  });
 
 //   it('03400 - [w] vanished before [u]', () => {
 //     expect(oldSindarinRules['2167009353'].mechanic('abc')).toBe('abc');
