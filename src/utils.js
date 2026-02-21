@@ -328,6 +328,7 @@ const SINGLE_TO_DIGRAPH_MAP = {
   'n̥': 'nh',
   'l̥': 'lh',
   'r̥': 'rh',
+  'ꞧ': 'rh',
 };
 
 /**
