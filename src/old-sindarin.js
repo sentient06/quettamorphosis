@@ -1,12 +1,10 @@
 import './utils.js'; // Load String prototype extensions
 import {
-  digraphsToSingle,
-  singleToDigraphs,
   syllabify,
   breakIntoVowelsAndConsonants,
   removeDigraphs,
   restoreDigraphs,
-  shouldRevertToDigraphs,
+  digraphsToSingle,
   findFirstOf,
   findAllOf,
   SyllableAnalyser,
@@ -22,22 +20,19 @@ export const oldSindarinRules = {
     description: 'final i-diphthongs became long [ī] in polysyllables',
     url: 'https://eldamo.org/content/words/word-71909447.html',
     mechanic: (str) => {
-      const singleCharsStr = digraphsToSingle(str);
       const analyser = new SyllableAnalyser();
-      const syllableData = analyser.analyse(singleCharsStr);
+      const syllableData = analyser.analyse(str);
       // 1. It's polysyllable:
       if (syllableData.length > 1) {
         // 2. Ends in -i:
-        const lastChar = singleCharsStr.nth(-1);
+        const lastChar = str.nth(-1);
         if (lastChar === 'i') {
           // 3. Penultimate is a vowel:
-          const secondLastChar = singleCharsStr.nth(-2).removeMarks();
+          const secondLastChar = str.nth(-2).removeMarks();
           if (secondLastChar.isVowel()) {
             // 4. It's a valid diphthong:
             if (['a', 'e', 'o'].includes(secondLastChar)) {
-              const revert = shouldRevertToDigraphs(str, singleCharsStr);
-              const result = singleCharsStr.substring(0, singleCharsStr.length - 2) + 'ī';
-              return revert ? singleToDigraphs(result) : result;
+              return str.substring(0, str.length - 2) + 'ī';
             }
           }
         }
@@ -51,13 +46,11 @@ export const oldSindarinRules = {
     description: 'initial [ŋ] became [ŋg] or [g]',
     url: 'https://eldamo.org/content/words/word-1989991061.html',
     mechanic: (str) => {
-      const singleCharsStr = digraphsToSingle(str).replaceAll('ñ', 'ŋ');
-      if (singleCharsStr.startsWith('ŋ')) {
-        const nextChar = singleCharsStr.nth(1);
+      const normalizedStr = str.replaceAll('ñ', 'ŋ');
+      if (normalizedStr.startsWith('ŋ')) {
+        const nextChar = normalizedStr.nth(1);
         const i = nextChar === 'g' ? 2 : 1;
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        const result = 'g' + singleCharsStr.substring(i, singleCharsStr.length);
-        return revert ? singleToDigraphs(result) : result;
+        return 'g' + normalizedStr.substring(i, normalizedStr.length);
       }
       return str;
     },
@@ -69,16 +62,14 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-4282797219.html',
     mechanic: (str) => {
       if (str.includes('d')) {
-        const singleCharsStr = digraphsToSingle(str.toNormalScript());
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        const { found, matched } = findFirstOf(['bd', 'gd'], singleCharsStr);
+        const normalizedStr = str.toNormalScript();
+        const { found, matched } = findFirstOf(['bd', 'gd'], normalizedStr);
         if (found) {
           const replacements = {
             'bd': 'ud',
             'gd': 'id',
           }
-          const result = singleCharsStr.replace(matched, replacements[matched]);
-          return revert ? singleToDigraphs(result) : result;
+          return normalizedStr.replace(matched, replacements[matched]);
         }
       }
       return str;
@@ -91,13 +82,10 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-107931923.html',
     mechanic: (str) => {
       if (str.includes('ɣ')) {
-        const singleCharsStr = digraphsToSingle(str.toNormalScript());
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        const { charIndex, nextChar } = findFirstOf(['ɣ'], singleCharsStr);
+        const normalizedStr = str.toNormalScript();
+        const { charIndex, nextChar } = findFirstOf(['ɣ'], normalizedStr);
         if (nextChar === 'r') {
-          const result = singleCharsStr.substring(0, charIndex) + 'g' + singleCharsStr.substring(charIndex + 1);
-          if (revert) return singleToDigraphs(result);
-          return result;
+          return normalizedStr.substring(0, charIndex) + 'g' + normalizedStr.substring(charIndex + 1);
         }
       }
       return str;
@@ -121,22 +109,17 @@ export const oldSindarinRules = {
     description: '[j] was lost after initial velars',
     url: 'https://eldamo.org/content/words/word-345959193.html',
     mechanic: (str) => {
-      // Convert digraphs first (before toNormalScript would destroy kʰ → kh distinction)
-      const singleCharsStr = digraphsToSingle(str);
-      // After digraph conversion: kʰ→ꝁ, so search for ꝁj (not kʰj)
-      const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['kj', 'ꝁj', 'gj', 'skj', 'ŋgj'], singleCharsStr);
+      // kʰ is already ꝁ (single char), so search for ꝁj (not kʰj)
+      const { found, matched } = findFirstOf(['kj', 'ꝁj', 'gj', 'skj', 'ŋgj'], str);
       if (found) {
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
         const replacements = {
           'kj': 'k',
           'ꝁj': 'ꝁ',
           'gj': 'g',
           'skj': 'sk',
           'ŋgj': 'ŋg',
-        },
-        result = singleCharsStr.replaceAll(matched, replacements[matched]);
-        if (revert) return singleToDigraphs(result);
-        return result;
+        };
+        return str.replaceAll(matched, replacements[matched]);
       }
       return str;
     },
@@ -203,7 +186,7 @@ export const oldSindarinRules = {
     description: 'voiceless stops were voiced before nasals',
     url: 'https://eldamo.org/content/words/word-3463937975.html',
     mechanic: (str) => {
-      const { found, matched, charIndex, nextChar } = findFirstOf(['pn', 'tn', 'kn', 'pm', 'tm', 'km'], str);
+      const { found, matched } = findFirstOf(['pn', 'tn', 'kn', 'pm', 'tm', 'km'], str);
       if (found) {
         const replacements = {
           'pn': 'bn',
@@ -224,18 +207,15 @@ export const oldSindarinRules = {
     description: '[m] became [w] after aspirates',
     url: 'https://eldamo.org/content/words/word-3883770909.html',
     mechanic: (str) => {
-      const singleCharsStr = digraphsToSingle(str);
-      const { found, matched } = findFirstOf(['ŧm', 'ƥm', 'ꝁm'], singleCharsStr);
+      // ŧ=tʰ, ƥ=pʰ, ꝁ=kʰ (single char forms)
+      const { found, matched } = findFirstOf(['ŧm', 'ƥm', 'ꝁm'], str);
       if (found) {
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
         const replacements = {
           'ŧm': 'ŧw',
           'ƥm': 'ƥw',
           'ꝁm': 'ꝁw',
         };
-        const result = singleCharsStr.replace(matched, replacements[matched]);
-        if (revert) return singleToDigraphs(result);
-        return result;
+        return str.replace(matched, replacements[matched]);
       }
       return str;
     },
@@ -246,13 +226,10 @@ export const oldSindarinRules = {
     description: '[tʰn] became [ttʰ]',
     url: 'https://eldamo.org/content/words/word-1757900715.html',
     mechanic: (str) => {
-      const singleCharsStr = digraphsToSingle(str);
-      const { found, matched, charIndex, nextChar, prevChar } = findFirstOf(['ŧn'], singleCharsStr);
+      // ŧ = tʰ (single char form)
+      const { found } = findFirstOf(['ŧn'], str);
       if (found) {
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        const result = singleCharsStr.replace(matched, 'tŧ');
-        if (revert) return singleToDigraphs(result);
-        return result;
+        return str.replace('ŧn', 'tŧ');
       }
       return str;
     },
@@ -264,14 +241,10 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-1789116309.html',
     mechanic: (str) => {
       if (str.endsWith('d')) {
-        const singleCharsStr = digraphsToSingle(str);
-        const penultimateChar = singleCharsStr.nth(-2);
+        const penultimateChar = str.nth(-2);
         if (penultimateChar.isVowel()) {
-          const revert = shouldRevertToDigraphs(str, singleCharsStr);
           const longVowel = penultimateChar.addMark('¯');
-          const result = singleCharsStr.substring(0, singleCharsStr.length - 2) + longVowel;
-          if (revert) return singleToDigraphs(result);
-          return result;
+          return str.substring(0, str.length - 2) + longVowel;
         }
       }
       return str;
@@ -283,12 +256,9 @@ export const oldSindarinRules = {
     description: 'final [tʰ] became [t]',
     url: 'https://eldamo.org/content/words/word-300026073.html',
     mechanic: (str) => {
-      const singleCharsStr = digraphsToSingle(str);
-      if (singleCharsStr.endsWith('ŧ')) {
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        const result = singleCharsStr.substring(0, singleCharsStr.length - 1) + 't';
-        if (revert) return singleToDigraphs(result);
-        return result;
+      // ŧ = tʰ (single char form)
+      if (str.endsWith('ŧ')) {
+        return str.substring(0, str.length - 1) + 't';
       }
       return str;
     },
@@ -299,12 +269,9 @@ export const oldSindarinRules = {
     description: 'medial [sj], [sw] became [xʲ], [xʷ]',
     url: 'https://eldamo.org/content/words/word-3229649933.html',
     mechanic: (str) => {
-      const singleCharsStr = digraphsToSingle(str);
-      if (singleCharsStr.includes('sj') || singleCharsStr.includes('sw')) {
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
-        const result = singleCharsStr.replaceAll('sj', 'ꜧ').replaceAll('sw', 'ƕ');
-        if (revert) return singleToDigraphs(result);
-        return result;
+      // ꜧ = xʲ, ƕ = xʷ (single char forms)
+      if (str.includes('sj') || str.includes('sw')) {
+        return str.replaceAll('sj', 'ꜧ').replaceAll('sw', 'ƕ');
       }
       return str;
     },
@@ -330,12 +297,9 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-1249932447.html',
     mechanic: (str) => {
       if (str.includes('zd')) {
-        const singleCharsStr = digraphsToSingle(str);
-        const { found, charIndex, nextChar, prevChar  } = findFirstOf(['z'], singleCharsStr);
+        const { found, charIndex, nextChar, prevChar } = findFirstOf(['z'], str);
         if (found && nextChar === 'd' && prevChar.isVowel()) {
-          const revert = shouldRevertToDigraphs(str, singleCharsStr);
-          const result = singleCharsStr.substring(0, charIndex - 1) + prevChar.addMark('¯') + singleCharsStr.substring(charIndex + 1);
-          return revert ? singleToDigraphs(result) : result;
+          return str.substring(0, charIndex - 1) + prevChar.addMark('¯') + str.substring(charIndex + 1);
         }
       }
       return str;
@@ -363,12 +327,22 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-3923357111.html',
     mechanic: (str) => {
       if (str.startsWith('s')) {
-        const singleCharsStr = digraphsToSingle(str);
-        const { found, charIndex, nextChar, prevChar  } = findFirstOf(['sj', 'sw', 'sm', 'sn', 'sl', 'sr'], singleCharsStr);
+        const { found, charIndex } = findFirstOf(['sj', 'sw', 'sm', 'sn', 'sl', 'sr'], str);
         if (found && charIndex === 0) {
-          const revert = shouldRevertToDigraphs(str, singleCharsStr);
-          const result = digraphsToSingle(`${singleCharsStr.nth(1)}h`) + singleCharsStr.substring(2);
-          return revert ? singleToDigraphs(result) : result;
+          // Convert to unvoiced consonant: mh, nh, lh, rh, etc.
+          // These become single chars via the DIGRAPH_MAP
+          const secondChar = str.nth(1);
+          const unvoiced = secondChar + 'h';
+          // Use the DIGRAPH_MAP mappings: mh→ꟃ, nh→ꞃ, lh→ꝉ, rh→ꞧ, wh→ƕ
+          const unvoicedMap = {
+            'j': 'j̊',
+            'w': 'ƕ',
+            'm': 'ꟃ',
+            'n': 'ꞃ',
+            'l': 'ꝉ',
+            'r': 'ꞧ',
+          };
+          return (unvoicedMap[secondChar] || unvoiced) + str.substring(2);
         }
       }
       return str;
@@ -407,27 +381,19 @@ export const oldSindarinRules = {
     pattern: '[s{ptk}-] > [s{ɸθx}-]',
     description: 'voiceless stops became spirants after initial [s]',
     url: 'https://eldamo.org/content/words/word-798037075.html',
-    input: [
-      { name: 'useSingleCharacters', type: 'boolean', default: false, description: 'Use single characters instead of digraphs' },
-    ],
-    mechanic: (str, { useSingleCharacters } = { useSingleCharacters: false }) => {
+    mechanic: (str) => {
       const firstChar = str.nth(0);
       if (firstChar === 's') {
-        const singleCharsStr = digraphsToSingle(str);
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
         const secondChar = str.nth(1);
-        let result = singleCharsStr;
         if (secondChar === 'p') {
-          result = 'sɸ' + str.substring(2);
+          return 'sɸ' + str.substring(2);
         }
         if (secondChar === 't') {
-          result = 'sθ' + str.substring(2);
+          return 'sθ' + str.substring(2);
         }
         if (secondChar === 'k') {
-          result = 'sx' + str.substring(2);
+          return 'sx' + str.substring(2);
         }
-        if (revert && useSingleCharacters === false) return singleToDigraphs(result);
-        return result;
       }
       return str;
     },
@@ -438,11 +404,9 @@ export const oldSindarinRules = {
     description: 'voiceless stops aspirated after consonants except [s]',
     url: 'https://eldamo.org/content/words/word-1683955225.html',
     mechanic: (str) => {
-      const singleCharsStr = digraphsToSingle(str);
-      const occurrences = findAllOf(['p', 't', 'k', 'c'], singleCharsStr);
+      const occurrences = findAllOf(['p', 't', 'k', 'c'], str);
       if (occurrences.length > 0) {
         const validConsonants = ['r', 'l', 'm', 'n', 'ŋ', 'd', 'b', 'g', 'p', 't', 'k', 'c', 'x'];
-        const revert = shouldRevertToDigraphs(str, singleCharsStr);
         const results = [];
         for (const occurrence of occurrences) {
           const { charIndex, prevChar } = occurrence;
@@ -450,11 +414,11 @@ export const oldSindarinRules = {
             results.push(charIndex);
           }
         }
-        let result = singleCharsStr;
+        let result = str;
         for (const charIndex of results) {
-          result = result.substring(0, charIndex + 1) + 'ʰ' + result.substring(charIndex + 1);
+          const mutatedChar = digraphsToSingle(result.nth(charIndex) + 'ʰ');
+          result = result.substring(0, charIndex) + mutatedChar + result.substring(charIndex + 1);
         }
-        if (revert) return singleToDigraphs(result);
         return result;
       }
       return str;
@@ -465,12 +429,9 @@ export const oldSindarinRules = {
     pattern: '[{ptk}ʰ|{ptk}{ptk}ʰ] > [{ɸθx}|{ɸθx}{ɸθx}]',
     description: 'aspirates became voiceless spirants',
     url: 'https://eldamo.org/content/words/word-883570327.html',
-    input: [
-      { name: 'useSingleCharacters', type: 'boolean', default: false, description: 'Use single characters instead of digraphs' },
-    ],
-    mechanic: (str, { useSingleCharacters } = { useSingleCharacters: false }) => {
-      const singleCharsStr = digraphsToSingle(str);
-      const { found, matched, prevChar } = findFirstOf(['ƥ', 'ŧ', 'ꝁ'], singleCharsStr);
+    mechanic: (str) => {
+      // ƥ=pʰ, ŧ=tʰ, ꝁ=kʰ (single char forms for aspirated stops)
+      const { found, matched, prevChar } = findFirstOf(['ƥ', 'ŧ', 'ꝁ'], str);
       if (found) {
         const replacements = {
           'pƥ': 'ɸɸ',
@@ -497,12 +458,9 @@ export const oldSindarinRules = {
           replacee = matched;
           replacer = simpleReplacements[matched];
         }
-        
+
         if (replacee && replacer) {
-          const revert = shouldRevertToDigraphs(str, singleCharsStr);
-          const result = singleCharsStr.replaceAll(replacee, replacer);
-          if (revert && useSingleCharacters === false) return singleToDigraphs(result);
-          return result;
+          return str.replaceAll(replacee, replacer);
         }
       }
       return str;

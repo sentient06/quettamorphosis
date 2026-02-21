@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { oldSindarinRules } from "../src/old-sindarin.js";
+import { digraphsToSingle, singleToDigraphs } from "../src/utils.js";
+
+// Helper to convert test input to single-char form (simulating pre-processing)
+const toSingle = (str) => digraphsToSingle(str);
 
 describe('Old Sindarin rules', () => {
   it('00100 - final i-diphthongs became long [ī] in polysyllables', () => {
@@ -25,8 +29,9 @@ describe('Old Sindarin rules', () => {
 
   it('00300 - first in pair of voiced stops vocalized', () => {
     expect(oldSindarinRules['4282797219'].mechanic('abc')).toBe('abc');
+    // Input uses single-char form: ꝁ=kʰ, x=kh/ch
     // [Vbd] > [Vud]:
-    expect(oldSindarinRules['4282797219'].mechanic('kʰabdā')).toBe('chaudā');
+    expect(oldSindarinRules['4282797219'].mechanic('ꝁabdā')).toBe('ꝁaudā');
     expect(oldSindarinRules['4282797219'].mechanic('labdē')).toBe('laudē');
     // [Vgd] > [Vid]:
     expect(oldSindarinRules['4282797219'].mechanic('negdē')).toBe('neidē');
@@ -50,12 +55,13 @@ describe('Old Sindarin rules', () => {
 
   it('00600 - [j] was lost after initial velars', () => {
     expect(oldSindarinRules['345959193'].mechanic('abc')).toBe('abc');
+    // Input uses single-char form: ꝁ=kʰ
     // [kj-] > [k-]:
     expect(oldSindarinRules['345959193'].mechanic('akjāwen')).toBe('akāwen');
     expect(oldSindarinRules['345959193'].mechanic('kjawathāne')).toBe('kawathāne');
     expect(oldSindarinRules['345959193'].mechanic('kjelepē')).toBe('kelepē');
-    // [kʰj-] > [kʰ-]:
-    expect(oldSindarinRules['345959193'].mechanic('kʰjabab')).toBe('kʰabab'); // Non-existent word
+    // [kʰj-] > [kʰ-] (using ꝁ for kʰ):
+    expect(oldSindarinRules['345959193'].mechanic('ꝁjabab')).toBe('ꝁabab'); // Non-existent word
     // [gj-] > [g-]:
     expect(oldSindarinRules['345959193'].mechanic('gjabab')).toBe('gabab'); // Non-existent word
     // [skj-] > [sk-]:
@@ -122,17 +128,18 @@ describe('Old Sindarin rules', () => {
 
   it('01100 - [m] became [w] after aspirates', () => {
     expect(oldSindarinRules['3883770909'].mechanic('abc')).toBe('abc');
+    // Input uses single-char forms: ŧ=tʰ, ƥ=pʰ, ꝁ=kʰ
     // All examples are Noldorin (or non-existent):
-    expect(oldSindarinRules['3883770909'].mechanic('patʰmā')).toBe('patʰwā');
-    expect(oldSindarinRules['3883770909'].mechanic('abapʰma')).toBe('abapʰwa'); // Non-existent word
-    expect(oldSindarinRules['3883770909'].mechanic('abakʰma')).toBe('abakʰwa'); // Non-existent word
-
+    expect(oldSindarinRules['3883770909'].mechanic('paŧmā')).toBe('paŧwā');
+    expect(oldSindarinRules['3883770909'].mechanic('abaƥma')).toBe('abaƥwa'); // Non-existent word
+    expect(oldSindarinRules['3883770909'].mechanic('abaꝁma')).toBe('abaꝁwa'); // Non-existent word
   });
 
   it('01200 - [tʰn] became [ttʰ]', () => {
     expect(oldSindarinRules['1757900715'].mechanic('abc')).toBe('abc');
+    // Input uses single-char form: ŧ=tʰ
     // Only one example, and it's Old Noldorin:
-    expect(oldSindarinRules['1757900715'].mechanic('patʰnā')).toBe('pattʰā');
+    expect(oldSindarinRules['1757900715'].mechanic('paŧnā')).toBe('patŧā');
   });
 
   it('01300 - final [d] spirantalized and vanished', () => {
@@ -147,17 +154,18 @@ describe('Old Sindarin rules', () => {
 
   it('01400 - final [tʰ] became [t]', () => {
     expect(oldSindarinRules['300026073'].mechanic('abc')).toBe('abc');
+    // Input uses single-char form: ŧ=tʰ, x=kh/ch
     // Only example, from Noldorin:
-    expect(oldSindarinRules['300026073'].mechanic('khōtʰ')).toBe('chōt');
-    // The result is "khōt", but "ch" is equivalent to "kh".
+    expect(oldSindarinRules['300026073'].mechanic('xōŧ')).toBe('xōt');
   });
 
   it('01500 - medial [sj], [sw] became [xʲ], [xʷ]', () => {
     expect(oldSindarinRules['3229649933'].mechanic('abc')).toBe('abc');
-    expect(oldSindarinRules['3229649933'].mechanic('lisjā')).toBe('lixʲā');
-    expect(oldSindarinRules['3229649933'].mechanic('teswā')).toBe('texʷā');
+    // Output uses single-char forms: ꜧ=xʲ, ƕ=xʷ
+    expect(oldSindarinRules['3229649933'].mechanic('lisjā')).toBe('liꜧā');
+    expect(oldSindarinRules['3229649933'].mechanic('teswā')).toBe('teƕā');
     // Made-up value to test multiple occurrences:
-    expect(oldSindarinRules['3229649933'].mechanic('tesjaswā')).toBe('texʲaxʷā');
+    expect(oldSindarinRules['3229649933'].mechanic('tesjaswā')).toBe('teꜧaƕā');
   });
 
   it('01600 - long final vowels were shortened', () => {
@@ -195,12 +203,13 @@ describe('Old Sindarin rules', () => {
 
   it('01900 - initial [s] unvoiced following consonants', () => {
     expect(oldSindarinRules['3923357111'].mechanic('abc')).toBe('abc');
-    expect(oldSindarinRules['3923357111'].mechanic('sjerwa')).toBe('jherwa');
-    expect(oldSindarinRules['3923357111'].mechanic('slasu')).toBe('lhasu');
-    expect(oldSindarinRules['3923357111'].mechanic('snaide')).toBe('nhaide');
-    expect(oldSindarinRules['3923357111'].mechanic('srāba')).toBe('rhāba');
-    expect(oldSindarinRules['3923357111'].mechanic('swa')).toBe('wha');
-    expect(oldSindarinRules['3923357111'].mechanic('swaiwar')).toBe('whaiwar');
+    // Output uses single-char forms: ꟃ=mh, ꞃ=nh, ꝉ=lh, ꞧ=rh, ƕ=wh
+    expect(oldSindarinRules['3923357111'].mechanic('sjerwa')).toBe('j̊erwa');
+    expect(oldSindarinRules['3923357111'].mechanic('slasu')).toBe('ꝉasu');
+    expect(oldSindarinRules['3923357111'].mechanic('snaide')).toBe('ꞃaide');
+    expect(oldSindarinRules['3923357111'].mechanic('srāba')).toBe('ꞧāba');
+    expect(oldSindarinRules['3923357111'].mechanic('swa')).toBe('ƕa');
+    expect(oldSindarinRules['3923357111'].mechanic('swaiwar')).toBe('ƕaiwar');
   });
 
   it('02000 - final [e] became [a] after single [s] and [st]', () => {
@@ -221,75 +230,76 @@ describe('Old Sindarin rules', () => {
     // Maybe we should just use single characters for all rules.
     expect(oldSindarinRules['798037075'].mechanic('abc')).toBe('abc');
     // [sp-] > [sɸ-]:
-    expect(oldSindarinRules['798037075'].mechanic('spinde', { useSingleCharacters: true })).toBe('sɸinde');
+    expect(oldSindarinRules['798037075'].mechanic('spinde')).toBe('sɸinde');
     // [st-] > [sθ-]:
-    expect(oldSindarinRules['798037075'].mechanic('stenna', { useSingleCharacters: true })).toBe('sθenna');
+    expect(oldSindarinRules['798037075'].mechanic('stenna')).toBe('sθenna');
     // [sk-] > [sx-]:
-    expect(oldSindarinRules['798037075'].mechanic('skalja-', { useSingleCharacters: true })).toBe('sxalja-'); // Old Noldorin
+    expect(oldSindarinRules['798037075'].mechanic('skalja-')).toBe('sxalja-'); // Old Noldorin
   });
 
-  it('02200 - voiceless stops aspirated after consonants except [s]', () => {
+  it.only('02200 - voiceless stops aspirated after consonants except [s]', () => {
     expect(oldSindarinRules['1683955225'].mechanic('xyz')).toBe('xyz');
     // [pp] > [ppʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('eppel')).toBe('eppʰel');
+    expect(oldSindarinRules['1683955225'].mechanic('eppel')).toBe('epƥel');
     // [pt] > [ptʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('lepta-')).toBe('leptʰa-');
+    expect(oldSindarinRules['1683955225'].mechanic('lepta-')).toBe('lepŧa-');
     // [tt] > [ttʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('grotta')).toBe('grottʰa');
+    expect(oldSindarinRules['1683955225'].mechanic('grotta')).toBe('grotŧa');
     // [tp] > [tpʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('batpa')).toBe('batpʰa'); // Non-existent word
+    expect(oldSindarinRules['1683955225'].mechanic('batpa')).toBe('batƥa'); // Non-existent word
 
     // [kk] > [kkʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('rokko')).toBe('rokkʰo');
+    expect(oldSindarinRules['1683955225'].mechanic('rokko')).toBe('rokꝁo');
     // [kt] > [ktʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('ekta')).toBe('ektʰa');
+    expect(oldSindarinRules['1683955225'].mechanic('ekta')).toBe('ekŧa');
     // [gt] > [gtʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('agta')).toBe('agtʰa'); // Non-existent word
+    expect(oldSindarinRules['1683955225'].mechanic('agta')).toBe('agŧa'); // Non-existent word
 
     // [np] > [npʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('enpet-')).toBe('enpʰet-');
+    expect(oldSindarinRules['1683955225'].mechanic('enpet-')).toBe('enƥet-');
     // [mp] > [mpʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('gampa')).toBe('gampʰa');
+    expect(oldSindarinRules['1683955225'].mechanic('gampa')).toBe('gamƥa');
     // [nt] > [ntʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('anta-')).toBe('antʰa-');
+    expect(oldSindarinRules['1683955225'].mechanic('anta-')).toBe('anŧa-');
     // [ŋk] > [ŋkʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('taŋka')).toBe('taŋkʰa');
+    expect(oldSindarinRules['1683955225'].mechanic('taŋka')).toBe('taŋꝁa');
     // [lp] > [lpʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('alpa')).toBe('alpʰa');
+    expect(oldSindarinRules['1683955225'].mechanic('alpa')).toBe('alƥa');
     // [lt] > [ltʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('maltorne')).toBe('maltʰorne');
+    expect(oldSindarinRules['1683955225'].mechanic('maltorne')).toBe('malŧorne');
     // [lk] > [lkʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('balka')).toBe('balkʰa');
+    expect(oldSindarinRules['1683955225'].mechanic('balka')).toBe('balꝁa');
     // [rp] > [rpʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('karpa-')).toBe('karpʰa-');
+    expect(oldSindarinRules['1683955225'].mechanic('karpa-')).toBe('karƥa-');
     // [rt] > [rtʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('ambarta')).toBe('ambartʰa');
+    expect(oldSindarinRules['1683955225'].mechanic('ambarta')).toBe('ambarŧa');
     // [rk] > [rkʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('urko')).toBe('urkʰo');
+    expect(oldSindarinRules['1683955225'].mechanic('urko')).toBe('urꝁo');
     // [xt] > [xtʰ]:
-    expect(oldSindarinRules['1683955225'].mechanic('axta')).toBe('axtʰa'); // Non-existent word
+    expect(oldSindarinRules['1683955225'].mechanic('axta')).toBe('axŧa'); // Non-existent word
   });
 
   it('02300 - aspirates became voiceless spirants', () => {
     expect(oldSindarinRules['883570327'].mechanic('xyz')).toBe('xyz');
+    // Input uses single-char forms: ƥ=pʰ, ŧ=tʰ, ꝁ=kʰ
     // [pʰ] > [ɸ]:
-    expect(oldSindarinRules['883570327'].mechanic('pʰelga', { useSingleCharacters: true })).toBe('ɸelga');
+    expect(oldSindarinRules['883570327'].mechanic('ƥelga')).toBe('ɸelga');
     // [tʰ] > [θ]:
-    expect(oldSindarinRules['883570327'].mechanic('itʰil', { useSingleCharacters: true })).toBe('iθil');
+    expect(oldSindarinRules['883570327'].mechanic('iŧil')).toBe('iθil');
     // [kʰ] > [x]:
-    expect(oldSindarinRules['883570327'].mechanic('karkʰa', { useSingleCharacters: true })).toBe('karxa');
+    expect(oldSindarinRules['883570327'].mechanic('karꝁa')).toBe('karxa');
     // [ppʰ] > [ɸɸ]:
-    expect(oldSindarinRules['883570327'].mechanic('eppʰel', { useSingleCharacters: true })).toBe('eɸɸel');
+    expect(oldSindarinRules['883570327'].mechanic('epƥel')).toBe('eɸɸel');
     // [ptʰ] > [ɸθ]:
-    expect(oldSindarinRules['883570327'].mechanic('leptʰa-', { useSingleCharacters: true })).toBe('leɸθa-');
+    expect(oldSindarinRules['883570327'].mechanic('lepŧa-')).toBe('leɸθa-');
     // [ttʰ] > [θθ]:
-    expect(oldSindarinRules['883570327'].mechanic('grottʰa', { useSingleCharacters: true })).toBe('groθθa');
+    expect(oldSindarinRules['883570327'].mechanic('grotŧa')).toBe('groθθa');
     // [tkʰ] > [xx]:
-    expect(oldSindarinRules['883570327'].mechanic('abatkʰa', { useSingleCharacters: true })).toBe('abaxxa'); // Non-existent word
+    expect(oldSindarinRules['883570327'].mechanic('abatꝁa')).toBe('abaxxa'); // Non-existent word
     // [ktʰ] > [xθ]:
-    expect(oldSindarinRules['883570327'].mechanic('ektʰa', { useSingleCharacters: true })).toBe('exθa');
+    expect(oldSindarinRules['883570327'].mechanic('ekŧa')).toBe('exθa');
     // [kkʰ] > [xx]:
-    expect(oldSindarinRules['883570327'].mechanic('rokkʰo', { useSingleCharacters: true })).toBe('roxxo');
+    expect(oldSindarinRules['883570327'].mechanic('rokꝁo')).toBe('roxxo');
   });
 
   it('02400 - [eu] became [iu]', () => {

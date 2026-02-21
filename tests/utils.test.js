@@ -119,10 +119,11 @@ describe('Utils', () => {
   });
 
   it('findAllOf should return all occurrences of characters in a string', () => {
+    // Note: nextChar/prevChar use str.nth() which returns '' for out-of-bounds
     expect(findAllOf(['a'], 'banana')).toEqual([
       { matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b' },
       { matched: 'a', charIndex: 3, nextChar: 'n', prevChar: 'n' },
-      { matched: 'a', charIndex: 5, nextChar: null, prevChar: 'n' },
+      { matched: 'a', charIndex: 5, nextChar: '', prevChar: 'n' },
     ]);
     expect(findAllOf(['an'], 'banana')).toEqual([
       { matched: 'an', charIndex: 1, nextChar: 'a', prevChar: 'b' },
@@ -133,7 +134,7 @@ describe('Utils', () => {
       { matched: 'n', charIndex: 2, nextChar: 'a', prevChar: 'a' },
       { matched: 'a', charIndex: 3, nextChar: 'n', prevChar: 'n' },
       { matched: 'n', charIndex: 4, nextChar: 'a', prevChar: 'a' },
-      { matched: 'a', charIndex: 5, nextChar: null, prevChar: 'n' },
+      { matched: 'a', charIndex: 5, nextChar: '', prevChar: 'n' },
     ]);
     expect(findAllOf(['x', 'y', 'z'], 'banana')).toEqual([]);
   });

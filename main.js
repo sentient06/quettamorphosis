@@ -1,6 +1,14 @@
 import { sindarinRules } from './src/sindarin.js';
 import { oldSindarinRules } from './src/old-sindarin.js';
 import { SyllableAnalyser, digraphsToSingle, singleToDigraphs } from './src/utils.js';
+import {
+  preProcessingRules,
+  interLanguageRules,
+  postProcessingRules,
+  preProcessingRuleKeys,
+  interLanguageRuleKeys,
+  postProcessingRuleKeys,
+} from './src/conversions.js';
 
 // =============================================================================
 // DOM Elements
@@ -14,6 +22,9 @@ const $helpers = document.querySelector('.userInput .helpers');
 const $resetButton = document.getElementById('reset');
 const $resultsTripped = document.getElementById('results-tripped');
 const $resultsSkipped = document.getElementById('results-skipped');
+const $notes = document.getElementById('notes');
+const $openNotes = document.getElementById('open-notes');
+const $closeNotes = document.getElementById('close-notes');
 
 // =============================================================================
 // State
@@ -37,29 +48,48 @@ const sindarinRuleKeys = Object.keys(sindarinRules).sort((a, b) => {
   return sindarinRules[a].orderId.localeCompare(sindarinRules[b].orderId);
 });
 
-// Combined keys: OS first, then Sindarin
-const allRuleKeys = [...osRuleKeys, ...sindarinRuleKeys];
+// Combined keys: all conversions + languages in execution order
+// Pre-processing → OS → Inter-language → Sindarin → Post-processing
+const allRuleKeys = [
+  ...preProcessingRuleKeys,
+  ...osRuleKeys,
+  ...interLanguageRuleKeys,
+  ...sindarinRuleKeys,
+  ...postProcessingRuleKeys,
+];
 
 const firstRuleId = allRuleKeys[0];
 
+// Helper to check if a rule is a conversion rule
+function isConversionRule(ruleId) {
+  return preProcessingRules[ruleId] || interLanguageRules[ruleId] || postProcessingRules[ruleId];
+}
+
 // Helper to get rules object for a given ruleId
 function getRulesObject(ruleId) {
+  if (preProcessingRules[ruleId]) return preProcessingRules;
   if (oldSindarinRules[ruleId]) return oldSindarinRules;
+  if (interLanguageRules[ruleId]) return interLanguageRules;
   if (sindarinRules[ruleId]) return sindarinRules;
+  if (postProcessingRules[ruleId]) return postProcessingRules;
   return null;
 }
 
 // Helper to get results object for a given ruleId
+// Note: Conversion rules don't track results (excluded from tripped/skipped)
 function getResultsObject(ruleId) {
   if (oldSindarinRules[ruleId]) return osRuleResults;
   if (sindarinRules[ruleId]) return sindarinRuleResults;
   return null;
 }
 
-// Helper to get language name for a given ruleId
+// Helper to get language/section name for a given ruleId
 function getLanguage(ruleId) {
+  if (preProcessingRules[ruleId]) return 'pre-processing';
   if (oldSindarinRules[ruleId]) return 'old-sindarin';
+  if (interLanguageRules[ruleId]) return 'inter-language';
   if (sindarinRules[ruleId]) return 'sindarin';
+  if (postProcessingRules[ruleId]) return 'post-processing';
   return null;
 }
 
@@ -123,8 +153,26 @@ function createLanguageWrapper(langId, langName) {
   return $langWrapper;
 }
 
+// Create a conversion wrapper with header (no toggle - conversions always run)
+function createConversionWrapper(sectionId, sectionName) {
+  const $convWrapper = draw('div', $wrapper, {
+    class: 'conversion-wrapper',
+    id: `conv-${sectionId}`
+  });
+
+  const $header = draw('div', $convWrapper, { class: 'conversion-header' });
+  draw('h3', $header, { innerHtml: sectionName });
+
+  return $convWrapper;
+}
+
 // Check if a rule is effectively enabled (language AND rule must both be enabled)
 function isRuleEffectivelyEnabled(ruleId) {
+  // Conversion rules are always enabled
+  if (isConversionRule(ruleId)) {
+    return true;
+  }
+
   const langId = getLanguage(ruleId);
   const rulesObj = getRulesObject(ruleId);
   const rule = rulesObj[ruleId];
@@ -249,23 +297,27 @@ function toggleRule(ruleId, isEnabled) {
 function drawRule(ruleId, nextRuleId, $parentContainer) {
   const rulesObj = getRulesObject(ruleId);
   const rule = rulesObj[ruleId];
+  const isConversion = isConversionRule(ruleId);
   const isEffectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
   const ruleClass = isEffectivelyEnabled ? 'rule rule-enabled' : 'rule';
   const $rule = draw('div', $parentContainer, { class: ruleClass, id: `rule-${ruleId}` });
 
-  const $label = draw('label', $rule, { for: `toggle-${ruleId}`, class: 'rule-label' });
-  draw('input', $label, {
-    id: `toggle-${ruleId}`,
-    type: 'checkbox',
-    checked: isEffectivelyEnabled ? 'checked' : '',
-    class: 'rule-toggle',
-    callback: {
-      trigger: 'change',
-      callback: (e) => toggleRule(ruleId, e.target.checked)
-    }
-  });
+  // Conversion rules don't have toggles (they always run)
+  if (!isConversion) {
+    const $label = draw('label', $rule, { for: `toggle-${ruleId}`, class: 'rule-label' });
+    draw('input', $label, {
+      id: `toggle-${ruleId}`,
+      type: 'checkbox',
+      checked: isEffectivelyEnabled ? 'checked' : '',
+      class: 'rule-toggle',
+      callback: {
+        trigger: 'change',
+        callback: (e) => toggleRule(ruleId, e.target.checked)
+      }
+    });
+    draw('span', $label, { class: 'rule-id', innerHtml: ruleId });
+  }
 
-  draw('span', $label, { class: 'rule-id', innerHtml: ruleId });
   draw('div', $rule, { class: 'rule-order-id', innerHtml: rule.orderId });
   draw('div', $rule, { class: 'rule-pattern', innerHtml: rule.pattern });
   draw('div', $rule, { class: 'rule-description', innerHtml: rule.description });
@@ -348,8 +400,11 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     placeholder: 'Output',
   });
 
-  const $anchorWrapper = draw('div', $rule, { class: 'rule-anchor' });
-  draw('a', $anchorWrapper, { innerHtml: 'source', href: rule.url, target: '_blank' });
+  // Conversion rules don't have source URLs
+  if (!isConversion && rule.url) {
+    const $anchorWrapper = draw('div', $rule, { class: 'rule-anchor' });
+    draw('a', $anchorWrapper, { innerHtml: 'source', href: rule.url, target: '_blank' });
+  }
 }
 
 function runRule(ruleId, input, nextRuleId) {
@@ -397,13 +452,16 @@ function runRule(ruleId, input, nextRuleId) {
   const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
   const output = isEnabled ? rule.mechanic(input, options) : input;
 
-  console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
+  const langLabel = isConversionRule(ruleId) ? 'CV' : (getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S');
+  console.log('Rule', langLabel, rule.orderId, String(ruleId).padStart(25, ' '), 'in:', input.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(25, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
 
-  // Track rule result
-  if (input !== output) {
-    resultsObj[ruleId] = output;
-  } else {
-    delete resultsObj[ruleId];
+  // Track rule result (skip for conversion rules - they don't appear in tripped/skipped)
+  if (resultsObj) {
+    if (input !== output) {
+      resultsObj[ruleId] = output;
+    } else {
+      delete resultsObj[ruleId];
+    }
   }
 
   // Auto-update dependency checkboxes that depend on this rule
@@ -549,6 +607,16 @@ $resetButton.addEventListener('click', () => {
   location.reload();
 });
 
+$openNotes.addEventListener('click', (e) => {
+  e.preventDefault();
+  $notes.style.display = 'block';
+});
+
+$closeNotes.addEventListener('click', (e) => {
+  e.preventDefault();
+  $notes.style.display = 'none';
+});
+
 // =============================================================================
 // Initialization
 // =============================================================================
@@ -556,24 +624,58 @@ $resetButton.addEventListener('click', () => {
 // Set sticky header height CSS variable for scroll-margin-top
 document.documentElement.style.setProperty('--sticky-h', $topWrapper.offsetHeight + 'px');
 
-// Create language wrappers
+// Helper to calculate the next rule ID for a given index in allRuleKeys
+function getNextRuleIdAtIndex(index) {
+  return allRuleKeys[index + 1];
+}
+
+// Create conversion and language wrappers in execution order
+
+// 1. Pre-processing conversions
+if (preProcessingRuleKeys.length > 0) {
+  const $preWrapper = createConversionWrapper('pre-processing', 'Pre-processing');
+  preProcessingRuleKeys.forEach((ruleId) => {
+    const globalIndex = allRuleKeys.indexOf(ruleId);
+    const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+    drawRule(ruleId, nextRuleId, $preWrapper);
+  });
+}
+
+// 2. Old Sindarin rules
 const $osWrapper = createLanguageWrapper('old-sindarin', 'Old Sindarin');
+osRuleKeys.forEach((ruleId) => {
+  const globalIndex = allRuleKeys.indexOf(ruleId);
+  const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+  drawRule(ruleId, nextRuleId, $osWrapper);
+});
+
+// 3. Inter-language conversions (currently empty but structure is ready)
+if (interLanguageRuleKeys.length > 0) {
+  const $interWrapper = createConversionWrapper('inter-language', 'OS → Sindarin Transition');
+  interLanguageRuleKeys.forEach((ruleId) => {
+    const globalIndex = allRuleKeys.indexOf(ruleId);
+    const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+    drawRule(ruleId, nextRuleId, $interWrapper);
+  });
+}
+
+// 4. Sindarin rules
 const $sindarinWrapper = createLanguageWrapper('sindarin', 'Sindarin');
-
-// Draw Old Sindarin rules
-osRuleKeys.forEach((ruleId, index) => {
-  const nextRuleId = allRuleKeys[index + 1];
-  const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
-  drawRule(ruleId, nextRuleId, $osWrapper, isEnabled);
+sindarinRuleKeys.forEach((ruleId) => {
+  const globalIndex = allRuleKeys.indexOf(ruleId);
+  const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+  drawRule(ruleId, nextRuleId, $sindarinWrapper);
 });
 
-// Draw Sindarin rules
-sindarinRuleKeys.forEach((ruleId, index) => {
-  const globalIndex = osRuleKeys.length + index;
-  const nextRuleId = allRuleKeys[globalIndex + 1];
-  const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
-  drawRule(ruleId, nextRuleId, $sindarinWrapper, isEnabled);
-});
+// 5. Post-processing conversions
+if (postProcessingRuleKeys.length > 0) {
+  const $postWrapper = createConversionWrapper('post-processing', 'Post-processing');
+  postProcessingRuleKeys.forEach((ruleId) => {
+    const globalIndex = allRuleKeys.indexOf(ruleId);
+    const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+    drawRule(ruleId, nextRuleId, $postWrapper);
+  });
+}
 
 // Restore input from storage and run rules
 const storedInput = localStorage.getItem('original-input') || '';

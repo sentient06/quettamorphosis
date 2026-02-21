@@ -303,9 +303,9 @@ describe('Sindarin rules', () => {
     // Long ss also did not lengthen, see rule 06300.
     expect(sindarinRules['1053424933'].mechanic('loss')).toBe('loss');
     // Exceptions:
-    expect(sindarinRules['1053424933'].mechanic('hith')).toBe('hīth');
-    expect(sindarinRules['1053424933'].mechanic('nith')).toBe('nīth');
-    expect(sindarinRules['1053424933'].mechanic('iath')).toBe('iāth');
+    expect(sindarinRules['1053424933'].mechanic('hiθ')).toBe('hīθ');
+    expect(sindarinRules['1053424933'].mechanic('niθ')).toBe('nīθ');
+    expect(sindarinRules['1053424933'].mechanic('iaθ')).toBe('iāθ');
     // Sindarin monosyllables ending in [m] and [ŋ] do not show vowel lengthening
     expect(sindarinRules['1053424933'].mechanic('lam')).toBe('lam');
     expect(sindarinRules['1053424933'].mechanic('dom')).toBe('dom');
@@ -353,12 +353,12 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1053424933'].mechanic('hwa')).toBe('hwā');
     expect(sindarinRules['1053424933'].mechanic('ia')).toBe('iā');
     expect(sindarinRules['1053424933'].mechanic('te')).toBe('tē');
-    expect(sindarinRules['1053424933'].mechanic('thle')).toBe('thlē');
+    expect(sindarinRules['1053424933'].mechanic('θle')).toBe('θlē');
     expect(sindarinRules['1053424933'].mechanic('di')).toBe('dī');
-    expect(sindarinRules['1053424933'].mechanic('lhi')).toBe('lhī');
+    expect(sindarinRules['1053424933'].mechanic('ꝉi')).toBe('ꝉī');
     expect(sindarinRules['1053424933'].mechanic('gli')).toBe('glī');
     expect(sindarinRules['1053424933'].mechanic('gwi')).toBe('gwī');
-    expect(sindarinRules['1053424933'].mechanic('rhi')).toBe('rhī');
+    expect(sindarinRules['1053424933'].mechanic('ꞧi')).toBe('ꞧī');
     expect(sindarinRules['1053424933'].mechanic('ri')).toBe('rī');
     expect(sindarinRules['1053424933'].mechanic('ti')).toBe('tī');
     expect(sindarinRules['1053424933'].mechanic('lo')).toBe('lō');
@@ -389,7 +389,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2139740021'].mechanic('θelɣyndi')).toBe('θelyndi');
     expect(sindarinRules['2139740021'].mechanic('dirɣel')).toBe('diriel');
     expect(sindarinRules['2139740021'].mechanic('tarɣass')).toBe('tariass');
-    expect(sindarinRules['2139740021'].mechanic('maðɣass')).toBe('madhiass');
+    expect(sindarinRules['2139740021'].mechanic('maðɣass')).toBe('maðiass');
     // Doesn't change:
     expect(sindarinRules['2139740021'].mechanic('galadariɣel')).toBe('galadariɣel');
     // These words don't exist:
@@ -531,14 +531,14 @@ describe('Sindarin rules', () => {
   it('04200 - dissimilation of dental spirants', () => {
     expect(sindarinRules['2090293737'].mechanic('abc')).toBe('abc');
     expect(sindarinRules['2090293737'].mechanic('θaeθ')).toBe('θaes');
-    expect(sindarinRules['2090293737'].mechanic('úthaeth')).toBe('úthaes');
-    expect(sindarinRules['2090293737'].mechanic('údhaeth')).toBe('údhaes'); // Non-existent word
+    expect(sindarinRules['2090293737'].mechanic('úθaeθ')).toBe('úθaes');
+    expect(sindarinRules['2090293737'].mechanic('úðaeθ')).toBe('úðaes'); // Non-existent word
   });
 
   it('04300 - [ls], [rs] became [lθ], [ss]', () => {
     expect(sindarinRules['298324969'].mechanic('abc')).toBe('abc');
-    expect(sindarinRules['298324969'].mechanic('falso')).toBe('faltho');
-    expect(sindarinRules['298324969'].mechanic('olsa-')).toBe('oltha-');
+    expect(sindarinRules['298324969'].mechanic('falso')).toBe('falθo');
+    expect(sindarinRules['298324969'].mechanic('olsa-')).toBe('olθa-');
     expect(sindarinRules['298324969'].mechanic('tars')).toBe('tass');
     expect(sindarinRules['298324969'].mechanic('perso')).toBe('pesso');
   });
@@ -550,15 +550,12 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1531741019'].mechanic('nimf')).toBe('nimp');
     // [-nθ] > [-nt]:
     expect(sindarinRules['1531741019'].mechanic('estenθ')).toBe('estent');
-    expect(sindarinRules['1531741019'].mechanic('estenth')).toBe('estent');
     expect(sindarinRules['1531741019'].mechanic('ranθ')).toBe('rant');
     expect(sindarinRules['1531741019'].mechanic('θenθ')).toBe('θent');
     // [-ŋx] > [-ŋk]:
     expect(sindarinRules['1531741019'].mechanic('fliŋx')).toBe('fliŋk');
-    expect(sindarinRules['1531741019'].mechanic('flingch')).toBe('flingk');
     expect(sindarinRules['1531741019'].mechanic('laŋx')).toBe('laŋk');
     // [-lθ] > [-lt]:
-    expect(sindarinRules['1531741019'].mechanic('malth')).toBe('malt'); // Only entry in Sindarin, deleted
     expect(sindarinRules['1531741019'].mechanic('malθ')).toBe('malt'); // Only entry in Sindarin, deleted
     expect(sindarinRules['1531741019'].mechanic('m̥alθ')).toBe('m̥alt'); // This is Noldorin
     expect(sindarinRules['1531741019'].mechanic('talθ')).toBe('talt'); // This is Noldorin
@@ -620,7 +617,6 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3123278727'].mechanic('tamvat')).toBe('tambat');
     expect(sindarinRules['3123278727'].mechanic('tanðat')).toBe('tandat');
     expect(sindarinRules['3123278727'].mechanic('tamðat')).toBe('tamdat'); // This is an unlikely pair, but feasible in compounds.
-    expect(sindarinRules['3123278727'].mechanic('tandhat')).toBe('tandat');
     expect(sindarinRules['3123278727'].mechanic('taŋɣat')).toBe('taŋgat');
     // No description, no examples, awaiting feedback on Lambegolmor.
   });
@@ -630,7 +626,7 @@ describe('Sindarin rules', () => {
     // [-mf-] > [-mm-]:
     expect(sindarinRules['2996915415'].mechanic('gamfass')).toBe('gammass'); // This is Noldorin
     // [-nθ-] > [-nn-]:
-    expect(sindarinRules['2996915415'].mechanic('manthen')).toBe('mannen');
+    expect(sindarinRules['2996915415'].mechanic('manθen')).toBe('mannen');
     expect(sindarinRules['2996915415'].mechanic('danθa-')).toBe('danna-');
     // [-ŋx-] > [-ŋg-]:
     expect(sindarinRules['2996915415'].mechanic('daŋxen')).toBe('daŋgen');
@@ -651,7 +647,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2083930569'].mechanic('dírhael')).toBe('dírhael');
     expect(sindarinRules['2083930569'].mechanic('íðra')).toBe('íðra');
     expect(sindarinRules['2083930569'].mechanic('mírdain')).toBe('mírdain');
-    expect(sindarinRules['2083930569'].mechanic('nírnaeth')).toBe('nírnaeth');
+    expect(sindarinRules['2083930569'].mechanic('nírnaeθ')).toBe('nírnaeθ');
     // Regular cases:
     expect(sindarinRules['2083930569'].mechanic('hīθlūm')).toBe('hiθlūm');
     expect(sindarinRules['2083930569'].mechanic('roxīrrim')).toBe('roxirrim');
@@ -731,10 +727,8 @@ describe('Sindarin rules', () => {
   it('05500 - [lð] became [ll]', () => {
     expect(sindarinRules['226282629'].mechanic('abc')).toBe('abc');
     expect(sindarinRules['226282629'].mechanic('elð')).toBe('ell');
-    expect(sindarinRules['226282629'].mechanic('eldh')).toBe('ell');
     expect(sindarinRules['226282629'].mechanic('kolð')).toBe('koll');
     expect(sindarinRules['226282629'].mechanic('melðond')).toBe('mellond');
-    expect(sindarinRules['226282629'].mechanic('meldhond')).toBe('mellond');
     expect(sindarinRules['226282629'].mechanic('tindūmielð')).toBe('tindūmiell');
   });
 
@@ -793,9 +787,9 @@ describe('Sindarin rules', () => {
 
   it('05900 - medial [s] became [θ] before [l], [r]', () => {
     expect(sindarinRules['3736793827'].mechanic('abc')).toBe('abc');
-    expect(sindarinRules['3736793827'].mechanic('kasrae')).toBe('kathrae');
-    expect(sindarinRules['3736793827'].mechanic('oslond')).toBe('othlond');
-    expect(sindarinRules['3736793827'].mechanic('casrae')).toBe('cathrae'); // cas-raya
+    expect(sindarinRules['3736793827'].mechanic('kasrae')).toBe('kaθrae');
+    expect(sindarinRules['3736793827'].mechanic('oslond')).toBe('oθlond');
+    expect(sindarinRules['3736793827'].mechanic('casrae')).toBe('caθrae'); // cas-raya
     // Doesn't match initial and final clusters:
     expect(sindarinRules['3736793827'].mechanic('asl')).toBe('asl');
     expect(sindarinRules['3736793827'].mechanic('sra')).toBe('sra');
@@ -837,7 +831,7 @@ describe('Sindarin rules', () => {
     // -SSss > -SSs:
     expect(sindarinRules['1742178057'].mechanic('avrass')).toBe('avras');
     expect(sindarinRules['1742178057'].mechanic('falass')).toBe('falas');
-    expect(sindarinRules['1742178057'].mechanic('karaðrass')).toBe('karadhras');
+    expect(sindarinRules['1742178057'].mechanic('karaðrass')).toBe('karaðras');
     expect(sindarinRules['1742178057'].mechanic('karaðraſ')).toBe('karaðras');
     // Monosyllables are not affected:
     expect(sindarinRules['1742178057'].mechanic('lass')).toBe('lass');
@@ -950,10 +944,10 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1206014597'].mechanic('lebeθθron')).toBe('lebeθron');
     expect(sindarinRules['1206014597'].mechanic('morgoθθ')).toBe('morgoθ');
     // Using roman clusters:
-    expect(sindarinRules['1206014597'].mechanic('morgotth')).toBe('morgoth');
-    expect(sindarinRules['1206014597'].mechanic('appharkha')).toBe('afarcha');
-    expect(sindarinRules['1206014597'].mechanic('apɸarkha')).toBe('afarcha');
-    expect(sindarinRules['1206014597'].mechanic('rokkō')).toBe('rochō');
+    expect(sindarinRules['1206014597'].mechanic('morgotth')).toBe('morgoθ');
+    expect(sindarinRules['1206014597'].mechanic('appharxa')).toBe('afarxa');
+    expect(sindarinRules['1206014597'].mechanic('apɸarxa')).toBe('afarxa');
+    expect(sindarinRules['1206014597'].mechanic('rokkō')).toBe('roxō');
   });
 
   it('07200 - final [l], [r] became syllabic', () => {
@@ -1001,7 +995,7 @@ describe('Sindarin rules', () => {
 
   it('07700 - medial [x] became [h] in Gondorian pronunciation', () => {
     expect(sindarinRules['4188321265'].mechanic('abc')).toBe('abc');
-    expect(sindarinRules['4188321265'].mechanic('rochan')).toBe('rohan');
+    // Note: 'rochan' is a digraph form ('ch') - use 'roxan' for single-char form
     expect(sindarinRules['4188321265'].mechanic('roxan')).toBe('rohan');
     expect(sindarinRules['4188321265'].mechanic('roχan')).toBe('rohan');
     // Don't apply to initials and finals:
