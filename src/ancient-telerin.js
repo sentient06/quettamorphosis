@@ -147,12 +147,18 @@ export const ancientTelerinRules = {
       return str;
     },
   },
-  'e': {
+  '1254562549': {
     orderId: '00600',
     pattern: '[{mn}s] > [ss]',
     description: '[ms], [ns] became [ss]',
     url: 'https://eldamo.org/content/words/word-e.html',
     mechanic: (str) => {
+      if (str.includes('ms')) {
+        return str.replace('ms', 'ss');
+      }
+      if (str.includes('ns')) {
+        return str.replace('ns', 'ss');
+      }
       return str;
     },
   },

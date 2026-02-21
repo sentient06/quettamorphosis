@@ -84,4 +84,15 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['981459769'].mechanic('kjelep')).toBe('kjele');
     expect(ancientTelerinRules['981459769'].mechanic('ƥolos')).toBe('ƥolo'); // tʰolo
   });
+
+  it('00600 - [ms], [ns] became [ss]', () => {
+    expect(ancientTelerinRules['1254562549'].mechanic('abc')).toBe('abc');
+    // Only one example:
+    expect(ancientTelerinRules['1254562549'].mechanic('rinse')).toBe('risse');
+    // Guessing:
+    expect(ancientTelerinRules['1254562549'].mechanic('aransuil')).toBe('arassuil');
+    // Made up words:
+    expect(ancientTelerinRules['1254562549'].mechanic('amsa')).toBe('assa');
+    expect(ancientTelerinRules['1254562549'].mechanic('ansa')).toBe('assa');
+  });
 });
