@@ -80,6 +80,28 @@ export const ancientTelerinRules = {
     description: 'labialized velars became labials',
     url: 'https://eldamo.org/content/words/word-171120983.html',
     mechanic: (str) => {
+      const { found, matched, charIndex } = findFirstOf(['ŋgw', 'ŋkw', 'kw', 'ꝁw', 'gw', 'ŋw'], str);
+
+      if (found) {
+        const replacements = {
+          'ŋgw': 'mb',
+          'ŋkw': 'mp',
+          'kw': 'p',
+          'ꝁw': 'ƥ',
+          'gw': 'b',
+          'ŋw': 'm',
+        };
+        if (matched === 'ŋw' && charIndex > 0) return str;
+
+        let result = str;
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
+
+        // No idea how the ṃ happens, but I'm assuming it occurs when it's followed by a consonant.
+        if (result.nth(0) === 'm' && result.nth(1).isConsonant()) {
+          result = 'ṃ' + result.substring(1);
+        }
+        return result;
+      }
       return str;
     },
   },
