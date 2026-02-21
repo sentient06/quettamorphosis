@@ -533,6 +533,13 @@ export const OLD_SINDARIN_PROFILE = {
   diphthongs: ['ai', 'ui', 'iu'],
 };
 
+export const ANCIENT_TELERIN_PROFILE = {
+  ...SINDARIN_PROFILE,
+  diphthongs: ['ai', 'ui', 'iu'],
+  longVowelMarks: ['¯'],      // Only macron = long vowel
+  stressMarks: ['´']          // Acute = stress marker
+};
+
 // =============================================================================
 // SyllableAnalyser Class
 // =============================================================================
@@ -545,6 +552,10 @@ export class SyllableAnalyser {
   // Default values (Sindarin)
   legalVowels = SINDARIN_PROFILE.vowels;
   legalDiphthongs = SINDARIN_PROFILE.diphthongs;
+  // Marks that indicate long vowels (macron, acute, circumflex by default)
+  longVowelMarks = ['¯', '´', '^'];
+  // Marks that indicate stress (empty = use positional rules)
+  stressMarks = [];
   legalConsonants = SINDARIN_PROFILE.consonants;
   legalDigraphs = SINDARIN_PROFILE.digraphs;
   digraphMap = SINDARIN_PROFILE.digraphMap;
@@ -578,6 +589,8 @@ export class SyllableAnalyser {
       if (p.validFinalClusters) this.validFinalClusters = p.validFinalClusters;
       if (p.finalClusterAlternateSpelling) this.finalClusterAlternateSpelling = p.finalClusterAlternateSpelling;
       if (p.alternateSpelling) this.alternateSpelling = p.alternateSpelling;
+      if (p.longVowelMarks) this.longVowelMarks = p.longVowelMarks;
+      if (p.stressMarks) this.stressMarks = p.stressMarks;
     }
   }
 
@@ -797,12 +810,42 @@ export class SyllableAnalyser {
    * @returns {boolean} True if it contains a long vowel
    */
   hasLongVowel(syllable) {
-    for (const char of [...syllable]) {
-      if (char.isVowel(false, false)) {
-        const mark = char.getMark();
-        // Long vowels have macron (¯), acute (´), or circumflex (^)
-        if (mark === '¯' || mark === '´' || mark === '^') {
-          return true;
+    // Use grapheme segmentation to keep combining marks with their base characters
+    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+    const graphemes = [...segmenter.segment(syllable)].map(s => s.segment);
+    for (const char of graphemes) {
+      const base = char.removeMarks();
+      if (base && base.isVowel(false, false)) {
+        // Check each combining mark individually (vowel may have multiple marks)
+        const normalised = char.normaliseToMany();
+        for (const cp of [...normalised]) {
+          if (cp.isMark() && this.longVowelMarks.includes(cp.getMark() || cp)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check if a syllable has an explicit stress mark.
+   * @param {string} syllable - The syllable to check
+   * @returns {boolean} True if it has a stress mark
+   */
+  hasStressMark(syllable) {
+    // Use grapheme segmentation to keep combining marks with their base characters
+    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+    const graphemes = [...segmenter.segment(syllable)].map(s => s.segment);
+    for (const char of graphemes) {
+      const base = char.removeMarks();
+      if (base && base.isVowel(false, false)) {
+        // Check each combining mark individually (vowel may have multiple marks)
+        const normalised = char.normaliseToMany();
+        for (const cp of [...normalised]) {
+          if (cp.isMark() && this.stressMarks.includes(cp.getMark() || cp)) {
+            return true;
+          }
         }
       }
     }
@@ -840,14 +883,18 @@ export class SyllableAnalyser {
    * @returns {string} The vowel nucleus with marks, or empty string
    */
   extractNucleus(syllable) {
-    const chars = [...syllable.normaliseToOne()];
+    // Use grapheme segmentation to keep combining marks with their base characters
+    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+    const chars = [...segmenter.segment(syllable)].map(s => s.segment);
 
     // Find first vowel position
     for (let i = 0; i < chars.length; i++) {
-      if (chars[i].removeMarks().isVowel(this.includeY, this.includeW)) {
+      const base = chars[i].removeMarks();
+      if (base && base.isVowel(this.includeY, this.includeW)) {
         // Check for diphthong (next char is also a vowel and together they form a legal diphthong)
         if (i + 1 < chars.length) {
-          const pair = (chars[i] + chars[i + 1]).removeMarks().toLowerCase();
+          const nextBase = chars[i + 1].removeMarks();
+          const pair = (base + nextBase).toLowerCase();
           if (this.isDiphthong(pair)) {
             return chars[i] + chars[i + 1];
           }
@@ -897,7 +944,11 @@ export class SyllableAnalyser {
     }
 
     // Determine stress
-    if (syllables.length === 1) {
+    // Check for explicit stress marks first
+    const explicitlyStressed = result.filter(s => this.hasStressMark(s.syllable));
+    if (explicitlyStressed.length > 0) {
+      explicitlyStressed.forEach(s => s.stressed = true);
+    } else if (syllables.length === 1) {
       // Monosyllables: unstressed
       result[0].stressed = false;
     } else if (syllables.length === 2) {

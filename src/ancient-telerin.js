@@ -8,6 +8,7 @@ import {
   findFirstOf,
   findAllOf,
   SyllableAnalyser,
+  ANCIENT_TELERIN_PROFILE,
 } from './utils.js';
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -19,7 +20,7 @@ export const ancientTelerinRules = {
     description: 'unstressed initial syllables reduced to favored clusters',
     url: 'https://eldamo.org/content/words/word-3648128347.html',
     mechanic: (str) => {
-      const analyser = new SyllableAnalyser();
+      const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
       const syllableData = analyser.analyse(str);
 
       if (syllableData.length < 2) return str;
@@ -41,23 +42,36 @@ export const ancientTelerinRules = {
       if (!'ptkƥꝁbdgm'.includes(firstSyllableStart)) return str;
 
       // The first syllable is unstressed.
-      // There's no way of telling which syllable is stressed in ancient Telerin.
-      // And we can't apply Sindarin rules. So we skip this check.
-      // if (firstSyllable.stressed) return str;
+      // Stressed syllables in Old Telerin use the accute mark.
+      // We can't apply Sindarin rules. So we skip this check.
+      if (firstSyllable.stressed) return str;
 
       // The second syllable is long and stressed. (Maybe.)
       // if (secondSyllable.weight !== 'heavy' || secondSyllable.stressed !== true) return str;
 
       const result = [];
       result.push(firstSyllable.syllable.replace(firstSyllable.nucleus, ''));
-      result.push(secondSyllable.syllable.replace(secondSyllable.nucleus, secondSyllable.nucleus.removeMarks()));
+      // Remove only the stress mark (acute), but keep the length mark (macron)
+      const nucleusWithoutStress = secondSyllable.nucleus.normaliseToMany()
+        .replace(/\u0301/g, '')  // Remove combining acute (stress mark)
+        .normaliseToOne();
+      result.push(secondSyllable.syllable.replace(secondSyllable.nucleus, nucleusWithoutStress));
       result.push(...syllableData.slice(2).map(s => s.syllable));
 
       const joinedResult = result.join('');
-      const normalizedResult = joinedResult.normaliseToMany()
-        .replace(/[\u0301\u0302]/g, '\u0304')  // acute/circumflex → macron
+
+      const newSyllables = analyser.analyse(joinedResult);
+      // console.log({ newSyllables, joinedResult, a: joinedResult.removeMarks() });
+      if (newSyllables.length === 1) return joinedResult
+        .replace(/[\u0301]/g, '\u0304')  // acute → macron
         .normaliseToOne();
-      return normalizedResult;
+
+      return joinedResult;
+
+      // const normalizedResult = joinedResult.normaliseToMany()
+        // .replace(/[\u0301\u0302]/g, '\u0304')  // acute/circumflex → macron
+        // .normaliseToOne();
+      // return normalizedResult;
     },
   },
   '171120983': {
