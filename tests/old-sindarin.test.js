@@ -375,9 +375,23 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2010669085'].mechanic('ɸanǭia')).toBe('ɸanoia');
   });
 
-//   it('02900 - medial [s] assimilated to following nasal', () => {
-//     expect(oldSindarinRules['1716741635'].mechanic('abc')).toBe('abc');
-//   });
+  it('02900 - medial [s] assimilated to following nasal', () => {
+    expect(oldSindarinRules['1716741635'].mechanic('abc')).toBe('abc');
+    // All examples are Old Noldorin:
+    // [-sm-] > [-mm-]:
+    expect(oldSindarinRules['1716741635'].mechanic('asmale')).toBe('ammale');
+    expect(oldSindarinRules['1716741635'].mechanic('asmalinde')).toBe('ammalinde');
+    expect(oldSindarinRules['1716741635'].mechanic('kasma')).toBe('kamma');
+    // [-sn-] > [-nn-]:
+    expect(oldSindarinRules['1716741635'].mechanic('besno')).toBe('benno');
+    expect(oldSindarinRules['1716741635'].mechanic('xerbesno')).toBe('xerbenno');
+    // [-sr-] > [-rr-]: did not occur in Old Sindarin.
+    // expect(oldSindarinRules['1716741635'].mechanic('gę̄sra')).toBe('gę̄rra');
+    // Initial and final clusters are not affected:
+    expect(oldSindarinRules['1716741635'].mechanic('babas')).toBe('babas'); // Non-existent word
+    expect(oldSindarinRules['1716741635'].mechanic('sababa')).toBe('sababa'); // Non-existent word
+    expect(oldSindarinRules['1716741635'].mechanic('sbaba')).toBe('sbaba'); // Non-existent word
+  });
 
 //   it('03000 - intervocalic [s] became [h]', () => {
 //     expect(oldSindarinRules['3388236413'].mechanic('abc')).toBe('abc');

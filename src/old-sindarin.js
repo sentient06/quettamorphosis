@@ -568,17 +568,29 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '1716741635': {
-  //   orderId: '02900',
-  //   pattern: '[-{sm|sn}-] > [-{mm|nn}-]',
-  //   description: 'medial [s] assimilated to following nasal',
-  //   url: 'https://eldamo.org/content/words/word-1716741635.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '1716741635': {
+    orderId: '02900',
+    pattern: '[-{sm|sn}-] > [-{mm|nn}-]',
+    description: 'medial [s] assimilated to following nasal',
+    url: 'https://eldamo.org/content/words/word-1716741635.html',
+    mechanic: (str) => {
+      const occurrences = findAllOf(['sm', 'sn'], str);
+      if (occurrences.length > 0) {
+        let result = str;
+        const replacements = {
+          'sm': 'mm',
+          'sn': 'nn',
+        };
+        for (const occurrence of occurrences) {
+          const { matched, charIndex, prevChar, nextChar } = occurrence;
+          if (charIndex === 0 || nextChar === '') continue;
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+        }
+        return result;
+      }
+      return str;
+    },
+  },
   // '3388236413': {
   //   orderId: '03000',
   //   pattern: '[VsV|-Vs] > [VhV|-Vh]',
