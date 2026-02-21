@@ -111,6 +111,7 @@ export const ancientTelerinRules = {
     description: '[j] was lost after initial dentals',
     url: 'https://eldamo.org/content/words/word-1532676669.html',
     skip: true,
+    info: ['Possibly abandoned.', 'Disabled by default.'],
     mechanic: (str) => {
       if (['t', 'ŧ', 'd', 'n', 'l'].includes(str.nth(0))) {
         if (str.nth(1) === 'j') {

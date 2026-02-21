@@ -911,6 +911,8 @@ export const sindarinRules = {
     pattern: '[C{ĭĕăŏŭ}+C] > [Cø+C]',
     description: 'short vowels vanished before morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-2749565259.html',
+    skip: true,
+    info: ['Important in compounds.', 'Disabled by default.'],
     input: [
       { name: 'guess', type: 'boolean', default: true, description: 'Guess the syllable boundary if there is no marker' },
       { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
