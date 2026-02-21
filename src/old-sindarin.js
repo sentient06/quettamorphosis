@@ -677,17 +677,29 @@ export const oldSindarinRules = {
       return str;
     },
   },
-  // '2167009353': {
-  //   orderId: '03400',
-  //   pattern: '[{uw|wu}] > [u]',
-  //   description: '[w] vanished before [u]',
-  //   url: 'https://eldamo.org/content/words/word-2167009353.html',
-  //   skip: true,
-  //   mechanic: (str) => {
-  //     // @TODO: implement
-  //     return str;
-  //   },
-  // },
+  '2167009353': {
+    orderId: '03400',
+    pattern: '[{uw|wu}] > [u]',
+    description: '[w] vanished before [u]',
+    url: 'https://eldamo.org/content/words/word-2167009353.html',
+    mechanic: (str) => {
+      const unmarkedStr = str.removeMarks();
+      const occurrences = findAllOf(['uw', 'wu'], unmarkedStr);
+      if (occurrences.length > 0) {
+        let result = str;
+        const replacements = {
+          'uw': 'u',
+          'wu': 'u',
+        };
+        for (const occurrence of occurrences) {
+          const { matched, charIndex } = occurrence;
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
+        }
+        return result;
+      }
+      return str;
+    },
+  },
   // '2615312913': {
   //   orderId: '03500',
   //   pattern: '[bm|dn] > [mm|nn]',

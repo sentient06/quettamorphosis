@@ -439,9 +439,16 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2851583127'].mechanic('jiabc')).toBe('iabc'); // Non-existent word
   });
 
-//   it('03400 - [w] vanished before [u]', () => {
-//     expect(oldSindarinRules['2167009353'].mechanic('abc')).toBe('abc');
-//   });
+  it('03400 - [w] vanished before [u]', () => {
+    expect(oldSindarinRules['2167009353'].mechanic('abc')).toBe('abc');
+    // All examples are from Old Noldorin:
+    // [uw] > [u]:
+    expect(oldSindarinRules['2167009353'].mechanic('kukūwa')).toBe('kukua');
+    // [wu] > [u]:
+    expect(oldSindarinRules['2167009353'].mechanic('gwuin')).toBe('guin');
+    expect(oldSindarinRules['2167009353'].mechanic('wuia')).toBe('uia');
+    expect(oldSindarinRules['2167009353'].mechanic('wuiar')).toBe('uiar');
+  });
 
 //   it('03500 - [bm], [dn] became [mm], [nn]', () => {
 //     expect(oldSindarinRules['2615312913'].mechanic('abc')).toBe('abc');
