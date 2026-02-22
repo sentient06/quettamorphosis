@@ -298,11 +298,9 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1053424933'].mechanic('penθrondo')).toBe('penθrondo');
     // Lengthening did not occur before unvoiced consonants: th, ch ([θ], [x]):
     expect(sindarinRules['1053424933'].mechanic('gwaθ')).toBe('gwaθ');
-    expect(sindarinRules['1053424933'].mechanic('gwath')).toBe('gwath');
-    expect(sindarinRules['1053424933'].mechanic('bach')).toBe('bach');
     expect(sindarinRules['1053424933'].mechanic('bax')).toBe('bax');
     // Long ss also did not lengthen, see rule 06300.
-    expect(sindarinRules['1053424933'].mechanic('loss')).toBe('loss');
+    expect(sindarinRules['1053424933'].mechanic('loſ')).toBe('loſ');
     // Exceptions:
     expect(sindarinRules['1053424933'].mechanic('hiθ')).toBe('hīθ');
     expect(sindarinRules['1053424933'].mechanic('niθ')).toBe('nīθ');
@@ -350,6 +348,22 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1053424933'].mechanic('ga')).toBe('ga');
     expect(sindarinRules['1053424933'].mechanic('oio')).toBe('oio');
     expect(sindarinRules['1053424933'].mechanic('si')).toBe('si');
+    // Lengthening did not occur in diphtongs:
+    // ['ae', 'ai', 'au', 'aw', 'ei', 'oe', 'ui']
+    expect(sindarinRules['1053424933'].mechanic('bae')).toBe('bae');
+    expect(sindarinRules['1053424933'].mechanic('bai')).toBe('bai');
+    expect(sindarinRules['1053424933'].mechanic('bau')).toBe('bau');
+    expect(sindarinRules['1053424933'].mechanic('baw')).toBe('baw');
+    expect(sindarinRules['1053424933'].mechanic('bei')).toBe('bei');
+    expect(sindarinRules['1053424933'].mechanic('boe')).toBe('boe');
+    expect(sindarinRules['1053424933'].mechanic('bui')).toBe('bui');
+    expect(sindarinRules['1053424933'].mechanic('baeb')).toBe('baeb');
+    expect(sindarinRules['1053424933'].mechanic('baib')).toBe('baib');
+    expect(sindarinRules['1053424933'].mechanic('baub')).toBe('baub');
+    expect(sindarinRules['1053424933'].mechanic('bawb')).toBe('bawb');
+    expect(sindarinRules['1053424933'].mechanic('beib')).toBe('beib');
+    expect(sindarinRules['1053424933'].mechanic('boeb')).toBe('boeb');
+    expect(sindarinRules['1053424933'].mechanic('buib')).toBe('buib');
     // Exceptions:
     expect(sindarinRules['1053424933'].mechanic('hwa')).toBe('hwā');
     expect(sindarinRules['1053424933'].mechanic('ia')).toBe('iā');
@@ -420,7 +434,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['677308549'].mechanic('melui')).toBe('mely');
   });
 
-  it.only('03400 - [h] vanished after vowels', () => {
+  it('03400 - [h] vanished after vowels', () => {
     expect(sindarinRules['875184187'].mechanic('abc')).toBe('abc');
     expect(sindarinRules['875184187'].mechanic('ahamar')).toBe('āmar');
     expect(sindarinRules['875184187'].mechanic('ahaum')).toBe('aum');

@@ -738,6 +738,14 @@ export const sindarinRules = {
       'hen', 'ial', 'ion', 'lad', 'men', 'min', 'nad', 'nen', 'pad', 'peg', 'plad', 'sad', 'tad', 'tin', 'tol',
     ]),
     mechanic(str) {
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(str);
+
+      if (syllableData.length === 1) {
+        const { nucleus } = syllableData[0];
+        if (nucleus.length === 2) return str;
+      }
+
       const vcPattern = breakIntoVowelsAndConsonants(str);
       if (!/^C{0,2}V{1,2}C{0,2}$/.test(vcPattern)) return str;
 
