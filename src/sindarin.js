@@ -849,12 +849,12 @@ export const sindarinRules = {
     description: '[h] vanished after vowels',
     url: 'https://eldamo.org/content/words/word-875184187.html',
     mechanic: (str) => {
-      if (str.includes('h')) {
-        const hIndex = str.indexOf('h');
-        const prevChar = str.nth(hIndex - 1);
-        const nextChar = str.nth(hIndex + 1);
+      const { found, charIndex, prevChar, nextChar } = findFirstOf(['h'], str);
+
+      if (found) {
+        if (charIndex === 0) return str;
         if (prevChar === nextChar && prevChar.isVowel()) {
-          const followingChar = str.nth(hIndex + 2);
+          const followingChar = str.nth(charIndex + 2);
           if (followingChar.isVowel()) {
             return str.replace(`h${nextChar}`, '');
           }

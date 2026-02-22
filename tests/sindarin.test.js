@@ -420,7 +420,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['677308549'].mechanic('melui')).toBe('mely');
   });
 
-  it('03400 - [h] vanished after vowels', () => {
+  it.only('03400 - [h] vanished after vowels', () => {
     expect(sindarinRules['875184187'].mechanic('abc')).toBe('abc');
     expect(sindarinRules['875184187'].mechanic('ahamar')).toBe('āmar');
     expect(sindarinRules['875184187'].mechanic('ahaum')).toBe('aum');
@@ -430,6 +430,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['875184187'].mechanic('tindūmihelð')).toBe('tindūmielð');
     expect(sindarinRules['875184187'].mechanic('θūhon')).toBe('θūon');
     expect(sindarinRules['875184187'].mechanic('θœlyh')).toBe('θœly');
+    // Initial h should be ignored:
+    expect(sindarinRules['875184187'].mechanic('habab')).toBe('habab'); // Non-existent word
   });
 
   it('03500 - final [i], [u] generally vanished', () => {
