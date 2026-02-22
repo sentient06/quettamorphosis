@@ -165,13 +165,16 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-1024355367.html',
     mechanic: (str) => {
       const firstChar = str.nth(0);
-      if (['ṃ', 'ṇ', 'ŋ̣'].includes(firstChar)) {
+      const firstChars = str.nth(0, 2);
+      if (['ṃ', 'ṇ'].includes(firstChar)) {
         const replacements = {
           'ṃ': 'am',
           'ṇ': 'an',
-          'ŋ̣': 'aŋ',
         };
         return replacements[firstChar] + str.substring(1);
+      }
+      if (firstChars === 'ŋ̣') {
+        return 'aŋ' + str.substring(2);
       }
       return str;
     },

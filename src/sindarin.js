@@ -126,32 +126,26 @@ export const sindarinRules = {
     description: 'short [i], [u] became [e], [o] preceding final [a]',
     url: 'https://eldamo.org/content/words/word-1593810649.html',
     mechanic: (str) => {
-      const syllables = syllabify(str);
-      const lastSyllable = syllables[syllables.length - 1].removeMarks();
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(str);
+      if (syllableData.length === 1) return str;
+
+      const lastSyllable = syllableData[syllableData.length - 1].syllable.removeMarks();
       if (lastSyllable.indexOf('a') !== -1) {
-        const noMarksStr = str.removeMarks();
-        const iIndex = noMarksStr.indexOf('i');
-        const uIndex = noMarksStr.indexOf('u');
-        if (iIndex !== -1) {
-          const iChar = str.nth(iIndex);
-          if (iChar.isMark()) {
-            const iMark = iChar.getMark();
-            const eMark = 'e'.addMark(iMark);
-            return str.replace('i', eMark);
-          } else {
-            return str.replace('i', 'e');
-          }
+        let resultArray = syllableData.map((i) => i.syllable);
+        const penultimateSyllable = syllableData[syllableData.length - 2].syllable;
+        const { charIndex, found, matched } = findFirstOf(['u', 'i'], penultimateSyllable.removeMarks());
+        const replacements = {
+          'i': 'e',
+          'u': 'o',
+        };
+        if (found) {
+          const xMark = matched.getMark();
+          const replacee = penultimateSyllable.nth(charIndex, matched.length);
+          const replacer = replacements[matched].addMark(xMark);
+          resultArray[syllableData.length - 2] = penultimateSyllable.replace(replacee, replacer);
         }
-        if (uIndex !== -1) {
-          const uChar = str.nth(uIndex);
-          if (uChar.isMark()) {
-            const uMark = uChar.getMark();
-            const oMark = 'o'.addMark(uMark);
-            return str.replace('u', oMark);
-          } else {
-            return str.replace('u', 'o');
-          }
-        }
+        return resultArray.join('');
       }
       return str;
     },
