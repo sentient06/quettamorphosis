@@ -34,7 +34,13 @@ export const postProcessingRules = {
     orderId: 'POST-01',
     pattern: 'single characters → digraphs',
     description: 'Convert single characters back to digraphs for final output',
-    mechanic: (str) => singleToDigraphs(str),
+    mechanic: (str) => {
+      let result = str;
+      result = singleToDigraphs(result);
+      result = result.replace('k', 'c');
+      result = result.replace('j', 'y');
+      return result;
+    },
   },
 };
 

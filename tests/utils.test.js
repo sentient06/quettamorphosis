@@ -114,27 +114,27 @@ describe('Utils', () => {
   });
 
   it('findFirstOf should return the first occurrence of a character in a string', () => {
-    expect(findFirstOf(['a', 'e', 'i', 'o', 'u'], 'banana')).toEqual({ found: true, matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b' });
-    expect(findFirstOf(['an'], 'banana')).toEqual({ found: true, matched: 'an', charIndex: 1, nextChar: 'a', prevChar: 'b' });
+    expect(findFirstOf(['a', 'e', 'i', 'o', 'u'], 'banana')).toEqual({ found: true, matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b', lastChar: false });
+    expect(findFirstOf(['an'], 'banana')).toEqual({ found: true, matched: 'an', charIndex: 1, nextChar: 'a', prevChar: 'b', lastChar: false });
   });
 
   it('findAllOf should return all occurrences of characters in a string', () => {
     // Note: nextChar/prevChar use str.nth() which returns '' for out-of-bounds
     expect(findAllOf(['a'], 'banana')).toEqual([
-      { matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b' },
-      { matched: 'a', charIndex: 3, nextChar: 'n', prevChar: 'n' },
-      { matched: 'a', charIndex: 5, nextChar: '', prevChar: 'n' },
+      { matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b', lastChar: false },
+      { matched: 'a', charIndex: 3, nextChar: 'n', prevChar: 'n', lastChar: false },
+      { matched: 'a', charIndex: 5, nextChar: '', prevChar: 'n', lastChar: true },
     ]);
     expect(findAllOf(['an'], 'banana')).toEqual([
-      { matched: 'an', charIndex: 1, nextChar: 'a', prevChar: 'b' },
-      { matched: 'an', charIndex: 3, nextChar: 'a', prevChar: 'n' },
+      { matched: 'an', charIndex: 1, nextChar: 'a', prevChar: 'b', lastChar: false },
+      { matched: 'an', charIndex: 3, nextChar: 'a', prevChar: 'n', lastChar: false },
     ]);
     expect(findAllOf(['a', 'n'], 'banana')).toEqual([
-      { matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b' },
-      { matched: 'n', charIndex: 2, nextChar: 'a', prevChar: 'a' },
-      { matched: 'a', charIndex: 3, nextChar: 'n', prevChar: 'n' },
-      { matched: 'n', charIndex: 4, nextChar: 'a', prevChar: 'a' },
-      { matched: 'a', charIndex: 5, nextChar: '', prevChar: 'n' },
+      { matched: 'a', charIndex: 1, nextChar: 'n', prevChar: 'b', lastChar: false },
+      { matched: 'n', charIndex: 2, nextChar: 'a', prevChar: 'a', lastChar: false },
+      { matched: 'a', charIndex: 3, nextChar: 'n', prevChar: 'n', lastChar: false },
+      { matched: 'n', charIndex: 4, nextChar: 'a', prevChar: 'a', lastChar: false },
+      { matched: 'a', charIndex: 5, nextChar: '', prevChar: 'n', lastChar: true },
     ]);
     expect(findAllOf(['x', 'y', 'z'], 'banana')).toEqual([]);
   });

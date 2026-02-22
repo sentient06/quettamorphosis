@@ -83,7 +83,7 @@ describe('Conversion Rules', () => {
       expect(rule.mechanic('ſ')).toBe('ss');
 
       // Test aspirated stops convert back correctly
-      expect(rule.mechanic('ꝁ')).toBe('kʰ');
+      expect(rule.mechanic('ꝁ')).toBe('cʰ');
       expect(rule.mechanic('ƥ')).toBe('pʰ');
       expect(rule.mechanic('ŧ')).toBe('tʰ');
 
@@ -123,7 +123,7 @@ describe('Conversion Rules', () => {
       const postRule = postProcessingRules['post-single-to-digraphs'];
 
       // Aspirated stops should round-trip correctly
-      expect(postRule.mechanic(preRule.mechanic('kʰjabab'))).toBe('kʰjabab');
+      expect(postRule.mechanic(preRule.mechanic('kʰjabab'))).toBe('cʰyabab');
       expect(postRule.mechanic(preRule.mechanic('pʰelga'))).toBe('pʰelga');
       expect(postRule.mechanic(preRule.mechanic('tʰáni'))).toBe('tʰáni');
     });

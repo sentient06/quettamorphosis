@@ -3,6 +3,7 @@ import {
   syllabify,
   breakIntoVowelsAndConsonants,
   findFirstOf,
+  findAllOf,
   SyllableAnalyser,
 } from './utils.js';
 
@@ -478,29 +479,31 @@ export const sindarinRules = {
      * This is a rule with exceptions. The change occurs only when all exceptions are negative.
      */
     mechanic: (str) => {
-      const unmarkedStr = str.removeMarks();
-      if (unmarkedStr.includes('u')) {
-        let result = str;
-        const indices = unmarkedStr.findAllChars('u');
-        const vcPattern = breakIntoVowelsAndConsonants(str);
-        const skip = new Set();
-        for (const index of indices) {
-          if (skip.has(index)) continue;
-          const nextChar = unmarkedStr.nth(index + 1);
-          const followingChar = unmarkedStr.nth(index + 2);
-          const nextCharVcPattern = vcPattern.charAt(index + 1);
-          if (['m', 'n', 'ŋ'].includes(nextChar)) {
-            continue;
-          } else if (nextCharVcPattern === 'C' && ['u', 'w'].includes(followingChar)) {
-            skip.add(index + 2); // Skip the 'u' that's part of this pattern
-            continue;
-          } else {
-            result = result.replaceAt(index, 'o');
-          }
+      if (str.includes('u') === false) return str;
+
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(str);
+      const newSyllables = syllableData.map((s) => s.syllable);
+
+      /*
+       * Split in syllables because it's easier to track multiple occurrences of "u" or "w".
+       * Because the nucleus can be a diphtong, matching the nucleus against "u" or "w" discarts the diphtongs.
+       * Then we exclude syllables in which the "u" is followed by a nasal.
+       * We then return the word made out of the new syllables.
+       */
+
+      for (let idx in syllableData) {
+        const syllableObj = syllableData[idx];
+        const { nucleus, syllable } = syllableObj;
+        if (nucleus === 'u' || nucleus === 'w') {
+          const uIndex = syllable.indexOf(nucleus);
+          const nextChar = syllable.nth(uIndex + 1);
+          if (['m', 'n', 'ŋ'].includes(nextChar)) continue;
+          newSyllables[idx] = syllable.replace(/[uw]/g, 'o');
         }
-        return result;
       }
-      return str;
+
+      return newSyllables.join('');
     },
   },
   '3258926163': {
@@ -1139,20 +1142,14 @@ export const sindarinRules = {
     description: 'nasals vanished before spirantal clusters',
     url: 'https://eldamo.org/content/words/word-1856165973.html',
     mechanic: (str) => {
-      if (str.includes('m') || str.includes('n') || str.includes('ŋ')) {
-        const mIndex = str.indexOf('m');
-        const nIndex = str.indexOf('n');
-        const ngIndex = str.indexOf('ŋ');
-        const foundIndex = mIndex > -1 ? mIndex : nIndex > -1 ? nIndex : ngIndex;
-        if (foundIndex > -1) {
-          const nextChar = str.nth(foundIndex + 1);
-          const followingChar = str.nth(foundIndex + 2);
-          if ('fθxs'.includes(nextChar) && 'lr'.includes(followingChar)) {
-            return str.replaceAt(foundIndex, '', 1);
-          }
-          if (nextChar === 'f') {
-            return str.replaceAt(foundIndex, 'ff', 2);
-          }
+      const { found, charIndex, nextChar, lastChar } = findFirstOf(['m', 'n', 'ŋ'], str);
+      if (found && !lastChar) {
+        const followingChar = str.nth(charIndex + 2);
+        if ('fθxs'.includes(nextChar) && 'lr'.includes(followingChar)) {
+          return str.replaceAt(charIndex, '', 1);
+        }
+        if (nextChar === 'f') {
+          return str.replaceAt(charIndex, 'ff', 2);
         }
       }
       return str;

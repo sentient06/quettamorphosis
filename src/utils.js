@@ -465,6 +465,7 @@ export function findFirstOf(chars, str) {
         charIndex: i,
         nextChar: str.nth(i + c.length),
         prevChar: str.nth(i - 1),
+        lastChar: i === str.length - c.length,
       };
     }
   }
@@ -474,6 +475,7 @@ export function findFirstOf(chars, str) {
     charIndex: -1,
     nextChar: null,
     prevChar: null,
+    lastChar: false,
   }
 }
 
@@ -487,6 +489,7 @@ export function findAllOf(chars, str) {
         charIndex: i,
         nextChar: str.nth(i + c.length),
         prevChar: str.nth(i - 1),
+        lastChar: i === str.length - c.length,
       });
       i = str.indexOf(c, i + c.length);
     }
