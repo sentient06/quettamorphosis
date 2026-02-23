@@ -1150,6 +1150,7 @@ export const sindarinRules = {
       if (nextChar === 'f') {
         return str.replaceAt(charIndex, 'ff', 2);
       }
+      return str;
     },
   },
   '3282356701': {
