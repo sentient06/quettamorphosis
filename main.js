@@ -3,13 +3,25 @@ import { oldSindarinRules } from './src/old-sindarin.js';
 import { ancientTelerinRules } from './src/ancient-telerin.js';
 import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE } from './src/utils.js';
 import {
-  preProcessingRules,
-  interLanguageRules,
-  postProcessingRules,
   preProcessingRuleKeys,
   interLanguageRuleKeys,
   postProcessingRuleKeys,
 } from './src/conversions.js';
+import {
+  atRuleKeys,
+  osRuleKeys,
+  sindarinRuleKeys,
+  allRuleKeys,
+  isConversionRule,
+  getRulesObject,
+  getLanguage,
+  getPreviousRule,
+  getNextRule,
+  formatTripped,
+  formatSkipped,
+  isRuleEffectivelyEnabled as _isRuleEffectivelyEnabled,
+  getResultsObject as _getResultsObject,
+} from './src/main-logic.js';
 
 // =============================================================================
 // DOM Elements
@@ -41,66 +53,15 @@ const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
 // Rule Utilities
 // =============================================================================
 
-// Separate rule keys for each language, sorted by orderId
-const atRuleKeys = Object.keys(ancientTelerinRules).sort((a, b) => {
-  return ancientTelerinRules[a].orderId.localeCompare(ancientTelerinRules[b].orderId);
-});
-
-const osRuleKeys = Object.keys(oldSindarinRules).sort((a, b) => {
-  return oldSindarinRules[a].orderId.localeCompare(oldSindarinRules[b].orderId);
-});
-
-const sindarinRuleKeys = Object.keys(sindarinRules).sort((a, b) => {
-  return sindarinRules[a].orderId.localeCompare(sindarinRules[b].orderId);
-});
-
-// Combined keys: all conversions + languages in execution order
-// Pre-processing → OS → Inter-language → Sindarin → Post-processing
-const allRuleKeys = [
-  ...preProcessingRuleKeys,
-  ...atRuleKeys,
-  ...osRuleKeys,
-  ...interLanguageRuleKeys,
-  ...sindarinRuleKeys,
-  ...postProcessingRuleKeys,
-];
-
 const firstRuleId = allRuleKeys[0];
 
-// Helper to check if a rule is a conversion rule
-function isConversionRule(ruleId) {
-  return preProcessingRules[ruleId] || interLanguageRules[ruleId] || postProcessingRules[ruleId];
-}
-
-// Helper to get rules object for a given ruleId
-function getRulesObject(ruleId) {
-  if (preProcessingRules[ruleId]) return preProcessingRules;
-  if (ancientTelerinRules[ruleId]) return ancientTelerinRules;
-  if (oldSindarinRules[ruleId]) return oldSindarinRules;
-  if (interLanguageRules[ruleId]) return interLanguageRules;
-  if (sindarinRules[ruleId]) return sindarinRules;
-  if (postProcessingRules[ruleId]) return postProcessingRules;
-  return null;
-}
-
-// Helper to get results object for a given ruleId
-// Note: Conversion rules don't track results (excluded from tripped/skipped)
+// Wrapper functions that use module-level state
 function getResultsObject(ruleId) {
-  if (ancientTelerinRules[ruleId]) return atRuleResults;
-  if (oldSindarinRules[ruleId]) return osRuleResults;
-  if (sindarinRules[ruleId]) return sindarinRuleResults;
-  return null;
+  return _getResultsObject(ruleId, atRuleResults, osRuleResults, sindarinRuleResults);
 }
 
-// Helper to get language/section name for a given ruleId
-function getLanguage(ruleId) {
-  if (preProcessingRules[ruleId]) return 'pre-processing';
-  if (ancientTelerinRules[ruleId]) return 'ancient-telerin';
-  if (oldSindarinRules[ruleId]) return 'old-sindarin';
-  if (interLanguageRules[ruleId]) return 'inter-language';
-  if (sindarinRules[ruleId]) return 'sindarin';
-  if (postProcessingRules[ruleId]) return 'post-processing';
-  return null;
+function isRuleEffectivelyEnabled(ruleId) {
+  return _isRuleEffectivelyEnabled(ruleId, ruleState, languageState);
 }
 
 function draw(type, parent, options = {}) {
@@ -123,16 +84,6 @@ function draw(type, parent, options = {}) {
   }
   parent.appendChild($element);
   return $element;
-}
-
-function getPreviousRule(currentRuleId) {
-  const index = allRuleKeys.indexOf(currentRuleId);
-  return allRuleKeys[index - 1];
-}
-
-function getNextRule(currentRuleId) {
-  const index = allRuleKeys.indexOf(currentRuleId);
-  return allRuleKeys[index + 1];
 }
 
 // Create a language wrapper with header and skip checkbox
@@ -174,28 +125,6 @@ function createConversionWrapper(sectionId, sectionName) {
   draw('h3', $header, { innerHtml: sectionName });
 
   return $convWrapper;
-}
-
-// Check if a rule is effectively enabled (language AND rule must both be enabled)
-function isRuleEffectivelyEnabled(ruleId) {
-  // Conversion rules are always enabled
-  if (isConversionRule(ruleId)) {
-    return true;
-  }
-
-  const langId = getLanguage(ruleId);
-  const rulesObj = getRulesObject(ruleId);
-  const rule = rulesObj[ruleId];
-
-  // Language must be enabled (default true)
-  const langEnabled = languageState[langId] !== false;
-
-  // Rule must be enabled: check user override, then default (skip means disabled by default)
-  const ruleEnabled = ruleState[ruleId] !== undefined
-    ? ruleState[ruleId]
-    : (rule?.skip !== true);
-
-  return langEnabled && ruleEnabled;
 }
 
 // Update visual state of a rule based on effective enabled state
@@ -293,15 +222,21 @@ function toggleRule(ruleId, isEnabled) {
       const $nextInput = document.getElementById(`input-${nextRuleId}`);
       $nextInput.value = outputValue;
       runRule(nextRuleId, outputValue, getNextRule(nextRuleId));
+      return; // runRule will call printResults() at the end
     } else if (outputValue) {
-      // This was the last rule - update output and results
+      // This was the last rule - update output
       $originalOutput.value = outputValue;
-      printResults();
     }
   } else {
-    // Rule is enabled - re-run it
-    rerunRule(ruleId);
+    // Rule is enabled - re-run it if there's input
+    if (outputValue) {
+      rerunRule(ruleId);
+      return; // rerunRule -> runRule will call printResults() at the end
+    }
   }
+
+  // Always update the skipped results display
+  printResults();
 }
 
 function drawRule(ruleId, nextRuleId, $parentContainer) {
@@ -520,28 +455,6 @@ function softResetPage() {
 // =============================================================================
 
 function printResults() {
-  // Helper to format tripped rules for a language
-  function formatTripped(rulesObj, resultsObj) {
-    const rulesUsed = Object.keys(resultsObj).sort((a, b) => {
-      return rulesObj[a].orderId.localeCompare(rulesObj[b].orderId);
-    });
-    return rulesUsed.map((ruleId) => {
-      const anchor = `<a href="#rule-${ruleId}">${rulesObj[ruleId].orderId}</a>`;
-      return `${anchor} - ${resultsObj[ruleId]}`;
-    }).join('\n');
-  }
-
-  // Helper to format skipped rules for a language
-  function formatSkipped(rulesObj, ruleKeys) {
-    const skippedRules = ruleKeys.filter((ruleId) => {
-      const rule = rulesObj[ruleId];
-      return rule?.skip === true || ruleState[ruleId] === false;
-    });
-    return skippedRules.map((ruleId) => {
-      return `<a href="#rule-${ruleId}">${rulesObj[ruleId].orderId}</a>`;
-    }).join('\n');
-  }
-
   // Build tripped results: Ancient Telerin, then OS, then Sindarin
   const atTripped = formatTripped(ancientTelerinRules, atRuleResults);
   const osTripped = formatTripped(oldSindarinRules, osRuleResults);
@@ -560,9 +473,9 @@ function printResults() {
   $resultsTripped.innerHTML = trippedHtml.trim();
 
   // Build skipped results: Ancient Telerin, then OS, then Sindarin
-  const atSkipped = formatSkipped(ancientTelerinRules, atRuleKeys);
-  const osSkipped = formatSkipped(oldSindarinRules, osRuleKeys);
-  const sindarinSkipped = formatSkipped(sindarinRules, sindarinRuleKeys);
+  const atSkipped = formatSkipped(ancientTelerinRules, atRuleKeys, ruleState);
+  const osSkipped = formatSkipped(oldSindarinRules, osRuleKeys, ruleState);
+  const sindarinSkipped = formatSkipped(sindarinRules, sindarinRuleKeys, ruleState);
 
   let skippedHtml = '';
   if (atSkipped) {

@@ -14,6 +14,7 @@ Object.defineProperty(String.prototype, 'normaliseToMany', {
 
 Object.defineProperty(String.prototype, 'isVowel', {
   value(includeY = true, includeW = false) {
+    if (this.length === 0) return false;
     let vowels = 'aeiouœ';
     if (includeY) {
       vowels += 'y';
@@ -27,6 +28,7 @@ Object.defineProperty(String.prototype, 'isVowel', {
 
 Object.defineProperty(String.prototype, 'isConsonant', {
   value() {
+    if (this.length === 0) return false;
     return !this.isVowel();
   }
 });
@@ -464,7 +466,7 @@ export function findFirstOf(chars, str) {
         matched: c,
         charIndex: i,
         nextChar: str.nth(i + c.length),
-        prevChar: str.nth(i - 1),
+        prevChar: i === 0 ? '' : str.nth(i - 1),
         lastChar: i === str.length - c.length,
       };
     }

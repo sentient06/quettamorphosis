@@ -182,7 +182,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['659168127'].mechanic('jūiabc')).toBe('ȳiabc'); // [jui] > [jui] (no real examples)
   });
 
-  it.only('01900 - short [u] often became [o]', () => {
+  it('01900 - short [u] often became [o]', () => {
     expect(sindarinRules['2740073851'].mechanic('abc')).toBe('abc');
     // [uC{uw}] > [uC{uw}]:
     expect(sindarinRules['2740073851'].mechanic('guruk')).toBe('gorok');
@@ -296,6 +296,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2240258959'].mechanic('matw')).toBe('madw');
     expect(sindarinRules['2240258959'].mechanic('otoh')).toBe('odoh');
     expect(sindarinRules['2240258959'].mechanic('œryt')).toBe('œryd');
+    // Initial stops should not change:
+    expect(sindarinRules['2240258959'].mechanic('timbi')).toBe('timbi');
   });
 
   it('02900 - short vowels generally lengthened in monosyllables', () => {
