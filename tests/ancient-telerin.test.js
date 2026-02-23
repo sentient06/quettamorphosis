@@ -86,6 +86,8 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['981459769'].mechanic('usuk')).toBe('usu');
     expect(ancientTelerinRules['981459769'].mechanic('kjelep')).toBe('kjele');
     expect(ancientTelerinRules['981459769'].mechanic('ƥolos')).toBe('ƥolo'); // tʰolo
+    // Monosyllables are not affected:
+    expect(ancientTelerinRules['981459769'].mechanic('suk')).toBe('suk');
   });
 
   it('00600 - [ms], [ns] became [ss]', () => {

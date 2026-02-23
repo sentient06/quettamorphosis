@@ -156,6 +156,9 @@ export const ancientTelerinRules = {
     url: 'https://eldamo.org/content/words/word-981459769.html',
     mechanic: (str) => {
       if (['p', 't', 'k', 's'].includes(str.nth(-1))) {
+        const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
+        const syllableData = analyser.analyse(str);
+        if (syllableData.length === 1) return str;
         return str.slice(0, -1);
       }
       return str;
