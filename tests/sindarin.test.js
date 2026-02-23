@@ -942,6 +942,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3689144303'].mechanic('l̥imm')).toBe('l̥im');
     expect(sindarinRules['3689144303'].mechanic('remmen')).toBe('remen');
     expect(sindarinRules['3689144303'].mechanic('tumm')).toBe('tum');
+    // Retain [mm] if the first syllable is stressed: (?)
+    expect(sindarinRules['3689144303'].mechanic('ammor')).toBe('ammor');
   });
 
   it('06800 - final [v] became [w] after [ae], [oe], and sometimes [i]', () => {

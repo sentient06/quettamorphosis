@@ -1744,11 +1744,29 @@ export const sindarinRules = {
     pattern: '[mm] > [m]',
     description: '[mm] shortened',
     url: 'https://eldamo.org/content/words/word-3689144303.html',
-    mechanic: (str) => {
-      if (str.includes('mm')) {
-        return str.replace('mm', 'm');
-      }
-      return str;
+    exceptions: new Set([
+      'ammor',
+    ]),
+    mechanic(str) {
+      if (str.includes('mm') === false) return str;
+
+      if (this.exceptions.has(str)) return str;
+
+      // Below is the prototype for a stress-driven logic:
+
+      // const analyser = new SyllableAnalyser();
+      // const syllableData = analyser.analyse(str);
+      // if (syllableData.length > 1) {
+        // console.log({ str, syllableData });
+        // const firstSyllable = syllableData[0];
+        // const secondSyllable = syllableData[1];
+        //   console.log(firstSyllable.stressed);
+        //   console.log(secondSyllable.syllable.startsWith('m'));
+        //   if (firstSyllable.stressed && secondSyllable.syllable.startsWith('m')) {
+        //     return str;
+        //   }
+      // }
+      return str.replace('mm', 'm');
     },
   },
   '3909760699': {
