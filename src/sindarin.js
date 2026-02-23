@@ -909,7 +909,7 @@ export const sindarinRules = {
     skip: true,
     info: ['Important in compounds.', 'Disabled by default.'],
     input: [
-      { name: 'guess', type: 'boolean', default: true, description: 'Guess the syllable boundary if there is no marker' },
+      { name: 'guess', type: 'boolean', default: false, description: 'Guess the syllable boundary if there is no marker' },
       { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
     ],
     /**
@@ -918,7 +918,7 @@ export const sindarinRules = {
      * @param {boolean} options.guess - Whether to guess boundary if no marker (default: true)
      * @param {string} options.boundaryChar - The morpheme boundary marker (default: '-')
      */
-    mechanic(str, { guess = true, boundaryChar = '-' } = {}) {
+    mechanic(str, { guess = false, boundaryChar = '-' } = {}) {
       // Helper: check if char is a short vowel (no mark or caron ˇ)
       const isShortVowel = (char) => {
         if (!char || !char.isVowel()) return false;
@@ -1172,7 +1172,7 @@ export const sindarinRules = {
      * @param {boolean} options.guess - Whether to guess boundary if no marker (default: true)
      * @param {string} options.boundaryChar - The morpheme boundary marker (default: '-')
      */
-    mechanic(str, { guess = true, boundaryChar = '-' } = {}) {
+    mechanic(str, { guess = false, boundaryChar = '-' } = {}) {
       // Helper: remove nasal from end of syllable
       const removeNasalFromSyllable = (syllable) => {
         const lastChar = syllable.nth(-1);

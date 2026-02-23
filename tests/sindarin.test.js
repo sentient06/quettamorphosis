@@ -481,36 +481,36 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2749565259'].mechanic('abc')).toBe('abc');
 
     // [Că+C] > [Cø+C]:
-    expect(sindarinRules['2749565259'].mechanic('aiganaur')).toBe('aignaur');
-    expect(sindarinRules['2749565259'].mechanic('caladariell')).toBe('caladriell');
-    expect(sindarinRules['2749565259'].mechanic('finiŋgorn')).toBe('finŋgorn');
+    expect(sindarinRules['2749565259'].mechanic('aiganaur', { guess: true })).toBe('aignaur');
+    expect(sindarinRules['2749565259'].mechanic('caladariell', { guess: true })).toBe('caladriell');
+    expect(sindarinRules['2749565259'].mechanic('finiŋgorn', { guess: true })).toBe('finŋgorn');
 
     // [Cĕ+C] > [Cø+C]:
-    expect(sindarinRules['2749565259'].mechanic('elembereth')).toBe('elmbereth');
-    expect(sindarinRules['2749565259'].mechanic('moreŋgoθθ')).toBe('morŋgoθθ');
+    expect(sindarinRules['2749565259'].mechanic('elembereth', { guess: true })).toBe('elmbereth');
+    expect(sindarinRules['2749565259'].mechanic('moreŋgoθθ', { guess: true })).toBe('morŋgoθθ');
 
     // Wrong guess:
-    expect(sindarinRules['2749565259'].mechanic('geleðendil')).toBe('gelðendil');
+    expect(sindarinRules['2749565259'].mechanic('geleðendil', { guess: true })).toBe('gelðendil');
     // Correct guess with a marker:
-    expect(sindarinRules['2749565259'].mechanic('geleðen-dil')).toBe('geleðndil');
+    expect(sindarinRules['2749565259'].mechanic('geleðen-dil', { guess: true })).toBe('geleðndil');
     // Correct guess with a bespoke marker:
-    expect(sindarinRules['2749565259'].mechanic('geleðen·dil', { boundaryChar: '·' })).toBe('geleðndil');
+    expect(sindarinRules['2749565259'].mechanic('geleðen·dil', { guess: true, boundaryChar: '·' })).toBe('geleðndil');
     // No guessing yields identical string:
     expect(sindarinRules['2749565259'].mechanic('geleðendil', { guess: false })).toBe('geleðendil');
 
 
     // [Cĭ+C] > [Cø+C]:
-    expect(sindarinRules['2749565259'].mechanic('gilidīr')).toBe('gildīr');
-    expect(sindarinRules['2749565259'].mechanic('hīθilūm')).toBe('hīθlūm');
-    expect(sindarinRules['2749565259'].mechanic('nimfiraid')).toBe('nimfraid');
+    expect(sindarinRules['2749565259'].mechanic('gilidīr', { guess: true })).toBe('gildīr');
+    expect(sindarinRules['2749565259'].mechanic('hīθilūm', { guess: true })).toBe('hīθlūm');
+    expect(sindarinRules['2749565259'].mechanic('nimfiraid', { guess: true })).toBe('nimfraid');
 
     // [Cŏ+C] > [Cø+C]:
-    expect(sindarinRules['2749565259'].mechanic('gondolind')).toBe('gondlind');
-    expect(sindarinRules['2749565259'].mechanic('gondondor')).toBe('gondndor');
+    expect(sindarinRules['2749565259'].mechanic('gondolind', { guess: true })).toBe('gondlind');
+    expect(sindarinRules['2749565259'].mechanic('gondondor', { guess: true })).toBe('gondndor');
 
     // [Cŭ+C] > [Cø+C]:
-    expect(sindarinRules['2749565259'].mechanic('turugaun')).toBe('turgaun');
-    expect(sindarinRules['2749565259'].mechanic('turugond')).toBe('turgond');
+    expect(sindarinRules['2749565259'].mechanic('turugaun', { guess: true })).toBe('turgaun');
+    expect(sindarinRules['2749565259'].mechanic('turugond', { guess: true })).toBe('turgond');
   });
 
   it('03700 - [ai], [oi] became [ae], [oe]', () => {
@@ -616,21 +616,21 @@ describe('Sindarin rules', () => {
   });
 
   it('04600 - nasals vanished before morpheme boundaries', () => {
-    expect(sindarinRules['3282356701'].mechanic('abc')).toBe('abc');
-    expect(sindarinRules['3282356701'].mechanic('aranθorn')).toBe('araθorn');
-    expect(sindarinRules['3282356701'].mechanic('aranphor')).toBe('araphor');
-    expect(sindarinRules['3282356701'].mechanic('aranphant')).toBe('araphant');
-    expect(sindarinRules['3282356701'].mechanic('infant')).toBe('ifant');
-    expect(sindarinRules['3282356701'].mechanic('enpet')).toBe('epet');
-    expect(sindarinRules['3282356701'].mechanic('in-chîn')).toBe('i-chîn');
-    expect(sindarinRules['3282356701'].mechanic('i-ngelaidh')).toBe('i-ngelaidh');
+    expect(sindarinRules['3282356701'].mechanic('abc', { guess: true })).toBe('abc');
+    expect(sindarinRules['3282356701'].mechanic('aranθorn', { guess: true })).toBe('araθorn');
+    expect(sindarinRules['3282356701'].mechanic('aranphor', { guess: true })).toBe('araphor');
+    expect(sindarinRules['3282356701'].mechanic('aranphant', { guess: true })).toBe('araphant');
+    expect(sindarinRules['3282356701'].mechanic('infant', { guess: true })).toBe('ifant');
+    expect(sindarinRules['3282356701'].mechanic('enpet', { guess: true })).toBe('epet');
+    expect(sindarinRules['3282356701'].mechanic('in-chîn', { guess: true })).toBe('i-chîn');
+    expect(sindarinRules['3282356701'].mechanic('i-ngelaidh', { guess: true })).toBe('i-ngelaidh');
 
     // Wrong guess:
-    expect(sindarinRules['3282356701'].mechanic('inn-gelaidh')).toBe('in-gelaidh'); // Lacking examples, I've forced an error here.
+    expect(sindarinRules['3282356701'].mechanic('inn-gelaidh', { guess: true })).toBe('in-gelaidh'); // Lacking examples, I've forced an error here.
     // Correct guess with a marker:
-    expect(sindarinRules['3282356701'].mechanic('in-ngelaidh')).toBe('i-ngelaidh');
+    expect(sindarinRules['3282356701'].mechanic('in-ngelaidh', { guess: true })).toBe('i-ngelaidh');
     // Correct guess with a bespoke marker:
-    expect(sindarinRules['3282356701'].mechanic('in·ngelaidh', { boundaryChar: '·' })).toBe('i·ngelaidh');
+    expect(sindarinRules['3282356701'].mechanic('in·ngelaidh', { guess: true, boundaryChar: '·' })).toBe('i·ngelaidh');
     // No guessing yields identical string:
     expect(sindarinRules['3282356701'].mechanic('inngelaidh', { guess: false })).toBe('inngelaidh');
   });
