@@ -135,10 +135,12 @@ export const sindarinRules = {
       if (lastSyllable.indexOf('a') !== -1) {
         let resultArray = syllableData.map((i) => i.syllable);
         const penultimateSyllable = syllableData[syllableData.length - 2].syllable;
-        const { charIndex, found, matched } = findFirstOf(['u', 'i'], penultimateSyllable.removeMarks());
+        const { charIndex, found, matched } = findFirstOf(['u', 'i', 'ĭ', 'ŭ'], penultimateSyllable);
         const replacements = {
           'i': 'e',
           'u': 'o',
+          'ĭ': 'e',
+          'ŭ': 'o',
         };
         if (found) {
           const xMark = matched.getMark();
