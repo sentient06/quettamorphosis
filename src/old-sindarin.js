@@ -352,6 +352,8 @@ export const oldSindarinRules = {
     pattern: '[-se|-ste|-sse] > [-sa|-sta|-sse]',
     description: 'final [e] became [a] after single [s] and [st]',
     url: 'https://eldamo.org/content/words/word-1763851339.html',
+    skip: true,
+    info: ['This rule is skipped by default because evidence for it is rather shaky.'],
     mechanic: (str) => {
       const lastChar = str.nth(-1);
       if (lastChar === 'e') {
@@ -365,6 +367,11 @@ export const oldSindarinRules = {
             return str;
           }
         }
+        // This is not attested and it's basically guessing:
+        if (thirdLastChar === 't' && secondLastChar === 's') {
+          return str;
+        }
+        // - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (secondLastChar === 's') {
           return str.substring(0, str.length - 1) + 'a';
         }

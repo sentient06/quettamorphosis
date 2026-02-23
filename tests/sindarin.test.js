@@ -604,6 +604,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1856165973'].mechanic('tanfa')).toBe('taffa'); // Non-existent word
     // Loop issue fix:
     expect(sindarinRules['1856165973'].mechanic('clen')).toBe('clen'); // From calenā
+    // -nx is not a three-consonant cluster and not medial:
+    expect(sindarinRules['1856165973'].mechanic('sunx')).toBe('sunx');
   });
 
   it('04600 - nasals vanished before morpheme boundaries', () => {

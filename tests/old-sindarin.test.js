@@ -221,6 +221,8 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1763851339'].mechanic('kirte')).toBe('kirta');
     // [-sse] > [-sse]:
     expect(oldSindarinRules['1763851339'].mechanic('glasse')).toBe('glasse'); // Old Noldorin
+    // Shouldn't trigger:
+    expect(oldSindarinRules['1763851339'].mechanic('litse')).toBe('litse');
   });
 
   it('02100 - voiceless stops became spirants after initial [s]', () => {

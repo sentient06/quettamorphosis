@@ -1131,16 +1131,25 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1856165973.html',
     mechanic: (str) => {
       const { found, charIndex, nextChar, lastChar } = findFirstOf(['m', 'n', 'ŋ'], str);
-      if (found && !lastChar) {
-        const followingChar = str.nth(charIndex + 2);
-        if ('fθxs'.includes(nextChar) && 'lr'.includes(followingChar)) {
-          return str.replaceAt(charIndex, '', 1);
-        }
-        if (nextChar === 'f') {
-          return str.replaceAt(charIndex, 'ff', 2);
-        }
+      // Return if not found:
+      if (!found) return str;
+      // Return if first char:
+      if (charIndex === 0) return str;
+      // Return if last char:
+      if (lastChar) return str;
+
+      // If next char is final, return as well:
+      const followingChar = str.nth(charIndex + 2);
+
+      if (followingChar === '') return str;
+
+      // It's medial:
+      if ('fθxs'.includes(nextChar) && 'lr'.includes(followingChar)) {
+        return str.replaceAt(charIndex, '', 1);
       }
-      return str;
+      if (nextChar === 'f') {
+        return str.replaceAt(charIndex, 'ff', 2);
+      }
     },
   },
   '3282356701': {
