@@ -1096,11 +1096,13 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-2090293737.html',
     // This isn't great, but it has few examples anyway.
     mechanic: (str) => {
-      const count = (str.match(/[θð]/g) || []).length;
-      if (count > 1) {
-        return str.reverse().replace('θ', 's').reverse();
-      }
-      return str;
+      const results = findAllOf(['θ', 'ð'], str);
+      if (results.length === 0) return str;
+
+      const lastResult = results[results.length - 1];
+      if (lastResult.prevChar === lastResult.matched) return str;
+
+      return str.substring(0, lastResult.charIndex) + 's' + str.substring(lastResult.charIndex + 1);
     },
   },
   '298324969': {
@@ -1830,9 +1832,12 @@ export const sindarinRules = {
       if (['l', 'r'].includes(lastChar)) {
         const secondLastChar = str.nth(-2);
         if (secondLastChar.isConsonant()) {
-          // Only exception:
+          // Exceptions:
           if (str === 'ygl') {
             return 'ygil';
+          }
+          if (secondLastChar === lastChar) {
+            return str;
           }
           return str.substring(0, str.length - 1) + 'o' + lastChar;
         }

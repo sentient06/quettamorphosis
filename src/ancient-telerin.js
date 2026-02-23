@@ -41,6 +41,12 @@ export const ancientTelerinRules = {
       const firstSyllableStart = firstSyllable.syllable.nth(0);
       if (!'ptkƥꝁbdgm'.includes(firstSyllableStart)) return str;
 
+      // -> There are no other characters between the beginning of the word and the nucleus:
+      const indexOfNucleus = firstSyllable.syllable.indexOf(firstSyllable.nucleus);
+      const charsBeforeVowel = firstSyllable.syllable.removeMarks().slice(0, indexOfNucleus);
+      const unexpectedChars = /[^rlptkƥꝁbdgmaeiou]/.test(charsBeforeVowel);
+      if (unexpectedChars) return str;
+
       // The first syllable is unstressed.
       // Stressed syllables in Old Telerin use the accute mark.
       // We can't apply Sindarin rules. So we skip this check.

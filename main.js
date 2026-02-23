@@ -1,7 +1,7 @@
 import { sindarinRules } from './src/sindarin.js';
 import { oldSindarinRules } from './src/old-sindarin.js';
 import { ancientTelerinRules } from './src/ancient-telerin.js';
-import { SyllableAnalyser, digraphsToSingle, singleToDigraphs } from './src/utils.js';
+import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE } from './src/utils.js';
 import {
   preProcessingRules,
   interLanguageRules,
@@ -718,17 +718,17 @@ if (storedInput) {
 // Live debugging tools
 // =============================================================================
 
-const sAnalyser = new SyllableAnalyser();
-
 console.log('Type debug() to debug.');
 
-window.debug = (str) => {
+window.debug = (str, lang = 's') => {
   if (!str) {
     return 'Usage: debug(\'word\')';
   }
   const toSingle = digraphsToSingle(str);
   const toDigraphs = singleToDigraphs(str);
   const toSingleAndToDigraphs = singleToDigraphs(toSingle);
+  const profile = lang === 's' ? SINDARIN_PROFILE : (lang === 'os' ? OLD_SINDARIN_PROFILE : ANCIENT_TELERIN_PROFILE);
+  const sAnalyser = new SyllableAnalyser({ profile });
   const syllables = sAnalyser.analyse(str);
   return {
     toSingle,

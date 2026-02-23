@@ -19,8 +19,10 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['3648128347'].mechanic('kirísse')).toBe('krisse');
     expect(ancientTelerinRules['3648128347'].mechanic('kiríste')).toBe('kriste');
     expect(ancientTelerinRules['3648128347'].mechanic('palátā')).toBe('platā');
-    expect(ancientTelerinRules['3648128347'].mechanic('pʰilíŋke')).toBe('pʰliŋke');
+    expect(ancientTelerinRules['3648128347'].mechanic('ƥilíŋke')).toBe('ƥliŋke');
     expect(ancientTelerinRules['3648128347'].mechanic('turuŋko')).toBe('truŋko');
+    // Initial clusters shouldn't trigger change:
+    expect(ancientTelerinRules['3648128347'].mechanic('kjelekormo')).toBe('kjelekormo');
   });
 
   it('00200 - labialized velars became labials', () => {

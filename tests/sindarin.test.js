@@ -556,6 +556,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2090293737'].mechanic('θaeθ')).toBe('θaes');
     expect(sindarinRules['2090293737'].mechanic('úθaeθ')).toBe('úθaes');
     expect(sindarinRules['2090293737'].mechanic('úðaeθ')).toBe('úðaes'); // Non-existent word
+    // It shouldn't trigger for double dental spirants (θθ):
+    expect(sindarinRules['2090293737'].mechanic('leθθ')).toBe('leθθ');
   });
 
   it('04300 - [ls], [rs] became [lθ], [ss]', () => {
@@ -985,6 +987,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1942165347'].mechanic('ygl')).toBe('ygil');
     expect(sindarinRules['1942165347'].mechanic('dagr')).toBe('dagor');
     expect(sindarinRules['1942165347'].mechanic('sadr')).toBe('sador');
+    // Don't apply to double consonants:
+    expect(sindarinRules['1942165347'].mechanic('mell')).toBe('mell');
   });
 
   it('07300 - final [vn] became [von]', () => {

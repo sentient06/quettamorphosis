@@ -488,7 +488,7 @@ export function findAllOf(chars, str) {
         matched: c,
         charIndex: i,
         nextChar: str.nth(i + c.length),
-        prevChar: str.nth(i - 1),
+        prevChar: i === 0 ? '' :str.nth(i - 1),
         lastChar: i === str.length - c.length,
       });
       i = str.indexOf(c, i + c.length);
