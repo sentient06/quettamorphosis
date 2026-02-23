@@ -1150,6 +1150,7 @@ export const sindarinRules = {
       if (nextChar === 'f') {
         return str.replaceAt(charIndex, 'ff', 2);
       }
+      return str;
     },
   },
   '3282356701': {
@@ -1158,7 +1159,7 @@ export const sindarinRules = {
     description: 'nasals vanished before morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-3282356701.html',
     input: [
-      { name: 'guess', type: 'boolean', default: true, description: 'Guess the syllable boundary if there is no marker' },
+      { name: 'guess', type: 'boolean', default: false, description: 'Guess the syllable boundary if there is no marker' },
       { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
     ],
     /**

@@ -606,6 +606,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1856165973'].mechanic('clen')).toBe('clen'); // From calenā
     // -nx is not a three-consonant cluster and not medial:
     expect(sindarinRules['1856165973'].mechanic('sunx')).toBe('sunx');
+    expect(sindarinRules['1856165973'].mechanic('ambaur')).toBe('ambaur');
   });
 
   it('04600 - nasals vanished before morpheme boundaries', () => {
