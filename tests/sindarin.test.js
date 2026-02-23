@@ -396,6 +396,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1053424933'].mechanic('gwan')).toBe('gwān');
     expect(sindarinRules['1053424933'].mechanic('mor')).toBe('mōr');
     expect(sindarinRules['1053424933'].mechanic('θol')).toBe('θōl');
+    // Don't mess up the macrons:
+    expect(sindarinRules['1053424933'].mechanic('hīr')).toBe('hīr');
   });
 
   it('03000 - final [ɣ] became [a] after a consonant', () => {

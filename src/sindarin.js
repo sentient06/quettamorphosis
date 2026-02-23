@@ -741,6 +741,8 @@ export const sindarinRules = {
       const lastChar = str.nth(-1);
       const lengthen = (s, pos) => {
         const vowel = s.nth(pos);
+        const hasMark = vowel.getMark();
+        if (hasMark) return s.replace(vowel, vowel.removeMarks().addMark('¯'));
         return s.replace(vowel, vowel.addMark('¯'));
       };
 
