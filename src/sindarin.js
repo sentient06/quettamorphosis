@@ -1087,7 +1087,7 @@ export const sindarinRules = {
     // This isn't great, but it has few examples anyway.
     mechanic: (str) => {
       const results = findAllOf(['θ', 'ð'], str);
-      if (results.length === 0) return str;
+      if (results.length < 2) return str;
 
       const lastResult = results[results.length - 1];
       if (lastResult.prevChar === lastResult.matched) return str;

@@ -20,6 +20,12 @@ export const ancientTelerinRules = {
     description: 'unstressed initial syllables reduced to favored clusters',
     url: 'https://eldamo.org/content/words/word-3648128347.html',
     mechanic: (str) => {
+      // Both syllables have vowels of the same quality.
+      // The second syllable begins with r or l.
+      // The initial syllable begins with a stop, aspirate or (possibly) a nasal [see below on nasals].
+      // The first syllable is unstressed.
+      // The second syllable is long and stressed [this last item may not be required; see next].
+
       const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
       const syllableData = analyser.analyse(str);
 
@@ -47,13 +53,14 @@ export const ancientTelerinRules = {
       const unexpectedChars = /[^rlptkƥꝁbdgmaeiou]/.test(charsBeforeVowel);
       if (unexpectedChars) return str;
 
-      // The first syllable is unstressed.
-      // Stressed syllables in Old Telerin use the accute mark.
-      // We can't apply Sindarin rules. So we skip this check.
-      if (firstSyllable.stressed) return str;
+      // -> Ignore mb:
+      // if (firstSyllableStart === 'm' && firstSyllable.syllable.nth(1) === 'b') return str;
 
-      // The second syllable is long and stressed. (Maybe.)
-      // if (secondSyllable.weight !== 'heavy' || secondSyllable.stressed !== true) return str;
+      // The first syllable is unstressed (no explicit stress mark).
+      if (analyser.hasStressMark(firstSyllable.syllable)) return str;
+
+      // The second syllable is stressed (has explicit stress mark).
+      if (!analyser.hasStressMark(secondSyllable.syllable)) return str;
 
       const result = [];
       result.push(firstSyllable.syllable.replace(firstSyllable.nucleus, ''));

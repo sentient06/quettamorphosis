@@ -564,6 +564,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2090293737'].mechanic('úðaeθ')).toBe('úðaes'); // Non-existent word
     // It shouldn't trigger for double dental spirants (θθ):
     expect(sindarinRules['2090293737'].mechanic('leθθ')).toBe('leθθ');
+    // It also shouldn't trigger when there's only one θ: 
+    expect(sindarinRules['2090293737'].mechanic('belaiθ')).toBe('belaiθ');
   });
 
   it('04300 - [ls], [rs] became [lθ], [ss]', () => {
