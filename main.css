@@ -110,7 +110,13 @@ div + div.smaller-title {
   flex-direction: column;
   padding: 10px;
   border: 1px solid #000;
-  z-index: 1;
+  z-index: 2;
+}
+
+.side-wrapper hr {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px dashed #000;
 }
 
 .result-wrapper {
