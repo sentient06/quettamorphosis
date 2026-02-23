@@ -32,12 +32,16 @@ const $originalInput = document.getElementById('input');
 const $originalOutput = document.getElementById('output');
 const $topWrapper = document.querySelector('.top-wrapper');
 const $helpers = document.querySelector('.userInput .helpers');
+const $toggleHelpers = document.getElementById('toggle-helpers');
 const $resetButton = document.getElementById('reset');
 const $resultsTripped = document.getElementById('results-tripped');
 const $resultsSkipped = document.getElementById('results-skipped');
 const $notes = document.getElementById('notes');
 const $openNotes = document.getElementById('open-notes');
 const $closeNotes = document.getElementById('close-notes');
+const $toggleResults = document.getElementById('toggle-results');
+const $sideWrapper = document.querySelector('.side-wrapper');
+const $drawerOverlay = document.querySelector('.drawer-overlay');
 
 // =============================================================================
 // State
@@ -343,6 +347,7 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     type: 'text',
     id: `output-${ruleId}`,
     placeholder: 'Output',
+    readonly: 'readonly',
   });
 
   // Conversion rules don't have source URLs
@@ -514,6 +519,14 @@ $originalInput.addEventListener('input', (e) => {
   runRule(firstRuleId, inputValue, secondRuleId);
 });
 
+// Toggle special character helpers visibility
+$toggleHelpers.addEventListener('click', () => {
+  $helpers.classList.toggle('hidden');
+  $toggleHelpers.title = $helpers.classList.contains('hidden')
+    ? 'Show special characters'
+    : 'Hide special characters';
+});
+
 // Handle helper character insertion
 $helpers.addEventListener('click', (e) => {
   const char = e.target.innerHTML;
@@ -537,6 +550,27 @@ $resetButton.addEventListener('click', () => {
   localStorage.removeItem('original-input');
   location.reload();
 });
+
+// Toggle mobile results drawer
+const openDrawer = () => {
+  $sideWrapper.classList.add('drawer-open');
+  $drawerOverlay.classList.add('visible');
+};
+
+const closeDrawer = () => {
+  $sideWrapper.classList.remove('drawer-open');
+  $drawerOverlay.classList.remove('visible');
+};
+
+$toggleResults.addEventListener('click', () => {
+  if ($sideWrapper.classList.contains('drawer-open')) {
+    closeDrawer();
+  } else {
+    openDrawer();
+  }
+});
+
+$drawerOverlay.addEventListener('click', closeDrawer);
 
 $openNotes.addEventListener('click', (e) => {
   e.preventDefault();

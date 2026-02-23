@@ -11,66 +11,76 @@
   <div class="controls">
     <button id="reset">Reset</button>
   </div>
-  <div class="top-wrapper">
-    <div class="details-anchor">
-      <a href="">Top</a> | <a href="" id="open-notes">Notes</a>
+  <button id="toggle-results" class="mobile-only" title="Show results">☰</button>
+  <div class="drawer-overlay"></div>
+  <div class="side-wrapper">
+    <div class="results">
+      <div class="title">Results</div>
+      <div class="smaller-title">Tripped rules</div>
+      <div id="results-tripped"></div>
+      <div class="smaller-title">Skipped rules</div>
+      <div id="results-skipped"></div>
     </div>
-    <div class="input-wrapper">
-      <div class="title">Input</div>
-      <div class="userInput">
-        <input type="text" id="input" placeholder="Enter text to transform" />
-        <div class="helpers">
-          <button>θ</button>
-          <button>ð</button>
-          <button>ŋ</button>
-          <button>ɸ</button>
-          <button>ƥ</button>
-          <button>r̥</button>
-          <button>l̥</button>
-          <button>ɣ</button>
-          <button>j̊</button>
-          <button>β</button>
-          <button>m̥</button>
-          <button>n̥</button>
-          <button>ṃ</button>
-          <button>ṇ</button>
-          <button>ŋ̣</button>
-          <button>ṣ</button>
-          <button>œ</button>
-          <button>ā</button>
-          <button>ē</button>
-          <button>ī</button>
-          <button>ō</button>
-          <button>ū</button>
-          <button>ȳ</button>
-          <button>ă</button>
-          <button>ĕ</button>
-          <button>ĭ</button>
-          <button>ŏ</button>
-          <button>ŭ</button>
-          <button>y̆</button>
-          <button>ǭ</button>
-          <button>ę̄</button>
-          <button>ƣ</button>
-          <button>ʍ</button>
-          <button>χ</button>
-          <button>ꝁ</button>
-          <button>ƥ</button>
-          <button>ſ</button>
-          <button>ŧ</button>
-          <button>ꜧ</button>
-          <button>ƕ</button>
+  </div>
+  <div class="top-wrapper">
+    <div class="top-wrapper-style">
+      <div class="details-anchor">
+        <a href="">Top</a> | <a href="" id="open-notes">Notes</a>
+      </div>
+      <div class="input-wrapper">
+        <div class="title">Input</div>
+        <div class="userInput">
+          <input type="text" id="input" placeholder="Enter text to transform" />
+          <button id="toggle-helpers" title="Show special characters">⌨</button>
+          <div class="helpers hidden">
+            <button>θ</button>
+            <button>ð</button>
+            <button>ŋ</button>
+            <button>ɸ</button>
+            <button>ƥ</button>
+            <button>r̥</button>
+            <button>l̥</button>
+            <button>ɣ</button>
+            <button>j̊</button>
+            <button>β</button>
+            <button>m̥</button>
+            <button>n̥</button>
+            <button>ṃ</button>
+            <button>ṇ</button>
+            <button>ŋ̣</button>
+            <button>ṣ</button>
+            <button>œ</button>
+            <button>ā</button>
+            <button>ē</button>
+            <button>ī</button>
+            <button>ō</button>
+            <button>ū</button>
+            <button>ȳ</button>
+            <button>ă</button>
+            <button>ĕ</button>
+            <button>ĭ</button>
+            <button>ŏ</button>
+            <button>ŭ</button>
+            <button>y̆</button>
+            <button>ǭ</button>
+            <button>ę̄</button>
+            <button>ƣ</button>
+            <button>ʍ</button>
+            <button>χ</button>
+            <button>ꝁ</button>
+            <button>ƥ</button>
+            <button>ſ</button>
+            <button>ŧ</button>
+            <button>ꜧ</button>
+            <button>ƕ</button>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="result-wrapper">
-      <div class="title">Result</div>
-      <div class="output-wrapper">
-        <input type="text" id="output" placeholder="Result" />
-      </div>
-      <div class="results">
-        <div id="results-tripped"></div>
-        <div id="results-skipped"></div>
+      <div class="result-wrapper">
+        <div class="title">Result</div>
+        <div class="output-wrapper">
+          <input type="text" id="output" placeholder="Result" readonly />
+        </div>
       </div>
     </div>
   </div>
