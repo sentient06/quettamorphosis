@@ -2,6 +2,11 @@
   --sticky-h: 200px; /* approximate height of sticky header */
 }
 
+body {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', 'Source Code Pro', monospace;
+  font-size: 14px;
+}
+
 [id] {
   scroll-margin-top: calc(var(--sticky-h) + 20px);
 }
@@ -236,8 +241,8 @@ div + div.smaller-title {
 
 .rule {
   border: 1px solid #000;
-  margin-bottom: 20px;
-  padding: 10px;
+  margin-bottom: 8px;
+  padding: 6px 10px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -249,49 +254,140 @@ div + div.smaller-title {
   opacity: 1;
 }
 
-.rule .rule-label {
-  margin-bottom: 10px;
+.rule.rule-tripped {
+  background-color: #e6ffe6;
 }
 
-.rule .rule-id {
-  font-size: 1rem;
-  font-weight: bold;
-  margin-bottom: 10px;
+.rule:not(.rule-enabled) {
+  background-color: #ffe6e6;
 }
+
+.rule {
+  --indent: 22px; /* checkbox width + gap */
+}
+
+.rule .rule-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.rule .rule-expand {
+  cursor: pointer;
+  font-size: 0.7rem;
+  color: #666;
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+.rule:not(.rule-collapsed) .rule-expand {
+  transform: rotate(90deg);
+}
+
 .rule .rule-order-id {
-  font-size: 1rem;
   font-weight: bold;
-  margin-bottom: 10px;
 }
 
 .rule .rule-pattern {
-  font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 10px;
+}
+
+.rule .rule-description-inline {
+  color: #666;
+  font-size: 0.85rem;
+  display: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.rule.rule-collapsed .rule-description-inline {
+  display: inline;
+}
+
+.rule .rule-right {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rule .rule-source {
+  text-decoration: none;
+  opacity: 0.5;
+  font-size: 0.8rem;
+}
+
+.rule .rule-source:hover {
+  opacity: 1;
+}
+
+.rule .rule-id {
+  font-size: 0.7rem;
+  color: #999;
 }
 
 .rule .rule-description {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
+  color: #444;
+  margin-bottom: 2px;
+  margin-left: var(--indent);
+}
+
+.rule.rule-collapsed .rule-description,
+.rule.rule-collapsed .rule-info,
+.rule.rule-collapsed .rule-options,
+.rule.rule-collapsed .rule-inputs {
+  display: none;
 }
 
 .rule .rule-info {
-  font-size: 0.8rem;
-  margin-bottom: 10px;
+  font-size: 0.7rem;
+  color: #888;
+  margin-bottom: 2px;
+  margin-left: var(--indent);
 }
 
-.rule .rule-anchor {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.8rem;
-/*  margin-bottom: 10px;*/
+.rule .rule-options {
+  font-size: 0.7rem;
+  color: #555;
+  margin-bottom: 4px;
+  margin-left: var(--indent);
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  background-color: #fafafa;
+}
+
+.rule .rule-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.rule .rule-option:last-child {
+  margin-bottom: 0;
+}
+
+.rule .rule-option input[type="text"] {
+  width: 80px;
+  font-size: 0.7rem;
 }
 
 .rule .rule-inputs {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  margin-left: var(--indent);
+}
+
+.rule .rule-inputs input[type="text"] {
+  width: 120px;
 }
 
 #notes {
@@ -374,11 +470,87 @@ div + div.smaller-title {
     display: block;
   }
 
+  h1 {
+    font-size: 1.2rem;
+    margin: 10px 0;
+    padding-right: 60px; /* space for reset button */
+  }
+
   .top-wrapper {
     padding-right: 0;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #fff;
   }
 
   #wrapper {
     padding-right: 0;
+  }
+
+  /* Rule mobile adjustments */
+  .rule {
+    padding: 6px 8px;
+  }
+
+  .rule .rule-header {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    padding-right: 0;
+  }
+
+  .rule .rule-description-inline {
+    max-width: 100%;
+    flex-basis: 100%;
+    margin-left: var(--indent);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .rule .rule-right {
+    position: static;
+    flex-basis: 100%;
+    margin-left: var(--indent);
+    margin-top: 2px;
+  }
+
+  .rule .rule-pattern {
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  .rule .rule-description {
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  .rule .rule-info {
+    word-break: break-word;
+  }
+
+  .rule .rule-inputs {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .rule .rule-inputs input[type="text"] {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .rule .rule-options {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Ensure toggle button is visible */
+  #toggle-results {
+    display: block !important;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
   }
 }

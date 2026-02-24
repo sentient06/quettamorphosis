@@ -248,13 +248,26 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   const rule = rulesObj[ruleId];
   const isConversion = isConversionRule(ruleId);
   const isEffectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
-  const ruleClass = isEffectivelyEnabled ? 'rule rule-enabled' : 'rule';
+  // Start collapsed if enabled (will expand when tripped)
+  const ruleClass = isEffectivelyEnabled ? 'rule rule-enabled rule-collapsed' : 'rule';
   const $rule = draw('div', $parentContainer, { class: ruleClass, id: `rule-${ruleId}` });
 
-  // Conversion rules don't have toggles (they always run)
+  // Header row: expand arrow + checkbox + order-id + pattern + description (inline when collapsed)
+  const $headerRow = draw('div', $rule, { class: 'rule-header' });
+
+  // Expand/collapse arrow
+  draw('span', $headerRow, {
+    class: 'rule-expand',
+    innerHtml: '▶',
+    callback: {
+      trigger: 'click',
+      callback: () => $rule.classList.toggle('rule-collapsed')
+    }
+  });
+
+  // Checkbox (non-conversion rules only)
   if (!isConversion) {
-    const $label = draw('label', $rule, { for: `toggle-${ruleId}`, class: 'rule-label' });
-    draw('input', $label, {
+    draw('input', $headerRow, {
       id: `toggle-${ruleId}`,
       type: 'checkbox',
       checked: isEffectivelyEnabled ? 'checked' : '',
@@ -264,11 +277,23 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
         callback: (e) => toggleRule(ruleId, e.target.checked)
       }
     });
-    draw('span', $label, { class: 'rule-id', innerHtml: ruleId });
   }
 
-  draw('div', $rule, { class: 'rule-order-id', innerHtml: rule.orderId });
-  draw('div', $rule, { class: 'rule-pattern', innerHtml: rule.pattern });
+  draw('span', $headerRow, { class: 'rule-order-id', innerHtml: rule.orderId });
+  draw('span', $headerRow, { class: 'rule-pattern', innerHtml: rule.pattern });
+  // Inline description (shown when collapsed)
+  draw('span', $headerRow, { class: 'rule-description-inline', innerHtml: rule.description });
+
+  // Source + Rule ID (top right)
+  if (!isConversion) {
+    const $rightGroup = draw('span', $rule, { class: 'rule-right' });
+    if (rule.url) {
+      draw('a', $rightGroup, { class: 'rule-source', innerHtml: '🔗', href: rule.url, target: '_blank', title: 'Source' });
+    }
+    draw('span', $rightGroup, { class: 'rule-id', innerHtml: ruleId });
+  }
+
+  // Description (below pattern, shown when expanded)
   draw('div', $rule, { class: 'rule-description', innerHtml: rule.description });
   if (rule.hasOwnProperty('info')) {
     rule.info.forEach((info) => {
@@ -299,11 +324,12 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
       } else {
         inputAttrs.value = input.default || '';
       }
-      const $optWrapper = draw('div', $inputRules);
+      const $optWrapper = draw('div', $inputRules, { class: 'rule-option' });
       if (inputType === 'checkbox') {
         draw('input', $optWrapper, inputAttrs);
         draw('label', $optWrapper, { for: `input-${ruleId}-${input.name}`, innerHtml: description });
       } else {
+        draw('label', $optWrapper, { for: `input-${ruleId}-${input.name}`, innerHtml: input.name + ':' });
         draw('input', $optWrapper, inputAttrs);
       }
     });
@@ -333,6 +359,7 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
 
   const $inputWrapper = draw('div', $rule, { class: 'rule-inputs' });
 
+  draw('label', $inputWrapper, { for: `input-${ruleId}`, innerHtml: 'In:' });
   draw('input', $inputWrapper, {
     type: 'text',
     id: `input-${ruleId}`,
@@ -343,6 +370,7 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     },
   });
 
+  draw('label', $inputWrapper, { for: `output-${ruleId}`, innerHtml: 'Out:' });
   draw('input', $inputWrapper, {
     type: 'text',
     id: `output-${ruleId}`,
@@ -350,11 +378,6 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     readonly: 'readonly',
   });
 
-  // Conversion rules don't have source URLs
-  if (!isConversion && rule.url) {
-    const $anchorWrapper = draw('div', $rule, { class: 'rule-anchor' });
-    draw('a', $anchorWrapper, { innerHtml: 'source', href: rule.url, target: '_blank' });
-  }
 }
 
 function runRule(ruleId, input, nextRuleId) {
@@ -365,6 +388,11 @@ function runRule(ruleId, input, nextRuleId) {
   // Skip if rule is not effectively enabled (language disabled OR rule disabled)
   if (!isRuleEffectivelyEnabled(ruleId)) {
     console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', 'N/A'.padEnd(10, ' '), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
+    // Clear tripped state when rule is skipped
+    const $ruleElement = document.getElementById(`rule-${ruleId}`);
+    if ($ruleElement) {
+      $ruleElement.classList.remove('rule-tripped');
+    }
     if (nextRuleId) {
       const $nextInput = document.getElementById(`input-${nextRuleId}`);
       $nextInput.value = input;
@@ -406,17 +434,26 @@ function runRule(ruleId, input, nextRuleId) {
   console.log('Rule', langLabel, rule.orderId, String(ruleId).padStart(25, ' '), 'in:', input.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(25, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
 
   // Track rule result (skip for conversion rules - they don't appear in tripped/skipped)
+  const isTripped = input !== output;
   if (resultsObj) {
-    if (input !== output) {
+    if (isTripped) {
       resultsObj[ruleId] = output;
     } else {
       delete resultsObj[ruleId];
     }
   }
 
+  // Update tripped visual state and auto-expand if tripped
+  const $ruleElement = document.getElementById(`rule-${ruleId}`);
+  if ($ruleElement) {
+    $ruleElement.classList.toggle('rule-tripped', isTripped);
+    // Auto-expand when tripped, collapse when not
+    $ruleElement.classList.toggle('rule-collapsed', !isTripped);
+  }
+
   // Auto-update dependency checkboxes that depend on this rule
   document.querySelectorAll(`input[data-rule="${ruleId}"]`).forEach(($depCheckbox) => {
-    $depCheckbox.checked = input !== output;
+    $depCheckbox.checked = isTripped;
   });
 
   // Update output field
@@ -440,6 +477,16 @@ function resetRule(ruleId) {
   const $output = document.getElementById(`output-${ruleId}`);
   $input.value = "";
   $output.value = "";
+
+  // Clear tripped visual state
+  const $rule = document.getElementById(`rule-${ruleId}`);
+  if ($rule) {
+    $rule.classList.remove('rule-tripped');
+    // Collapse the rule since it's no longer tripped
+    if ($rule.classList.contains('rule-enabled')) {
+      $rule.classList.add('rule-collapsed');
+    }
+  }
 }
 
 function resetAllRules() {
