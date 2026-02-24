@@ -454,7 +454,7 @@ function runRule(ruleId, input, nextRuleId) {
   const output = isEnabled ? rule.mechanic(input, options) : input;
 
   const langLabel = isConversionRule(ruleId) ? 'CV' : (getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S');
-  console.log('Rule', langLabel, rule.orderId, String(ruleId).padStart(25, ' '), 'in:', input.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(25, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
+  console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
 
   // Track rule result (skip for conversion rules - they don't appear in tripped/skipped)
   const isTripped = input !== output;
@@ -743,7 +743,7 @@ console.log('Type debug() to debug.');
 
 window.debug = (str, lang = 's') => {
   if (!str) {
-    return 'Usage: debug(\'word\')';
+    return 'Usage: debug(\'word\', language \'<s|os|at>\')';
   }
   const toSingle = digraphsToSingle(str);
   const toDigraphs = singleToDigraphs(str);
