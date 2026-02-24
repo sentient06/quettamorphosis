@@ -10,7 +10,7 @@ export const preProcessingRules = {
     orderId: 'PRE-01',
     pattern: 'digraphs → single characters',
     description: 'Convert digraphs to single characters for rule processing',
-    mechanic: (str) => digraphsToSingle(str),
+    mechanic: (str) => digraphsToSingle(str).toLowerCase(),
   },
 };
 

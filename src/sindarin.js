@@ -1109,10 +1109,50 @@ export const sindarinRules = {
       const results = findAllOf(['θ', 'ð'], str);
       if (results.length < 2) return str;
 
-      const lastResult = results[results.length - 1];
-      if (lastResult.prevChar === lastResult.matched) return str;
+      const analyser = new SyllableAnalyser();
+      const syllables = analyser.syllabify(str);
 
-      return str.substring(0, lastResult.charIndex) + 's' + str.substring(lastResult.charIndex + 1);
+      if (syllables.length === 1) {
+        const lastResult = results[results.length - 1];
+        if (lastResult.prevChar !== lastResult.matched) {
+          return str.substring(0, lastResult.charIndex) + 's' + str.substring(lastResult.charIndex + 1);
+        } else {
+          return str;
+        }
+      }
+
+      // Multiple syllables:
+      const reverseSyllables = syllables.reverse();
+      let lastSyllable = -1;
+      let matched = null;
+
+      // Find the last syllable that contains a spirant and which spirant:
+      for (let i in reverseSyllables) {
+        const syllable = reverseSyllables[i];
+        const allSpirants = findAllOf(['θ', 'ð'], syllable);
+        if (allSpirants.length > 0) {
+          lastSyllable = i;
+          matched = allSpirants[allSpirants.length - 1].matched;
+          break;
+        }
+      }
+
+      // Remove the last spirant and replace it with an s:
+      const result = [];
+
+      for (let i in reverseSyllables) {
+        const syllable = reverseSyllables[i];
+        if (i === lastSyllable) {
+          const reversed = syllable.reverse();
+          const newSyllable = reversed.replace(`${matched}${matched}`, matched).replace(matched, 's').reverse();
+          result.push(newSyllable);
+        } else {
+          result.push(syllable);
+        }
+      }
+
+      const finalResult = result.reverse().join('');
+      return finalResult;
     },
   },
   '298324969': {
