@@ -52,6 +52,7 @@ const osRuleResults = {};
 const sindarinRuleResults = {};
 const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
 const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
+const optionState = JSON.parse(localStorage.getItem('options') || '{}');
 
 // =============================================================================
 // Rule Utilities
@@ -248,8 +249,10 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   const rule = rulesObj[ruleId];
   const isConversion = isConversionRule(ruleId);
   const isEffectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
+  const hasOptions = rule.hasOwnProperty('input');
   // Start collapsed if enabled (will expand when tripped)
-  const ruleClass = isEffectivelyEnabled ? 'rule rule-enabled rule-collapsed' : 'rule';
+  let ruleClass = isEffectivelyEnabled ? 'rule rule-enabled rule-collapsed' : 'rule';
+  if (hasOptions) ruleClass += ' rule-has-options';
   const $rule = draw('div', $parentContainer, { class: ruleClass, id: `rule-${ruleId}` });
 
   // Header row: expand arrow + checkbox + order-id + pattern + description (inline when collapsed)
@@ -281,6 +284,10 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
 
   draw('span', $headerRow, { class: 'rule-order-id', innerHtml: rule.orderId });
   draw('span', $headerRow, { class: 'rule-pattern', innerHtml: rule.pattern });
+  // Options indicator (shown when collapsed and has options)
+  if (hasOptions) {
+    draw('span', $headerRow, { class: 'rule-options-icon', innerHtml: '⚙', title: 'This rule has configurable options' });
+  }
   // Inline description (shown when collapsed)
   draw('span', $headerRow, { class: 'rule-description-inline', innerHtml: rule.description });
 
@@ -304,32 +311,48 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   if (rule.hasOwnProperty('input')) {
     const $inputRules = draw('div', $rule, { class: 'rule-options' });
     rule.input.forEach((input) => {
-      // { name: 'guess', type: 'boolean', default: true, description: 'Whether to guess boundary if no marker' },
-      // { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
+      // { name: 'guess', label: 'Guess', type: 'boolean', default: true, description: 'Whether to guess boundary if no marker' },
+      // { name: 'boundaryChar', label: 'Boundary', type: 'string', default: '-', description: 'The morpheme boundary marker' },
       const inputType = input.type === 'boolean' ? 'checkbox' : 'text';
-      const description = input.description || input.name;
+      const label = input.label || input.name;
+      const description = input.description || label;
+      const optionKey = `${ruleId}-${input.name}`;
+      const savedValue = optionState[optionKey];
       const inputAttrs = {
         type: inputType,
         id: `input-${ruleId}-${input.name}`,
         placeholder: description,
+        title: description,
         callback: {
           trigger: 'change',
-          callback: () => rerunRule(ruleId),
+          callback: (e) => {
+            // Save option value to localStorage
+            if (inputType === 'checkbox') {
+              optionState[optionKey] = e.target.checked;
+            } else {
+              optionState[optionKey] = e.target.value;
+            }
+            localStorage.setItem('options', JSON.stringify(optionState));
+            rerunRule(ruleId);
+          },
         },
       };
       if (inputType === 'checkbox') {
-        if (input.default) {
+        // Use saved value if exists, otherwise use default
+        const isChecked = savedValue !== undefined ? savedValue : input.default;
+        if (isChecked) {
           inputAttrs.checked = 'checked';
         }
       } else {
-        inputAttrs.value = input.default || '';
+        // Use saved value if exists, otherwise use default
+        inputAttrs.value = savedValue !== undefined ? savedValue : (input.default || '');
       }
       const $optWrapper = draw('div', $inputRules, { class: 'rule-option' });
       if (inputType === 'checkbox') {
         draw('input', $optWrapper, inputAttrs);
-        draw('label', $optWrapper, { for: `input-${ruleId}-${input.name}`, innerHtml: description });
+        draw('label', $optWrapper, { for: `input-${ruleId}-${input.name}`, innerHtml: label, title: description });
       } else {
-        draw('label', $optWrapper, { for: `input-${ruleId}-${input.name}`, innerHtml: input.name + ':' });
+        draw('label', $optWrapper, { for: `input-${ruleId}-${input.name}`, innerHtml: label + ':', title: description });
         draw('input', $optWrapper, inputAttrs);
       }
     });
@@ -447,8 +470,11 @@ function runRule(ruleId, input, nextRuleId) {
   const $ruleElement = document.getElementById(`rule-${ruleId}`);
   if ($ruleElement) {
     $ruleElement.classList.toggle('rule-tripped', isTripped);
-    // Auto-expand when tripped, collapse when not
-    $ruleElement.classList.toggle('rule-collapsed', !isTripped);
+    // Auto-expand when tripped, but don't collapse if user is interacting with this rule
+    const hasFocus = $ruleElement.contains(document.activeElement);
+    if (isTripped || !hasFocus) {
+      $ruleElement.classList.toggle('rule-collapsed', !isTripped);
+    }
   }
 
   // Auto-update dependency checkboxes that depend on this rule
@@ -594,6 +620,7 @@ $helpers.addEventListener('click', (e) => {
 $resetButton.addEventListener('click', () => {
   localStorage.removeItem('rules');
   localStorage.removeItem('languages');
+  localStorage.removeItem('options');
   localStorage.removeItem('original-input');
   location.reload();
 });

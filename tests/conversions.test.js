@@ -82,10 +82,10 @@ describe('Conversion Rules', () => {
       expect(rule.mechanic('ɣ')).toBe('gh');
       expect(rule.mechanic('ſ')).toBe('ss');
 
-      // Test aspirated stops convert back correctly
-      expect(rule.mechanic('ꝁ')).toBe('cʰ');
-      expect(rule.mechanic('ƥ')).toBe('pʰ');
-      expect(rule.mechanic('ŧ')).toBe('tʰ');
+      // Test aspirated stops convert back to regular text (no phonetic symbols)
+      expect(rule.mechanic('ꝁ')).toBe('ch');
+      expect(rule.mechanic('ƥ')).toBe('ph');
+      expect(rule.mechanic('ŧ')).toBe('th');
 
       // Test full word
       expect(rule.mechanic('iθil')).toBe('ithil');
@@ -118,14 +118,14 @@ describe('Conversion Rules', () => {
       });
     });
 
-    it('should preserve aspirated stops through round-trip', () => {
+    it('should convert aspirated stops to regular text through round-trip', () => {
       const preRule = preProcessingRules['pre-digraphs-to-single'];
       const postRule = postProcessingRules['post-single-to-digraphs'];
 
-      // Aspirated stops should round-trip correctly
-      expect(postRule.mechanic(preRule.mechanic('kʰjabab'))).toBe('cʰyabab');
-      expect(postRule.mechanic(preRule.mechanic('pʰelga'))).toBe('pʰelga');
-      expect(postRule.mechanic(preRule.mechanic('tʰáni'))).toBe('tʰáni');
+      // Aspirated stops convert to regular digraphs (no phonetic symbols in output)
+      expect(postRule.mechanic(preRule.mechanic('kʰjabab'))).toBe('chyabab');
+      expect(postRule.mechanic(preRule.mechanic('pʰelga'))).toBe('phelga');
+      expect(postRule.mechanic(preRule.mechanic('tʰáni'))).toBe('tháni');
     });
   });
 });

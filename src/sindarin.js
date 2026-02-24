@@ -909,8 +909,20 @@ export const sindarinRules = {
     skip: true,
     info: ['Important in compounds.', 'Disabled by default.'],
     input: [
-      { name: 'guess', type: 'boolean', default: false, description: 'Guess the syllable boundary if there is no marker' },
-      { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
+      {
+        name: 'guess',
+        label: 'Guess boundary',
+        type: 'boolean',
+        default: false,
+        description: 'Guess the syllable boundary if there is no marker'
+      },
+      {
+        name: 'boundaryChar',
+        label: 'Boundary marker',
+        type: 'string',
+        default: '-',
+        description: 'The morpheme boundary marker',
+      },
     ],
     /**
      * @param {string} str - The input string
@@ -1052,7 +1064,15 @@ export const sindarinRules = {
     skip: true,
     info: ['There is only one example of this rule. It also is mostly concerned with explaining plural formation.'],
     url: 'https://eldamo.org/content/words/word-1787434575.html',
-    input: [{ name: 'useUi', type: 'boolean', default: false, description: 'Use [ui] instead of [y]' }],
+    input: [
+      {
+        name: 'useUi',
+        label: 'Use [ui]',
+        type: 'boolean',
+        default: false,
+        description: 'Use [ui] instead of [y]'
+      }
+    ],
     mechanic: (str, { useUi = false } = {}) => {
       return str.replace(/œi/g, useUi ? 'ui' : 'y');
     },
@@ -1163,8 +1183,20 @@ export const sindarinRules = {
     description: 'nasals vanished before morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-3282356701.html',
     input: [
-      { name: 'guess', type: 'boolean', default: false, description: 'Guess the syllable boundary if there is no marker' },
-      { name: 'boundaryChar', type: 'string', default: '-', description: 'The morpheme boundary marker' },
+      {
+        name: 'guess',
+        label: 'Guess boundary',
+        type: 'boolean',
+        default: false,
+        description: 'Guess the syllable boundary if there is no marker'
+      },
+      {
+        name: 'boundaryChar',
+        label: 'Boundary marker',
+        type: 'string',
+        default: '-',
+        description: 'The morpheme boundary marker'
+      },
     ],
     /**
      * @param {string} str - The input string
@@ -1660,7 +1692,15 @@ export const sindarinRules = {
     pattern: '[-SS{ll|nn|ss}] > [-SS{l|n|s}]',
     description: 'final [ll], [nn], [ss] shortened in polysyllables',
     url: 'https://eldamo.org/content/words/word-1742178057.html',
-    input: [{ name: 'yAsVowel', type: 'boolean', default: false, description: 'Consider y as a vowel when determining syllables' }],
+    input: [
+      {
+        name: 'yAsVowel',
+        label: 'Y as vowel',
+        type: 'boolean',
+        default: false,
+        description: 'Consider y as a vowel when determining syllables'
+      },
+    ],
     mechanic: (str, { yAsVowel = false } = {}) => {
       if (str.endsWith('ll') || str.endsWith('nn') || str.endsWith('ss') || str.endsWith('ſ')) {
         const analyser = new SyllableAnalyser({ includeY: yAsVowel });
@@ -1802,7 +1842,15 @@ export const sindarinRules = {
     pattern: '[ou] > [au]',
     description: '[ou] became [au]',
     url: 'https://eldamo.org/content/words/word-2476983755.html',
-    input: [{ name: 'useFinalU', type: 'boolean', default: false, description: 'Use "au" at end of words instead of "aw"' }],
+    input: [
+      {
+        name: 'useFinalU',
+        label: 'Use final u',
+        type: 'boolean',
+        default: false,
+        description: 'Use "au" at end of words instead of "aw"',
+      },
+    ],
     mechanic: (str, { useFinalU = false } = {}) => {
       if (str.includes('ou')) {
         const result = str.replace('ou', 'au');

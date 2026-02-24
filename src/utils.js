@@ -313,6 +313,7 @@ const SINGLE_TO_DIGRAPH_MAP = {
   'x': 'ch',   // spirant
   'ꝁ': 'kʰ',   // aspirated voiceless stop
   'λ': 'lh',
+  'ŋk': 'nc',
   'ŋ': 'ng',
   'ɸ': 'ph',   // spirant
   'ƥ': 'pʰ',   // aspirated voiceless stop

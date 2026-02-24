@@ -39,6 +39,10 @@ export const postProcessingRules = {
       result = singleToDigraphs(result);
       result = result.replace('k', 'c');
       result = result.replace('j', 'y');
+      result = result.replace('ꞥ', 'nth');
+      // Replace macrons with circumflexes: NFD decompose → swap combining marks → NFC recompose
+      result = result.normalize('NFD').replace(/\u0304/g, '\u0302').normalize('NFC');
+      result = result.toNormalScript();
       return result;
     },
   },

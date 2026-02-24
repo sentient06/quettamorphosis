@@ -262,6 +262,11 @@ div + div.smaller-title {
   background-color: #ffe6e6;
 }
 
+/* Subtle yellow for collapsed rules with options */
+.rule.rule-has-options.rule-collapsed.rule-enabled:not(.rule-tripped) {
+  background-color: #fffbe6;
+}
+
 .rule {
   --indent: 22px; /* checkbox width + gap */
 }
@@ -293,6 +298,16 @@ div + div.smaller-title {
   font-weight: bold;
 }
 
+.rule .rule-options-icon {
+  color: #997700;
+  font-size: 0.8rem;
+  display: none;
+}
+
+.rule.rule-collapsed .rule-options-icon {
+  display: inline;
+}
+
 .rule .rule-description-inline {
   color: #666;
   font-size: 0.85rem;
@@ -312,6 +327,7 @@ div + div.smaller-title {
   top: 6px;
   right: 6px;
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
   gap: 4px;
 }

@@ -21,7 +21,13 @@ export const ancientTelerinRules = {
     url: 'https://eldamo.org/content/words/word-3648128347.html',
     info: ['You may need to use an accute mark (´) to indicate stress.'],
     input: [
-      { name: 'guessStress', type: 'boolean', default: false, description: 'Guess the stress if there is no marker' },
+      {
+        name: 'guessStress',
+        label: 'Guess stress',
+        type: 'boolean',
+        default: false,
+        description: 'Guess the stress if there is no marker',
+      },
     ],
     mechanic: (str, { guessStress = false } = {}) => {
       // Both syllables have vowels of the same quality.
