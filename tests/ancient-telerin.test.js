@@ -21,6 +21,7 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['3648128347'].mechanic('palátā')).toBe('platā');
     expect(ancientTelerinRules['3648128347'].mechanic('ƥilíŋke')).toBe('ƥliŋke');
     expect(ancientTelerinRules['3648128347'].mechanic('turúŋko')).toBe('truŋko');
+    expect(ancientTelerinRules['3648128347'].mechanic('turuŋko', { guessStress: true })).toBe('truŋko');
     // Initial clusters shouldn't trigger change:
     expect(ancientTelerinRules['3648128347'].mechanic('kjelekormo')).toBe('kjelekormo');
     expect(ancientTelerinRules['3648128347'].mechanic('mbelektā')).toBe('mbelektā');

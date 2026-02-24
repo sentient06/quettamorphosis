@@ -19,7 +19,11 @@ export const ancientTelerinRules = {
     pattern: '[{ptkpʰkʰbdgm}V₁{rl}V́₁-] > [{ptkpʰkʰbdgm}ø{rl}V́₁-]',
     description: 'unstressed initial syllables reduced to favored clusters',
     url: 'https://eldamo.org/content/words/word-3648128347.html',
-    mechanic: (str) => {
+    info: ['You may need to use an accute mark (´) to indicate stress.'],
+    input: [
+      { name: 'guessStress', type: 'boolean', default: false, description: 'Guess the stress if there is no marker' },
+    ],
+    mechanic: (str, { guessStress = false } = {}) => {
       // Both syllables have vowels of the same quality.
       // The second syllable begins with r or l.
       // The initial syllable begins with a stop, aspirate or (possibly) a nasal [see below on nasals].
@@ -57,10 +61,18 @@ export const ancientTelerinRules = {
       // if (firstSyllableStart === 'm' && firstSyllable.syllable.nth(1) === 'b') return str;
 
       // The first syllable is unstressed (no explicit stress mark).
-      if (analyser.hasStressMark(firstSyllable.syllable)) return str;
+      let firstSyllableStressed = analyser.hasStressMark(firstSyllable.syllable);
 
       // The second syllable is stressed (has explicit stress mark).
-      if (!analyser.hasStressMark(secondSyllable.syllable)) return str;
+      let secondSyllableStressed = analyser.hasStressMark(secondSyllable.syllable);
+
+      if (guessStress) {
+        if (firstSyllableStressed === false) firstSyllableStressed = firstSyllable.stressed;
+        if (secondSyllableStressed === false) secondSyllableStressed = secondSyllable.stressed;
+      }
+
+      if (firstSyllableStressed === true) return str;
+      if (secondSyllableStressed === false) return str;
 
       const result = [];
       result.push(firstSyllable.syllable.replace(firstSyllable.nucleus, ''));
