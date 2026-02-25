@@ -1316,7 +1316,7 @@ export const sindarinRules = {
     pattern: '[ð{mnŋ}] > [ø{mnŋ}]',
     description: '[ð] vanished before nasals at morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-3841960279.html',
-    info: ['Important in compounds.', 'Disabled by default.'],
+    info: ['Important in compounds.'],
     input: [
       {
         name: 'guess',
