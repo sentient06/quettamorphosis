@@ -278,6 +278,38 @@ div + div.smaller-title {
   margin-bottom: 2px;
 }
 
+.rule .rule-reorder {
+  display: inline-flex;
+  gap: 2px;
+  margin-right: 4px;
+}
+
+.rule .rule-reorder button {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 0 3px;
+  line-height: 1.2;
+  color: #666;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.rule .rule-reorder button:hover {
+  background-color: #e0e0e0;
+  border-color: #999;
+}
+
+.rule .rule-reorder button:active {
+  background-color: #d0d0d0;
+}
+
+.rule .rule-reorder button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .rule .rule-expand {
   cursor: pointer;
   font-size: 0.7rem;

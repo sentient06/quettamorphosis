@@ -34,6 +34,7 @@ const $topWrapper = document.querySelector('.top-wrapper');
 const $helpers = document.querySelector('.userInput .helpers');
 const $toggleHelpers = document.getElementById('toggle-helpers');
 const $resetButton = document.getElementById('reset');
+const $resetOrderButton = document.getElementById('reset-order');
 const $resultsTripped = document.getElementById('results-tripped');
 const $resultsSkipped = document.getElementById('results-skipped');
 const $notes = document.getElementById('notes');
@@ -53,6 +54,244 @@ const sindarinRuleResults = {};
 const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
 const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
 const optionState = JSON.parse(localStorage.getItem('options') || '{}');
+const orderState = JSON.parse(localStorage.getItem('order') || '{}');
+
+// =============================================================================
+// Rule Ordering
+// =============================================================================
+
+// Initialize order state with default orderId-based sorting if not present
+function initializeOrderState() {
+  if (!orderState['ancient-telerin']) {
+    orderState['ancient-telerin'] = [...atRuleKeys];
+  }
+  if (!orderState['old-sindarin']) {
+    orderState['old-sindarin'] = [...osRuleKeys];
+  }
+  if (!orderState['sindarin']) {
+    orderState['sindarin'] = [...sindarinRuleKeys];
+  }
+  // Add any new rules that might have been added since last save
+  atRuleKeys.forEach(ruleId => {
+    if (!orderState['ancient-telerin'].includes(ruleId)) {
+      orderState['ancient-telerin'].push(ruleId);
+    }
+  });
+  osRuleKeys.forEach(ruleId => {
+    if (!orderState['old-sindarin'].includes(ruleId)) {
+      orderState['old-sindarin'].push(ruleId);
+    }
+  });
+  sindarinRuleKeys.forEach(ruleId => {
+    if (!orderState['sindarin'].includes(ruleId)) {
+      orderState['sindarin'].push(ruleId);
+    }
+  });
+  // Remove any rules that no longer exist
+  orderState['ancient-telerin'] = orderState['ancient-telerin'].filter(id => atRuleKeys.includes(id));
+  orderState['old-sindarin'] = orderState['old-sindarin'].filter(id => osRuleKeys.includes(id));
+  orderState['sindarin'] = orderState['sindarin'].filter(id => sindarinRuleKeys.includes(id));
+}
+
+initializeOrderState();
+
+// Get ordered rule keys for a language
+function getOrderedRuleKeys(language) {
+  return orderState[language] || [];
+}
+
+// Build the complete ordered list of all rule keys
+function getAllOrderedRuleKeys() {
+  return [
+    ...preProcessingRuleKeys,
+    ...getOrderedRuleKeys('ancient-telerin'),
+    ...getOrderedRuleKeys('old-sindarin'),
+    ...interLanguageRuleKeys,
+    ...getOrderedRuleKeys('sindarin'),
+    ...postProcessingRuleKeys,
+  ];
+}
+
+// Save order state to localStorage
+function saveOrderState() {
+  localStorage.setItem('order', JSON.stringify(orderState));
+}
+
+// Get options for a rule from DOM inputs
+function getOptions(ruleId, rule) {
+  const options = {};
+  if (rule.input) {
+    rule.input.forEach((inputDef) => {
+      const $input = document.getElementById(`input-${ruleId}-${inputDef.name}`);
+      if ($input) {
+        options[inputDef.name] = inputDef.type === 'boolean'
+          ? $input.checked
+          : ($input.value || inputDef.default);
+      }
+    });
+  }
+  if (rule.dependsOn) {
+    rule.dependsOn.forEach((dependency) => {
+      const $checkbox = document.getElementById(`dep-${ruleId}-${dependency.param}`);
+      if ($checkbox) {
+        options[dependency.param] = $checkbox.checked;
+      }
+    });
+  }
+  return options;
+}
+
+// Update reorder button states for affected rules after a move
+function updateReorderButtons(language) {
+  const order = orderState[language] || [];
+  order.forEach((ruleId, index) => {
+    const $upBtn = document.getElementById(`move-up-${ruleId}`);
+    const $downBtn = document.getElementById(`move-down-${ruleId}`);
+    if ($upBtn) $upBtn.disabled = index === 0;
+    if ($downBtn) $downBtn.disabled = index === order.length - 1;
+  });
+}
+
+// Move a rule up (earlier in execution order)
+function moveRuleUp(ruleId) {
+  const language = getLanguage(ruleId);
+  if (!language || isConversionRule(ruleId)) return; // Can't move conversion rules
+
+  const order = orderState[language];
+  const index = order.indexOf(ruleId);
+  if (index <= 0) return; // Already at top
+
+  // Swap with previous rule
+  [order[index - 1], order[index]] = [order[index], order[index - 1]];
+  saveOrderState();
+
+  // Move DOM element
+  const $rule = document.getElementById(`rule-${ruleId}`);
+  const $prevRule = document.getElementById(`rule-${order[index]}`);
+  if ($rule && $prevRule) {
+    $prevRule.parentNode.insertBefore($rule, $prevRule);
+  }
+
+  // Update button states
+  updateReorderButtons(language);
+
+  // Re-run rules from the earlier position
+  rerunFromPosition(language, index - 1);
+}
+
+// Move a rule down (later in execution order)
+function moveRuleDown(ruleId) {
+  const language = getLanguage(ruleId);
+  if (!language || isConversionRule(ruleId)) return; // Can't move conversion rules
+
+  const order = orderState[language];
+  const index = order.indexOf(ruleId);
+  if (index >= order.length - 1) return; // Already at bottom
+
+  // Swap with next rule
+  [order[index], order[index + 1]] = [order[index + 1], order[index]];
+  saveOrderState();
+
+  // Move DOM element
+  const $rule = document.getElementById(`rule-${ruleId}`);
+  const $nextRule = document.getElementById(`rule-${order[index]}`);
+  if ($rule && $nextRule) {
+    $nextRule.parentNode.insertBefore($nextRule, $rule);
+  }
+
+  // Update button states
+  updateReorderButtons(language);
+
+  // Re-run rules from the current position (which is now earlier)
+  rerunFromPosition(language, index);
+}
+
+// Re-run rules starting from a specific position in a language
+function rerunFromPosition(language, startIndex) {
+  const order = orderState[language];
+  if (startIndex >= order.length) return;
+
+  // Get the input value for the first rule to re-run
+  const firstRuleToRerun = order[startIndex];
+  const $input = document.getElementById(`input-${firstRuleToRerun}`);
+
+  if ($input && $input.value) {
+    // Find what the next rule should be after the last rule in this language
+    const allOrdered = getAllOrderedRuleKeys();
+    const lastRuleInLanguage = order[order.length - 1];
+    const lastIndex = allOrdered.indexOf(lastRuleInLanguage);
+    const nextRuleAfterLanguage = allOrdered[lastIndex + 1];
+
+    // Re-run the chain starting from this rule
+    runRuleChain(firstRuleToRerun, $input.value, nextRuleAfterLanguage);
+  }
+}
+
+// Run a chain of rules within a language, then continue to the next rule after
+function runRuleChain(startRuleId, inputValue, nextRuleAfterChain) {
+  const language = getLanguage(startRuleId);
+  const order = orderState[language];
+  const startIndex = order.indexOf(startRuleId);
+
+  let currentInput = inputValue;
+
+  // Run each rule in sequence within the language
+  for (let i = startIndex; i < order.length; i++) {
+    const ruleId = order[i];
+
+    // Update the input field
+    const $input = document.getElementById(`input-${ruleId}`);
+    if ($input) {
+      $input.value = currentInput;
+    }
+
+    // Run the rule and capture output for next iteration
+    const rulesObj = getRulesObject(ruleId);
+    const rule = rulesObj[ruleId];
+    const options = getOptions(ruleId, rule);
+    const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : !rule.skip;
+    const output = isEnabled ? rule.mechanic(currentInput, options) : currentInput;
+
+    // Update visual state
+    const isTripped = currentInput !== output;
+    const resultsObj = getResultsObject(ruleId);
+    if (isTripped) {
+      resultsObj[ruleId] = { input: currentInput, output };
+    } else {
+      delete resultsObj[ruleId];
+    }
+
+    const $ruleElement = document.getElementById(`rule-${ruleId}`);
+    if ($ruleElement) {
+      $ruleElement.classList.toggle('rule-tripped', isTripped);
+      const hasFocus = $ruleElement.contains(document.activeElement);
+      if (isTripped || !hasFocus) {
+        $ruleElement.classList.toggle('rule-collapsed', !isTripped);
+      }
+    }
+
+    // Update output field
+    const $output = document.getElementById(`output-${ruleId}`);
+    if ($output) {
+      $output.value = output;
+    }
+
+    currentInput = output;
+  }
+
+  // Continue to next rule after this language's chain
+  if (nextRuleAfterChain) {
+    const $nextInput = document.getElementById(`input-${nextRuleAfterChain}`);
+    if ($nextInput) {
+      $nextInput.value = currentInput;
+    }
+    runRule(nextRuleAfterChain, currentInput, getNextRule(nextRuleAfterChain));
+  } else {
+    // This was the last chain, update final output
+    $originalOutput.value = currentInput;
+    printResults();
+  }
+}
 
 // =============================================================================
 // Rule Utilities
@@ -291,9 +530,42 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   // Inline description (shown when collapsed)
   draw('span', $headerRow, { class: 'rule-description-inline', innerHtml: rule.description });
 
-  // Source + Rule ID (top right)
+  // Source + Rule ID + Reorder buttons (top right)
   if (!isConversion) {
     const $rightGroup = draw('span', $rule, { class: 'rule-right' });
+
+    // Reorder buttons - check position in language order
+    const language = getLanguage(ruleId);
+    const order = orderState[language] || [];
+    const index = order.indexOf(ruleId);
+    const isFirst = index === 0;
+    const isLast = index === order.length - 1;
+
+    const $reorderBtns = draw('span', $rightGroup, { class: 'rule-reorder' });
+    const $upBtn = draw('button', $reorderBtns, {
+      id: `move-up-${ruleId}`,
+      class: 'rule-move-up',
+      innerHtml: '↑',
+      title: 'Move rule earlier',
+      callback: {
+        trigger: 'click',
+        callback: () => moveRuleUp(ruleId)
+      }
+    });
+    $upBtn.disabled = isFirst;
+
+    const $downBtn = draw('button', $reorderBtns, {
+      id: `move-down-${ruleId}`,
+      class: 'rule-move-down',
+      innerHtml: '↓',
+      title: 'Move rule later',
+      callback: {
+        trigger: 'click',
+        callback: () => moveRuleDown(ruleId)
+      }
+    });
+    $downBtn.disabled = isLast;
+
     if (rule.url) {
       draw('a', $rightGroup, { class: 'rule-source', innerHtml: '🔗', href: rule.url, target: '_blank', title: 'Source' });
     }
@@ -616,11 +888,18 @@ $helpers.addEventListener('click', (e) => {
   $originalInput.focus();
 });
 
-// Handle reset button
+// Handle reset order button (only resets rule order)
+$resetOrderButton.addEventListener('click', () => {
+  localStorage.removeItem('order');
+  location.reload();
+});
+
+// Handle reset button (resets everything)
 $resetButton.addEventListener('click', () => {
   localStorage.removeItem('rules');
   localStorage.removeItem('languages');
   localStorage.removeItem('options');
+  localStorage.removeItem('order');
   localStorage.removeItem('original-input');
   location.reload();
 });
@@ -663,36 +942,37 @@ $closeNotes.addEventListener('click', (e) => {
 // Set sticky header height CSS variable for scroll-margin-top
 document.documentElement.style.setProperty('--sticky-h', $topWrapper.offsetHeight + 'px');
 
-// Helper to calculate the next rule ID for a given index in allRuleKeys
-function getNextRuleIdAtIndex(index) {
-  return allRuleKeys[index + 1];
+// Helper to calculate the next rule ID for a given index in ordered keys
+function getNextRuleIdAtIndex(orderedKeys, index) {
+  return orderedKeys[index + 1];
 }
 
 // Create conversion and language wrappers in execution order
+const allOrderedKeys = getAllOrderedRuleKeys();
 
 // 1. Pre-processing conversions
 if (preProcessingRuleKeys.length > 0) {
   const $preWrapper = createConversionWrapper('pre-processing', 'Pre-processing');
   preProcessingRuleKeys.forEach((ruleId) => {
-    const globalIndex = allRuleKeys.indexOf(ruleId);
-    const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+    const globalIndex = allOrderedKeys.indexOf(ruleId);
+    const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
     drawRule(ruleId, nextRuleId, $preWrapper);
   });
 }
 
 // 2. Ancient Telerin rules
 const $atWrapper = createLanguageWrapper('ancient-telerin', 'Ancient Telerin');
-atRuleKeys.forEach((ruleId) => {
-  const globalIndex = allRuleKeys.indexOf(ruleId);
-  const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+getOrderedRuleKeys('ancient-telerin').forEach((ruleId) => {
+  const globalIndex = allOrderedKeys.indexOf(ruleId);
+  const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
   drawRule(ruleId, nextRuleId, $atWrapper);
 });
 
 // 3. Old Sindarin rules
 const $osWrapper = createLanguageWrapper('old-sindarin', 'Old Sindarin');
-osRuleKeys.forEach((ruleId) => {
-  const globalIndex = allRuleKeys.indexOf(ruleId);
-  const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+getOrderedRuleKeys('old-sindarin').forEach((ruleId) => {
+  const globalIndex = allOrderedKeys.indexOf(ruleId);
+  const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
   drawRule(ruleId, nextRuleId, $osWrapper);
 });
 
@@ -700,17 +980,17 @@ osRuleKeys.forEach((ruleId) => {
 if (interLanguageRuleKeys.length > 0) {
   const $interWrapper = createConversionWrapper('inter-language', 'OS → Sindarin Transition');
   interLanguageRuleKeys.forEach((ruleId) => {
-    const globalIndex = allRuleKeys.indexOf(ruleId);
-    const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+    const globalIndex = allOrderedKeys.indexOf(ruleId);
+    const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
     drawRule(ruleId, nextRuleId, $interWrapper);
   });
 }
 
 // 5. Sindarin rules
 const $sindarinWrapper = createLanguageWrapper('sindarin', 'Sindarin');
-sindarinRuleKeys.forEach((ruleId) => {
-  const globalIndex = allRuleKeys.indexOf(ruleId);
-  const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+getOrderedRuleKeys('sindarin').forEach((ruleId) => {
+  const globalIndex = allOrderedKeys.indexOf(ruleId);
+  const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
   drawRule(ruleId, nextRuleId, $sindarinWrapper);
 });
 
@@ -718,8 +998,8 @@ sindarinRuleKeys.forEach((ruleId) => {
 if (postProcessingRuleKeys.length > 0) {
   const $postWrapper = createConversionWrapper('post-processing', 'Post-processing');
   postProcessingRuleKeys.forEach((ruleId) => {
-    const globalIndex = allRuleKeys.indexOf(ruleId);
-    const nextRuleId = getNextRuleIdAtIndex(globalIndex);
+    const globalIndex = allOrderedKeys.indexOf(ruleId);
+    const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
     drawRule(ruleId, nextRuleId, $postWrapper);
   });
 }
