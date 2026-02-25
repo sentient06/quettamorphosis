@@ -942,7 +942,7 @@ export const sindarinRules = {
     /**
      * @param {string} str - The input string
      * @param {Object} options - Options for the mechanic
-     * @param {boolean} options.guess - Whether to guess boundary if no marker (default: true)
+     * @param {boolean} options.guess - Whether to guess boundary if no marker (default: false)
      * @param {string} options.boundaryChar - The morpheme boundary marker (default: '-')
      */
     mechanic(str, { guess = false, boundaryChar = '-' } = {}) {
@@ -1316,14 +1316,82 @@ export const sindarinRules = {
     pattern: '[ð{mnŋ}] > [ø{mnŋ}]',
     description: '[ð] vanished before nasals at morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-3841960279.html',
-    mechanic: (str) => {
-      const { found, nextChar } = findFirstOf(['ð'], str);
-      if (found) {
-        if (nextChar !== '' && 'mnŋ'.includes(nextChar)) {
-          return str.replace('ð', '');
+    info: ['Important in compounds.', 'Disabled by default.'],
+    input: [
+      {
+        name: 'guess',
+        label: 'Guess boundary',
+        type: 'boolean',
+        default: false,
+        description: 'Guess the syllable boundary if there is no marker'
+      },
+      {
+        name: 'boundaryChar',
+        label: 'Boundary marker',
+        type: 'string',
+        default: '-',
+        description: 'The morpheme boundary marker',
+      },
+    ],
+    /**
+     * @param {string} str - The input string
+     * @param {Object} options - Options for the mechanic
+     * @param {boolean} options.guess - Whether to guess boundary if no marker (default: false)
+     * @param {string} options.boundaryChar - The morpheme boundary marker (default: '-')
+     */
+    mechanic(str, { guess = false, boundaryChar = '-' } = {}) {
+      // Helper: remove nasal from end of syllable
+      const removeDhFromSyllable = (syllable, nextSyllable) => {
+        const { found, nextChar } = findFirstOf(['ð'], syllable);
+        if (found) {
+          // If syllable ends in nasal, remove it
+          if (nextChar !== '' && 'mnŋ'.includes(nextChar)) {
+            return syllable.replace('ð', '');
+          } else {
+            if ('mnŋ'.includes(nextSyllable.nth(0))) {
+              return syllable.replace('ð', '');
+            }
+          }
         }
+        return syllable; // No ð found
+      };
+
+      // === EXPLICIT MARKER MODE ===
+      if (str.includes(boundaryChar)) {
+        const parts = str.split(boundaryChar);
+        const result = parts.map((part, index) => {
+          // Don't process the last part (nothing follows it)
+          if (index === parts.length - 1) return part;
+
+          const nextPart = parts[index + 1];
+          const nextFirstChar = nextPart.nth(0);
+
+          // Only remove ð if next part starts with consonant
+          if (nextFirstChar && nextFirstChar.isConsonant()) {
+            return removeDhFromSyllable(part);
+          }
+          return part;
+        });
+
+        return result.join(boundaryChar);
       }
-      return str;
+
+      if (!guess) return str;
+
+      // === GUESSING MODE ===
+      const syllables = syllabify(str);
+      if (syllables.length < 2) return str;
+
+      // Split: first half gets extra syllable if odd
+      const midpoint = Math.ceil(syllables.length / 2);
+      const firstHalf = syllables.slice(0, midpoint);
+      const secondHalf = syllables.slice(midpoint);
+
+      // Try to remove ð from last syllable of first half:
+      const lastSyllable = firstHalf[firstHalf.length - 1];
+      const modifiedSyllable = removeDhFromSyllable(lastSyllable, secondHalf[0]);
+      firstHalf[firstHalf.length - 1] = modifiedSyllable;
+      return [...firstHalf, ...secondHalf].join('');
     },
   },
   '3123278727': {

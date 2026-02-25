@@ -655,12 +655,12 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3841960279'].mechanic('abc')).toBe('abc');
     // Need to test this word: ✶khadmā > chaðw > haðw
     // It could be an exception that requires morphene boundaries again.
-    expect(sindarinRules['3841960279'].mechanic('Eleðndor')).toBe('Elendor'); // Becomes Elennor
-    expect(sindarinRules['3841960279'].mechanic('heleðmorn')).toBe('helemorn');
-    expect(sindarinRules['3841960279'].mechanic('geleðndil')).toBe('gelendil');
-    expect(sindarinRules['3841960279'].mechanic('geleðŋdil')).toBe('geleŋdil'); // Non-existent word
+    expect(sindarinRules['3841960279'].mechanic('eleðndor', { guess: true })).toBe('elendor'); // Becomes Elennor
+    expect(sindarinRules['3841960279'].mechanic('heleðmorn', { guess: true })).toBe('helemorn');
+    expect(sindarinRules['3841960279'].mechanic('geleðndil', { guess: true })).toBe('gelendil');
+    expect(sindarinRules['3841960279'].mechanic('geleðŋdil', { guess: true })).toBe('geleŋdil'); // Non-existent word
     // Shouldn't affect end of words:
-    expect(sindarinRules['3841960279'].mechanic('goloð')).toBe('goloð');
+    expect(sindarinRules['3841960279'].mechanic('goloð', { guess: true })).toBe('goloð');
   });
 
   it('04800 - voiced spirants restopped after nasals', () => {
