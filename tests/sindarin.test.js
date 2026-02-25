@@ -186,19 +186,34 @@ describe('Sindarin rules', () => {
 
   it('01900 - short [u] often became [o]', () => {
     expect(sindarinRules['2740073851'].mechanic('abc')).toBe('abc');
-    // [uC{uw}] > [uC{uw}]:
+    
+    // Registered exception:
     expect(sindarinRules['2740073851'].mechanic('guruk')).toBe('gorok');
-    expect(sindarinRules['2740073851'].mechanic('gurwk')).toBe('gorok'); // Non-existent word
+
+    // Preserving the [u] --
+
+    // Multiple syllables with [u]:
+    expect(sindarinRules['2740073851'].mechanic('guduk')).toBe('guduk'); // Non-existent word
+    // [uC{uwv}] > [uC{uwv}]:
+    expect(sindarinRules['2740073851'].mechanic('gurwk')).toBe('gurwk'); // Non-existent word
+    expect(sindarinRules['2740073851'].mechanic('curw')).toBe('curw');
+    expect(sindarinRules['2740073851'].mechanic('buðvo')).toBe('buðvo'); // buzbō > buðu
+    // Nasals:
     // [um] > [um]:
     expect(sindarinRules['2740073851'].mechanic('tumbo')).toBe('tumbo');
     // [un] > [un]:
-    expect(sindarinRules['2740073851'].mechanic('felakgundu')).toBe('felakgundo');
-    // This is a loanword, it actually yields felakgundu.
-    // But as a rule, we just ignore that.
-    expect(sindarinRules['2740073851'].mechanic('truŋxo')).toBe('truŋxo'); // [uŋ] > [uŋ]
-    expect(sindarinRules['2740073851'].mechanic('uroθa')).toBe('oroθa'); // [ŭ] > [o]
+    expect(sindarinRules['2740073851'].mechanic('felakgundu')).toBe('felakgundu'); // This is a loanword
+    // [uŋ] > [uŋ]:
+    expect(sindarinRules['2740073851'].mechanic('truŋxo')).toBe('truŋxo');
     // Don't change [u] when it's part of a diphthong:
     expect(sindarinRules['2740073851'].mechanic('luine')).toBe('luine');
+    // Don't change [u] when it's long:
+    expect(sindarinRules['2740073851'].mechanic('lūne')).toBe('lūne'); // Non-existent word
+
+    // Change otherwise --
+
+    // [ŭ] > [o]:
+    expect(sindarinRules['2740073851'].mechanic('uroθa')).toBe('oroθa');
   });
 
   it('02000 - [nm], [ŋm] became [nw], [ŋw]', () => {

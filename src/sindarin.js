@@ -474,13 +474,14 @@ export const sindarinRules = {
   },
   '2740073851': {
     orderId: '01900',
-    pattern: '[ŭ|uC{uw}|u{mnŋ}] > [o|uC{uw}|u{mnŋ}]',
+    pattern: '[ŭ|uC{uwv}|u{mnŋ}] > [o|uC{uwv}|u{mnŋ}]',
     description: 'short [u] often became [o]',
     url: 'https://eldamo.org/content/words/word-2740073851.html',
+    negativeExceptions: ['guruk'],
     /*
      * This is a rule with exceptions. The change occurs only when all exceptions are negative.
      */
-    mechanic: (str) => {
+    mechanic(str) {
       if (str.includes('u') === false) return str;
 
       const analyser = new SyllableAnalyser();
@@ -494,18 +495,32 @@ export const sindarinRules = {
        * We then return the word made out of the new syllables.
        */
 
-      for (let idx in syllableData) {
-        const syllableObj = syllableData[idx];
-        const { nucleus, syllable } = syllableObj;
-        if (nucleus === 'u' || nucleus === 'w') {
-          const uIndex = syllable.indexOf(nucleus);
-          const nextChar = syllable.nth(uIndex + 1);
-          if (['m', 'n', 'ŋ'].includes(nextChar)) continue;
-          newSyllables[idx] = syllable.replace(/[uw]/g, 'o');
+      const allNuclei = syllableData.map((s) => s.nucleus);
+      const uAmount = allNuclei.reduce((a, v) => (v === 'u' ? (a + 1) : a), 0);
+      
+      // There should be at least one syllable with a [u] as nucleus:
+      if (uAmount === 0) return str;
+
+      // If there is 1 u nucleus:
+      if (uAmount === 1) {
+        // If u followed by a consonant...
+        // If it's then followed by uwv, it is preserved:
+        if (/u[^u][uwv]/.test(str)) return str; // buð·vo
+        // If it's followed by mnŋ, it is preserved:
+        if (/u[mnŋ]/.test(str)) return str;
+
+        // But if there are more nuclei and they are not u, modify it:
+        if (allNuclei.length > uAmount) {
+          return str.replaceAll('u', 'o');
         }
       }
 
-      return newSyllables.join('');
+      // Multiple u.
+      // If it's an exception, mutate.
+      // Otherwise, ignore:
+      if (this.negativeExceptions.includes(str)) return str.replaceAll('u', 'o');
+
+      return str;
     },
   },
   '3258926163': {
