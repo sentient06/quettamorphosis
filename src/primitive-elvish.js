@@ -697,7 +697,7 @@ export const primitiveElvishRules = {
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched, nextChar } = occurrences[i];
-        if ('ptkƥŧꝁs'.includes(nextChar)) {
+        if (nextChar !== '' && 'ptkƥŧꝁs'.includes(nextChar)) {
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
         }
       }
