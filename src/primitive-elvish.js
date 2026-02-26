@@ -554,7 +554,7 @@ export const primitiveElvishRules = {
     skip: true,
     info: [
       'It\'s up to the user to determine whether these are from suffixion.',
-      'This rule is skipped by default.'
+      'This rule is disabled by default.'
     ],
     mechanic: (str) => {
       const occurrences = findAllOf(['tt', 'ŧt', 'dt', 'dd'], str);
