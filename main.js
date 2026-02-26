@@ -51,7 +51,7 @@ const $drawerOverlay = document.querySelector('.drawer-overlay');
 // =============================================================================
 
 // Languages that are disabled by default (temporary for incomplete implementations)
-const LANGUAGES_DISABLED_BY_DEFAULT = ['primitive-elvish'];
+const LANGUAGES_DISABLED_BY_DEFAULT = [];
 
 const peRuleResults = {};
 const atRuleResults = {};

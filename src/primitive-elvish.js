@@ -661,7 +661,22 @@ export const primitiveElvishRules = {
     url: 'https://eldamo.org/content/words/word-2620200719.html',
     mechanic: (str) => {
       // [{ƥŧꝁptk}{bdg}|{bdg}{ƥŧꝁptk}] > [{ƥŧꝁptk}{ptk}|{ptk}{ƥŧꝁptk}]
-      return str;
+      const occurrences = findAllOf(['b', 'd', 'g', 'ɣ'], str);
+      if (occurrences.length === 0) return str;
+      const replacements = {
+        'b': 'p',
+        'd': 't',
+        'g': 'k',
+        'ɣ': 'k',
+      };
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar } = occurrences[i];
+        if ('ptkƥŧꝁs'.includes(prevChar)) {
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+        }
+      }
+      return result;
     },
   },
   '1944249607': {
@@ -694,18 +709,36 @@ export const primitiveElvishRules = {
     pattern: '[wau] > [au|wā]',
     description: '[wau] became [au] or [wā]',
     url: 'https://eldamo.org/content/words/word-242344611.html',
-    skip: true,
-    info: ['This rule is skipped by default.', 'This rule isn\'t implemented yet and will return the same as the input.'],
-    mechanic: (str) => str,
+    input: [
+      {
+        name: 'useAu',
+        label: 'Use [au]',
+        type: 'boolean',
+        default: false,
+        description: 'Use [au] instead of [wā]',
+      },
+    ],
+    mechanic: (str, { useAu = false } = {}) => {
+      if (str.includes('wau')) {
+        if (useAu) {
+          return str.replaceAll('wau', 'au');
+        }
+        return str.replaceAll('wau', 'wā');
+      }
+      return str;
+    },
   },
   '3116232193': {
     orderId: '00032',
     pattern: '[wou] > [wō]',
     description: '[wou] became [wō]',
     url: 'https://eldamo.org/content/words/word-3116232193.html',
-    skip: true,
-    info: ['This rule is skipped by default.', 'This rule isn\'t implemented yet and will return the same as the input.'],
-    mechanic: (str) => str,
+    mechanic: (str) => {
+      if (str.includes('wou')) {
+        return str.replaceAll('wou', 'wō');
+      }
+      return str;
+    },
   },
 
   // Rules with order IDs (00100, 00200, 00300)
@@ -714,26 +747,49 @@ export const primitiveElvishRules = {
     pattern: '[lr] > [ll]',
     description: '[lr] became [ll]',
     url: 'https://eldamo.org/content/words/word-4183190863.html',
-    skip: true,
-    info: ['This rule is skipped by default.', 'This rule isn\'t implemented yet and will return the same as the input.'],
-    mechanic: (str) => str,
+    mechanic: (str) => {
+      if (str.includes('lr')) {
+        return str.replaceAll('lr', 'll');
+      }
+      return str;
+    },
   },
   '1056240093': {
     orderId: '00200',
     pattern: '[a{eo}] > [ā]',
     description: '[ae], [ao] became [ā]',
     url: 'https://eldamo.org/content/words/word-1056240093.html',
-    skip: true,
-    info: ['This rule is skipped by default.', 'This rule isn\'t implemented yet and will return the same as the input.'],
-    mechanic: (str) => str,
+    mechanic: (str) => {
+      const occurrences = findAllOf(['ae', 'ao'], str);
+      if (occurrences.length === 0) return str;
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + 'ā' + result.substring(charIndex + 2);
+      }
+      return result;
+    },
   },
   '113345945': {
     orderId: '00300',
     pattern: '[V{jw}C] > [V{iu}C]',
     description: '[j], [w] became [i], [u] before consonants',
     url: 'https://eldamo.org/content/words/word-113345945.html',
-    skip: true,
-    info: ['This rule is skipped by default.', 'This rule isn\'t implemented yet and will return the same as the input.'],
-    mechanic: (str) => str,
+    mechanic: (str) => {
+      const occurrences = findAllOf(['j', 'w'], str);
+      if (occurrences.length === 0) return str;
+      const replacements = {
+        'j': 'i',
+        'w': 'u',
+      };
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar, nextChar } = occurrences[i];
+        if (prevChar.isVowel() && nextChar.isConsonant()) {
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+        }
+      }
+      return result;
+    },
   },
 };

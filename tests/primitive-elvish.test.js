@@ -280,7 +280,11 @@ describe('Primitive Elvish rules', () => {
 
   it('00029 - voiced stops unvoiced after voiceless stops and aspirates', () => {
     expect(primitiveElvishRules['2620200719'].mechanic('abc')).toBe('abc');
+    // All Quenya:
     // [{ƥŧꝁptk}{bdg}|{bdg}{ƥŧꝁptk}] > [{ƥŧꝁptk}{ptk}|{ptk}{ƥŧꝁptk}]
+    expect(primitiveElvishRules['2620200719'].mechanic('tekda')).toBe('tekta');
+    expect(primitiveElvishRules['2620200719'].mechanic('kasd')).toBe('kast');
+    expect(primitiveElvishRules['2620200719'].mechanic('kasda')).toBe('kasta');
   });
 
   it('00030 - voiced stops unvoiced before voiceless consonants', () => {
@@ -294,22 +298,45 @@ describe('Primitive Elvish rules', () => {
 
   it('00031 - [wau] became [au] or [wā]', () => {
     expect(primitiveElvishRules['242344611'].mechanic('abc')).toBe('abc');
+    // Only one example in Quenya:
+    expect(primitiveElvishRules['242344611'].mechanic('ŋgwaumē')).toBe('ŋgwāmē');
+    // Non-existent words:
+    expect(primitiveElvishRules['242344611'].mechanic('ŋgwaumē', { useAu: true })).toBe('ŋgaumē');
   });
 
   it('00032 - [wou] became [wō]', () => {
     expect(primitiveElvishRules['3116232193'].mechanic('abc')).toBe('abc');
+    // No examples
+    expect(primitiveElvishRules['3116232193'].mechanic('bawouba')).toBe('bawōba'); // Non-existent word
   });
 
   it('00100 - [lr] became [ll]', () => {
     expect(primitiveElvishRules['4183190863'].mechanic('abc')).toBe('abc');
+    expect(primitiveElvishRules['4183190863'].mechanic('kalrō')).toBe('kallō'); // Quenya
+    expect(primitiveElvishRules['4183190863'].mechanic('kalrondō')).toBe('kallondō'); // Noldorin
+    expect(primitiveElvishRules['4183190863'].mechanic('stalrā')).toBe('stallā'); // Ilkorin
+    expect(primitiveElvishRules['4183190863'].mechanic('talrunja')).toBe('tallunja'); // Quenya & Noldorin
   });
 
   it('00200 - [ae], [ao] became [ā]', () => {
     expect(primitiveElvishRules['1056240093'].mechanic('abc')).toBe('abc');
+    // No examples
+    expect(primitiveElvishRules['1056240093'].mechanic('baeb')).toBe('bāb');
+    expect(primitiveElvishRules['1056240093'].mechanic('baob')).toBe('bāb');
   });
 
   it('00300 - [j], [w] became [i], [u] before consonants', () => {
     expect(primitiveElvishRules['113345945'].mechanic('abc')).toBe('abc');
+    // Mostly Quenya:
+    expect(primitiveElvishRules['113345945'].mechanic('ajna')).toBe('aina');
+    expect(primitiveElvishRules['113345945'].mechanic('gajra')).toBe('gaira');
+    expect(primitiveElvishRules['113345945'].mechanic('kejta-')).toBe('keita-');
+    expect(primitiveElvishRules['113345945'].mechanic('slǭjmā')).toBe('slǭimā');
+    expect(primitiveElvishRules['113345945'].mechanic('awdelo')).toBe('audelo');
+    // Non-existent words:
+    expect(primitiveElvishRules['113345945'].mechanic('bewbaba')).toBe('beubaba');
+    expect(primitiveElvishRules['113345945'].mechanic('biwbaba')).toBe('biubaba');
+    expect(primitiveElvishRules['113345945'].mechanic('bowbaba')).toBe('boubaba');
   });
 });
 
