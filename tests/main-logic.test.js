@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
+  peRuleKeys,
   atRuleKeys,
   osRuleKeys,
   sindarinRuleKeys,
@@ -17,6 +18,7 @@ import {
 import { sindarinRules } from '../src/sindarin.js';
 import { oldSindarinRules } from '../src/old-sindarin.js';
 import { ancientTelerinRules } from '../src/ancient-telerin.js';
+import { primitiveElvishRules } from '../src/primitive-elvish.js';
 import { preProcessingRules } from '../src/conversions.js';
 
 describe('main-logic', () => {
@@ -256,35 +258,46 @@ describe('main-logic', () => {
   });
 
   describe('getResultsObject', () => {
-    it('should return the AT results object for AT rules', () => {
+    it('should return the PE results object for PE rules', () => {
+      const peResults = {};
       const atResults = {};
       const osResults = {};
       const sindarinResults = {};
-      expect(getResultsObject(atRuleKeys[0], atResults, osResults, sindarinResults)).toBe(atResults);
+      expect(getResultsObject(peRuleKeys[0], peResults, atResults, osResults, sindarinResults)).toBe(peResults);
+    });
+
+    it('should return the AT results object for AT rules', () => {
+      const peResults = {};
+      const atResults = {};
+      const osResults = {};
+      const sindarinResults = {};
+      expect(getResultsObject(atRuleKeys[0], peResults, atResults, osResults, sindarinResults)).toBe(atResults);
     });
 
     it('should return the OS results object for OS rules', () => {
+      const peResults = {};
       const atResults = {};
       const osResults = {};
       const sindarinResults = {};
-      expect(getResultsObject(osRuleKeys[0], atResults, osResults, sindarinResults)).toBe(osResults);
+      expect(getResultsObject(osRuleKeys[0], peResults, atResults, osResults, sindarinResults)).toBe(osResults);
     });
 
     it('should return the Sindarin results object for Sindarin rules', () => {
+      const peResults = {};
       const atResults = {};
       const osResults = {};
       const sindarinResults = {};
-      expect(getResultsObject(sindarinRuleKeys[0], atResults, osResults, sindarinResults)).toBe(sindarinResults);
+      expect(getResultsObject(sindarinRuleKeys[0], peResults, atResults, osResults, sindarinResults)).toBe(sindarinResults);
     });
 
     it('should return null for unknown rules', () => {
-      expect(getResultsObject('nonexistent', {}, {}, {})).toBe(null);
+      expect(getResultsObject('nonexistent', {}, {}, {}, {})).toBe(null);
     });
 
     it('should return null for conversion rules', () => {
       const preProcessingKeys = Object.keys(preProcessingRules);
       if (preProcessingKeys.length > 0) {
-        expect(getResultsObject(preProcessingKeys[0], {}, {}, {})).toBe(null);
+        expect(getResultsObject(preProcessingKeys[0], {}, {}, {}, {})).toBe(null);
       }
     });
   });

@@ -6,6 +6,7 @@
 import { sindarinRules } from './sindarin.js';
 import { oldSindarinRules } from './old-sindarin.js';
 import { ancientTelerinRules } from './ancient-telerin.js';
+import { primitiveElvishRules } from './primitive-elvish.js';
 import {
   preProcessingRules,
   interLanguageRules,
@@ -16,6 +17,10 @@ import {
 } from './conversions.js';
 
 // Separate rule keys for each language, sorted by orderId
+export const peRuleKeys = Object.keys(primitiveElvishRules).sort((a, b) => {
+  return primitiveElvishRules[a].orderId.localeCompare(primitiveElvishRules[b].orderId);
+});
+
 export const atRuleKeys = Object.keys(ancientTelerinRules).sort((a, b) => {
   return ancientTelerinRules[a].orderId.localeCompare(ancientTelerinRules[b].orderId);
 });
@@ -29,9 +34,10 @@ export const sindarinRuleKeys = Object.keys(sindarinRules).sort((a, b) => {
 });
 
 // Combined keys: all conversions + languages in execution order
-// Pre-processing → AT → OS → Inter-language → Sindarin → Post-processing
+// Pre-processing → PE → AT → OS → Inter-language → Sindarin → Post-processing
 export const allRuleKeys = [
   ...preProcessingRuleKeys,
+  ...peRuleKeys,
   ...atRuleKeys,
   ...osRuleKeys,
   ...interLanguageRuleKeys,
@@ -47,6 +53,7 @@ export function isConversionRule(ruleId) {
 // Helper to get rules object for a given ruleId
 export function getRulesObject(ruleId) {
   if (preProcessingRules[ruleId]) return preProcessingRules;
+  if (primitiveElvishRules[ruleId]) return primitiveElvishRules;
   if (ancientTelerinRules[ruleId]) return ancientTelerinRules;
   if (oldSindarinRules[ruleId]) return oldSindarinRules;
   if (interLanguageRules[ruleId]) return interLanguageRules;
@@ -58,6 +65,7 @@ export function getRulesObject(ruleId) {
 // Helper to get language/section name for a given ruleId
 export function getLanguage(ruleId) {
   if (preProcessingRules[ruleId]) return 'pre-processing';
+  if (primitiveElvishRules[ruleId]) return 'primitive-elvish';
   if (ancientTelerinRules[ruleId]) return 'ancient-telerin';
   if (oldSindarinRules[ruleId]) return 'old-sindarin';
   if (interLanguageRules[ruleId]) return 'inter-language';
@@ -144,12 +152,14 @@ export function isRuleEffectivelyEnabled(ruleId, ruleState, languageState) {
 /**
  * Get the results object for a given ruleId
  * @param {string} ruleId - The rule ID
+ * @param {Object} peRuleResults - Primitive Elvish results
  * @param {Object} atRuleResults - Ancient Telerin results
  * @param {Object} osRuleResults - Old Sindarin results
  * @param {Object} sindarinRuleResults - Sindarin results
  * @returns {Object|null}
  */
-export function getResultsObject(ruleId, atRuleResults, osRuleResults, sindarinRuleResults) {
+export function getResultsObject(ruleId, peRuleResults, atRuleResults, osRuleResults, sindarinRuleResults) {
+  if (primitiveElvishRules[ruleId]) return peRuleResults;
   if (ancientTelerinRules[ruleId]) return atRuleResults;
   if (oldSindarinRules[ruleId]) return osRuleResults;
   if (sindarinRules[ruleId]) return sindarinRuleResults;

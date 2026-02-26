@@ -459,10 +459,11 @@ export function shouldRevertToDigraphs(_str, _scs) {
 }
 
 export function findFirstOf(chars, str) {
+  let earliest = null;
   for (const c of chars) {
     const i = str.indexOf(c);
-    if (i > -1) {
-      return {
+    if (i > -1 && (earliest === null || i < earliest.charIndex)) {
+      earliest = {
         found: true,
         matched: c,
         charIndex: i,
@@ -472,14 +473,14 @@ export function findFirstOf(chars, str) {
       };
     }
   }
-  return {
+  return earliest || {
     found: false,
     matched: null,
     charIndex: -1,
     nextChar: null,
     prevChar: null,
     lastChar: false,
-  }
+  };
 }
 
 export function findAllOf(chars, str) {
@@ -543,6 +544,13 @@ export const OLD_SINDARIN_PROFILE = {
 export const ANCIENT_TELERIN_PROFILE = {
   ...SINDARIN_PROFILE,
   diphthongs: ['ai', 'ui', 'iu'],
+  longVowelMarks: ['¯'],      // Only macron = long vowel
+  stressMarks: ['´']          // Acute = stress marker
+};
+
+export const PRIMITIVE_ELVISH_PROFILE = {
+  ...SINDARIN_PROFILE,
+  diphthongs: ['ai', 'au', 'ui', 'iu'],
   longVowelMarks: ['¯'],      // Only macron = long vowel
   stressMarks: ['´']          // Acute = stress marker
 };

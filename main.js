@@ -1,6 +1,7 @@
 import { sindarinRules } from './src/sindarin.js';
 import { oldSindarinRules } from './src/old-sindarin.js';
 import { ancientTelerinRules } from './src/ancient-telerin.js';
+import { primitiveElvishRules } from './src/primitive-elvish.js';
 import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE } from './src/utils.js';
 import {
   preProcessingRuleKeys,
@@ -8,6 +9,7 @@ import {
   postProcessingRuleKeys,
 } from './src/conversions.js';
 import {
+  peRuleKeys,
   atRuleKeys,
   osRuleKeys,
   sindarinRuleKeys,
@@ -48,6 +50,10 @@ const $drawerOverlay = document.querySelector('.drawer-overlay');
 // State
 // =============================================================================
 
+// Languages that are disabled by default (temporary for incomplete implementations)
+const LANGUAGES_DISABLED_BY_DEFAULT = ['primitive-elvish'];
+
+const peRuleResults = {};
 const atRuleResults = {};
 const osRuleResults = {};
 const sindarinRuleResults = {};
@@ -56,12 +62,22 @@ const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
 const optionState = JSON.parse(localStorage.getItem('options') || '{}');
 const orderState = JSON.parse(localStorage.getItem('order') || '{}');
 
+// Apply default disabled state for languages not yet stored
+LANGUAGES_DISABLED_BY_DEFAULT.forEach(langId => {
+  if (languageState[langId] === undefined) {
+    languageState[langId] = false;
+  }
+});
+
 // =============================================================================
 // Rule Ordering
 // =============================================================================
 
 // Initialize order state with default orderId-based sorting if not present
 function initializeOrderState() {
+  if (!orderState['primitive-elvish']) {
+    orderState['primitive-elvish'] = [...peRuleKeys];
+  }
   if (!orderState['ancient-telerin']) {
     orderState['ancient-telerin'] = [...atRuleKeys];
   }
@@ -72,6 +88,11 @@ function initializeOrderState() {
     orderState['sindarin'] = [...sindarinRuleKeys];
   }
   // Add any new rules that might have been added since last save
+  peRuleKeys.forEach(ruleId => {
+    if (!orderState['primitive-elvish'].includes(ruleId)) {
+      orderState['primitive-elvish'].push(ruleId);
+    }
+  });
   atRuleKeys.forEach(ruleId => {
     if (!orderState['ancient-telerin'].includes(ruleId)) {
       orderState['ancient-telerin'].push(ruleId);
@@ -88,6 +109,7 @@ function initializeOrderState() {
     }
   });
   // Remove any rules that no longer exist
+  orderState['primitive-elvish'] = orderState['primitive-elvish'].filter(id => peRuleKeys.includes(id));
   orderState['ancient-telerin'] = orderState['ancient-telerin'].filter(id => atRuleKeys.includes(id));
   orderState['old-sindarin'] = orderState['old-sindarin'].filter(id => osRuleKeys.includes(id));
   orderState['sindarin'] = orderState['sindarin'].filter(id => sindarinRuleKeys.includes(id));
@@ -104,6 +126,7 @@ function getOrderedRuleKeys(language) {
 function getAllOrderedRuleKeys() {
   return [
     ...preProcessingRuleKeys,
+    ...getOrderedRuleKeys('primitive-elvish'),
     ...getOrderedRuleKeys('ancient-telerin'),
     ...getOrderedRuleKeys('old-sindarin'),
     ...interLanguageRuleKeys,
@@ -301,7 +324,7 @@ const firstRuleId = allRuleKeys[0];
 
 // Wrapper functions that use module-level state
 function getResultsObject(ruleId) {
-  return _getResultsObject(ruleId, atRuleResults, osRuleResults, sindarinRuleResults);
+  return _getResultsObject(ruleId, peRuleResults, atRuleResults, osRuleResults, sindarinRuleResults);
 }
 
 function isRuleEffectivelyEnabled(ruleId) {
@@ -396,8 +419,20 @@ function toggleLanguage(langId, isEnabled) {
   }
 
   // Clear results for this language (they will be repopulated on re-run if enabled)
-  const ruleKeys = langId === 'ancient-telerin' ? atRuleKeys : (langId === 'old-sindarin' ? osRuleKeys : sindarinRuleKeys);
-  const resultsObj = langId === 'ancient-telerin' ? atRuleResults : (langId === 'old-sindarin' ? osRuleResults : sindarinRuleResults);
+  const ruleKeysMap = {
+    'primitive-elvish': peRuleKeys,
+    'ancient-telerin': atRuleKeys,
+    'old-sindarin': osRuleKeys,
+    'sindarin': sindarinRuleKeys,
+  };
+  const resultsObjMap = {
+    'primitive-elvish': peRuleResults,
+    'ancient-telerin': atRuleResults,
+    'old-sindarin': osRuleResults,
+    'sindarin': sindarinRuleResults,
+  };
+  const ruleKeys = ruleKeysMap[langId] || [];
+  const resultsObj = resultsObjMap[langId] || {};
   ruleKeys.forEach((ruleId) => {
     delete resultsObj[ruleId];
     updateRuleVisualState(ruleId);
@@ -805,12 +840,16 @@ function softResetPage() {
 // =============================================================================
 
 function printResults() {
-  // Build tripped results: Ancient Telerin, then OS, then Sindarin
+  // Build tripped results: Primitive Elvish, Ancient Telerin, then OS, then Sindarin
+  const peTripped = formatTripped(primitiveElvishRules, peRuleResults);
   const atTripped = formatTripped(ancientTelerinRules, atRuleResults);
   const osTripped = formatTripped(oldSindarinRules, osRuleResults);
   const sindarinTripped = formatTripped(sindarinRules, sindarinRuleResults);
 
   let trippedHtml = '';
+  if (peTripped) {
+    trippedHtml += '<strong>Primitive Elvish:</strong>\n' + peTripped + '\n\n';
+  }
   if (atTripped) {
     trippedHtml += '<strong>Ancient Telerin:</strong>\n' + atTripped + '\n\n';
   }
@@ -822,12 +861,16 @@ function printResults() {
   }
   $resultsTripped.innerHTML = trippedHtml.trim();
 
-  // Build skipped results: Ancient Telerin, then OS, then Sindarin
+  // Build skipped results: Primitive Elvish, Ancient Telerin, then OS, then Sindarin
+  const peSkipped = formatSkipped(primitiveElvishRules, peRuleKeys, ruleState);
   const atSkipped = formatSkipped(ancientTelerinRules, atRuleKeys, ruleState);
   const osSkipped = formatSkipped(oldSindarinRules, osRuleKeys, ruleState);
   const sindarinSkipped = formatSkipped(sindarinRules, sindarinRuleKeys, ruleState);
 
   let skippedHtml = '';
+  if (peSkipped) {
+    skippedHtml += '<strong>Primitive Elvish:</strong>\n' + peSkipped + '\n\n';
+  }
   if (atSkipped) {
     skippedHtml += '<strong>Ancient Telerin:</strong>\n' + atSkipped + '\n\n';
   }
@@ -960,7 +1003,15 @@ if (preProcessingRuleKeys.length > 0) {
   });
 }
 
-// 2. Ancient Telerin rules
+// 2. Primitive Elvish rules
+const $peWrapper = createLanguageWrapper('primitive-elvish', 'Primitive Elvish');
+getOrderedRuleKeys('primitive-elvish').forEach((ruleId) => {
+  const globalIndex = allOrderedKeys.indexOf(ruleId);
+  const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
+  drawRule(ruleId, nextRuleId, $peWrapper);
+});
+
+// 3. Ancient Telerin rules
 const $atWrapper = createLanguageWrapper('ancient-telerin', 'Ancient Telerin');
 getOrderedRuleKeys('ancient-telerin').forEach((ruleId) => {
   const globalIndex = allOrderedKeys.indexOf(ruleId);
@@ -968,7 +1019,7 @@ getOrderedRuleKeys('ancient-telerin').forEach((ruleId) => {
   drawRule(ruleId, nextRuleId, $atWrapper);
 });
 
-// 3. Old Sindarin rules
+// 4. Old Sindarin rules
 const $osWrapper = createLanguageWrapper('old-sindarin', 'Old Sindarin');
 getOrderedRuleKeys('old-sindarin').forEach((ruleId) => {
   const globalIndex = allOrderedKeys.indexOf(ruleId);
@@ -976,7 +1027,7 @@ getOrderedRuleKeys('old-sindarin').forEach((ruleId) => {
   drawRule(ruleId, nextRuleId, $osWrapper);
 });
 
-// 4. Inter-language conversions (currently empty but structure is ready)
+// 5. Inter-language conversions (currently empty but structure is ready)
 if (interLanguageRuleKeys.length > 0) {
   const $interWrapper = createConversionWrapper('inter-language', 'OS → Sindarin Transition');
   interLanguageRuleKeys.forEach((ruleId) => {
@@ -986,7 +1037,7 @@ if (interLanguageRuleKeys.length > 0) {
   });
 }
 
-// 5. Sindarin rules
+// 6. Sindarin rules
 const $sindarinWrapper = createLanguageWrapper('sindarin', 'Sindarin');
 getOrderedRuleKeys('sindarin').forEach((ruleId) => {
   const globalIndex = allOrderedKeys.indexOf(ruleId);
@@ -994,7 +1045,7 @@ getOrderedRuleKeys('sindarin').forEach((ruleId) => {
   drawRule(ruleId, nextRuleId, $sindarinWrapper);
 });
 
-// 6. Post-processing conversions
+// 7. Post-processing conversions
 if (postProcessingRuleKeys.length > 0) {
   const $postWrapper = createConversionWrapper('post-processing', 'Post-processing');
   postProcessingRuleKeys.forEach((ruleId) => {

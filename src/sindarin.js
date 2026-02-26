@@ -685,14 +685,16 @@ export const sindarinRules = {
     description: 'voiceless stops voiced after vowels',
     url: 'https://eldamo.org/content/words/word-2240258959.html',
     mechanic: (str) => {
-      const { found, charIndex, prevChar } = findFirstOf(['p', 't', 'k'], str);
-      if (found && prevChar.isVowel()) {
-        const replacements = {
-          'p': 'b',
-          't': 'd',
-          'k': 'g',
-        };
-        return str.replaceAt(charIndex, replacements[str.nth(charIndex)]);
+      const matches = findAllOf(['p', 't', 'k'], str);
+      for (const { charIndex, prevChar, matched } of matches) {
+        if (prevChar.isVowel()) {
+          const replacements = {
+            'p': 'b',
+            't': 'd',
+            'k': 'g',
+          };
+          return str.replaceAt(charIndex, replacements[matched]);
+        }
       }
       return str;
     },
@@ -1209,25 +1211,24 @@ export const sindarinRules = {
     description: 'nasals vanished before spirantal clusters',
     url: 'https://eldamo.org/content/words/word-1856165973.html',
     mechanic: (str) => {
-      const { found, charIndex, nextChar, lastChar } = findFirstOf(['m', 'n', 'ŋ'], str);
-      // Return if not found:
-      if (!found) return str;
-      // Return if first char:
-      if (charIndex === 0) return str;
-      // Return if last char:
-      if (lastChar) return str;
+      const matches = findAllOf(['m', 'n', 'ŋ'], str);
+      for (const { charIndex, nextChar, lastChar } of matches) {
+        // Skip if first char:
+        if (charIndex === 0) continue;
+        // Skip if last char:
+        if (lastChar) continue;
 
-      // If next char is final, return as well:
-      const followingChar = str.nth(charIndex + 2);
+        // If next char is final, skip as well:
+        const followingChar = str.nth(charIndex + 2);
+        if (followingChar === '') continue;
 
-      if (followingChar === '') return str;
-
-      // It's medial:
-      if ('fθxs'.includes(nextChar) && 'lr'.includes(followingChar)) {
-        return str.replaceAt(charIndex, '', 1);
-      }
-      if (nextChar === 'f') {
-        return str.replaceAt(charIndex, 'ff', 2);
+        // It's medial:
+        if ('fθxs'.includes(nextChar) && 'lr'.includes(followingChar)) {
+          return str.replaceAt(charIndex, '', 1);
+        }
+        if (nextChar === 'f') {
+          return str.replaceAt(charIndex, 'ff', 2);
+        }
       }
       return str;
     },
