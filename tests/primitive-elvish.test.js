@@ -294,6 +294,8 @@ describe('Primitive Elvish rules', () => {
     expect(primitiveElvishRules['1944249607'].mechanic('abta-')).toBe('apta-');
     expect(primitiveElvishRules['1944249607'].mechanic('magta-')).toBe('makta-'); // Sindarin
     expect(primitiveElvishRules['1944249607'].mechanic('weɣka')).toBe('wekka');
+    // Don't change at the end:
+    expect(primitiveElvishRules['1944249607'].mechanic('estolag')).toBe('estolag');
   });
 
   it('00031 - [wau] became [au] or [wā]', () => {

@@ -91,7 +91,7 @@ export const primitiveElvishRules = {
         };
         let result = str;
         // [{ƥŧꝁ}{ptk|ƥŧꝁ}] > [{ptk}{ƥŧꝁ}]
-        if ('ƥŧꝁptk'.includes(nextChar)) {
+        if (['ƥ', 'ŧ', 'ꝁ', 'p', 't', 'k'].includes(nextChar)) {
           result = result.substring(0, charIndex) + firstReplacements[matched] + secondReplacements[nextChar] + result.substring(charIndex + 2);
         }
         return result;
@@ -306,7 +306,7 @@ export const primitiveElvishRules = {
       // Process from end to start so indices remain valid
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, nextChar } = occurrences[i];
-        if ('bdg'.includes(nextChar)) {
+        if (['b', 'd', 'g'].includes(nextChar)) {
           result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
         }
       }
@@ -697,7 +697,7 @@ export const primitiveElvishRules = {
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched, nextChar } = occurrences[i];
-        if (nextChar !== '' && 'ptkƥŧꝁs'.includes(nextChar)) {
+        if (['p', 't', 'k', 'ƥ', 'ŧ', 'ꝁ', 's'].includes(nextChar)) {
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
         }
       }

@@ -315,6 +315,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2240258959'].mechanic('œryt')).toBe('œryd');
     // Initial stops should not change:
     expect(sindarinRules['2240258959'].mechanic('timbi')).toBe('timbi');
+    // Multiple stops should all change:
+    expect(sindarinRules['2240258959'].mechanic('aplat')).toBe('ablad');   
   });
 
   it('02900 - short vowels generally lengthened in monosyllables', () => {

@@ -685,18 +685,24 @@ export const sindarinRules = {
     description: 'voiceless stops voiced after vowels',
     url: 'https://eldamo.org/content/words/word-2240258959.html',
     mechanic: (str) => {
-      const matches = findAllOf(['p', 't', 'k'], str);
-      for (const { charIndex, prevChar, matched } of matches) {
+      const occurrences = findAllOf(['p', 't', 'k'], str);
+      if (occurrences.length === 0) return str;
+
+      const replacements = {
+        'p': 'b',
+        't': 'd',
+        'k': 'g',
+      };
+
+      let result = str;
+      // Process from end to start so indices remain valid
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, matched } = occurrences[i];
         if (prevChar.isVowel()) {
-          const replacements = {
-            'p': 'b',
-            't': 'd',
-            'k': 'g',
-          };
-          return str.replaceAt(charIndex, replacements[matched]);
+          result = result.replaceAt(charIndex, replacements[matched]);
         }
       }
-      return str;
+      return result;
     },
   },
   '1053424933': {
