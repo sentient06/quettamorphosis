@@ -137,6 +137,8 @@ export const sindarinRules = {
         let resultArray = syllableData.map((i) => i.syllable);
 
         const penultimateSyllable = syllableData.last(2).syllable;
+        const penultimateSyllableNucleus = syllableData.last(2).nucleus;
+        if (penultimateSyllableNucleus.length === 2) return str; // Diphtong
         const { charIndex, found, matched } = findFirstOf(['u', 'i', 'ĭ', 'ŭ'], penultimateSyllable);
         const replacements = {
           'i': 'e',
@@ -1431,7 +1433,6 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-3123278727.html',
     mechanic: (str) => {
       // klawarxaðmámadr
-      debugger;
       const occurrences = findAllOf(['m', 'n', 'ŋ'], str);
       if (occurrences.length === 0) return str;
 

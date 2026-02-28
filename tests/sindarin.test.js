@@ -60,6 +60,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1593810649'].mechanic('silimarina')).toBe('silimarena');
     // Don't apply to long vowels:
     expect(sindarinRules['1593810649'].mechanic('nūra')).toBe('nūra');
+    // Don't apply to diphtongs:
+    expect(sindarinRules['1593810649'].mechanic('nuira')).toBe('nuira');
   });
 
   it('00900 - voiced stops became spirants after vowels', () => {
