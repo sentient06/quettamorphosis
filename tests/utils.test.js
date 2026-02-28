@@ -1,6 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { SyllableAnalyser, SINDARIN_PROFILE, breakIntoVowelsAndConsonants, findFirstOf, findAllOf, syllabify } from "../src/utils.js";
 
+describe('Array extended functions', () => {
+  it('last should return last', () => {
+    expect(['a', 'b', 'c'].last()).toBe('c');
+    expect(['a', 'b', 'c'].last(2)).toBe('b');
+    expect(['a', 'b', 'c'].last(3)).toBe('a');
+    expect(['a', 'b', 'c'].last(4)).toBe(undefined);
+  });
+});
+
 describe('String extended functions', () => {
   it('isVowel should identify vowels', () => {
     expect('a'.isVowel()).toBe(true);

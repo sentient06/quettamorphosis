@@ -1,3 +1,10 @@
+// Extending the Array prototype
+Object.defineProperty(Array.prototype, 'last', {
+  value(counter = 1) {
+    return this[this.length - counter];
+  }
+});
+
 // Extending the String prototype
 
 Object.defineProperty(String.prototype, 'normaliseToOne', {

@@ -131,10 +131,12 @@ export const sindarinRules = {
       const syllableData = analyser.analyse(str);
       if (syllableData.length === 1) return str;
 
-      const lastSyllable = syllableData[syllableData.length - 1].syllable.removeMarks();
+      // There is an [a] in the final syllable:
+      const lastSyllable = syllableData.last().syllable.removeMarks();
       if (lastSyllable.indexOf('a') !== -1) {
         let resultArray = syllableData.map((i) => i.syllable);
-        const penultimateSyllable = syllableData[syllableData.length - 2].syllable;
+
+        const penultimateSyllable = syllableData.last(2).syllable;
         const { charIndex, found, matched } = findFirstOf(['u', 'i', 'ĭ', 'ŭ'], penultimateSyllable);
         const replacements = {
           'i': 'e',
@@ -873,20 +875,41 @@ export const sindarinRules = {
     description: '[h] vanished after vowels',
     url: 'https://eldamo.org/content/words/word-875184187.html',
     mechanic: (str) => {
-      const { found, charIndex, prevChar, nextChar } = findFirstOf(['h'], str);
+      const occurrences = findAllOf(['h'], str);
+      if (occurrences.length === 0) return str;
 
-      if (found) {
-        if (charIndex === 0) return str;
-        if (prevChar === nextChar && prevChar.isVowel()) {
-          const followingChar = str.nth(charIndex + 2);
-          if (followingChar.isVowel()) {
-            return str.replace(`h${nextChar}`, '');
-          }
-          return str.replace(`${prevChar}h${nextChar}`, prevChar.addMark('¯'));
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar, lastChar } = occurrences[i];
+        // First character:
+        if (charIndex === 0) continue;
+
+        // Last character:
+        if (lastChar && prevChar.isVowel()) {
+          result = result.substring(0, result.length - 1);
+          continue;
         }
-        return str.replace('h', '');
+
+        // Same vowel, before and after:
+        if (prevChar === nextChar && prevChar.isVowel()) {
+          // One more vowel:
+          const followingChar = result.nth(charIndex + 2);
+          if (followingChar.isVowel()) {
+            result = result.substring(0, charIndex) + result.substring(charIndex + 2);
+            continue;
+          }
+
+          // No more vowels:
+          result = result.substring(0, charIndex - 1) + prevChar.addMark('¯') + result.substring(charIndex + 2);
+          continue;
+        }
+
+        // Different vowels, before and after:
+        if (prevChar.isVowel() && nextChar.isVowel()) {
+          result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+        }
       }
-      return str;
+      return result;
     },
   },
   '1815401039': {
@@ -1407,18 +1430,24 @@ export const sindarinRules = {
     description: 'voiced spirants restopped after nasals',
     url: 'https://eldamo.org/content/words/word-3123278727.html',
     mechanic: (str) => {
-      const { found, nextChar } = findFirstOf(['m', 'n', 'ŋ'], str);
-      if (found && nextChar !== '') {
-        if ('vðɣ'.includes(nextChar)) {
-          const replacements = {
-            'v': 'b',
-            'ð': 'd',
-            'ɣ': 'g',
-          }
-          return str.replace(nextChar, replacements[nextChar]);
+      // klawarxaðmámadr
+      debugger;
+      const occurrences = findAllOf(['m', 'n', 'ŋ'], str);
+      if (occurrences.length === 0) return str;
+
+      const replacements = {
+        'v': 'b',
+        'ð': 'd',
+        'ɣ': 'g',
+      };
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, nextChar } = occurrences[i];
+        if (['v', 'ð', 'ɣ'].includes(nextChar)) {
+          result = result.substring(0, charIndex + 1) + replacements[nextChar] + result.substring(charIndex + 2);
         }
       }
-      return str;
+      return result;
     },
   },
   '2996915415': {
@@ -1427,17 +1456,21 @@ export const sindarinRules = {
     description: 'medial [mf], [nθ], [ŋx], [lθ] became [mm], [nn], [ŋg], [ll]',
     url: 'https://eldamo.org/content/words/word-2996915415.html',
     mechanic: (str) => {
-      const { found, matched } = findFirstOf(['mf', 'nθ', 'ŋx', 'lθ'], str);
-      if (found) {
-        const replacements = {
-          'mf': 'mm',
-          'nθ': 'nn',
-          'ŋx': 'ŋg',
-          'lθ': 'll',
-        }
-        return str.replace(matched, replacements[matched]);
+      const occurrences = findAllOf(['mf', 'nθ', 'ŋx', 'lθ'], str);
+      if (occurrences.length === 0) return str;
+      
+      const replacements = {
+        'mf': 'mm',
+        'nθ': 'nn',
+        'ŋx': 'ŋg',
+        'lθ': 'll',
+      };
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return str;
+      return result;
     }
   },
   '725943271': {
@@ -1518,29 +1551,28 @@ export const sindarinRules = {
     // Also, all examples are iffy, as even the one example available seems to be an older form.
     mechanic: (str) => {
       const { found } = findFirstOf(['awa'], str);
-      if (found) {
-        const analyser = new SyllableAnalyser();
-        const syllableData = analyser.analyse(str);
-        const result = [];
-        // console.log({ str });
-        let foundAw = false;
-        for (let i = 0; i < syllableData.length; i++) {
-          const { syllable, stressed } = syllableData[i];
-          // console.log({ syllable, stressed, foundAw });
-          if (foundAw && stressed === false && syllable.substring(0, 1) === 'a') {
-            // console.log('found a', result);
-            result[i-1] = result[i-1].replace('aw', 'au');
-            result.push(syllable.substring(1));
-            foundAw = false;
-          } else {
-            const awIndex = syllable.indexOf('aw');
-            foundAw = awIndex > -1;
-            result.push(syllable);
-          }
+      if (!found) return str;
+      
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(str);
+      const result = [];
+      // console.log({ str });
+      let foundAw = false;
+      for (let i = 0; i < syllableData.length; i++) {
+        const { syllable, stressed } = syllableData[i];
+        // console.log({ syllable, stressed, foundAw });
+        if (foundAw && stressed === false && syllable.substring(0, 1) === 'a') {
+          // console.log('found a', result);
+          result[i-1] = result[i-1].replace('aw', 'au');
+          result.push(syllable.substring(1));
+          foundAw = false;
+        } else {
+          const awIndex = syllable.indexOf('aw');
+          foundAw = awIndex > -1;
+          result.push(syllable);
         }
-        return result.join('');
       }
-      return str;
+      return result.join('');
     },
   },
   '567222053': {
@@ -1708,31 +1740,33 @@ export const sindarinRules = {
     description: '[mb], [nd] became [mm], [nn]',
     url: 'https://eldamo.org/content/words/word-868023175.html',
     mechanic: (str) => {
-      if (!str.includes('mb') && !str.includes('nd')) return str;
+      // Handles only a single replacement per word.
+      // May need reviewing.
 
       const { found, matched, charIndex, nextChar } = findFirstOf(['mb', 'nd'], str);
+      if (!found) return str;
 
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
 
-      if (found) {
-        if (matched === 'nd') {
-          if (syllableData.length === 1) {
-            const { weight } = syllableData[0];
-            if (weight === 'heavy') {
-              return str;
-            }
-            if (charIndex === str.length - 2) return str;
+      if (matched === 'nd') {
+        // Monosyllable:
+        if (syllableData.length === 1) {
+          const { weight } = syllableData[0];
+          if (weight === 'heavy') {
+            return str;
           }
-          if (nextChar === 'r') return str;
+          if (charIndex === str.length - 2) return str;
         }
-        const replacements = {
-          'mb': 'mm',
-          'nd': 'nn',
-        }
-        return str.replace(matched, replacements[matched]);
+
+        // Multiple syllables:
+        if (nextChar === 'r') return str;
       }
-      return str;
+      const replacements = {
+        'mb': 'mm',
+        'nd': 'nn',
+      }
+      return str.replace(matched, replacements[matched]);
     },
   },
   '3868328117': {
@@ -1765,17 +1799,21 @@ export const sindarinRules = {
     description: 'medial [s] became [θ] before [l], [r]',
     url: 'https://eldamo.org/content/words/word-3736793827.html',
     mechanic: (str) => {
-      const { found, matched, charIndex } = findFirstOf(['sl', 'sr'], str);
+      const occurrences = findAllOf(['sl', 'sr'], str);
+      if (occurrences.length === 0) return str;
 
-      if (found) {
-        const replacements = {
-          'sl': 'θl',
-          'sr': 'θr',
-        };
-        if (charIndex === 0 || charIndex === str.length - 2) return str;
-        return str.replace(matched, replacements[matched]);
+      const replacements = {
+        'sl': 'θl',
+        'sr': 'θr',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, lastChar } = occurrences[i];
+        if (charIndex === 0 || lastChar) continue;
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return str;
+      return result;
     },
   },
   '586391091': {
@@ -1784,11 +1822,15 @@ export const sindarinRules = {
     description: '[wo] became [o]',
     url: 'https://eldamo.org/content/words/word-586391091.html',
     mechanic: (str) => {
-      const { found, charIndex } = findFirstOf(['wo'], str);
-      if (found) {
-        return str.slice(0, charIndex) + 'o' + str.slice(charIndex + 2);
+      const occurrences = findAllOf(['wo'], str);
+      if (occurrences.length === 0) return str;
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + 'o' + result.substring(charIndex + 2);
       }
-      return str;
+      return result;
     },
   },
   '1126284559': {
@@ -1797,12 +1839,18 @@ export const sindarinRules = {
     description: '[n] assimilated to following labial',
     url: 'https://eldamo.org/content/words/word-1126284559.html',
     mechanic: (str) => {
-      const { found, charIndex, nextChar } = findFirstOf(['n'], str);
-      if (found) {
-        const nextTwo = str.slice(charIndex + 1, charIndex + 3);
-        if (nextTwo === 'mb' || ['b', 'm'].includes(nextChar)) return str.replace('n', 'm');
+      const occurrences = findAllOf(['n'], str);
+      if (occurrences.length === 0) return str;
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, nextChar } = occurrences[i];
+        const nextTwo = result.substring(charIndex + 1, charIndex + 3);
+        if (nextTwo === 'mb' || ['b', 'm'].includes(nextChar)) {
+          result = result.substring(0, charIndex) + 'm' + result.substring(charIndex + 1);
+        }
       }
-      return str;
+      return result;
     },
   },
   '1838610927': {
@@ -1812,7 +1860,7 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1838610927.html',
     mechanic: (str) => {
       if (str.includes('œ')) {
-        return str.replace('œ', 'e');
+        return str.replaceAll('œ', 'e');
       }
       return str;
     },
@@ -1837,7 +1885,7 @@ export const sindarinRules = {
         const syllableData = analyser.analyse(str);
 
         if (syllableData.length > 1) {
-          const lastSyllable = syllableData[syllableData.length - 1].syllable;
+          const lastSyllable = syllableData.last().syllable;
           const { found, matched } = findFirstOf(['ll', 'nn', 'ss', 'ſ'], lastSyllable);
           const replacements = {
             'll': 'l',
@@ -1861,10 +1909,10 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-311523279.html',
     mechanic: (str) => {
       if (str.startsWith('ŋg')) {
-        return str.replace('ŋg', 'ŋ');
+        return 'ŋ' + str.substring(2);
       }
       if (str.endsWith('ŋg')) {
-        return str.slice(0, -2) + 'ŋ';
+        return str.substring(0, str.length - 2) + 'ŋ';
       }
       return str;
     },
@@ -1875,26 +1923,24 @@ export const sindarinRules = {
     description: 'non-initial [m] usually became [v]',
     url: 'https://eldamo.org/content/words/word-1951379117.html',
     mechanic: (str) => {
-      if (str.includes('m')) {
-        const { found, charIndex, nextChar, prevChar } = findFirstOf(['m'], str);
-        if (found) {
-          if (charIndex === 0) {
-            return str;
-          }
-          let result = str;
-          if (prevChar.isVowel()) {
-            result = str.substring(0, charIndex) + 'v' + str.substring(charIndex + 1);
-          }
-          if (['l', 'r', 'ð'].includes(prevChar)) {
-            result = str.substring(0, charIndex) + 'v' + str.substring(charIndex + 1);
-          }
-          if (['m', 'b', 'p'].includes(nextChar)) {
-            result = str;
-          }
-          return result;
+      const occurrences = findAllOf(['m'], str);
+      if (occurrences.length === 0) return str;
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, nextChar, prevChar } = occurrences[i];
+        if (charIndex === 0) continue;
+
+        // The order of conditions is important:
+        if (['m', 'b', 'p'].includes(nextChar)) {
+          continue;
+        }
+        if (prevChar.isVowel() || ['l', 'r', 'ð'].includes(prevChar)) {
+          result = result.substring(0, charIndex) + 'v' + result.substring(charIndex + 1);
+          continue;
         }
       }
-      return str;
+      return result;
     },
   },
   '2192660503': {
@@ -2011,11 +2057,15 @@ export const sindarinRules = {
         'pɸ': 'f',
       };
       const clusterOpts = Object.keys(clusterMap);
-      const { found, matched } = findFirstOf(clusterOpts, str);
-      if (found) {
-        return str.replace(matched, clusterMap[matched]);
+      const occurrences = findAllOf(clusterOpts, str);
+      if (occurrences.length === 0) return str;
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + clusterMap[matched] + result.substring(charIndex + matched.length);
       }
-      return str;
+      return result;
     },
   },
   '1942165347': {
@@ -2101,6 +2151,11 @@ export const sindarinRules = {
     pattern: '[-x-] > [-h-]',
     description: 'medial [x] became [h] in Gondorian pronunciation',
     url: 'https://eldamo.org/content/words/word-4188321265.html',
+    info: [
+      'The user should determine whether to use Gondorian Sindarin or not.',
+      'Skipped by default.'
+    ],
+    skip: true,
     mechanic: (str) => {
       const normalizedStr = str.replace('χ', 'x');
       if (normalizedStr.includes('x')) {
@@ -2118,13 +2173,22 @@ export const sindarinRules = {
     description: 'voiced spirants unvoiced before voiceless spirants',
     url: 'https://eldamo.org/content/words/word-132402625.html',
     mechanic: (str) => {
-      const { found, prevChar } = findFirstOf(['h'], str);
-      if (found) {
+      const occurrences = findAllOf(['h'], str);
+      if (occurrences.length === 0) return str;
+
+      const replacements = {
+        'vh': 'f',
+        'ðh': 'θ',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar } = occurrences[i];
         if (['v', 'ð'].includes(prevChar)) {
-          return str.replace('vh', 'f').replace('ðh', 'θ');
+          result = result.substring(0, charIndex - 1) + replacements[`${prevChar}h`] + result.substring(charIndex + 1);
         }
       }
-      return str;
+      return result;
     },
   },
 };

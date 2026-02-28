@@ -5,7 +5,6 @@ import {
   removeDigraphs,
   restoreDigraphs,
   digraphsToSingle,
-  findFirstOf,
   findAllOf,
   SyllableAnalyser,
   PRIMITIVE_ELVISH_PROFILE,
@@ -47,25 +46,24 @@ export const primitiveElvishRules = {
     url: 'https://eldamo.org/content/words/word-3915424757.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
-      if (occurrences.length > 0) {
-        const replacements = {
-          'ƥ': 'p',
-          'ŧ': 't',
-          'ꝁ': 'k',
-        };
-        let result = str;
-        for (const occurrence of occurrences) {
-          const { charIndex, matched, prevChar } = occurrence;
-          if (prevChar === 's') {
-            result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
-          }
-          if (prevChar === 'h' && matched === 'ŧ') {
-            result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
-          }
+      if (occurrences.length === 0) return str;
+      const replacements = {
+        'ƥ': 'p',
+        'ŧ': 't',
+        'ꝁ': 'k',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar } = occurrences[i];
+        if (prevChar === 's') {
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
         }
-        return result;
+        if (prevChar === 'h' && matched === 'ŧ') {
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+        }
       }
-      return str;
+      return result;
     },
   },
   '3183451073': {
@@ -74,29 +72,32 @@ export const primitiveElvishRules = {
     description: 'aspiration moved to end of group of stops',
     url: 'https://eldamo.org/content/words/word-3183451073.html',
     mechanic: (str) => {
-      const { found, charIndex, matched, prevChar, nextChar } = findFirstOf(['ƥ', 'ŧ', 'ꝁ'], str);
-      if (found) {
-        const firstReplacements = {
-          'ƥ': 'p',
-          'ŧ': 't',
-          'ꝁ': 'k',
-        };
-        const secondReplacements = {
-          'p': 'ƥ',
-          't': 'ŧ',
-          'k': 'ꝁ',
-          'ƥ': 'ƥ',
-          'ŧ': 'ŧ',
-          'ꝁ': 'ꝁ',
-        };
-        let result = str;
+      const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
+      if (occurrences.length === 0) return str;
+
+      const firstReplacements = {
+        'ƥ': 'p',
+        'ŧ': 't',
+        'ꝁ': 'k',
+      };
+      const secondReplacements = {
+        'p': 'ƥ',
+        't': 'ŧ',
+        'k': 'ꝁ',
+        'ƥ': 'ƥ',
+        'ŧ': 'ŧ',
+        'ꝁ': 'ꝁ',
+      };
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, nextChar } = occurrences[i];
+
         // [{ƥŧꝁ}{ptk|ƥŧꝁ}] > [{ptk}{ƥŧꝁ}]
         if (['ƥ', 'ŧ', 'ꝁ', 'p', 't', 'k'].includes(nextChar)) {
           result = result.substring(0, charIndex) + firstReplacements[matched] + secondReplacements[nextChar] + result.substring(charIndex + 2);
         }
-        return result;
       }
-      return str;
+      return result;
     },
   },
   '3882201769': {
@@ -523,6 +524,9 @@ export const primitiveElvishRules = {
     description: 'stressed [wŏ] became [wa]',
     url: 'https://eldamo.org/content/words/word-1475928117.html',
     mechanic: (str) => {
+      // glawarkhadmā́matron
+      // glawarxadmámatron
+      // glaw-ar-xad-má-mat-ron
       const occurrences = findAllOf(['wŏ́', 'wa', 'wo', 'wó'], str);
       if (occurrences.length === 0) return str;
 
@@ -532,12 +536,20 @@ export const primitiveElvishRules = {
       };
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
+
+      console.log({ str, occurrences });
+
+      // Monosyllable:
       if (syllableData.length === 1) {
         const unmarkedMatch = occurrences[0].matched.removeMarks();
         return str.replaceAll(occurrences[0].matched, replacements[unmarkedMatch]);
       }
-      for (const { charIndex, matched } of occurrences) {
+
+      // Multiple syllables:
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
         const syllable = syllableData.find((s) => s.syllable.includes(matched));
+        if (!syllable) continue;
         if (syllable.stressed) {
           const unmarkedMatch = matched.removeMarks();
           str = str.substring(0, charIndex) + replacements[unmarkedMatch] + str.substring(charIndex + matched.length);
