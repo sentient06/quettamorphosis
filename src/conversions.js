@@ -40,6 +40,9 @@ export const postProcessingRules = {
       result = result.replace('k', 'c');
       result = result.replace('j', 'y');
       result = result.replace('ꞥ', 'nth');
+      if (['j', 'y'].includes(result.nth(0))) {
+        result = 'i' + result.substring(1);
+      }
       // Replace macrons with circumflexes: NFD decompose → swap combining marks → NFC recompose
       result = result.normalize('NFD').replace(/\u0304/g, '\u0302').normalize('NFC');
       result = result.toNormalScript();

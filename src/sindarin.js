@@ -1595,6 +1595,9 @@ export const sindarinRules = {
       //
       // For ae → e: Only known cases are handled via word list, since ae remains
       // a valid diphthong in many words at this stage.
+
+      // 'jau-vaug
+
       const AE_TO_E_WORDS = ['nifraed', 'naegro', 'athaelas', 'aθaelas'];
       const lowerStr = str.toLowerCase();
       for (const word of AE_TO_E_WORDS) {
@@ -1617,6 +1620,10 @@ export const sindarinRules = {
           if (j === excludeIndex) continue;
           const syl = syllableData[j].syllable.removeMarks().toLowerCase();
           if (syl.includes('o') || syl.includes('u')) {
+            if (syllableData[j].nucleus.length > 1) {
+              // It's a diphtong!
+              return false;
+            }
             return true;
           }
         }

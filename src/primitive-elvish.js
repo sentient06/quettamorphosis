@@ -537,8 +537,6 @@ export const primitiveElvishRules = {
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
 
-      console.log({ str, occurrences });
-
       // Monosyllable:
       if (syllableData.length === 1) {
         const unmarkedMatch = occurrences[0].matched.removeMarks();
