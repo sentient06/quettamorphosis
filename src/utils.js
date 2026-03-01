@@ -928,7 +928,73 @@ export class SyllableAnalyser {
   }
 
   /**
+   * Extract the onset (consonants before the nucleus) of a syllable.
+   * @param {string} syllable - The syllable to extract from
+   * @returns {string} The onset consonants, or empty string
+   */
+  getOnset(syllable) {
+    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+    const chars = [...segmenter.segment(syllable)].map(s => s.segment);
+    let onset = '';
+    for (const char of chars) {
+      const base = char.removeMarks();
+      if (base && base.isVowel(this.includeY, this.includeW)) {
+        break;
+      }
+      onset += char;
+    }
+    return onset;
+  }
+
+  /**
+   * Extract the coda (consonants after the nucleus) of a syllable.
+   * @param {string} syllable - The syllable to extract from
+   * @returns {string} The coda consonants, or empty string
+   */
+  getCoda(syllable) {
+    const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+    const chars = [...segmenter.segment(syllable)].map(s => s.segment);
+
+    // Find the end of the nucleus (last vowel in vowel sequence or diphthong)
+    let nucleusEnd = -1;
+    for (let i = 0; i < chars.length; i++) {
+      const base = chars[i].removeMarks();
+      if (base && base.isVowel(this.includeY, this.includeW)) {
+        // Check for diphthong
+        if (i + 1 < chars.length) {
+          const nextBase = chars[i + 1].removeMarks();
+          const pair = (base + nextBase).toLowerCase();
+          if (this.isDiphthong(pair)) {
+            nucleusEnd = i + 2;
+            i++; // Skip diphthong second char
+            continue;
+          }
+        }
+        nucleusEnd = i + 1;
+      }
+    }
+
+    if (nucleusEnd === -1 || nucleusEnd >= chars.length) {
+      return '';
+    }
+    return chars.slice(nucleusEnd).join('');
+  }
+
+  /**
    * Analyse a word and return detailed data on each syllable.
+   *
+   * Weight calculation rules:
+   * - Heavy if: long vowel, diphthong, or followed by 2+ consonants
+   * - Special case: isolated medial 'm' counts as heavy (single 'm' between vowels)
+   * - Consonants counted = coda of current syllable + onset of next syllable
+   *
+   * Stress rules (Sindarin):
+   * - Monosyllables: unstressed (context-dependent)
+   * - Disyllables: stress on first syllable
+   * - Trisyllables: stress on second if heavy, else first
+   * - 4+ syllables: stress on penultimate if heavy, else antepenultimate
+   * - Secondary stress: alternating syllables before and after primary stress
+   *
    * @param {string} word - The word to analyse
    * @param {boolean} compoundWord - If true, treats ng/nth as separate sounds (n+g, n+th) rather than digraphs
    * @returns {Object[]} Array of syllable analysis objects
@@ -940,18 +1006,36 @@ export class SyllableAnalyser {
     for (let i = 0; i < syllables.length; i++) {
       const syllable = syllables[i];
 
-      // Determine weight (light or heavy)
+      // Basic syllable properties
       const hasLong = this.hasLongVowel(syllable);
       const hasDiph = this.containsDiphthong(syllable);
-      const endsConsonant = this.endsInConsonant(syllable);
       const nucleus = this.extractNucleus(syllable);
+      const coda = this.getCoda(syllable);
+      const endsConsonant = coda.length > 0;
 
-      let weight;
-      if (hasLong || hasDiph || endsConsonant) {
-        weight = 'heavy';
-      } else {
-        weight = 'light';
+      // Calculate consonants following this syllable's nucleus
+      // = coda of this syllable + onset of next syllable
+      // Convert digraphs to single chars to count phonemes, not characters
+      let consonantsAfterNucleus = coda;
+      if (i < syllables.length - 1) {
+        consonantsAfterNucleus += this.getOnset(syllables[i + 1]);
       }
+      // Convert to phoneme count (digraphs like 'dh', 'th' = 1 phoneme each)
+      const consonantsAsPhonemes = this.digraphsToSingle(consonantsAfterNucleus);
+
+      // Determine weight (traditional rules: closed = heavy)
+      // Heavy if: long vowel, diphthong, or ends in consonant (closed syllable)
+      const weight = (hasLong || hasDiph || endsConsonant) ? 'heavy' : 'light';
+
+      // Determine "heavy for stress" (stricter rule for stress assignment in polysyllables)
+      // Heavy for stress if: long vowel, diphthong, or 2+ consonants (phonemes) after nucleus
+      // Special case: single 'm' between vowels counts as heavy for stress
+      const consonantCount = consonantsAsPhonemes.length;
+      const isIsolatedMedialM = consonantCount === 1 &&
+                                 consonantsAsPhonemes.toLowerCase() === 'm' &&
+                                 i < syllables.length - 1;
+      const isHeavyByPosition = consonantCount >= 2 || isIsolatedMedialM;
+      const heavyForStress = hasLong || hasDiph || isHeavyByPosition;
 
       // Determine structure (open or closed)
       const structure = endsConsonant ? 'closed' : 'open';
@@ -959,39 +1043,75 @@ export class SyllableAnalyser {
       result.push({
         syllable,
         weight,
+        heavyForStress, // Used for stress assignment in polysyllables
         structure,
-        stressed: false, // Will be set below
+        stressed: false,      // Will be set below
+        secondaryStress: false, // Will be set below
         nucleus,
+        coda,
+        onset: this.getOnset(syllable),
       });
     }
 
-    // Determine stress
+    // Determine primary stress
+    this._assignPrimaryStress(result);
+
+    // Determine secondary stress (alternating from primary)
+    this._assignSecondaryStress(result);
+
+    return result;
+  }
+
+  /**
+   * Assign primary stress to syllables based on Sindarin rules.
+   * @private
+   */
+  _assignPrimaryStress(result) {
     // Check for explicit stress marks first
     const explicitlyStressed = result.filter(s => this.hasStressMark(s.syllable));
     if (explicitlyStressed.length > 0) {
       explicitlyStressed.forEach(s => s.stressed = true);
-    } else if (syllables.length === 1) {
-      // Monosyllables: unstressed
+      return;
+    }
+
+    const count = result.length;
+
+    if (count === 1) {
+      // Monosyllables: typically unstressed (depends on context)
       result[0].stressed = false;
-    } else if (syllables.length === 2) {
-      // Disyllabic: stress first syllable
+    } else if (count === 2) {
+      // Disyllables: always stress first syllable
       result[0].stressed = true;
     } else {
-      // Polysyllabic: stress penultimate if heavy, antepenultimate if penultimate is light
-      const penultimate = result[result.length - 2];
-      if (penultimate.weight === 'heavy') {
+      // Trisyllables and longer: stress penultimate if heavy (for stress), else antepenultimate
+      const penultimate = result[count - 2];
+      if (penultimate.heavyForStress) {
         penultimate.stressed = true;
       } else {
         // Stress antepenultimate (third from last)
-        if (result.length >= 3) {
-          result[result.length - 3].stressed = true;
-        } else {
-          // If only 2 syllables and penultimate is light, stress first anyway
-          result[0].stressed = true;
-        }
+        result[count - 3].stressed = true;
       }
     }
+  }
 
-    return result;
+  /**
+   * Assign secondary stress to syllables (alternating from primary).
+   * Based on analysis of Tolkien's Sindarin poetry.
+   * @private
+   */
+  _assignSecondaryStress(result) {
+    // Find primary stress position
+    const primaryIndex = result.findIndex(s => s.stressed);
+    if (primaryIndex === -1) return;
+
+    // Alternate before primary stress (going backwards)
+    for (let i = primaryIndex - 2; i >= 0; i -= 2) {
+      result[i].secondaryStress = true;
+    }
+
+    // Alternate after primary stress (going forwards)
+    for (let i = primaryIndex + 2; i < result.length; i += 2) {
+      result[i].secondaryStress = true;
+    }
   }
 }
