@@ -19,7 +19,7 @@ export const primitiveElvishRules = {
     pattern: '[{ptk}ʰs] > [{ptk}s]',
     description: 'aspirate became voiceless stop before [s]',
     url: 'https://eldamo.org/content/words/word-2225058767.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
       if (occurrences.length > 0) {
         const replacements = {
@@ -34,9 +34,9 @@ export const primitiveElvishRules = {
             result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
           }
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '3915424757': {
@@ -44,9 +44,9 @@ export const primitiveElvishRules = {
     pattern: '[s{ptk}ʰ|htʰ] > [s{ptk}|ht]',
     description: 'aspirates became voiceless stops after [s], [h]',
     url: 'https://eldamo.org/content/words/word-3915424757.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       const replacements = {
         'ƥ': 'p',
         'ŧ': 't',
@@ -63,7 +63,7 @@ export const primitiveElvishRules = {
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '3183451073': {
@@ -71,9 +71,9 @@ export const primitiveElvishRules = {
     pattern: '[{ptk}ʰ{ptk|pʰtʰkʰ}] > [{ptk}{ptk}ʰ]',
     description: 'aspiration moved to end of group of stops',
     url: 'https://eldamo.org/content/words/word-3183451073.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const firstReplacements = {
         'ƥ': 'p',
@@ -97,7 +97,7 @@ export const primitiveElvishRules = {
           result = result.substring(0, charIndex) + firstReplacements[matched] + secondReplacements[nextChar] + result.substring(charIndex + 2);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '3882201769': {
@@ -105,7 +105,7 @@ export const primitiveElvishRules = {
     pattern: '[bm|dn] > [mb|nd]',
     description: '[bm], [dn] became [mb], [nd]',
     url: 'https://eldamo.org/content/words/word-3882201769.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['bm', 'dn'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -117,9 +117,9 @@ export const primitiveElvishRules = {
           const { charIndex, matched } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '2641132585': {
@@ -127,16 +127,16 @@ export const primitiveElvishRules = {
     pattern: '[-{jw}] > [-{iu}]',
     description: 'final [j], [w] became [i], [u]',
     url: 'https://eldamo.org/content/words/word-2641132585.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const lastChar = str.nth(-1);
       if (['j', 'w'].includes(lastChar)) {
         const replacements = {
           'j': 'i',
           'w': 'u',
         };
-        return { in: str, out: str.substring(0, str.length - 1) + replacements[lastChar] };
+        return { in: str, out: str.substring(0, str.length - 1) + replacements[lastChar], morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1539930001': {
@@ -144,7 +144,7 @@ export const primitiveElvishRules = {
     pattern: '[CV̄{jw}] > [CV̄]',
     description: 'final [j], [w] vanished after long vowels in monosyllables',
     url: 'https://eldamo.org/content/words/word-1539930001.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
       if (syllableData.length === 1) {
@@ -154,11 +154,11 @@ export const primitiveElvishRules = {
           const vowelIndex = syllable.indexOf(nucleus);
           const nextChar = syllable.nth(vowelIndex + 1);
           if (['j', 'w'].includes(nextChar)) {
-            return { in: str, out: str.substring(0, str.length - 1) };
+            return { in: str, out: str.substring(0, str.length - 1), morphemes: options.morphemes };
           }
         }
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '3385004377': {
@@ -166,11 +166,11 @@ export const primitiveElvishRules = {
     pattern: '[-l] > [-r]',
     description: 'final [l] became [r]',
     url: 'https://eldamo.org/content/words/word-3385004377.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.endsWith('l')) {
-        return { in: str, out: str.substring(0, str.length - 1) + 'r' };
+        return { in: str, out: str.substring(0, str.length - 1) + 'r', morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '760163573': {
@@ -178,11 +178,11 @@ export const primitiveElvishRules = {
     pattern: '[-m] > [-n]',
     description: 'final [m] became [n]',
     url: 'https://eldamo.org/content/words/word-760163573.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.endsWith('m')) {
-        return { in: str, out: str.substring(0, str.length - 1) + 'n' };
+        return { in: str, out: str.substring(0, str.length - 1) + 'n', morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '2177009433': {
@@ -190,7 +190,7 @@ export const primitiveElvishRules = {
     pattern: '[hs] > [ss]',
     description: '[hs] became [ss]',
     url: 'https://eldamo.org/content/words/word-2177009433.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['hs'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -198,9 +198,9 @@ export const primitiveElvishRules = {
           const { charIndex } = occurrence;
           result = result.substring(0, charIndex) + 'ss' + result.substring(charIndex + 2);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '794129503': {
@@ -210,18 +210,18 @@ export const primitiveElvishRules = {
     url: 'https://eldamo.org/content/words/word-794129503.html',
     skip: true, // Marked as deleted in source
     info: ['Marked as deleted in source', 'This rule isn\'t implemented yet and will return the same as the input.'],
-    mechanic: (str) => ({ in: str, out: str }),
+    mechanic: (str, options = {}) => ({ in: str, out: str, morphemes: options.morphemes }),
   },
   '2151845509': {
     orderId: '00011',
     pattern: '[lɣ] > [lg]',
     description: '[lɣ] became [lg]',
     url: 'https://eldamo.org/content/words/word-2151845509.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.includes('lɣ')) {
-        return { in: str, out: str.replaceAll('lɣ', 'lg') };
+        return { in: str, out: str.replaceAll('lɣ', 'lg'), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '542079381': {
@@ -229,7 +229,7 @@ export const primitiveElvishRules = {
     pattern: '[V̄CC] > [V̆CC]',
     description: 'long vowels shortened before consonant clusters',
     url: 'https://eldamo.org/content/words/word-542079381.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const vcPattern = breakIntoVowelsAndConsonants(str);
       if (vcPattern.includes('VCC')) {
         let result = str;
@@ -242,9 +242,9 @@ export const primitiveElvishRules = {
             result = result.substring(0, charIndex) + vowel.removeVowelMarks() + result.substring(charIndex + 1);
           }
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '2690267141': {
@@ -252,9 +252,9 @@ export const primitiveElvishRules = {
     pattern: '[-h-|VhC|ht] > [-ø-|V̄øC|xt]',
     description: 'medial [ɣ]/[h] vanished except before [t]',
     url: 'https://eldamo.org/content/words/word-2690267141.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['h', 'ɣ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       let result = str;
       // Process from end to start so indices remain valid
@@ -292,7 +292,7 @@ export const primitiveElvishRules = {
         result = result.slice(0, charIndex) + result.slice(charIndex + 1);
       }
 
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '4126101193': {
@@ -300,9 +300,9 @@ export const primitiveElvishRules = {
     pattern: '[-C{mnŋ}{bdg}-] > [-C{mnŋ}-]',
     description: 'medial nasal plus stop after another consonant became simple nasal',
     url: 'https://eldamo.org/content/words/word-4126101193.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['m', 'n', 'ŋ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       let result = str;
       // Process from end to start so indices remain valid
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -311,7 +311,7 @@ export const primitiveElvishRules = {
           result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '2233951333': {
@@ -319,9 +319,9 @@ export const primitiveElvishRules = {
     pattern: '[-ŋ{wj}-] > [-ŋg{wj}-]',
     description: 'medial [ŋj], [ŋw] became [ŋgj], [ŋgw]',
     url: 'https://eldamo.org/content/words/word-2233951333.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ŋj', 'ŋw'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       let result = str;
       // Process from end to start so indices remain valid
       const replacements = {
@@ -334,7 +334,7 @@ export const primitiveElvishRules = {
         if (charIndex === result.length - 1) continue;
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '768986721': {
@@ -342,9 +342,9 @@ export const primitiveElvishRules = {
     pattern: '[VŋV|ŋ{rl}|-ŋ] > [VɣV|ɣ{rl}|-ɣ]',
     description: 'medial [ŋ] usually became [ɣ]',
     url: 'https://eldamo.org/content/words/word-768986721.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ŋ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, prevChar, nextChar } = occurrences[i];
@@ -361,7 +361,7 @@ export const primitiveElvishRules = {
           result = result.substring(0, charIndex) + 'ɣ';
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '3160359587': {
@@ -378,7 +378,7 @@ export const primitiveElvishRules = {
         description: 'Perform metathesis of [sl] to [ls]',
       },
     ],
-    mechanic: (str, { slMetathesis = false } = {}) => {
+    mechanic: (str, { slMetathesis = false, morphemes } = {}) => {
       if (str.includes('km') || (slMetathesis && str.includes('sl'))) {
         let result = str;
         if (result.includes('km')) {
@@ -387,9 +387,9 @@ export const primitiveElvishRules = {
         if (result.includes('sl')) {
           result = result.replaceAll('sl', 'ls');
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes };
     },
   },
   '2143444883': {
@@ -397,9 +397,9 @@ export const primitiveElvishRules = {
     pattern: '[{nŋ}{ppʰb}|{mŋ}{ttʰd}|{mn}{kkʰg}] > [m{ppʰb}|n{ttʰd}|ŋ{kkʰg}]',
     description: 'nasals assimilated to following stops and aspirates',
     url: 'https://eldamo.org/content/words/word-2143444883.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['np', 'nb', 'ŋp', 'mt', 'md', 'ŋt', 'mk', 'nk'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'np': 'mp',
@@ -416,7 +416,7 @@ export const primitiveElvishRules = {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '3404492995': {
@@ -424,15 +424,15 @@ export const primitiveElvishRules = {
     pattern: '[ŋ{ŋɣ}] > [ŋg]',
     description: '[ŋŋ], [ŋɣ] became [ŋg]',
     url: 'https://eldamo.org/content/words/word-3404492995.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ŋŋ', 'ŋɣ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + 'ŋg' + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '484908271': {
@@ -440,15 +440,15 @@ export const primitiveElvishRules = {
     pattern: '[ŋs] > [ns]',
     description: '[ŋs] became [ns]',
     url: 'https://eldamo.org/content/words/word-484908271.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ŋs'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + 'ns' + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '2859678213': {
@@ -456,10 +456,10 @@ export const primitiveElvishRules = {
     pattern: '[pw|pʰw] > [pp|pʰpʰ]',
     description: '[pw], [pʰw] became [pp], [pʰp]',
     url: 'https://eldamo.org/content/words/word-2859678213.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // [pw|ƥw] > [pp|ƥƥ]
       const occurrences = findAllOf(['pw', 'ƥw'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       const replacements = {
         'pw': 'pp',
         'ƥw': 'ƥƥ',
@@ -469,7 +469,7 @@ export const primitiveElvishRules = {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '882174441': {
@@ -477,15 +477,15 @@ export const primitiveElvishRules = {
     pattern: '[s{bdg}] > [z{bdg}]',
     description: '[s] became [z] before voiced stops',
     url: 'https://eldamo.org/content/words/word-882174441.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['sb', 'sd', 'sg'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + 'z' + result.substring(charIndex + 1);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '2794740763': {
@@ -493,12 +493,12 @@ export const primitiveElvishRules = {
     pattern: '[-S{ĕăŏǝ}] > [-Sø]',
     description: 'short final [e], [a], [o] vanished',
     url: 'https://eldamo.org/content/words/word-2794740763.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const lastChar = str.nth(-1);
       if (['e', 'a', 'o', 'ǝ'].includes(lastChar)) {
-        return { in: str, out: str.substring(0, str.length - 1) };
+        return { in: str, out: str.substring(0, str.length - 1), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '3064357955': {
@@ -506,16 +506,16 @@ export const primitiveElvishRules = {
     pattern: '[-S{ĭŭ}] > [-S{eo}]',
     description: 'short final [i], [u] became [e], [o]',
     url: 'https://eldamo.org/content/words/word-3064357955.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const lastChar = str.nth(-1);
       if ('iu'.includes(lastChar)) {
         const replacements = {
           'i': 'e',
           'u': 'o',
         };
-        return { in: str, out: str.substring(0, str.length - 1) + replacements[lastChar] };
+        return { in: str, out: str.substring(0, str.length - 1) + replacements[lastChar], morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1475928117': {
@@ -523,12 +523,12 @@ export const primitiveElvishRules = {
     pattern: '[wŏ́] > [wa]',
     description: 'stressed [wŏ] became [wa]',
     url: 'https://eldamo.org/content/words/word-1475928117.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // glawarkhadmā́matron
       // glawarxadmámatron
       // glaw-ar-xad-má-mat-ron
       const occurrences = findAllOf(['wŏ́', 'wa', 'wo', 'wó'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'wo': 'wa',
@@ -540,7 +540,7 @@ export const primitiveElvishRules = {
       // Monosyllable:
       if (syllableData.length === 1) {
         const unmarkedMatch = occurrences[0].matched.removeMarks();
-        return { in: str, out: str.replaceAll(occurrences[0].matched, replacements[unmarkedMatch]) };
+        return { in: str, out: str.replaceAll(occurrences[0].matched, replacements[unmarkedMatch]), morphemes: options.morphemes };
       }
 
       // Multiple syllables:
@@ -554,7 +554,7 @@ export const primitiveElvishRules = {
           result = result.substring(0, charIndex) + replacements[unmarkedMatch] + result.substring(charIndex + matched.length);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '2479050823': {
@@ -567,9 +567,9 @@ export const primitiveElvishRules = {
       'It\'s up to the user to determine whether these are from suffixion.',
       'This rule is disabled by default.'
     ],
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['tt', 'ŧt', 'dt', 'dd'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       // [{tŧd}t|dd] > [st|zd]
       const replacements = {
         'tt': 'st',
@@ -582,7 +582,7 @@ export const primitiveElvishRules = {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '700934409': {
@@ -608,9 +608,9 @@ export const primitiveElvishRules = {
         description: 'Convert [tk] to [kt] instead of [kk]',
       },
     ],
-    mechanic: (str, { useTkToSk = false, useTkToKt = false } = {}) => {
+    mechanic: (str, { useTkToSk = false, useTkToKt = false, morphemes } = {}) => {
       const occurrences = findAllOf(['tk', 'tp'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes };
       const replacements = {
         'tk': useTkToSk ? 'sk' : useTkToKt ? 'kt' : 'kk',
         'tp': 'pp',
@@ -620,7 +620,7 @@ export const primitiveElvishRules = {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes };
     },
   },
   '951924569': {
@@ -628,7 +628,7 @@ export const primitiveElvishRules = {
     pattern: '[ˌV̄S] > [V̆S]',
     description: 'unstressed long vowels shortened in medial syllables',
     url: 'https://eldamo.org/content/words/word-951924569.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const analyser = new SyllableAnalyser({ profile: PRIMITIVE_ELVISH_PROFILE });
       const syllableData = analyser.analyse(str);
       const result = [];
@@ -662,7 +662,7 @@ export const primitiveElvishRules = {
         }
       }
 
-      return { in: str, out: result.join('') };
+      return { in: str, out: result.join(''), morphemes: options.morphemes };
     },
   },
   '2620200719': {
@@ -670,10 +670,10 @@ export const primitiveElvishRules = {
     pattern: '[{pʰtʰkʰptk}{bdg}|{bdg}{pʰtʰkʰptk}] > [{pʰtʰkʰptk}{ptk}|{ptk}{pʰtʰkʰptk}]',
     description: 'voiced stops unvoiced after voiceless stops and aspirates',
     url: 'https://eldamo.org/content/words/word-2620200719.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // [{ƥŧꝁptk}{bdg}|{bdg}{ƥŧꝁptk}] > [{ƥŧꝁptk}{ptk}|{ptk}{ƥŧꝁptk}]
       const occurrences = findAllOf(['b', 'd', 'g', 'ɣ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       const replacements = {
         'b': 'p',
         'd': 't',
@@ -687,7 +687,7 @@ export const primitiveElvishRules = {
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '1944249607': {
@@ -695,10 +695,10 @@ export const primitiveElvishRules = {
     pattern: '[{bdg}{ptkpʰtʰkʰs}] > [{ptk}{ptkpʰtʰkʰs}]',
     description: 'voiced stops unvoiced before voiceless consonants',
     url: 'https://eldamo.org/content/words/word-1944249607.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // [{bdg}{ptkƥŧꝁs}] > [{ptk}{ptkƥŧꝁs}]
       const occurrences = findAllOf(['b', 'd', 'g', 'ɣ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       const replacements = {
         'b': 'p',
         'd': 't',
@@ -712,7 +712,7 @@ export const primitiveElvishRules = {
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '242344611': {
@@ -729,14 +729,14 @@ export const primitiveElvishRules = {
         description: 'Use [au] instead of [wā]',
       },
     ],
-    mechanic: (str, { useAu = false } = {}) => {
+    mechanic: (str, { useAu = false, morphemes } = {}) => {
       if (str.includes('wau')) {
         if (useAu) {
-          return { in: str, out: str.replaceAll('wau', 'au') };
+          return { in: str, out: str.replaceAll('wau', 'au'), morphemes };
         }
-        return { in: str, out: str.replaceAll('wau', 'wā') };
+        return { in: str, out: str.replaceAll('wau', 'wā'), morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes };
     },
   },
   '3116232193': {
@@ -744,11 +744,11 @@ export const primitiveElvishRules = {
     pattern: '[wou] > [wō]',
     description: '[wou] became [wō]',
     url: 'https://eldamo.org/content/words/word-3116232193.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.includes('wou')) {
-        return { in: str, out: str.replaceAll('wou', 'wō') };
+        return { in: str, out: str.replaceAll('wou', 'wō'), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
 
@@ -758,11 +758,11 @@ export const primitiveElvishRules = {
     pattern: '[lr] > [ll]',
     description: '[lr] became [ll]',
     url: 'https://eldamo.org/content/words/word-4183190863.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.includes('lr')) {
-        return { in: str, out: str.replaceAll('lr', 'll') };
+        return { in: str, out: str.replaceAll('lr', 'll'), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1056240093': {
@@ -770,15 +770,15 @@ export const primitiveElvishRules = {
     pattern: '[a{eo}] > [ā]',
     description: '[ae], [ao] became [ā]',
     url: 'https://eldamo.org/content/words/word-1056240093.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ae', 'ao'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + 'ā' + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '113345945': {
@@ -786,9 +786,9 @@ export const primitiveElvishRules = {
     pattern: '[V{jw}C] > [V{iu}C]',
     description: '[j], [w] became [i], [u] before consonants',
     url: 'https://eldamo.org/content/words/word-113345945.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['j', 'w'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
       const replacements = {
         'j': 'i',
         'w': 'u',
@@ -800,7 +800,7 @@ export const primitiveElvishRules = {
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
 };

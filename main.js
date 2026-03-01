@@ -251,12 +251,13 @@ function rerunFromPosition(language, startIndex) {
 }
 
 // Run a chain of rules within a language, then continue to the next rule after
-function runRuleChain(startRuleId, inputValue, nextRuleAfterChain) {
+function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = null) {
   const language = getLanguage(startRuleId);
   const order = orderState[language];
   const startIndex = order.indexOf(startRuleId);
 
   let currentInput = inputValue;
+  let currentMorphemes = morphemes;
 
   // Run each rule in sequence within the language
   for (let i = startIndex; i < order.length; i++) {
@@ -272,9 +273,18 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain) {
     const rulesObj = getRulesObject(ruleId);
     const rule = rulesObj[ruleId];
     const options = getOptions(ruleId, rule);
+
+    // Pass morphemes to rule via options (if available)
+    if (currentMorphemes) {
+      options.morphemes = currentMorphemes;
+    }
+
     const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : !rule.skip;
     const result = isEnabled ? rule.mechanic(currentInput, options) : { in: currentInput, out: currentInput };
     const output = result.out;
+
+    // Get morphemes from result, or keep existing morphemes if not returned
+    currentMorphemes = result.morphemes || currentMorphemes;
 
     // Update visual state
     const isTripped = result.in !== result.out;
@@ -309,7 +319,7 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain) {
     if ($nextInput) {
       $nextInput.value = currentInput;
     }
-    runRule(nextRuleAfterChain, currentInput, getNextRule(nextRuleAfterChain));
+    runRule(nextRuleAfterChain, currentInput, getNextRule(nextRuleAfterChain), currentMorphemes);
   } else {
     // This was the last chain, update final output
     $originalOutput.value = currentInput;
@@ -711,7 +721,7 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
 
 }
 
-function runRule(ruleId, input, nextRuleId) {
+function runRule(ruleId, input, nextRuleId, morphemes = null) {
   const rulesObj = getRulesObject(ruleId);
   const resultsObj = getResultsObject(ruleId);
   const rule = rulesObj[ruleId];
@@ -727,7 +737,8 @@ function runRule(ruleId, input, nextRuleId) {
     if (nextRuleId) {
       const $nextInput = document.getElementById(`input-${nextRuleId}`);
       $nextInput.value = input;
-      runRule(nextRuleId, input, getNextRule(nextRuleId));
+      // Pass morphemes unchanged when skipping
+      runRule(nextRuleId, input, getNextRule(nextRuleId), morphemes);
     } else {
       $originalOutput.value = input;
       printResults();
@@ -758,11 +769,19 @@ function runRule(ruleId, input, nextRuleId) {
     });
   }
 
+  // Pass morphemes to rule via options (if available)
+  if (morphemes) {
+    options.morphemes = morphemes;
+  }
+
   const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
   const result = isEnabled ? rule.mechanic(input, options) : { in: input, out: input };
   const output = result.out;
 
-  console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', result.in.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
+  // Get morphemes from result, or keep existing morphemes if not returned
+  const outputMorphemes = result.morphemes || morphemes;
+
+  console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', result.in.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId), 'morphemes:', outputMorphemes);
 
   // Track rule result (skip for conversion rules - they don't appear in tripped/skipped)
   const isTripped = result.in !== result.out;
@@ -803,7 +822,7 @@ function runRule(ruleId, input, nextRuleId) {
 
   const $nextInput = document.getElementById(`input-${nextRuleId}`);
   $nextInput.value = output;
-  runRule(nextRuleId, output, getNextRule(nextRuleId));
+  runRule(nextRuleId, output, getNextRule(nextRuleId), outputMorphemes);
 }
 
 function resetRule(ruleId) {

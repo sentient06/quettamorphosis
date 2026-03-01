@@ -8,9 +8,24 @@ import { digraphsToSingle, singleToDigraphs } from './utils.js';
 export const preProcessingRules = {
   'pre-digraphs-to-single': {
     orderId: 'PRE-01',
-    pattern: 'digraphs → single characters',
-    description: 'Convert digraphs to single characters for rule processing',
-    mechanic: (str) => ({ in: str, out: digraphsToSingle(str).toLowerCase() }),
+    pattern: 'digraphs → single characters, parse morphemes',
+    description: 'Convert digraphs to single characters and extract morpheme boundaries',
+    mechanic: (str) => {
+      // Parse morpheme boundaries (marked with '+')
+      // If no '+' markers, treat the whole word as a single morpheme
+      const morphemeParts = str.split('+');
+      const cleanedStr = morphemeParts.join('');
+
+      // Convert digraphs to single characters in both the word and morphemes
+      const processedWord = digraphsToSingle(cleanedStr).toLowerCase();
+      const morphemes = morphemeParts.map(m => digraphsToSingle(m).toLowerCase());
+
+      return {
+        in: str,
+        out: processedWord,
+        morphemes
+      };
+    },
   },
 };
 

@@ -29,7 +29,7 @@ export const ancientTelerinRules = {
         description: 'Guess the stress if there is no marker',
       },
     ],
-    mechanic: (str, { guessStress = false } = {}) => {
+    mechanic: (str, { guessStress = false, morphemes } = {}) => {
       // Both syllables have vowels of the same quality.
       // The second syllable begins with r or l.
       // The initial syllable begins with a stop, aspirate or (possibly) a nasal [see below on nasals].
@@ -39,7 +39,7 @@ export const ancientTelerinRules = {
       const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
       const syllableData = analyser.analyse(str);
 
-      if (syllableData.length < 2) return { in: str, out: str };
+      if (syllableData.length < 2) return { in: str, out: str, morphemes };
 
       const firstSyllable = syllableData[0];
       const secondSyllable = syllableData[1];
@@ -47,21 +47,21 @@ export const ancientTelerinRules = {
       // Both syllables have vowels of the same quality.
       const quality1 = firstSyllable.nucleus.removeMarks();
       const quality2 = secondSyllable.nucleus.removeMarks();
-      if (quality1 !== quality2) return { in: str, out: str };
+      if (quality1 !== quality2) return { in: str, out: str, morphemes };
 
       // The second syllable begins with r or l.
       const secondSyllableStart = secondSyllable.syllable.nth(0);
-      if (!['r', 'l'].includes(secondSyllableStart)) return { in: str, out: str };
+      if (!['r', 'l'].includes(secondSyllableStart)) return { in: str, out: str, morphemes };
 
       // The initial syllable begins with a stop, aspirate or (possibly) a nasal.
       const firstSyllableStart = firstSyllable.syllable.nth(0);
-      if (!'ptkƥꝁbdgm'.includes(firstSyllableStart)) return { in: str, out: str };
+      if (!'ptkƥꝁbdgm'.includes(firstSyllableStart)) return { in: str, out: str, morphemes };
 
       // -> There are no other characters between the beginning of the word and the nucleus:
       const indexOfNucleus = firstSyllable.syllable.indexOf(firstSyllable.nucleus);
       const charsBeforeVowel = firstSyllable.syllable.removeMarks().slice(0, indexOfNucleus);
       const unexpectedChars = /[^rlptkƥꝁbdgmaeiou]/.test(charsBeforeVowel);
-      if (unexpectedChars) return { in: str, out: str };
+      if (unexpectedChars) return { in: str, out: str, morphemes };
 
       // -> Ignore mb:
       // if (firstSyllableStart === 'm' && firstSyllable.syllable.nth(1) === 'b') return str;
@@ -77,8 +77,8 @@ export const ancientTelerinRules = {
         if (secondSyllableStressed === false) secondSyllableStressed = secondSyllable.stressed;
       }
 
-      if (firstSyllableStressed === true) return { in: str, out: str };
-      if (secondSyllableStressed === false) return { in: str, out: str };
+      if (firstSyllableStressed === true) return { in: str, out: str, morphemes };
+      if (secondSyllableStressed === false) return { in: str, out: str, morphemes };
 
       const result = [];
       result.push(firstSyllable.syllable.replace(firstSyllable.nucleus, ''));
@@ -97,10 +97,10 @@ export const ancientTelerinRules = {
         const finalResult = joinedResult
           .replace(/[\u0301]/g, '\u0304')  // acute → macron
           .normaliseToOne();
-        return { in: str, out: finalResult };
+        return { in: str, out: finalResult, morphemes };
       }
 
-      return { in: str, out: joinedResult };
+      return { in: str, out: joinedResult, morphemes };
 
       // const normalizedResult = joinedResult.normaliseToMany()
         // .replace(/[\u0301\u0302]/g, '\u0304')  // acute/circumflex → macron
@@ -113,7 +113,7 @@ export const ancientTelerinRules = {
     pattern: '[kw|kʰw|gw|ŋgw|ŋkw|ŋw-] > [p|pʰ|b|mb|mp|m-]',
     description: 'labialized velars became labials',
     url: 'https://eldamo.org/content/words/word-171120983.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const { found, matched, charIndex } = findFirstOf(['ŋgw', 'ŋkw', 'kw', 'ꝁw', 'gw', 'ŋw'], str);
 
       if (found) {
@@ -125,7 +125,7 @@ export const ancientTelerinRules = {
           'gw': 'b',
           'ŋw': 'm',
         };
-        if (matched === 'ŋw' && charIndex > 0) return { in: str, out: str };
+        if (matched === 'ŋw' && charIndex > 0) return { in: str, out: str, morphemes: options.morphemes };
 
         let result = str;
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
@@ -134,9 +134,9 @@ export const ancientTelerinRules = {
         if (result.nth(0) === 'm' && result.nth(1).isConsonant()) {
           result = 'ṃ' + result.substring(1);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1532676669': {
@@ -146,16 +146,16 @@ export const ancientTelerinRules = {
     url: 'https://eldamo.org/content/words/word-1532676669.html',
     skip: true,
     info: ['Possibly abandoned.', 'Disabled by default.'],
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (['t', 'ŧ', 'd', 'n', 'l'].includes(str.nth(0))) {
         if (str.nth(1) === 'j') {
-          return { in: str, out: str.replace('j', '') };
+          return { in: str, out: str.replace('j', ''), morphemes: options.morphemes };
         }
         if (str.nth(1) === 'y') {
-          return { in: str, out: str.replace('y', '') };
+          return { in: str, out: str.replace('y', ''), morphemes: options.morphemes };
         }
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1062284643': {
@@ -163,11 +163,11 @@ export const ancientTelerinRules = {
     pattern: '[ln] > [ll]',
     description: '[ln] became [ll]',
     url: 'https://eldamo.org/content/words/word-1062284643.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.includes('ln')) {
-        return { in: str, out: str.replace('ln', 'll') };
+        return { in: str, out: str.replace('ln', 'll'), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '981459769': {
@@ -175,14 +175,14 @@ export const ancientTelerinRules = {
     pattern: '[-SV{ptks}] > [-SVø]',
     description: 'final voiceless stops and [s] vanished in polysyllables',
     url: 'https://eldamo.org/content/words/word-981459769.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (['p', 't', 'k', 's'].includes(str.nth(-1))) {
         const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
         const syllableData = analyser.analyse(str);
-        if (syllableData.length === 1) return { in: str, out: str };
-        return { in: str, out: str.slice(0, -1) };
+        if (syllableData.length === 1) return { in: str, out: str, morphemes: options.morphemes };
+        return { in: str, out: str.slice(0, -1), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1254562549': {
@@ -190,14 +190,14 @@ export const ancientTelerinRules = {
     pattern: '[{mn}s] > [ss]',
     description: '[ms], [ns] became [ss]',
     url: 'https://eldamo.org/content/words/word-e.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.includes('ms')) {
-        return { in: str, out: str.replace('ms', 'ss') };
+        return { in: str, out: str.replace('ms', 'ss'), morphemes: options.morphemes };
       }
       if (str.includes('ns')) {
-        return { in: str, out: str.replace('ns', 'ss') };
+        return { in: str, out: str.replace('ns', 'ss'), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
 };

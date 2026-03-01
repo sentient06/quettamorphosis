@@ -17,7 +17,7 @@ export const oldSindarinRules = {
     pattern: '[-SVi] > [-Sī]',
     description: 'final i-diphthongs became long [ī] in polysyllables',
     url: 'https://eldamo.org/content/words/word-71909447.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
       // 1. It's polysyllable:
@@ -30,12 +30,12 @@ export const oldSindarinRules = {
           if (secondLastChar.isVowel()) {
             // 4. It's a valid diphthong:
             if (['a', 'e', 'o'].includes(secondLastChar)) {
-              return { in: str, out: str.substring(0, str.length - 2) + 'ī' };
+              return { in: str, out: str.substring(0, str.length - 2) + 'ī', morphemes: options.morphemes };
             }
           }
         }
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1989991061': {
@@ -43,14 +43,14 @@ export const oldSindarinRules = {
     pattern: '[ŋ-] > [ŋg-]',
     description: 'initial [ŋ] became [ŋg] or [g]',
     url: 'https://eldamo.org/content/words/word-1989991061.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const normalizedStr = str.replaceAll('ñ', 'ŋ');
       if (normalizedStr.startsWith('ŋ')) {
         const nextChar = normalizedStr.nth(1);
         const i = nextChar === 'g' ? 2 : 1;
-        return { in: str, out: 'g' + normalizedStr.substring(i, normalizedStr.length) };
+        return { in: str, out: 'g' + normalizedStr.substring(i, normalizedStr.length), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '4282797219': {
@@ -58,9 +58,9 @@ export const oldSindarinRules = {
     pattern: '[Vb{bdg}|Vg{bdg}] > [Vu{bdg}|Vi{bdg}]',
     description: 'first in pair of voiced stops vocalized',
     url: 'https://eldamo.org/content/words/word-4282797219.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['bd', 'gd'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'bd': 'ud',
@@ -71,7 +71,7 @@ export const oldSindarinRules = {
         const { matched, charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '107931923': {
@@ -79,9 +79,9 @@ export const oldSindarinRules = {
     pattern: '[ɣ{mnlr}] > [g{mnlr}]',
     description: '[ɣ] became [g] before nasals and liquids',
     url: 'https://eldamo.org/content/words/word-107931923.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ɣ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -90,7 +90,7 @@ export const oldSindarinRules = {
           result = result.substring(0, charIndex) + 'g' + result.substring(charIndex + 1);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '1117448055': {
@@ -98,11 +98,11 @@ export const oldSindarinRules = {
     pattern: '[{ɣh}-] > [ø-]',
     description: 'initial [ɣ]/[h] vanished',
     url: 'https://eldamo.org/content/words/word-1117448055.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.startsWith('ɣ') || str.startsWith('h')) {
-        return { in: str, out: str.slice(1) };
+        return { in: str, out: str.slice(1), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '345959193': {
@@ -110,10 +110,10 @@ export const oldSindarinRules = {
     pattern: '[{kkʰg}j-|skj-|ŋgj] > [{kkʰg}-|sk-|ŋg]',
     description: '[j] was lost after initial velars',
     url: 'https://eldamo.org/content/words/word-345959193.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // kʰ is already ꝁ (single char), so search for ꝁj (not kʰj)
       const occurrences = findAllOf(['skj', 'ŋgj', 'kj', 'ꝁj', 'gj'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'skj': 'sk',
@@ -140,7 +140,7 @@ export const oldSindarinRules = {
       const occB = findAllOf(['kj', 'ꝁj', 'gj'], result);
       result = processMatches(occB, result);
 
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '1484184939': {
@@ -148,9 +148,9 @@ export const oldSindarinRules = {
     pattern: '[m{jw}|-mw] > [n{jw}|-mm]',
     description: 'medial [m] became [n] before [j], [w]',
     url: 'https://eldamo.org/content/words/word-1484184939.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['m'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -165,7 +165,7 @@ export const oldSindarinRules = {
           }
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '1955360003': {
@@ -173,14 +173,14 @@ export const oldSindarinRules = {
     pattern: '[m{lr}-] > [b{lr}-]',
     description: 'initial [ml], [mr] became [bl], [br]',
     url: 'https://eldamo.org/content/words/word-1955360003.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.nth(0) === 'm') {
         const nextChar = str.nth(1);
         if (['l', 'r'].includes(nextChar)) {
-          return { in: str, out: 'b' + str.substring(1) };
+          return { in: str, out: 'b' + str.substring(1), morphemes: options.morphemes };
         }
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1024355367': {
@@ -188,7 +188,7 @@ export const oldSindarinRules = {
     pattern: '[{ṃṇŋ̣}-] > [a{mnŋ}-]',
     description: 'initial syllabic [m], [n], [ŋ] became [am], [an], [aŋ]',
     url: 'https://eldamo.org/content/words/word-1024355367.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const firstChar = str.nth(0);
       const firstChars = str.nth(0, 2);
       if (['ṃ', 'ṇ'].includes(firstChar)) {
@@ -196,12 +196,12 @@ export const oldSindarinRules = {
           'ṃ': 'am',
           'ṇ': 'an',
         };
-        return { in: str, out: replacements[firstChar] + str.substring(1) };
+        return { in: str, out: replacements[firstChar] + str.substring(1), morphemes: options.morphemes };
       }
       if (firstChars === 'ŋ̣') {
-        return { in: str, out: 'aŋ' + str.substring(2) };
+        return { in: str, out: 'aŋ' + str.substring(2), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '3463937975': {
@@ -209,9 +209,9 @@ export const oldSindarinRules = {
     pattern: '[{ptk}{mn}] > [{bdg}{mnŋ}]',
     description: 'voiceless stops were voiced before nasals',
     url: 'https://eldamo.org/content/words/word-3463937975.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['pn', 'tn', 'kn', 'pm', 'tm', 'km'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'pn': 'bn',
@@ -227,7 +227,7 @@ export const oldSindarinRules = {
         const { matched, charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '3883770909': {
@@ -235,10 +235,10 @@ export const oldSindarinRules = {
     pattern: '[{ptk}ʰm] > [{ptk}ʰw]',
     description: '[m] became [w] after aspirates',
     url: 'https://eldamo.org/content/words/word-3883770909.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // ŧ=tʰ, ƥ=pʰ, ꝁ=kʰ (single char forms)
       const occurrences = findAllOf(['ŧm', 'ƥm', 'ꝁm'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'ŧm': 'ŧw',
@@ -250,7 +250,7 @@ export const oldSindarinRules = {
         const { matched, charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '1757900715': {
@@ -258,17 +258,17 @@ export const oldSindarinRules = {
     pattern: '[tʰn] > [ttʰ]',
     description: '[tʰn] became [ttʰ]',
     url: 'https://eldamo.org/content/words/word-1757900715.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // ŧ = tʰ (single char form)
       const occurrences = findAllOf(['ŧn'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + 'tŧ' + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '1789116309': {
@@ -276,15 +276,15 @@ export const oldSindarinRules = {
     pattern: '[-Vd] > [-V̄ø]',
     description: 'final [d] spirantalized and vanished',
     url: 'https://eldamo.org/content/words/word-1789116309.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.endsWith('d')) {
         const penultimateChar = str.nth(-2);
         if (penultimateChar.isVowel()) {
           const longVowel = penultimateChar.addMark('¯');
-          return { in: str, out: str.substring(0, str.length - 2) + longVowel };
+          return { in: str, out: str.substring(0, str.length - 2) + longVowel, morphemes: options.morphemes };
         }
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '300026073': {
@@ -292,12 +292,12 @@ export const oldSindarinRules = {
     pattern: '[-tʰ] > [-t]',
     description: 'final [tʰ] became [t]',
     url: 'https://eldamo.org/content/words/word-300026073.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // ŧ = tʰ (single char form)
       if (str.endsWith('ŧ')) {
-        return { in: str, out: str.substring(0, str.length - 1) + 't' };
+        return { in: str, out: str.substring(0, str.length - 1) + 't', morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '3229649933': {
@@ -305,10 +305,10 @@ export const oldSindarinRules = {
     pattern: '[-sj-|-sw-] > [-xʲ-|-xʷ-]',
     description: 'medial [sj], [sw] became [xʲ], [xʷ]',
     url: 'https://eldamo.org/content/words/word-3229649933.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // ꜧ = xʲ, ƕ = xʷ (single char forms)
       const occurrences = findAllOf(['sj', 'sw'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'sj': 'ꜧ',
@@ -320,7 +320,7 @@ export const oldSindarinRules = {
         const { matched, charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '2753394075': {
@@ -328,13 +328,13 @@ export const oldSindarinRules = {
     pattern: '[-SV̄] > [-SV̆]',
     description: 'long final vowels were shortened',
     url: 'https://eldamo.org/content/words/word-2753394075.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const lastChar = str.nth(-1);
       const mark = lastChar.getMark();
       if (['¯', '´', '^'].includes(mark)) {
-        return { in: str, out: str.substring(0, str.length - 1) + lastChar.removeMarks() };
+        return { in: str, out: str.substring(0, str.length - 1) + lastChar.removeMarks(), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1249932447': {
@@ -342,9 +342,9 @@ export const oldSindarinRules = {
     pattern: '[Vzd] > [V̄d]',
     description: '[z] vanished before [d] lengthening preceding vowel',
     url: 'https://eldamo.org/content/words/word-1249932447.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['z'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -353,7 +353,7 @@ export const oldSindarinRules = {
           result = result.substring(0, charIndex - 1) + prevChar.removeMarks().addMark('¯') + result.substring(charIndex + 1);
         }
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '2107885715': {
@@ -361,14 +361,14 @@ export const oldSindarinRules = {
     pattern: '[ṣ-] > [es-]',
     description: 'syllabic initial [s] became [es]',
     url: 'https://eldamo.org/content/words/word-2107885715.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.startsWith('ṣ')) {
         const secondChar = str.nth(1);
         if (['c', 'k', 'p', 't'].includes(secondChar)) {
-          return { in: str, out: 'es' + str.substring(1) };
+          return { in: str, out: 'es' + str.substring(1), morphemes: options.morphemes };
         }
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '3923357111': {
@@ -376,9 +376,9 @@ export const oldSindarinRules = {
     pattern: '[s{jwmnrl}-] > [{j̊w̥m̥n̥l̥r̥}-]',
     description: 'initial [s] unvoiced following consonants',
     url: 'https://eldamo.org/content/words/word-3923357111.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const firstChar = str.nth(0);
-      if (firstChar !== 's') return { in: str, out: str };
+      if (firstChar !== 's') return { in: str, out: str, morphemes: options.morphemes };
 
       const secondChar = str.nth(1);
       const replacements = {
@@ -392,9 +392,9 @@ export const oldSindarinRules = {
       const validNext = Object.keys(replacements);
 
       if (validNext.includes(secondChar)) {
-        return { in: str, out: replacements[secondChar] + str.substring(2) };
+        return { in: str, out: replacements[secondChar] + str.substring(2), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1763851339': {
@@ -404,32 +404,32 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-1763851339.html',
     skip: true,
     info: ['This rule is skipped by default because evidence for it is rather shaky.'],
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const lastChar = str.nth(-1);
       if (lastChar === 'e') {
         const secondLastChar = str.nth(-2);
         const thirdLastChar = str.nth(-3);
         if (thirdLastChar === 's') {
           if (secondLastChar === 't') {
-            return { in: str, out: str.substring(0, str.length - 1) + 'a' };
+            return { in: str, out: str.substring(0, str.length - 1) + 'a', morphemes: options.morphemes };
           }
           if (secondLastChar === 's') {
-            return { in: str, out: str };
+            return { in: str, out: str, morphemes: options.morphemes };
           }
         }
         // This is not attested and it's basically guessing:
         if (thirdLastChar === 't' && secondLastChar === 's') {
-          return { in: str, out: str };
+          return { in: str, out: str, morphemes: options.morphemes };
         }
         // - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (secondLastChar === 's') {
-          return { in: str, out: str.substring(0, str.length - 1) + 'a' };
+          return { in: str, out: str.substring(0, str.length - 1) + 'a', morphemes: options.morphemes };
         }
         if (thirdLastChar === 'r' && secondLastChar === 't') {
-          return { in: str, out: str.substring(0, str.length - 1) + 'a' };
+          return { in: str, out: str.substring(0, str.length - 1) + 'a', morphemes: options.morphemes };
         }
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '798037075': {
@@ -437,21 +437,21 @@ export const oldSindarinRules = {
     pattern: '[s{ptk}-] > [s{ɸθx}-]',
     description: 'voiceless stops became spirants after initial [s]',
     url: 'https://eldamo.org/content/words/word-798037075.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const firstChar = str.nth(0);
       if (firstChar === 's') {
         const secondChar = str.nth(1);
         if (secondChar === 'p') {
-          return { in: str, out: 'sɸ' + str.substring(2) };
+          return { in: str, out: 'sɸ' + str.substring(2), morphemes: options.morphemes };
         }
         if (secondChar === 't') {
-          return { in: str, out: 'sθ' + str.substring(2) };
+          return { in: str, out: 'sθ' + str.substring(2), morphemes: options.morphemes };
         }
         if (secondChar === 'k') {
-          return { in: str, out: 'sx' + str.substring(2) };
+          return { in: str, out: 'sx' + str.substring(2), morphemes: options.morphemes };
         }
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1683955225': {
@@ -459,7 +459,7 @@ export const oldSindarinRules = {
     pattern: '[{ptkmnŋlr}{ptk}] > [{ptkmnŋlr}{ptk}ʰ]',
     description: 'voiceless stops aspirated after consonants except [s]',
     url: 'https://eldamo.org/content/words/word-1683955225.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['p', 't', 'k', 'c'], str);
       if (occurrences.length > 0) {
         const validConsonants = ['r', 'l', 'm', 'n', 'ŋ', 'd', 'b', 'g', 'p', 't', 'k', 'c', 'x'];
@@ -475,9 +475,9 @@ export const oldSindarinRules = {
           const mutatedChar = digraphsToSingle(result.nth(charIndex) + 'ʰ');
           result = result.substring(0, charIndex) + mutatedChar + result.substring(charIndex + 1);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '883570327': {
@@ -485,11 +485,11 @@ export const oldSindarinRules = {
     pattern: '[{ptk}ʰ|{ptk}{ptk}ʰ] > [{ɸθx}|{ɸθx}{ɸθx}]',
     description: 'aspirates became voiceless spirants',
     url: 'https://eldamo.org/content/words/word-883570327.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       // ƥ=pʰ, ŧ=tʰ, ꝁ=kʰ (single char forms for aspirated stops)
 
       const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const dualReplacements = {
         'pƥ': 'ɸɸ',
@@ -525,7 +525,7 @@ export const oldSindarinRules = {
         result = result.substring(0, startingPoint) + replacer + result.substring(startingPoint + replacer.length);
 
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '2662025405': {
@@ -533,11 +533,11 @@ export const oldSindarinRules = {
     pattern: '[eu] > [iu]',
     description: '[eu] became [iu]',
     url: 'https://eldamo.org/content/words/word-2662025405.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       if (str.includes('eu')) {
-        return { in: str, out: str.replaceAll('eu', 'iu') };
+        return { in: str, out: str.replaceAll('eu', 'iu'), morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '2858643115': {
@@ -545,16 +545,16 @@ export const oldSindarinRules = {
     pattern: '[ā|au] > [ǭ]',
     description: '[ā], [au] became [ǭ]',
     url: 'https://eldamo.org/content/words/word-2858643115.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ā', 'á', 'â', 'au'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + 'ǭ' + result.substring(charIndex + matched.length);
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '161840619': {
@@ -562,9 +562,9 @@ export const oldSindarinRules = {
     pattern: '[VjV|-Vj] > [ViV|-Vi]',
     description: '[j] became [i] after vowels',
     url: 'https://eldamo.org/content/words/word-161840619.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['j'], str);
-      if (occurrences.length === 0) return { in: str, out: str };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -579,7 +579,7 @@ export const oldSindarinRules = {
         }
         result = result.replace('ii', 'ī');
       }
-      return { in: str, out: result };
+      return { in: str, out: result, morphemes: options.morphemes };
     },
   },
   '1942848653': {
@@ -587,7 +587,7 @@ export const oldSindarinRules = {
     pattern: '[ei|ou] > [ī|ū]',
     description: '[ei], [ou] became [ī], [ū]',
     url: 'https://eldamo.org/content/words/word-1942848653.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ei', 'ou'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -607,9 +607,9 @@ export const oldSindarinRules = {
             }
           }
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '2010669085': {
@@ -617,7 +617,7 @@ export const oldSindarinRules = {
     pattern: '[oi|ǭi] > [ui|oi]',
     description: '[oi], [ǭi] became [ui], [oi]',
     url: 'https://eldamo.org/content/words/word-2010669085.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['oi', 'ǭi'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -629,9 +629,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1716741635': {
@@ -639,7 +639,7 @@ export const oldSindarinRules = {
     pattern: '[-{sm|sn}-] > [-{mm|nn}-]',
     description: 'medial [s] assimilated to following nasal',
     url: 'https://eldamo.org/content/words/word-1716741635.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['sm', 'sn'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -652,9 +652,9 @@ export const oldSindarinRules = {
           if (charIndex === 0 || nextChar === '') continue;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '3388236413': {
@@ -662,7 +662,7 @@ export const oldSindarinRules = {
     pattern: '[VsV|-Vs] > [VhV|-Vh]',
     description: 'intervocalic [s] became [h]',
     url: 'https://eldamo.org/content/words/word-3388236413.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['s'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -673,9 +673,9 @@ export const oldSindarinRules = {
             result = result.substring(0, charIndex) + 'h' + result.substring(charIndex + 1);
           }
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1516403107': {
@@ -683,7 +683,7 @@ export const oldSindarinRules = {
     pattern: '[ps|ts|ks] > [ɸɸ|θθ|xx]',
     description: '[p], [t], [k] spirantalized before [s]',
     url: 'https://eldamo.org/content/words/word-1516403107.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ps', 'ts', 'ks'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -696,9 +696,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '1288402337': {
@@ -708,7 +708,7 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-1288402337.html',
     skip: true,
     info: ['This was not true of later or reformed compounds.', 'This rule is skipped by default.'],
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['rl'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -716,9 +716,9 @@ export const oldSindarinRules = {
           const { charIndex } = occurrence;
           result = result.substring(0, charIndex) + 'll' + result.substring(charIndex + 2);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '2851583127': {
@@ -726,7 +726,7 @@ export const oldSindarinRules = {
     pattern: '[{ji|jui}-] > [{i|ui}-]',
     description: '[j] vanished before [i], [ui]',
     url: 'https://eldamo.org/content/words/word-2851583127.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ji', 'jui'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -738,9 +738,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '2167009353': {
@@ -748,7 +748,7 @@ export const oldSindarinRules = {
     pattern: '[{uw|wu}] > [u]',
     description: '[w] vanished before [u]',
     url: 'https://eldamo.org/content/words/word-2167009353.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const unmarkedStr = str.removeMarks();
       const occurrences = findAllOf(['uw', 'wu'], unmarkedStr);
       if (occurrences.length > 0) {
@@ -761,9 +761,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '2615312913': {
@@ -771,7 +771,7 @@ export const oldSindarinRules = {
     pattern: '[bm|dn] > [mm|nn]',
     description: '[bm], [dn] became [mm], [nn]',
     url: 'https://eldamo.org/content/words/word-2615312913.html',
-    mechanic: (str) => {
+    mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['bm', 'dn'], str);
       if (occurrences.length > 0) {
         let result = str;
@@ -783,9 +783,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return { in: str, out: result };
+        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str };
+      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
 };
