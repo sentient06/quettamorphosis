@@ -30,12 +30,12 @@ export const oldSindarinRules = {
           if (secondLastChar.isVowel()) {
             // 4. It's a valid diphthong:
             if (['a', 'e', 'o'].includes(secondLastChar)) {
-              return str.substring(0, str.length - 2) + 'ī';
+              return { in: str, out: str.substring(0, str.length - 2) + 'ī' };
             }
           }
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1989991061': {
@@ -48,9 +48,9 @@ export const oldSindarinRules = {
       if (normalizedStr.startsWith('ŋ')) {
         const nextChar = normalizedStr.nth(1);
         const i = nextChar === 'g' ? 2 : 1;
-        return 'g' + normalizedStr.substring(i, normalizedStr.length);
+        return { in: str, out: 'g' + normalizedStr.substring(i, normalizedStr.length) };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '4282797219': {
@@ -60,7 +60,7 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-4282797219.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['bd', 'gd'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'bd': 'ud',
@@ -71,7 +71,7 @@ export const oldSindarinRules = {
         const { matched, charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '107931923': {
@@ -81,7 +81,7 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-107931923.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['ɣ'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -90,7 +90,7 @@ export const oldSindarinRules = {
           result = result.substring(0, charIndex) + 'g' + result.substring(charIndex + 1);
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1117448055': {
@@ -100,9 +100,9 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-1117448055.html',
     mechanic: (str) => {
       if (str.startsWith('ɣ') || str.startsWith('h')) {
-        return str.slice(1);
+        return { in: str, out: str.slice(1) };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '345959193': {
@@ -113,7 +113,7 @@ export const oldSindarinRules = {
     mechanic: (str) => {
       // kʰ is already ꝁ (single char), so search for ꝁj (not kʰj)
       const occurrences = findAllOf(['skj', 'ŋgj', 'kj', 'ꝁj', 'gj'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'skj': 'sk',
@@ -131,7 +131,7 @@ export const oldSindarinRules = {
         }
         return res;
       };
-      
+
       let result = str;
 
       const occA = occurrences.filter((o) => ['skj', 'ŋgj'].indexOf(o.matched) > -1);
@@ -140,7 +140,7 @@ export const oldSindarinRules = {
       const occB = findAllOf(['kj', 'ꝁj', 'gj'], result);
       result = processMatches(occB, result);
 
-      return result;
+      return { in: str, out: result };
     },
   },
   '1484184939': {
@@ -150,7 +150,7 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-1484184939.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['m'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -165,7 +165,7 @@ export const oldSindarinRules = {
           }
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1955360003': {
@@ -177,10 +177,10 @@ export const oldSindarinRules = {
       if (str.nth(0) === 'm') {
         const nextChar = str.nth(1);
         if (['l', 'r'].includes(nextChar)) {
-          return 'b' + str.substring(1);
+          return { in: str, out: 'b' + str.substring(1) };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1024355367': {
@@ -196,12 +196,12 @@ export const oldSindarinRules = {
           'ṃ': 'am',
           'ṇ': 'an',
         };
-        return replacements[firstChar] + str.substring(1);
+        return { in: str, out: replacements[firstChar] + str.substring(1) };
       }
       if (firstChars === 'ŋ̣') {
-        return 'aŋ' + str.substring(2);
+        return { in: str, out: 'aŋ' + str.substring(2) };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3463937975': {
@@ -211,7 +211,7 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-3463937975.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['pn', 'tn', 'kn', 'pm', 'tm', 'km'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'pn': 'bn',
@@ -227,7 +227,7 @@ export const oldSindarinRules = {
         const { matched, charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '3883770909': {
@@ -238,7 +238,7 @@ export const oldSindarinRules = {
     mechanic: (str) => {
       // ŧ=tʰ, ƥ=pʰ, ꝁ=kʰ (single char forms)
       const occurrences = findAllOf(['ŧm', 'ƥm', 'ꝁm'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'ŧm': 'ŧw',
@@ -250,7 +250,7 @@ export const oldSindarinRules = {
         const { matched, charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1757900715': {
@@ -261,14 +261,14 @@ export const oldSindarinRules = {
     mechanic: (str) => {
       // ŧ = tʰ (single char form)
       const occurrences = findAllOf(['ŧn'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + 'tŧ' + result.substring(charIndex + 2);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1789116309': {
@@ -281,10 +281,10 @@ export const oldSindarinRules = {
         const penultimateChar = str.nth(-2);
         if (penultimateChar.isVowel()) {
           const longVowel = penultimateChar.addMark('¯');
-          return str.substring(0, str.length - 2) + longVowel;
+          return { in: str, out: str.substring(0, str.length - 2) + longVowel };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '300026073': {
@@ -295,9 +295,9 @@ export const oldSindarinRules = {
     mechanic: (str) => {
       // ŧ = tʰ (single char form)
       if (str.endsWith('ŧ')) {
-        return str.substring(0, str.length - 1) + 't';
+        return { in: str, out: str.substring(0, str.length - 1) + 't' };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3229649933': {
@@ -308,7 +308,7 @@ export const oldSindarinRules = {
     mechanic: (str) => {
       // ꜧ = xʲ, ƕ = xʷ (single char forms)
       const occurrences = findAllOf(['sj', 'sw'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'sj': 'ꜧ',
@@ -320,7 +320,7 @@ export const oldSindarinRules = {
         const { matched, charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '2753394075': {
@@ -332,9 +332,9 @@ export const oldSindarinRules = {
       const lastChar = str.nth(-1);
       const mark = lastChar.getMark();
       if (['¯', '´', '^'].includes(mark)) {
-        return str.substring(0, str.length - 1) + lastChar.removeMarks();
+        return { in: str, out: str.substring(0, str.length - 1) + lastChar.removeMarks() };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1249932447': {
@@ -344,7 +344,7 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-1249932447.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['z'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -353,7 +353,7 @@ export const oldSindarinRules = {
           result = result.substring(0, charIndex - 1) + prevChar.removeMarks().addMark('¯') + result.substring(charIndex + 1);
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '2107885715': {
@@ -365,10 +365,10 @@ export const oldSindarinRules = {
       if (str.startsWith('ṣ')) {
         const secondChar = str.nth(1);
         if (['c', 'k', 'p', 't'].includes(secondChar)) {
-          return 'es' + str.substring(1);
+          return { in: str, out: 'es' + str.substring(1) };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3923357111': {
@@ -378,7 +378,7 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-3923357111.html',
     mechanic: (str) => {
       const firstChar = str.nth(0);
-      if (firstChar !== 's') return str;
+      if (firstChar !== 's') return { in: str, out: str };
 
       const secondChar = str.nth(1);
       const replacements = {
@@ -392,8 +392,9 @@ export const oldSindarinRules = {
       const validNext = Object.keys(replacements);
 
       if (validNext.includes(secondChar)) {
-        return replacements[secondChar] + str.substring(2);
+        return { in: str, out: replacements[secondChar] + str.substring(2) };
       }
+      return { in: str, out: str };
     },
   },
   '1763851339': {
@@ -410,25 +411,25 @@ export const oldSindarinRules = {
         const thirdLastChar = str.nth(-3);
         if (thirdLastChar === 's') {
           if (secondLastChar === 't') {
-            return str.substring(0, str.length - 1) + 'a';
+            return { in: str, out: str.substring(0, str.length - 1) + 'a' };
           }
           if (secondLastChar === 's') {
-            return str;
+            return { in: str, out: str };
           }
         }
         // This is not attested and it's basically guessing:
         if (thirdLastChar === 't' && secondLastChar === 's') {
-          return str;
+          return { in: str, out: str };
         }
         // - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (secondLastChar === 's') {
-          return str.substring(0, str.length - 1) + 'a';
+          return { in: str, out: str.substring(0, str.length - 1) + 'a' };
         }
         if (thirdLastChar === 'r' && secondLastChar === 't') {
-          return str.substring(0, str.length - 1) + 'a';
+          return { in: str, out: str.substring(0, str.length - 1) + 'a' };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '798037075': {
@@ -441,16 +442,16 @@ export const oldSindarinRules = {
       if (firstChar === 's') {
         const secondChar = str.nth(1);
         if (secondChar === 'p') {
-          return 'sɸ' + str.substring(2);
+          return { in: str, out: 'sɸ' + str.substring(2) };
         }
         if (secondChar === 't') {
-          return 'sθ' + str.substring(2);
+          return { in: str, out: 'sθ' + str.substring(2) };
         }
         if (secondChar === 'k') {
-          return 'sx' + str.substring(2);
+          return { in: str, out: 'sx' + str.substring(2) };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1683955225': {
@@ -474,9 +475,9 @@ export const oldSindarinRules = {
           const mutatedChar = digraphsToSingle(result.nth(charIndex) + 'ʰ');
           result = result.substring(0, charIndex) + mutatedChar + result.substring(charIndex + 1);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '883570327': {
@@ -488,7 +489,7 @@ export const oldSindarinRules = {
       // ƥ=pʰ, ŧ=tʰ, ꝁ=kʰ (single char forms for aspirated stops)
 
       const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const dualReplacements = {
         'pƥ': 'ɸɸ',
@@ -506,8 +507,8 @@ export const oldSindarinRules = {
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, matched, nextChar, prevChar } = occurrences[i];
-        
+        const { charIndex, matched, prevChar } = occurrences[i];
+
         const sequence = `${prevChar}${matched}`;
         let replacer = null;
         let startingPoint = 0;
@@ -524,7 +525,7 @@ export const oldSindarinRules = {
         result = result.substring(0, startingPoint) + replacer + result.substring(startingPoint + replacer.length);
 
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '2662025405': {
@@ -534,9 +535,9 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-2662025405.html',
     mechanic: (str) => {
       if (str.includes('eu')) {
-        return str.replaceAll('eu', 'iu');
+        return { in: str, out: str.replaceAll('eu', 'iu') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2858643115': {
@@ -546,14 +547,14 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-2858643115.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['ā', 'á', 'â', 'au'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + 'ǭ' + result.substring(charIndex + matched.length);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '161840619': {
@@ -563,11 +564,11 @@ export const oldSindarinRules = {
     url: 'https://eldamo.org/content/words/word-161840619.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['j'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, matched, prevChar, nextChar } = occurrences[i];
+        const { charIndex, prevChar, nextChar } = occurrences[i];
         if (nextChar) {
           if (prevChar.isVowel() && nextChar.isVowel()) {
             result = result.substring(0, charIndex) + 'i' + result.substring(charIndex + 1);
@@ -578,7 +579,7 @@ export const oldSindarinRules = {
         }
         result = result.replace('ii', 'ī');
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1942848653': {
@@ -606,9 +607,9 @@ export const oldSindarinRules = {
             }
           }
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2010669085': {
@@ -628,9 +629,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1716741635': {
@@ -647,13 +648,13 @@ export const oldSindarinRules = {
           'sn': 'nn',
         };
         for (const occurrence of occurrences) {
-          const { matched, charIndex, prevChar, nextChar } = occurrence;
+          const { matched, charIndex, nextChar } = occurrence;
           if (charIndex === 0 || nextChar === '') continue;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3388236413': {
@@ -672,9 +673,9 @@ export const oldSindarinRules = {
             result = result.substring(0, charIndex) + 'h' + result.substring(charIndex + 1);
           }
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1516403107': {
@@ -695,9 +696,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1288402337': {
@@ -715,9 +716,9 @@ export const oldSindarinRules = {
           const { charIndex } = occurrence;
           result = result.substring(0, charIndex) + 'll' + result.substring(charIndex + 2);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2851583127': {
@@ -737,9 +738,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2167009353': {
@@ -760,9 +761,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2615312913': {
@@ -782,9 +783,9 @@ export const oldSindarinRules = {
           const { matched, charIndex } = occurrence;
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
 };

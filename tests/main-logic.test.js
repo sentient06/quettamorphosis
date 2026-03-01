@@ -133,8 +133,8 @@ describe('main-logic', () => {
         'rule2': { orderId: '00200' },
       };
       const mockResults = {
-        'rule1': 'output1',
-        'rule2': 'output2',
+        'rule1': { in: 'input1', out: 'output1' },
+        'rule2': { in: 'input2', out: 'output2' },
       };
       const result = formatTripped(mockRules, mockResults);
       expect(result).toContain('<a href="#rule-rule1">00100</a> - output1');
@@ -153,8 +153,8 @@ describe('main-logic', () => {
         'rule2': { orderId: '00100' },
       };
       const mockResults = {
-        'rule1': 'output1',
-        'rule2': 'output2',
+        'rule1': { in: 'input1', out: 'output1' },
+        'rule2': { in: 'input2', out: 'output2' },
       };
       const result = formatTripped(mockRules, mockResults);
       const lines = result.split('\n');

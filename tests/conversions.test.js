@@ -21,28 +21,28 @@ describe('Conversion Rules', () => {
       expect(rule.orderId).toBe('PRE-01');
 
       // Test basic digraph conversions (only those in DIGRAPH_MAP)
-      expect(rule.mechanic('th')).toBe('θ');
-      expect(rule.mechanic('dh')).toBe('ð');
-      expect(rule.mechanic('ch')).toBe('x');
-      expect(rule.mechanic('ng')).toBe('ŋ');
-      expect(rule.mechanic('ph')).toBe('ɸ');
-      expect(rule.mechanic('hw')).toBe('ʍ');
-      expect(rule.mechanic('gw')).toBe('ƣ');
-      expect(rule.mechanic('gh')).toBe('ɣ');
-      expect(rule.mechanic('ss')).toBe('ſ');
+      expect(rule.mechanic('th').out).toBe('θ');
+      expect(rule.mechanic('dh').out).toBe('ð');
+      expect(rule.mechanic('ch').out).toBe('x');
+      expect(rule.mechanic('ng').out).toBe('ŋ');
+      expect(rule.mechanic('ph').out).toBe('ɸ');
+      expect(rule.mechanic('hw').out).toBe('ʍ');
+      expect(rule.mechanic('gw').out).toBe('ƣ');
+      expect(rule.mechanic('gh').out).toBe('ɣ');
+      expect(rule.mechanic('ss').out).toBe('ſ');
 
       // Note: lh and rh are commented out in DIGRAPH_MAP
-      // expect(rule.mechanic('lh')).toBe('λ');
-      // expect(rule.mechanic('rh')).toBe('ꝛ');
+      // expect(rule.mechanic('lh').out).toBe('λ');
+      // expect(rule.mechanic('rh').out).toBe('ꝛ');
 
       // Test aspirated stops (distinct from spirants)
-      expect(rule.mechanic('kʰ')).toBe('ꝁ');
-      expect(rule.mechanic('pʰ')).toBe('ƥ');
-      expect(rule.mechanic('tʰ')).toBe('ŧ');
+      expect(rule.mechanic('kʰ').out).toBe('ꝁ');
+      expect(rule.mechanic('pʰ').out).toBe('ƥ');
+      expect(rule.mechanic('tʰ').out).toBe('ŧ');
 
       // Test full word
-      expect(rule.mechanic('ithil')).toBe('iθil');
-      expect(rule.mechanic('thorondor')).toBe('θorondor');
+      expect(rule.mechanic('ithil').out).toBe('iθil');
+      expect(rule.mechanic('thorondor').out).toBe('θorondor');
     });
   });
 
@@ -69,27 +69,27 @@ describe('Conversion Rules', () => {
       expect(rule.orderId).toBe('POST-01');
 
       // Test basic single-char to digraph conversions
-      expect(rule.mechanic('θ')).toBe('th');
-      expect(rule.mechanic('ð')).toBe('dh');
-      expect(rule.mechanic('x')).toBe('ch');
-      expect(rule.mechanic('ŋ')).toBe('ng');
-      expect(rule.mechanic('ɸ')).toBe('ph');
-      expect(rule.mechanic('λ')).toBe('lh');
-      expect(rule.mechanic('ꝛ')).toBe('rh');
+      expect(rule.mechanic('θ').out).toBe('th');
+      expect(rule.mechanic('ð').out).toBe('dh');
+      expect(rule.mechanic('x').out).toBe('ch');
+      expect(rule.mechanic('ŋ').out).toBe('ng');
+      expect(rule.mechanic('ɸ').out).toBe('ph');
+      expect(rule.mechanic('λ').out).toBe('lh');
+      expect(rule.mechanic('ꝛ').out).toBe('rh');
       // Note: ʍ maps to 'wh' in SINGLE_TO_DIGRAPH_MAP
-      expect(rule.mechanic('ʍ')).toBe('wh');
-      expect(rule.mechanic('ƣ')).toBe('gw');
-      expect(rule.mechanic('ɣ')).toBe('gh');
-      expect(rule.mechanic('ſ')).toBe('ss');
+      expect(rule.mechanic('ʍ').out).toBe('wh');
+      expect(rule.mechanic('ƣ').out).toBe('gw');
+      expect(rule.mechanic('ɣ').out).toBe('gh');
+      expect(rule.mechanic('ſ').out).toBe('ss');
 
       // Test aspirated stops convert back to regular text (no phonetic symbols)
-      expect(rule.mechanic('ꝁ')).toBe('ch');
-      expect(rule.mechanic('ƥ')).toBe('ph');
-      expect(rule.mechanic('ŧ')).toBe('th');
+      expect(rule.mechanic('ꝁ').out).toBe('ch');
+      expect(rule.mechanic('ƥ').out).toBe('ph');
+      expect(rule.mechanic('ŧ').out).toBe('th');
 
       // Test full word
-      expect(rule.mechanic('iθil')).toBe('ithil');
-      expect(rule.mechanic('θorondor')).toBe('thorondor');
+      expect(rule.mechanic('iθil').out).toBe('ithil');
+      expect(rule.mechanic('θorondor').out).toBe('thorondor');
     });
   });
 
@@ -112,8 +112,8 @@ describe('Conversion Rules', () => {
       ];
 
       testWords.forEach((word) => {
-        const toSingle = preRule.mechanic(word);
-        const backToDigraph = postRule.mechanic(toSingle);
+        const toSingle = preRule.mechanic(word).out;
+        const backToDigraph = postRule.mechanic(toSingle).out;
         expect(backToDigraph).toBe(word);
       });
     });
@@ -123,9 +123,9 @@ describe('Conversion Rules', () => {
       const postRule = postProcessingRules['post-single-to-digraphs'];
 
       // Aspirated stops convert to regular digraphs (no phonetic symbols in output)
-      expect(postRule.mechanic(preRule.mechanic('kʰjabab'))).toBe('chyabab');
-      expect(postRule.mechanic(preRule.mechanic('pʰelga'))).toBe('phelga');
-      expect(postRule.mechanic(preRule.mechanic('tʰáni'))).toBe('tháni');
+      expect(postRule.mechanic(preRule.mechanic('kʰjabab').out).out).toBe('chyabab');
+      expect(postRule.mechanic(preRule.mechanic('pʰelga').out).out).toBe('phelga');
+      expect(postRule.mechanic(preRule.mechanic('tʰáni').out).out).toBe('tháni');
     });
   });
 });

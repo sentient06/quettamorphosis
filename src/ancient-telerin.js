@@ -39,7 +39,7 @@ export const ancientTelerinRules = {
       const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
       const syllableData = analyser.analyse(str);
 
-      if (syllableData.length < 2) return str;
+      if (syllableData.length < 2) return { in: str, out: str };
 
       const firstSyllable = syllableData[0];
       const secondSyllable = syllableData[1];
@@ -47,21 +47,21 @@ export const ancientTelerinRules = {
       // Both syllables have vowels of the same quality.
       const quality1 = firstSyllable.nucleus.removeMarks();
       const quality2 = secondSyllable.nucleus.removeMarks();
-      if (quality1 !== quality2) return str;
+      if (quality1 !== quality2) return { in: str, out: str };
 
       // The second syllable begins with r or l.
       const secondSyllableStart = secondSyllable.syllable.nth(0);
-      if (!['r', 'l'].includes(secondSyllableStart)) return str;
+      if (!['r', 'l'].includes(secondSyllableStart)) return { in: str, out: str };
 
       // The initial syllable begins with a stop, aspirate or (possibly) a nasal.
       const firstSyllableStart = firstSyllable.syllable.nth(0);
-      if (!'ptkƥꝁbdgm'.includes(firstSyllableStart)) return str;
+      if (!'ptkƥꝁbdgm'.includes(firstSyllableStart)) return { in: str, out: str };
 
       // -> There are no other characters between the beginning of the word and the nucleus:
       const indexOfNucleus = firstSyllable.syllable.indexOf(firstSyllable.nucleus);
       const charsBeforeVowel = firstSyllable.syllable.removeMarks().slice(0, indexOfNucleus);
       const unexpectedChars = /[^rlptkƥꝁbdgmaeiou]/.test(charsBeforeVowel);
-      if (unexpectedChars) return str;
+      if (unexpectedChars) return { in: str, out: str };
 
       // -> Ignore mb:
       // if (firstSyllableStart === 'm' && firstSyllable.syllable.nth(1) === 'b') return str;
@@ -77,8 +77,8 @@ export const ancientTelerinRules = {
         if (secondSyllableStressed === false) secondSyllableStressed = secondSyllable.stressed;
       }
 
-      if (firstSyllableStressed === true) return str;
-      if (secondSyllableStressed === false) return str;
+      if (firstSyllableStressed === true) return { in: str, out: str };
+      if (secondSyllableStressed === false) return { in: str, out: str };
 
       const result = [];
       result.push(firstSyllable.syllable.replace(firstSyllable.nucleus, ''));
@@ -93,11 +93,14 @@ export const ancientTelerinRules = {
 
       const newSyllables = analyser.analyse(joinedResult);
       // console.log({ newSyllables, joinedResult, a: joinedResult.removeMarks() });
-      if (newSyllables.length === 1) return joinedResult
-        .replace(/[\u0301]/g, '\u0304')  // acute → macron
-        .normaliseToOne();
+      if (newSyllables.length === 1) {
+        const finalResult = joinedResult
+          .replace(/[\u0301]/g, '\u0304')  // acute → macron
+          .normaliseToOne();
+        return { in: str, out: finalResult };
+      }
 
-      return joinedResult;
+      return { in: str, out: joinedResult };
 
       // const normalizedResult = joinedResult.normaliseToMany()
         // .replace(/[\u0301\u0302]/g, '\u0304')  // acute/circumflex → macron
@@ -122,7 +125,7 @@ export const ancientTelerinRules = {
           'gw': 'b',
           'ŋw': 'm',
         };
-        if (matched === 'ŋw' && charIndex > 0) return str;
+        if (matched === 'ŋw' && charIndex > 0) return { in: str, out: str };
 
         let result = str;
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
@@ -131,9 +134,9 @@ export const ancientTelerinRules = {
         if (result.nth(0) === 'm' && result.nth(1).isConsonant()) {
           result = 'ṃ' + result.substring(1);
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1532676669': {
@@ -146,13 +149,13 @@ export const ancientTelerinRules = {
     mechanic: (str) => {
       if (['t', 'ŧ', 'd', 'n', 'l'].includes(str.nth(0))) {
         if (str.nth(1) === 'j') {
-          return str.replace('j', '');
+          return { in: str, out: str.replace('j', '') };
         }
         if (str.nth(1) === 'y') {
-          return str.replace('y', '');
+          return { in: str, out: str.replace('y', '') };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1062284643': {
@@ -162,9 +165,9 @@ export const ancientTelerinRules = {
     url: 'https://eldamo.org/content/words/word-1062284643.html',
     mechanic: (str) => {
       if (str.includes('ln')) {
-        return str.replace('ln', 'll');
+        return { in: str, out: str.replace('ln', 'll') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '981459769': {
@@ -176,10 +179,10 @@ export const ancientTelerinRules = {
       if (['p', 't', 'k', 's'].includes(str.nth(-1))) {
         const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
         const syllableData = analyser.analyse(str);
-        if (syllableData.length === 1) return str;
-        return str.slice(0, -1);
+        if (syllableData.length === 1) return { in: str, out: str };
+        return { in: str, out: str.slice(0, -1) };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1254562549': {
@@ -189,12 +192,12 @@ export const ancientTelerinRules = {
     url: 'https://eldamo.org/content/words/word-e.html',
     mechanic: (str) => {
       if (str.includes('ms')) {
-        return str.replace('ms', 'ss');
+        return { in: str, out: str.replace('ms', 'ss') };
       }
       if (str.includes('ns')) {
-        return str.replace('ns', 'ss');
+        return { in: str, out: str.replace('ns', 'ss') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
 };

@@ -18,9 +18,9 @@ export const sindarinRules = {
     mechanic: (str) => {
       const initialW = str.nth(0).toLowerCase() === 'w';
       if (initialW) {
-        return str.replace('w', 'gw');
+        return { in: str, out: str.replace('w', 'gw') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3057844573': {
@@ -31,9 +31,9 @@ export const sindarinRules = {
     mechanic: (str) => {
       const initialNasal = str.substring(0, 2) === 'mb' || str.substring(0, 2) === 'nd' || str.substring(0, 2) === 'ŋg';
       if (initialNasal) {
-        return str.replace('mb', 'b').replace('nd', 'd').replace('ŋg', 'g');
+        return { in: str, out: str.replace('mb', 'b').replace('nd', 'd').replace('ŋg', 'g') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '876455981': {
@@ -47,10 +47,10 @@ export const sindarinRules = {
         const penultimateChar = str.nth(-2);
         const isPenultimateVowel = penultimateChar.isVowel();
         if (isPenultimateVowel && (lastChar === 'm' || lastChar === 'n')) {
-          return str.substring(0, str.length - 1);
+          return { in: str, out: str.substring(0, str.length - 1) };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3841187313': {
@@ -63,10 +63,10 @@ export const sindarinRules = {
       if (initialS) {
         const secondPhoneme = str.nth(1).toLowerCase();
         if (secondPhoneme === 'ɸ' || secondPhoneme === 'θ' || secondPhoneme === 'x') {
-          return str.replace('s', '');
+          return { in: str, out: str.replace('s', '') };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2178021811': {
@@ -77,9 +77,9 @@ export const sindarinRules = {
     mechanic: (str) => {
       const initialJ = str.substring(0, 2) === 'hy';
       if (initialJ) {
-        return str.replace('hy', 'ch');
+        return { in: str, out: str.replace('hy', 'ch') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1590520649': {
@@ -93,16 +93,16 @@ export const sindarinRules = {
       if (rIndex !== -1) {
         const nextChar = str.nth(rIndex + 1);
         if (nextChar === 'b' || nextChar === 'd' || nextChar === 'g') {
-          return str.replace('rb', 'rv').replace('rd', 'rð').replace('rg', 'rɣ');
+          return { in: str, out: str.replace('rb', 'rv').replace('rd', 'rð').replace('rg', 'rɣ') };
         }
       }
       if (lIndex !== -1) {
         const nextChar = str.nth(lIndex + 1);
         if (nextChar === 'b' || nextChar === 'd' || nextChar === 'g') {
-          return str.replace('lb', 'lv').replace('ld', 'lð').replace('lg', 'lɣ');
+          return { in: str, out: str.replace('lb', 'lv').replace('ld', 'lð').replace('lg', 'lɣ') };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1951748921': {
@@ -115,10 +115,10 @@ export const sindarinRules = {
       if (zIndex !== -1) {
         const nextChar = str.nth(zIndex + 1);
         if (nextChar === 'b' || nextChar === 'g') {
-          return str.replace('zb', 'ðβ').replace('zg', 'ðɣ');
+          return { in: str, out: str.replace('zb', 'ðβ').replace('zg', 'ðɣ') };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1593810649': {
@@ -129,7 +129,7 @@ export const sindarinRules = {
     mechanic: (str) => {
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
-      if (syllableData.length === 1) return str;
+      if (syllableData.length === 1) return { in: str, out: str };
 
       // There is an [a] in the final syllable:
       const lastSyllable = syllableData.last().syllable.removeMarks();
@@ -138,7 +138,7 @@ export const sindarinRules = {
 
         const penultimateSyllable = syllableData.last(2).syllable;
         const penultimateSyllableNucleus = syllableData.last(2).nucleus;
-        if (penultimateSyllableNucleus.length === 2) return str; // Diphtong
+        if (penultimateSyllableNucleus.length === 2) return { in: str, out: str }; // Diphtong
         const { charIndex, found, matched } = findFirstOf(['u', 'i', 'ĭ', 'ŭ'], penultimateSyllable);
         const replacements = {
           'i': 'e',
@@ -152,9 +152,9 @@ export const sindarinRules = {
           const replacer = replacements[matched].addMark(xMark);
           resultArray[syllableData.length - 2] = penultimateSyllable.replace(replacee, replacer);
         }
-        return resultArray.join('');
+        return { in: str, out: resultArray.join('') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1726791627': {
@@ -177,7 +177,7 @@ export const sindarinRules = {
           }
         }
       }
-      return aStr.join('');
+      return { in: str, out: aStr.join('') };
     },
   },
   '890563133': {
@@ -186,7 +186,7 @@ export const sindarinRules = {
     description: '[ɸ], [β] became [f], [v]',
     url: 'https://eldamo.org/content/words/word-890563133.html',
     mechanic: (str) => {
-      return str.replaceAll('ɸ', 'f').replaceAll('β', 'v');
+      return { in: str, out: str.replaceAll('ɸ', 'f').replaceAll('β', 'v') };
     },
   },
   '1679623085': {
@@ -201,10 +201,10 @@ export const sindarinRules = {
         const isInitial = str.nth(0) === 'j';
         const isFinal = str.nth(-1) === 'j';
         if (!isInitial && !isFinal) {
-          return str.replace('j', 'i');
+          return { in: str, out: str.replace('j', 'i') };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2646655607': {
@@ -231,9 +231,9 @@ export const sindarinRules = {
           const uMark = 'u'.addMark(oMark);
           newSyllable = secondLastSyllable.replace('o', uMark);
         }
-        return str.replace(secondLastSyllable, newSyllable);
+        return { in: str, out: str.replace(secondLastSyllable, newSyllable) };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3958031275': {
@@ -346,7 +346,7 @@ export const sindarinRules = {
         }
       }
 
-      return result;
+      return { in: str, out: result };
     },
   },
   '3889365613': {
@@ -375,7 +375,7 @@ export const sindarinRules = {
           }
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '539122737': {
@@ -393,9 +393,9 @@ export const sindarinRules = {
             result = str.replaceAt(index, 'i');
           }
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '4002924749': {
@@ -426,9 +426,9 @@ export const sindarinRules = {
             }
           }
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2422841513': {
@@ -451,9 +451,9 @@ export const sindarinRules = {
         if (result.indexOf('ii') !== -1) {
           result = result.replace('ii', 'ī');
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '659168127': {
@@ -471,9 +471,9 @@ export const sindarinRules = {
         if (unmarkedStr.includes('ju')) {
           result = result.replace('ju', 'ȳ').replace('jū', 'ȳ');
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2740073851': {
@@ -486,7 +486,7 @@ export const sindarinRules = {
      * This is a rule with exceptions. The change occurs only when all exceptions are negative.
      */
     mechanic(str) {
-      if (str.includes('u') === false) return str;
+      if (str.includes('u') === false) return { in: str, out: str };
 
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
@@ -501,30 +501,30 @@ export const sindarinRules = {
 
       const allNuclei = syllableData.map((s) => s.nucleus);
       const uAmount = allNuclei.reduce((a, v) => (v === 'u' ? (a + 1) : a), 0);
-      
+
       // There should be at least one syllable with a [u] as nucleus:
-      if (uAmount === 0) return str;
+      if (uAmount === 0) return { in: str, out: str };
 
       // If there is 1 u nucleus:
       if (uAmount === 1) {
         // If u followed by a consonant...
         // If it's then followed by uwv, it is preserved:
-        if (/u[^u][uwv]/.test(str)) return str; // buð·vo
+        if (/u[^u][uwv]/.test(str)) return { in: str, out: str }; // buð·vo
         // If it's followed by mnŋ, it is preserved:
-        if (/u[mnŋ]/.test(str)) return str;
+        if (/u[mnŋ]/.test(str)) return { in: str, out: str };
 
         // But if there are more nuclei and they are not u, modify it:
         if (allNuclei.length > uAmount) {
-          return str.replaceAll('u', 'o');
+          return { in: str, out: str.replaceAll('u', 'o') };
         }
       }
 
       // Multiple u.
       // If it's an exception, mutate.
       // Otherwise, ignore:
-      if (this.negativeExceptions.includes(str)) return str.replaceAll('u', 'o');
+      if (this.negativeExceptions.includes(str)) return { in: str, out: str.replaceAll('u', 'o') };
 
-      return str;
+      return { in: str, out: str };
     },
   },
   '3258926163': {
@@ -534,9 +534,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-3258926163.html',
     mechanic: (str) => {
       if (str.includes('nm') || str.includes('ŋm')) {
-        return str.replace('nm', 'nw').replace('ŋm', 'ŋw');
+        return { in: str, out: str.replace('nm', 'nw').replace('ŋm', 'ŋw') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3707785609': {
@@ -557,9 +557,9 @@ export const sindarinRules = {
             result = result.replaceAt(index - 1, prevChar.addMark('¯'), 2);
           }
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '558704171': {
@@ -569,9 +569,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-558704171.html',
     mechanic: (str) => {
       if (str.includes('ǭ')) {
-        return str.replaceAll('ǭ', 'au');
+        return { in: str, out: str.replaceAll('ǭ', 'au') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2387695245': {
@@ -581,9 +581,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-2387695245.html',
     mechanic: (str) => {
       if (str.includes('ę̄')) {
-        return str.replaceAll('ę̄', 'ai');
+        return { in: str, out: str.replaceAll('ę̄', 'ai') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '813787869': {
@@ -597,11 +597,11 @@ export const sindarinRules = {
       if (['e', 'a', 'o'].includes(lastChar)) {
         const xMark = str.nth(-1).getMark();
         if (['¯', '´', '^'].includes(xMark)) {
-          return str;
+          return { in: str, out: str };
         }
-        return str.slice(0, -1);
+        return { in: str, out: str.slice(0, -1) };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2399289739': {
@@ -626,7 +626,7 @@ export const sindarinRules = {
           const thirdLastChar = unmarkedStr.nth(-3);
           if (thirdLastChar === pattern.in) {
             const index = unmarkedStr.length - 3;
-            return str.substring(0, index) + pattern.out + secondLastChar;
+            return { in: str, out: str.substring(0, index) + pattern.out + secondLastChar };
           }
         }
       }
@@ -636,7 +636,7 @@ export const sindarinRules = {
       // [-œCi] > [-œiC]
       // [-ǭCi] > [-oiC]
       // [-ūCi] > [-uiC]
-      return str;
+      return { in: str, out: str };
     },
   },
   '4211011237': {
@@ -653,11 +653,11 @@ export const sindarinRules = {
           const thirdLastChar = regularisedStr.nth(-3);
           if (['a', 'e'].includes(thirdLastChar)) {
             const index = regularisedStr.length - 2;
-            return str.substring(0, index) + 'u' + secondLastChar;
+            return { in: str, out: str.substring(0, index) + 'u' + secondLastChar };
           }
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '4287595571': {
@@ -676,11 +676,11 @@ export const sindarinRules = {
       if (['x', 'χ'].includes(initialX)) {
         const secondPhoneme = str.nth(1).toLowerCase();
         if (['l', 'r'].includes(secondPhoneme)) {
-          return result.replace('xl', 'l̥').replace('xr', 'r̥');
+          return { in: str, out: result.replace('xl', 'l̥').replace('xr', 'r̥') };
         }
-        return result.replace(initialX, 'h');
+        return { in: str, out: result.replace(initialX, 'h') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2240258959': {
@@ -690,7 +690,7 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-2240258959.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['p', 't', 'k'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'p': 'b',
@@ -706,7 +706,7 @@ export const sindarinRules = {
           result = result.replaceAt(charIndex, replacements[matched]);
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1053424933': {
@@ -761,11 +761,11 @@ export const sindarinRules = {
 
       if (syllableData.length === 1) {
         const { nucleus } = syllableData[0];
-        if (nucleus.length === 2) return str;
+        if (nucleus.length === 2) return { in: str, out: str };
       }
 
       const vcPattern = breakIntoVowelsAndConsonants(str);
-      if (!/^C{0,2}V{1,2}C{0,2}$/.test(vcPattern)) return str;
+      if (!/^C{0,2}V{1,2}C{0,2}$/.test(vcPattern)) return { in: str, out: str };
 
       const lastChar = str.nth(-1);
       const lengthen = (s, pos) => {
@@ -776,20 +776,20 @@ export const sindarinRules = {
       };
 
       if (lastChar.isVowel()) {
-        return this.vowelEndingExceptions.has(str) ? lengthen(str, -1) : str;
+        return { in: str, out: this.vowelEndingExceptions.has(str) ? lengthen(str, -1) : str };
       }
 
       if (lastChar === 'θ' || lastChar === 'x') {
-        return this.unvoicedExceptions.has(str) ? lengthen(str, -2) : str;
+        return { in: str, out: this.unvoicedExceptions.has(str) ? lengthen(str, -2) : str };
       }
 
       if ('bdðfvglnrɣ'.includes(lastChar)) {
-        if (this.voicedExceptions.has(str)) return str;
+        if (this.voicedExceptions.has(str)) return { in: str, out: str };
         const penultimate = str.nth(-2);
-        return penultimate.isVowel() ? lengthen(str, -2) : str;
+        return { in: str, out: penultimate.isVowel() ? lengthen(str, -2) : str };
       }
 
-      return str;
+      return { in: str, out: str };
     },
   },
   '916418731': {
@@ -803,16 +803,16 @@ export const sindarinRules = {
       if (lastChar === 'ɣ') {
         const penultimate = str.nth(-2);
         if (penultimate.isConsonant()) {
-          return str.replace('ɣ', 'a');
+          return { in: str, out: str.replace('ɣ', 'a') };
         }
       }
       if (lastChar === 'i' && secondLastChar === 'ɣ') {
         const thirdLastChar = str.nth(-3);
         if (thirdLastChar.isConsonant()) {
-          return str.replace('ɣi', 'ī');
+          return { in: str, out: str.replace('ɣi', 'ī') };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2139740021': {
@@ -829,16 +829,16 @@ export const sindarinRules = {
           const nextChar = str.nth(index + 1);
           if (sonants.includes(prevChar) && nextChar.isVowel()) {
             if (nextChar === 'u') {
-              return str.replaceAt(index, 'u', 2);
+              return { in: str, out: str.replaceAt(index, 'u', 2) };
             }
             if (nextChar === 'y') {
-              return str.replaceAt(index, 'y', 2);
+              return { in: str, out: str.replaceAt(index, 'y', 2) };
             }
-            return str.replaceAt(index, 'i');
+            return { in: str, out: str.replaceAt(index, 'i') };
           }
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '4164672875': {
@@ -852,11 +852,11 @@ export const sindarinRules = {
         const prevChar = str.nth(gIndex - 1);
         const nextChar = str.nth(gIndex + 1);
         if (prevChar === nextChar && prevChar.isVowel()) {
-          return str.replace(`${prevChar}ɣ${nextChar}`, prevChar.addMark('¯'));
+          return { in: str, out: str.replace(`${prevChar}ɣ${nextChar}`, prevChar.addMark('¯')) };
         }
-        return str.replace('ɣ', '');
+        return { in: str, out: str.replace('ɣ', '') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '677308549': {
@@ -866,9 +866,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-677308549.html',
     mechanic: (str) => {
       if (str.endsWith('wi') || str.endsWith('ui')) {
-        return str.replace('wi', 'y').replace('ui', 'y');
+        return { in: str, out: str.replace('wi', 'y').replace('ui', 'y') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '875184187': {
@@ -878,7 +878,7 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-875184187.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['h'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -911,7 +911,7 @@ export const sindarinRules = {
           result = result.substring(0, charIndex) + result.substring(charIndex + 1);
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1815401039': {
@@ -924,7 +924,7 @@ export const sindarinRules = {
       if (str.length >= 3) {
         const last3 = str.slice(-3);
         if (last3[0] === 'u' && last3[1].isConsonant() && last3[2] === 'u') {
-          return str;
+          return { in: str, out: str };
         }
       }
 
@@ -934,19 +934,19 @@ export const sindarinRules = {
       if (lastChar === 'i') {
         const iMark = str.nth(-1).getMark();
         if (iMark === '¯') {
-          return str.slice(0, -1) + 'i';
+          return { in: str, out: str.slice(0, -1) + 'i' };
         }
-        return str.slice(0, -1);
+        return { in: str, out: str.slice(0, -1) };
       }
       if (lastChar === 'u') {
         const iMark = str.nth(-1).getMark();
         if (iMark === '¯') {
-          return str.slice(0, -1) + 'u';
+          return { in: str, out: str.slice(0, -1) + 'u' };
         }
-        return str.slice(0, -1);
+        return { in: str, out: str.slice(0, -1) };
       }
-      
-      return str;
+
+      return { in: str, out: str };
     },
   },
   '2749565259': {
@@ -1029,14 +1029,14 @@ export const sindarinRules = {
           return part;
         });
 
-        return result.join('');
+        return { in: str, out: result.join('') };
       }
 
       // === GUESSING MODE ===
-      if (!guess) return str;
+      if (!guess) return { in: str, out: str };
 
       const syllables = syllabify(str);
-      if (syllables.length < 2) return str;
+      if (syllables.length < 2) return { in: str, out: str };
 
       // Split: first half gets extra syllable if odd
       const midpoint = Math.ceil(syllables.length / 2);
@@ -1046,7 +1046,7 @@ export const sindarinRules = {
       // Check if second half starts with consonant
       const secondHalfStart = secondHalf[0]?.nth(0);
       if (!secondHalfStart || !secondHalfStart.isConsonant()) {
-        return str;
+        return { in: str, out: str };
       }
 
       // Try to remove vowel from last syllable of first half
@@ -1055,12 +1055,12 @@ export const sindarinRules = {
 
       // If nothing changed, return original
       if (modifiedSyllable === lastSyllable) {
-        return str;
+        return { in: str, out: str };
       }
 
       // Rebuild the word
       firstHalf[firstHalf.length - 1] = modifiedSyllable;
-      return [...firstHalf, ...secondHalf].join('');
+      return { in: str, out: [...firstHalf, ...secondHalf].join('') };
     },
   },
   '941153689': {
@@ -1069,7 +1069,7 @@ export const sindarinRules = {
     description: '[ai], [oi] became [ae], [oe]',
     url: 'https://eldamo.org/content/words/word-941153689.html',
     mechanic: (str) => {
-      return str.replace(/ai/g, 'ae').replace(/oi/g, 'oe');
+      return { in: str, out: str.replace(/ai/g, 'ae').replace(/oi/g, 'oe') };
     },
   },
   '1660291111': {
@@ -1083,15 +1083,15 @@ export const sindarinRules = {
       if (lastChar.isConsonant()) {
         const last2 = strLess1.slice(-2);
         if (last2 === 'ei') {
-          return str.slice(0, -3) + 'ai' + lastChar;
+          return { in: str, out: str.slice(0, -3) + 'ai' + lastChar };
         }
       } else {
         const last2 = str.slice(-2);
         if (last2 === 'ei') {
-          return str.slice(0, -2) + 'ai';
+          return { in: str, out: str.slice(0, -2) + 'ai' };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3257758901': {
@@ -1102,7 +1102,7 @@ export const sindarinRules = {
     info: ['This rule has no attested direct examples, it is mostly concerned with explaining plural formation.'],
     url: 'https://eldamo.org/content/words/word-3257758901.html',
     mechanic: (str) => {
-      return str.replace(/yi/g, 'ui').replace(/yu/g, 'ui');
+      return { in: str, out: str.replace(/yi/g, 'ui').replace(/yu/g, 'ui') };
     },
   },
   '1787434575': {
@@ -1122,7 +1122,7 @@ export const sindarinRules = {
       }
     ],
     mechanic: (str, { useUi = false } = {}) => {
-      return str.replace(/œi/g, useUi ? 'ui' : 'y');
+      return { in: str, out: str.replace(/œi/g, useUi ? 'ui' : 'y') };
     },
   },
   '1105959911': {
@@ -1136,15 +1136,15 @@ export const sindarinRules = {
      * Where n and r came into contact in compounds after the loss of vowels at morpheme
      * boundaries, the n became dh.
      * This change doesn't occur where there was another consonant between the n and r.
-     * 
+     *
      * @param {*} str
      * @param {*} options
      * @param {boolean} options.cluster - Whether a cluster existed previously (default: false)
-     * @returns 
+     * @returns
      */
     mechanic: (str, { cluster = false } = {}) => {
-      if (cluster) return str;
-      return str.replace(/nr/g, 'ðr');
+      if (cluster) return { in: str, out: str };
+      return { in: str, out: str.replace(/nr/g, 'ðr') };
     },
   },
   '2090293737': {
@@ -1155,7 +1155,7 @@ export const sindarinRules = {
     // This isn't great, but it has few examples anyway.
     mechanic: (str) => {
       const results = findAllOf(['θ', 'ð'], str);
-      if (results.length < 2) return str;
+      if (results.length < 2) return { in: str, out: str };
 
       const analyser = new SyllableAnalyser();
       const syllables = analyser.syllabify(str);
@@ -1163,9 +1163,9 @@ export const sindarinRules = {
       if (syllables.length === 1) {
         const lastResult = results[results.length - 1];
         if (lastResult.prevChar !== lastResult.matched) {
-          return str.substring(0, lastResult.charIndex) + 's' + str.substring(lastResult.charIndex + 1);
+          return { in: str, out: str.substring(0, lastResult.charIndex) + 's' + str.substring(lastResult.charIndex + 1) };
         } else {
-          return str;
+          return { in: str, out: str };
         }
       }
 
@@ -1200,7 +1200,7 @@ export const sindarinRules = {
       }
 
       const finalResult = result.reverse().join('');
-      return finalResult;
+      return { in: str, out: finalResult };
     },
   },
   '298324969': {
@@ -1210,9 +1210,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-298324969.html',
     mechanic: (str) => {
       if (str.includes('ls') || str.includes('rs')) {
-        return str.replace('ls', 'lθ').replace('rs', 'ss');
+        return { in: str, out: str.replace('ls', 'lθ').replace('rs', 'ss') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1531741019': {
@@ -1222,18 +1222,18 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1531741019.html',
     mechanic: (str) => {
       if (str.endsWith('mf')) {
-        return str.slice(0, -2) + 'mp';
+        return { in: str, out: str.slice(0, -2) + 'mp' };
       }
       if (str.endsWith('nθ')) {
-        return str.slice(0, -2) + 'nt';
+        return { in: str, out: str.slice(0, -2) + 'nt' };
       }
       if (str.endsWith('ŋx')) {
-        return str.slice(0, -2) + 'ŋk';
+        return { in: str, out: str.slice(0, -2) + 'ŋk' };
       }
       if (str.endsWith('lθ')) {
-        return str.slice(0, -2) + 'lt';
+        return { in: str, out: str.slice(0, -2) + 'lt' };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1856165973': {
@@ -1255,13 +1255,13 @@ export const sindarinRules = {
 
         // It's medial:
         if ('fθxs'.includes(nextChar) && 'lr'.includes(followingChar)) {
-          return str.replaceAt(charIndex, '', 1);
+          return { in: str, out: str.replaceAt(charIndex, '', 1) };
         }
         if (nextChar === 'f') {
-          return str.replaceAt(charIndex, 'ff', 2);
+          return { in: str, out: str.replaceAt(charIndex, 'ff', 2) };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3282356701': {
@@ -1321,15 +1321,15 @@ export const sindarinRules = {
           return part;
         });
 
-        return result.join(boundaryChar);
+        return { in: str, out: result.join(boundaryChar) };
       }
 
 
-      if (!guess) return str;
+      if (!guess) return { in: str, out: str };
 
       // === GUESSING MODE ===
       const syllables = syllabify(str);
-      if (syllables.length < 2) return str;
+      if (syllables.length < 2) return { in: str, out: str };
 
       // Split: first half gets extra syllable if odd
       const midpoint = Math.ceil(syllables.length / 2);
@@ -1340,7 +1340,7 @@ export const sindarinRules = {
       const lastSyllable = firstHalf[firstHalf.length - 1];
       const modifiedSyllable = removeNasalFromSyllable(lastSyllable);
       firstHalf[firstHalf.length - 1] = modifiedSyllable;
-      return [...firstHalf, ...secondHalf].join('');
+      return { in: str, out: [...firstHalf, ...secondHalf].join('') };
     },
   },
   '3841960279': {
@@ -1405,14 +1405,14 @@ export const sindarinRules = {
           return part;
         });
 
-        return result.join(boundaryChar);
+        return { in: str, out: result.join(boundaryChar) };
       }
 
-      if (!guess) return str;
+      if (!guess) return { in: str, out: str };
 
       // === GUESSING MODE ===
       const syllables = syllabify(str);
-      if (syllables.length < 2) return str;
+      if (syllables.length < 2) return { in: str, out: str };
 
       // Split: first half gets extra syllable if odd
       const midpoint = Math.ceil(syllables.length / 2);
@@ -1423,7 +1423,7 @@ export const sindarinRules = {
       const lastSyllable = firstHalf[firstHalf.length - 1];
       const modifiedSyllable = removeDhFromSyllable(lastSyllable, secondHalf[0]);
       firstHalf[firstHalf.length - 1] = modifiedSyllable;
-      return [...firstHalf, ...secondHalf].join('');
+      return { in: str, out: [...firstHalf, ...secondHalf].join('') };
     },
   },
   '3123278727': {
@@ -1434,7 +1434,7 @@ export const sindarinRules = {
     mechanic: (str) => {
       // klawarxaðmámadr
       const occurrences = findAllOf(['m', 'n', 'ŋ'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'v': 'b',
@@ -1448,7 +1448,7 @@ export const sindarinRules = {
           result = result.substring(0, charIndex + 1) + replacements[nextChar] + result.substring(charIndex + 2);
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '2996915415': {
@@ -1458,8 +1458,8 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-2996915415.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['mf', 'nθ', 'ŋx', 'lθ'], str);
-      if (occurrences.length === 0) return str;
-      
+      if (occurrences.length === 0) return { in: str, out: str };
+
       const replacements = {
         'mf': 'mm',
         'nθ': 'nn',
@@ -1471,7 +1471,7 @@ export const sindarinRules = {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return result;
+      return { in: str, out: result };
     }
   },
   '725943271': {
@@ -1480,7 +1480,7 @@ export const sindarinRules = {
     description: 'voiceless nasals were voiced',
     url: 'https://eldamo.org/content/words/word-725943271.html',
     mechanic: (str) => {
-      return str.replace(/m̥/g, 'm').replace(/n̥/g, 'n');
+      return { in: str, out: str.replace(/m̥/g, 'm').replace(/n̥/g, 'n') };
     },
   },
   '2083930569': {
@@ -1496,7 +1496,7 @@ export const sindarinRules = {
         'mírdain',
         'nírnaeθ',
       ];
-      if (exceptions.includes(str.toLowerCase())) return str;
+      if (exceptions.includes(str.toLowerCase())) return { in: str, out: str };
 
       const vcPattern = breakIntoVowelsAndConsonants(str);
       if (vcPattern.includes('VCC')) {
@@ -1504,10 +1504,10 @@ export const sindarinRules = {
         const vowel = str.charAt(pIndex);
         const mark = vowel.getMark();
         if ('¯´^'.includes(mark)) {
-          return str.replace(vowel, vowel.removeVowelMarks());
+          return { in: str, out: str.replace(vowel, vowel.removeVowelMarks()) };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '302560565': {
@@ -1517,7 +1517,7 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-302560565.html',
     mechanic: (str) => {
       const { found } = findFirstOf(['ī', 'ū'], str);
-      if (!found) return str;
+      if (!found) return { in: str, out: str };
 
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
@@ -1537,9 +1537,9 @@ export const sindarinRules = {
             result.push(syllable);
           }
         }
-        return result.join('');
+        return { in: str, out: result.join('') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '671129175': {
@@ -1552,7 +1552,7 @@ export const sindarinRules = {
     // Also, all examples are iffy, as even the one example available seems to be an older form.
     mechanic: (str) => {
       const { found } = findFirstOf(['awa'], str);
-      if (!found) return str;
+      if (!found) return { in: str, out: str };
       
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
@@ -1573,7 +1573,7 @@ export const sindarinRules = {
           result.push(syllable);
         }
       }
-      return result.join('');
+      return { in: str, out: result.join('') };
     },
   },
   '567222053': {
@@ -1602,17 +1602,17 @@ export const sindarinRules = {
       const lowerStr = str.toLowerCase();
       for (const word of AE_TO_E_WORDS) {
         if (lowerStr === word) {
-          return str.replace(/ae/gi, 'e');
+          return { in: str, out: str.replace(/ae/gi, 'e') };
         }
       }
 
       const { found } = findFirstOf(['aw', 'au'], str);
-      if (!found) return str;
+      if (!found) return { in: str, out: str };
 
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
 
-      if (syllableData.length === 1) return str;
+      if (syllableData.length === 1) return { in: str, out: str };
 
       // Check if any OTHER syllable contains o or u (inhibition check)
       const hasOtherOU = (excludeIndex) => {
@@ -1713,9 +1713,9 @@ export const sindarinRules = {
       const fullStrResult = result.join('');
       // If nothing changed, return original to preserve case
       if (fullStrResult.toLowerCase() === str.toLowerCase()) {
-        return str;
+        return { in: str, out: str };
       }
-      return fullStrResult;
+      return { in: str, out: fullStrResult };
     },
   },
   '226282629': {
@@ -1724,8 +1724,8 @@ export const sindarinRules = {
     description: '[lð] became [ll]',
     url: 'https://eldamo.org/content/words/word-226282629.html',
     mechanic: (str) => {
-      if (!str.includes('lð')) return str;
-      return str.replace('lð', 'll');
+      if (!str.includes('lð')) return { in: str, out: str };
+      return { in: str, out: str.replace('lð', 'll') };
     },
   },
   '2759811879': {
@@ -1734,12 +1734,12 @@ export const sindarinRules = {
     description: '[nl] became [ll]',
     url: 'https://eldamo.org/content/words/word-2759811879.html',
     mechanic: (str) => {
-      if (!str.includes('nl')) return str;
+      if (!str.includes('nl')) return { in: str, out: str };
 
       const exceptions = ['minlamad', 'gonlin'];
-      if (exceptions.includes(str.toLowerCase())) return str;
+      if (exceptions.includes(str.toLowerCase())) return { in: str, out: str };
 
-      return str.replace('nl', 'll');
+      return { in: str, out: str.replace('nl', 'll') };
     },
   },
   '868023175': {
@@ -1752,7 +1752,7 @@ export const sindarinRules = {
       // May need reviewing.
 
       const { found, matched, charIndex, nextChar } = findFirstOf(['mb', 'nd'], str);
-      if (!found) return str;
+      if (!found) return { in: str, out: str };
 
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
@@ -1762,19 +1762,19 @@ export const sindarinRules = {
         if (syllableData.length === 1) {
           const { weight } = syllableData[0];
           if (weight === 'heavy') {
-            return str;
+            return { in: str, out: str };
           }
-          if (charIndex === str.length - 2) return str;
+          if (charIndex === str.length - 2) return { in: str, out: str };
         }
 
         // Multiple syllables:
-        if (nextChar === 'r') return str;
+        if (nextChar === 'r') return { in: str, out: str };
       }
       const replacements = {
         'mb': 'mm',
         'nd': 'nn',
       }
-      return str.replace(matched, replacements[matched]);
+      return { in: str, out: str.replace(matched, replacements[matched]) };
     },
   },
   '3868328117': {
@@ -1793,12 +1793,12 @@ export const sindarinRules = {
         const nextChar = str.charAt(index + 2);
         const removeExtra = char === nextChar;
         if (!removeExtra) {
-          return str.slice(0, index + 1) + str.slice(index + 2);
+          return { in: str, out: str.slice(0, index + 1) + str.slice(index + 2) };
         } else {
-          return str.slice(0, index + 1) + str.slice(index + 3);
+          return { in: str, out: str.slice(0, index + 1) + str.slice(index + 3) };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3736793827': {
@@ -1808,7 +1808,7 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-3736793827.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['sl', 'sr'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'sl': 'θl',
@@ -1821,7 +1821,7 @@ export const sindarinRules = {
         if (charIndex === 0 || lastChar) continue;
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '586391091': {
@@ -1831,14 +1831,14 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-586391091.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['wo'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex } = occurrences[i];
         result = result.substring(0, charIndex) + 'o' + result.substring(charIndex + 2);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1126284559': {
@@ -1848,7 +1848,7 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1126284559.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['n'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -1858,7 +1858,7 @@ export const sindarinRules = {
           result = result.substring(0, charIndex) + 'm' + result.substring(charIndex + 1);
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1838610927': {
@@ -1868,9 +1868,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1838610927.html',
     mechanic: (str) => {
       if (str.includes('œ')) {
-        return str.replaceAll('œ', 'e');
+        return { in: str, out: str.replaceAll('œ', 'e') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1742178057': {
@@ -1903,11 +1903,11 @@ export const sindarinRules = {
           };
           const finalChars = lastSyllable.nth(-matched.length, matched.length);
           if (found && finalChars === matched) {
-            return str.slice(0, -matched.length) + replacements[matched];
+            return { in: str, out: str.slice(0, -matched.length) + replacements[matched] };
           }
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '311523279': {
@@ -1917,12 +1917,12 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-311523279.html',
     mechanic: (str) => {
       if (str.startsWith('ŋg')) {
-        return 'ŋ' + str.substring(2);
+        return { in: str, out: 'ŋ' + str.substring(2) };
       }
       if (str.endsWith('ŋg')) {
-        return str.substring(0, str.length - 2) + 'ŋ';
+        return { in: str, out: str.substring(0, str.length - 2) + 'ŋ' };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1951379117': {
@@ -1932,7 +1932,7 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1951379117.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['m'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -1948,7 +1948,7 @@ export const sindarinRules = {
           continue;
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '2192660503': {
@@ -1958,9 +1958,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-2192660503.html',
     mechanic: (str) => {
       if (str.includes('ðv')) {
-        return str.replace('ðv', 'ðw');
+        return { in: str, out: str.replace('ðv', 'ðw') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '3689144303': {
@@ -1972,9 +1972,9 @@ export const sindarinRules = {
       'ammor',
     ]),
     mechanic(str) {
-      if (str.includes('mm') === false) return str;
+      if (str.includes('mm') === false) return { in: str, out: str };
 
-      if (this.exceptions.has(str)) return str;
+      if (this.exceptions.has(str)) return { in: str, out: str };
 
       // Below is the prototype for a stress-driven logic:
 
@@ -1990,7 +1990,7 @@ export const sindarinRules = {
         //     return str;
         //   }
       // }
-      return str.replace('mm', 'm');
+      return { in: str, out: str.replace('mm', 'm') };
     },
   },
   '3909760699': {
@@ -2000,9 +2000,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-3909760699.html',
     mechanic: (str) => {
       if (['aev', 'oev'].includes(str.nth(-3, 3))) {
-        return str.substring(0, str.length - 1) + 'w';
+        return { in: str, out: str.substring(0, str.length - 1) + 'w' };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '70600889': {
@@ -2013,12 +2013,12 @@ export const sindarinRules = {
     mechanic: (str) => {
       const unmarkedStr = str.removeMarks();
       if (unmarkedStr.nth(-2, 2) === 'ov') {
-        return str.substring(0, str.length - 2) + 'ou';
+        return { in: str, out: str.substring(0, str.length - 2) + 'ou' };
       }
       if (['uv', 'uw'].includes(unmarkedStr.nth(-2, 2))) {
-        return str.substring(0, str.length - 1);
+        return { in: str, out: str.substring(0, str.length - 1) };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2476983755': {
@@ -2040,12 +2040,12 @@ export const sindarinRules = {
         const result = str.replace('ou', 'au');
         if (useFinalU === false) {
           if (result.nth(-2, 2) === 'au') {
-            return result.substring(0, result.length - 2) + 'aw';
+            return { in: str, out: result.substring(0, result.length - 2) + 'aw' };
           }
         }
-        return result;
+        return { in: str, out: result };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1206014597': {
@@ -2066,14 +2066,14 @@ export const sindarinRules = {
       };
       const clusterOpts = Object.keys(clusterMap);
       const occurrences = findAllOf(clusterOpts, str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + clusterMap[matched] + result.substring(charIndex + matched.length);
       }
-      return result;
+      return { in: str, out: result };
     },
   },
   '1942165347': {
@@ -2088,15 +2088,15 @@ export const sindarinRules = {
         if (secondLastChar.isConsonant()) {
           // Exceptions:
           if (str === 'ygl') {
-            return 'ygil';
+            return { in: str, out: 'ygil' };
           }
           if (secondLastChar === lastChar) {
-            return str;
+            return { in: str, out: str };
           }
-          return str.substring(0, str.length - 1) + 'o' + lastChar;
+          return { in: str, out: str.substring(0, str.length - 1) + 'o' + lastChar };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '2569469231': {
@@ -2108,10 +2108,10 @@ export const sindarinRules = {
     info: ['This rule has only Noldorin examples and one Sindarin counter-example.', 'This rule is disabled by default.'],
     mechanic: (str) => {
       if (str.nth(-2, 2) === 'vn') {
-        if (str === 'tavn') return str;
-        return str.substring(0, str.length - 2) + 'von';
+        if (str === 'tavn') return { in: str, out: str };
+        return { in: str, out: str.substring(0, str.length - 2) + 'von' };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '798091205': {
@@ -2124,10 +2124,10 @@ export const sindarinRules = {
       if (lastChar === 'w') {
         const secondLastChar = str.nth(-2);
         if (secondLastChar.isConsonant() || secondLastChar === 'a') {
-          return str.substring(0, str.length - 1) + 'u';
+          return { in: str, out: str.substring(0, str.length - 1) + 'u' };
         }
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1254294665': {
@@ -2137,9 +2137,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1254294665.html',
     mechanic: (str) => {
       if (str.nth(-2, 2) === 'rr') {
-        return str.substring(0, str.length - 1);
+        return { in: str, out: str.substring(0, str.length - 1) };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '1759587217': {
@@ -2149,9 +2149,9 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-1759587217.html',
     mechanic: (str) => {
       if (str.includes('sp') || str.includes('sk')) {
-        return str.replace('sp', 'sb').replace('sk', 'sg');
+        return { in: str, out: str.replace('sp', 'sb').replace('sk', 'sg') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '4188321265': {
@@ -2169,10 +2169,10 @@ export const sindarinRules = {
       if (normalizedStr.includes('x')) {
         const initial = normalizedStr.nth(0);
         const final = normalizedStr.nth(-1);
-        if (initial === 'x' || final === 'x') return str;
-        return normalizedStr.replace('x', 'h');
+        if (initial === 'x' || final === 'x') return { in: str, out: str };
+        return { in: str, out: normalizedStr.replace('x', 'h') };
       }
-      return str;
+      return { in: str, out: str };
     },
   },
   '132402625': {
@@ -2182,7 +2182,7 @@ export const sindarinRules = {
     url: 'https://eldamo.org/content/words/word-132402625.html',
     mechanic: (str) => {
       const occurrences = findAllOf(['h'], str);
-      if (occurrences.length === 0) return str;
+      if (occurrences.length === 0) return { in: str, out: str };
 
       const replacements = {
         'vh': 'f',
@@ -2196,7 +2196,7 @@ export const sindarinRules = {
           result = result.substring(0, charIndex - 1) + replacements[`${prevChar}h`] + result.substring(charIndex + 1);
         }
       }
-      return result;
+      return { in: str, out: result };
     },
   },
 };

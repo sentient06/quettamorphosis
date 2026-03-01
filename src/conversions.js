@@ -10,7 +10,7 @@ export const preProcessingRules = {
     orderId: 'PRE-01',
     pattern: 'digraphs → single characters',
     description: 'Convert digraphs to single characters for rule processing',
-    mechanic: (str) => digraphsToSingle(str).toLowerCase(),
+    mechanic: (str) => ({ in: str, out: digraphsToSingle(str).toLowerCase() }),
   },
 };
 
@@ -46,7 +46,7 @@ export const postProcessingRules = {
       // Replace macrons with circumflexes: NFD decompose → swap combining marks → NFC recompose
       result = result.normalize('NFD').replace(/\u0304/g, '\u0302').normalize('NFC');
       result = result.toNormalScript();
-      return result;
+      return { in: str, out: result };
     },
   },
 };

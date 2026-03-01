@@ -87,7 +87,7 @@ export function getNextRule(currentRuleId) {
 /**
  * Format tripped rules for display
  * @param {Object} rulesObj - The rules object (e.g., sindarinRules)
- * @param {Object} resultsObj - The results tracking object
+ * @param {Object} resultsObj - The results tracking object (values are {in, out} objects)
  * @returns {string} Formatted HTML string
  */
 export function formatTripped(rulesObj, resultsObj) {
@@ -96,7 +96,8 @@ export function formatTripped(rulesObj, resultsObj) {
   });
   return rulesUsed.map((ruleId) => {
     const anchor = `<a href="#rule-${ruleId}">${rulesObj[ruleId].orderId}</a>`;
-    return `${anchor} - ${resultsObj[ruleId]}`;
+    const result = resultsObj[ruleId];
+    return `${anchor} - ${result.out}`;
   }).join('\n');
 }
 

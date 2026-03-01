@@ -273,13 +273,14 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain) {
     const rule = rulesObj[ruleId];
     const options = getOptions(ruleId, rule);
     const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : !rule.skip;
-    const output = isEnabled ? rule.mechanic(currentInput, options) : currentInput;
+    const result = isEnabled ? rule.mechanic(currentInput, options) : { in: currentInput, out: currentInput };
+    const output = result.out;
 
     // Update visual state
-    const isTripped = currentInput !== output;
+    const isTripped = result.in !== result.out;
     const resultsObj = getResultsObject(ruleId);
     if (isTripped) {
-      resultsObj[ruleId] = { input: currentInput, output };
+      resultsObj[ruleId] = result;
     } else {
       delete resultsObj[ruleId];
     }
@@ -758,16 +759,16 @@ function runRule(ruleId, input, nextRuleId) {
   }
 
   const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
-  const output = isEnabled ? rule.mechanic(input, options) : input;
+  const result = isEnabled ? rule.mechanic(input, options) : { in: input, out: input };
+  const output = result.out;
 
-  const langLabel = isConversionRule(ruleId) ? 'CV' : (getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S');
-  console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
+  console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', result.in.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
 
   // Track rule result (skip for conversion rules - they don't appear in tripped/skipped)
-  const isTripped = input !== output;
+  const isTripped = result.in !== result.out;
   if (resultsObj) {
     if (isTripped) {
-      resultsObj[ruleId] = output;
+      resultsObj[ruleId] = result;
     } else {
       delete resultsObj[ruleId];
     }
