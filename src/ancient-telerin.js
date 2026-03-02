@@ -1,10 +1,6 @@
 import './utils.js'; // Load String prototype extensions
 import {
-  syllabify,
-  breakIntoVowelsAndConsonants,
-  removeDigraphs,
-  restoreDigraphs,
-  digraphsToSingle,
+  recalcMorphemes,
   findFirstOf,
   findAllOf,
   SyllableAnalyser,
@@ -17,7 +13,7 @@ export const ancientTelerinRules = {
   '3648128347': {
     orderId: '00100',
     pattern: '[{ptkpʰkʰbdgm}V₁{rl}V́₁-] > [{ptkpʰkʰbdgm}ø{rl}V́₁-]',
-    description: 'unstressed initial syllables reduced to favored clusters',
+    description: 'unstressed initial syllables reduced to favoured clusters',
     url: 'https://eldamo.org/content/words/word-3648128347.html',
     info: ['You may need to use an accute mark (´) to indicate stress.'],
     input: [
@@ -81,7 +77,9 @@ export const ancientTelerinRules = {
       if (secondSyllableStressed === false) return { in: str, out: str, morphemes };
 
       const result = [];
+      const removedIndices = [indexOfNucleus];
       result.push(firstSyllable.syllable.replace(firstSyllable.nucleus, ''));
+      
       // Remove only the stress mark (acute), but keep the length mark (macron)
       const nucleusWithoutStress = secondSyllable.nucleus.normaliseToMany()
         .replace(/\u0301/g, '')  // Remove combining acute (stress mark)
@@ -100,7 +98,11 @@ export const ancientTelerinRules = {
         return { in: str, out: finalResult, morphemes };
       }
 
-      return { in: str, out: joinedResult, morphemes };
+      const updatedMorphemes = (joinedResult !== str && morphemes)
+        ? recalcMorphemes(joinedResult, morphemes, removedIndices)
+        : (morphemes || [str]);
+
+      return { in: str, out: joinedResult, morphemes: updatedMorphemes };
 
       // const normalizedResult = joinedResult.normaliseToMany()
         // .replace(/[\u0301\u0302]/g, '\u0304')  // acute/circumflex → macron
@@ -114,29 +116,48 @@ export const ancientTelerinRules = {
     description: 'labialized velars became labials',
     url: 'https://eldamo.org/content/words/word-171120983.html',
     mechanic: (str, options = {}) => {
-      const { found, matched, charIndex } = findFirstOf(['ŋgw', 'ŋkw', 'kw', 'ꝁw', 'gw', 'ŋw'], str);
+      const occurrences = findAllOf(['ŋgw', 'ŋkw', 'kw', 'ꝁw', 'gw', 'ŋw'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
-      if (found) {
-        const replacements = {
-          'ŋgw': 'mb',
-          'ŋkw': 'mp',
-          'kw': 'p',
-          'ꝁw': 'ƥ',
-          'gw': 'b',
-          'ŋw': 'm',
-        };
-        if (matched === 'ŋw' && charIndex > 0) return { in: str, out: str, morphemes: options.morphemes };
+      const replacements = {
+        'ŋgw': 'mb',
+        'ŋkw': 'mp',
+        'kw': 'p',
+        'ꝁw': 'ƥ',
+        'gw': 'b',
+        'ŋw': 'm',
+      };
 
-        let result = str;
+      let result = str;
+      const removedIndices = [];
+      const hasNgw = occurrences.some((o) => o.matched === 'ŋgw');
+      const hasNkw = occurrences.some((o) => o.matched === 'ŋkw');
+      const filteredOccurrences = occurrences.filter((o) => {
+        if (o.matched === 'gw' || o.matched === 'kw') {
+          if (o.matched === 'gw' && hasNgw) return false;
+          if (o.matched === 'kw' && hasNkw) return false;
+        }
+        return true;
+      });
+
+      for (let i = filteredOccurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = filteredOccurrences[i];
+        if (matched === 'ŋw' && charIndex > 0) continue;
+
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
+        removedIndices.push(charIndex);
 
         // No idea how the ṃ happens, but I'm assuming it occurs when it's followed by a consonant.
         if (result.nth(0) === 'm' && result.nth(1).isConsonant()) {
           result = 'ṃ' + result.substring(1);
         }
-        return { in: str, out: result, morphemes: options.morphemes };
       }
-      return { in: str, out: str, morphemes: options.morphemes };
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
+        : (options.morphemes || [str]);
+
+      return { in: str, out: result, morphemes };
     },
   },
   '1532676669': {
@@ -147,15 +168,18 @@ export const ancientTelerinRules = {
     skip: true,
     info: ['Possibly abandoned.', 'Disabled by default.'],
     mechanic: (str, options = {}) => {
-      if (['t', 'ŧ', 'd', 'n', 'l'].includes(str.nth(0))) {
-        if (str.nth(1) === 'j') {
-          return { in: str, out: str.replace('j', ''), morphemes: options.morphemes };
-        }
-        if (str.nth(1) === 'y') {
-          return { in: str, out: str.replace('y', ''), morphemes: options.morphemes };
-        }
-      }
-      return { in: str, out: str, morphemes: options.morphemes };
+      if (['t', 'ŧ', 'd', 'n', 'l'].includes(str.nth(0)) === false)
+        return { in: str, out: str, morphemes: options.morphemes };
+
+      const matched = str.nth(1);
+      if (matched !== 'j' && matched !== 'y') return { in: str, out: str, morphemes: options.morphemes };
+      
+      const result = str.replace(matched, '');
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [1])
+        : (options.morphemes || [str]);
+
+      return { in: str, out: result, morphemes };
     },
   },
   '1062284643': {
@@ -164,10 +188,13 @@ export const ancientTelerinRules = {
     description: '[ln] became [ll]',
     url: 'https://eldamo.org/content/words/word-1062284643.html',
     mechanic: (str, options = {}) => {
-      if (str.includes('ln')) {
-        return { in: str, out: str.replace('ln', 'll'), morphemes: options.morphemes };
-      }
-      return { in: str, out: str, morphemes: options.morphemes };
+      if (str.includes('ln') === false) return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = str.replace('ln', 'll');
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
     },
   },
   '981459769': {
@@ -176,13 +203,18 @@ export const ancientTelerinRules = {
     description: 'final voiceless stops and [s] vanished in polysyllables',
     url: 'https://eldamo.org/content/words/word-981459769.html',
     mechanic: (str, options = {}) => {
-      if (['p', 't', 'k', 's'].includes(str.nth(-1))) {
-        const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
-        const syllableData = analyser.analyse(str);
-        if (syllableData.length === 1) return { in: str, out: str, morphemes: options.morphemes };
-        return { in: str, out: str.slice(0, -1), morphemes: options.morphemes };
-      }
-      return { in: str, out: str, morphemes: options.morphemes };
+      if (['p', 't', 'k', 's'].includes(str.nth(-1)) === false)
+        return { in: str, out: str, morphemes: options.morphemes };
+      
+      const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
+      const syllableData = analyser.analyse(str);
+      if (syllableData.length === 1) return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = str.slice(0, -1);
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [str.length - 1])
+        : (options.morphemes || [str]);
+      return { in: str, out: str.slice(0, -1), morphemes };
     },
   },
   '1254562549': {
@@ -191,13 +223,19 @@ export const ancientTelerinRules = {
     description: '[ms], [ns] became [ss]',
     url: 'https://eldamo.org/content/words/word-e.html',
     mechanic: (str, options = {}) => {
-      if (str.includes('ms')) {
-        return { in: str, out: str.replace('ms', 'ss'), morphemes: options.morphemes };
+      const occurrences = findAllOf(['ms', 'ns'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + 'ss' + result.substring(charIndex + 2);
       }
-      if (str.includes('ns')) {
-        return { in: str, out: str.replace('ns', 'ss'), morphemes: options.morphemes };
-      }
-      return { in: str, out: str, morphemes: options.morphemes };
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
     },
   },
 };

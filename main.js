@@ -721,6 +721,18 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
 
 }
 
+// Get language acronym for logging
+function getLanguageAcronym(ruleId) {
+  const lang = getLanguage(ruleId);
+  switch (lang) {
+    case 'primitive-elvish': return 'PE';
+    case 'ancient-telerin': return 'AT';
+    case 'old-sindarin': return 'OS';
+    case 'sindarin': return ' S';
+    default: return '??';
+  }
+}
+
 function runRule(ruleId, input, nextRuleId, morphemes = null) {
   const rulesObj = getRulesObject(ruleId);
   const resultsObj = getResultsObject(ruleId);
@@ -728,7 +740,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
 
   // Skip if rule is not effectively enabled (language disabled OR rule disabled)
   if (!isRuleEffectivelyEnabled(ruleId)) {
-    console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', 'N/A'.padEnd(10, ' '), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
+    console.log('Rule', getLanguageAcronym(ruleId), rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', 'N/A'.padEnd(10, ' '), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
     // Clear tripped state when rule is skipped
     const $ruleElement = document.getElementById(`rule-${ruleId}`);
     if ($ruleElement) {
@@ -781,7 +793,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   // Get morphemes from result, or keep existing morphemes if not returned
   const outputMorphemes = result.morphemes || morphemes;
 
-  console.log('Rule', getLanguage(ruleId) === 'old-sindarin' ? 'OS' : ' S', rule.orderId, String(ruleId).padStart(10, ' '), 'in:', result.in.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId), 'morphemes:', outputMorphemes);
+  console.log('Rule', getLanguageAcronym(ruleId), rule.orderId, String(ruleId).padStart(10, ' '), 'in:', result.in.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId), 'morphemes:', outputMorphemes);
 
   // Track rule result (skip for conversion rules - they don't appear in tripped/skipped)
   const isTripped = result.in !== result.out;

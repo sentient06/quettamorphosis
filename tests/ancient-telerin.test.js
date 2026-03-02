@@ -6,17 +6,17 @@ import { digraphsToSingle, singleToDigraphs } from "../src/utils.js";
 const toSingle = (str) => digraphsToSingle(str);
 
 describe('Ancient Telerin rules', () => {
-  it('00100 - unstressed initial syllables reduced to favored clusters', () => {
+  it('00100 - unstressed initial syllables reduced to favoured clusters', () => {
     expect(ancientTelerinRules['3648128347'].mechanic('abc').out).toBe('abc');
     expect(ancientTelerinRules['3648128347'].mechanic('barándā').out).toBe('brandā');
     expect(ancientTelerinRules['3648128347'].mechanic('barándē').out).toBe('brandē');
-    expect(ancientTelerinRules['3648128347'].mechanic('barássē').out).toBe('brassē');
+    expect(ancientTelerinRules['3648128347'].mechanic('baráſē').out).toBe('braſē');
     expect(ancientTelerinRules['3648128347'].mechanic('barásta-').out).toBe('brasta-');
-    expect(ancientTelerinRules['3648128347'].mechanic('barátʰil').out).toBe('bratʰil');
+    expect(ancientTelerinRules['3648128347'].mechanic('baráŧil').out).toBe('braŧil');
     // The one below fails when using Sindarin rules for stressed syllables:
     expect(ancientTelerinRules['3648128347'].mechanic('kalánt-').out).toBe('klant-');
     expect(ancientTelerinRules['3648128347'].mechanic('kalā́t-').out).toBe('klāt-');
-    expect(ancientTelerinRules['3648128347'].mechanic('kirísse').out).toBe('krisse');
+    expect(ancientTelerinRules['3648128347'].mechanic('kiríſe').out).toBe('kriſe');
     expect(ancientTelerinRules['3648128347'].mechanic('kiríste').out).toBe('kriste');
     expect(ancientTelerinRules['3648128347'].mechanic('palátā').out).toBe('platā');
     expect(ancientTelerinRules['3648128347'].mechanic('ƥilíŋke').out).toBe('ƥliŋke');
@@ -25,6 +25,16 @@ describe('Ancient Telerin rules', () => {
     // Initial clusters shouldn't trigger change:
     expect(ancientTelerinRules['3648128347'].mechanic('kjelekormo').out).toBe('kjelekormo');
     expect(ancientTelerinRules['3648128347'].mechanic('mbelektā').out).toBe('mbelektā');
+
+    // kirissi PE - criss OS
+    // aik PE - aik OS - aeg S
+    // rimbē PE - rimē OS - -rim S
+    // Morphemes:
+    // This rule won't apply for kiriſiaikrimbē because the second syllable is not stressed.
+    // I've added an artificial stress for testing purposes:
+    const compound = ancientTelerinRules['3648128347'].mechanic('kiríſiaikrimbē', { morphemes: ['kiríſi', 'aik', 'rimbē'] });
+    expect(compound.out).toEqual('kriſiaikrimbē');
+    expect(compound.morphemes).toEqual(['kriſi', 'aik', 'rimbē']);
   });
 
   it('00200 - labialized velars became labials', () => {
@@ -52,6 +62,11 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['171120983'].mechanic('ŋwaba').out).toBe('maba'); // Non-existent word
     // [ŋw] matches only at the beginning:
     expect(ancientTelerinRules['171120983'].mechanic('aŋwa').out).toBe('aŋwa'); // Non-existent word
+
+    // Morphemes:
+    const compound = ancientTelerinRules['171120983'].mechanic('minikwē', { morphemes: ['mini', 'kwē'] });
+    expect(compound.out).toEqual('minipē');
+    expect(compound.morphemes).toEqual(['mini', 'pē']);
   });
 
   it('00300 - [j] was lost after initial dentals', () => {
@@ -72,12 +87,23 @@ describe('Ancient Telerin rules', () => {
     // [lj-] > [l-]:
     expect(ancientTelerinRules['1532676669'].mechanic('lyab').out).toBe('lab');
     expect(ancientTelerinRules['1532676669'].mechanic('ljab').out).toBe('lab');
+
+    // Morphemes: (Noldorin)
+    const compound = ancientTelerinRules['1532676669'].mechanic('tjalaŋgando', { morphemes: ['tjal', 'aŋgando'] });
+    expect(compound.out).toEqual('talaŋgando');
+    expect(compound.morphemes).toEqual(['tal', 'aŋgando']);
+    
   });
 
   it('00400 - [ln] became [ll]', () => {
     expect(ancientTelerinRules['1062284643'].mechanic('abc').out).toBe('abc');
     expect(ancientTelerinRules['1062284643'].mechanic('ꝁolnina').out).toBe('ꝁollina'); // kʰollina
     expect(ancientTelerinRules['1062284643'].mechanic('melnā').out).toBe('mellā');
+
+    // Morphemes: melnā + annā > Melian (maybe)
+    const compound = ancientTelerinRules['1062284643'].mechanic('melnānnā', { morphemes: ['melnā', 'nnā'] });
+    expect(compound.out).toEqual('mellānnā');
+    expect(compound.morphemes).toEqual(['mellā', 'nnā']);
   });
 
   it('00500 - final voiceless stops and [s] vanished in polysyllables', () => {
@@ -89,6 +115,11 @@ describe('Ancient Telerin rules', () => {
     expect(ancientTelerinRules['981459769'].mechanic('ƥolos').out).toBe('ƥolo'); // tʰolo
     // Monosyllables are not affected:
     expect(ancientTelerinRules['981459769'].mechanic('suk').out).toBe('suk');
+
+    // Morphemes: kyelepē + d'rāk = teledraug (maybe? "silver wolf")
+    const compound = ancientTelerinRules['981459769'].mechanic('kyeledrāk', { morphemes: ['kyele', 'drāk'] });
+    expect(compound.out).toEqual('kyeledrā');
+    expect(compound.morphemes).toEqual(['kyele', 'drā']);
   });
 
   it('00600 - [ms], [ns] became [ss]', () => {
@@ -100,5 +131,10 @@ describe('Ancient Telerin rules', () => {
     // Made up words:
     expect(ancientTelerinRules['1254562549'].mechanic('amsa').out).toBe('assa');
     expect(ancientTelerinRules['1254562549'].mechanic('ansa').out).toBe('assa');
+
+    // Morphemes (non-existent word):
+    const compound = ancientTelerinRules['1254562549'].mechanic('amsansui', { morphemes: ['amsa', 'nsui'] });
+    expect(compound.out).toEqual('assassui');
+    expect(compound.morphemes).toEqual(['assa', 'ssui']);
   });
 });

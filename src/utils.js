@@ -519,9 +519,9 @@ export function findAllOf(chars, str) {
  * @returns {string[]} - The new morphemes array with adjusted boundaries
  *
  * @example
- * // 'jujuɣal' → 'jujual', ɣ at index 4 removed
+ * 'jujuɣal' → 'jujual', ɣ at index 4 removed
  * recalcMorphemes('jujual', ['juju', 'ɣal'], [4])
- * // returns ['juju', 'al']
+ * returns ['juju', 'al']
  */
 export function recalcMorphemes(result, originalMorphemes, removedIndices) {
   let originalPos = 0;
