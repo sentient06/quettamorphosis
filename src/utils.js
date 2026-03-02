@@ -510,6 +510,36 @@ export function findAllOf(chars, str) {
   return results;
 }
 
+/**
+ * Recalculates morpheme boundaries after a length-changing transformation.
+ *
+ * @param {string} result - The transformed string
+ * @param {string[]} originalMorphemes - The original morphemes array
+ * @param {number[]} removedIndices - Array of original string indices that were removed
+ * @returns {string[]} - The new morphemes array with adjusted boundaries
+ *
+ * @example
+ * // 'jujuɣal' → 'jujual', ɣ at index 4 removed
+ * recalcMorphemes('jujual', ['juju', 'ɣal'], [4])
+ * // returns ['juju', 'al']
+ */
+export function recalcMorphemes(result, originalMorphemes, removedIndices) {
+  let originalPos = 0;
+  let resultPos = 0;
+  return originalMorphemes.map((m) => {
+    const morphemeEnd = originalPos + m.length;
+    // Count removed chars in this morpheme's range
+    const removed = removedIndices.filter(
+      idx => idx >= originalPos && idx < morphemeEnd
+    ).length;
+    const newLength = m.length - removed;
+    const newMorpheme = result.substring(resultPos, resultPos + newLength);
+    originalPos = morphemeEnd;
+    resultPos += newLength;
+    return newMorpheme;
+  });
+}
+
 // =============================================================================
 // Language Profiles
 // =============================================================================

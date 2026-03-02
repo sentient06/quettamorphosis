@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { SyllableAnalyser, SINDARIN_PROFILE, breakIntoVowelsAndConsonants, findFirstOf, findAllOf, syllabify } from "../src/utils.js";
+import { SyllableAnalyser, SINDARIN_PROFILE, breakIntoVowelsAndConsonants, findFirstOf, findAllOf, syllabify, recalcMorphemes } from "../src/utils.js";
 
 describe('Array extended functions', () => {
   it('last should return last', () => {
@@ -146,6 +146,23 @@ describe('Utils', () => {
       { matched: 'a', charIndex: 5, nextChar: '', prevChar: 'n', lastChar: true },
     ]);
     expect(findAllOf(['x', 'y', 'z'], 'banana')).toEqual([]);
+  });
+
+  it('recalcMorphemes should recalculate morpheme boundaries after removals', () => {
+    // Single removal in second morpheme
+    expect(recalcMorphemes('jujual', ['juju', 'ɣal'], [4])).toEqual(['juju', 'al']);
+
+    // Single removal in middle morpheme
+    expect(recalcMorphemes('juallam', ['ju', 'ɣal', 'lam'], [2])).toEqual(['ju', 'al', 'lam']);
+
+    // Multiple removals across morphemes
+    expect(recalcMorphemes('abcd', ['aXb', 'cYd'], [1, 4])).toEqual(['ab', 'cd']);
+
+    // No removals
+    expect(recalcMorphemes('abcd', ['ab', 'cd'], [])).toEqual(['ab', 'cd']);
+
+    // Two removals in same morpheme
+    expect(recalcMorphemes('ac', ['aXYc'], [1, 2])).toEqual(['ac']);
   });
 });
 
