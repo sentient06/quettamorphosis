@@ -516,23 +516,32 @@ export function findAllOf(chars, str) {
  * @param {string} result - The transformed string
  * @param {string[]} originalMorphemes - The original morphemes array
  * @param {number[]} removedIndices - Array of original string indices that were removed
+ * @param {number[]} [addedIndices=[]] - Array of original string indices where chars were inserted
  * @returns {string[]} - The new morphemes array with adjusted boundaries
  *
  * @example
- * 'jujuɣal' → 'jujual', ɣ at index 4 removed
+ * // Removal: 'jujuɣal' → 'jujual', ɣ at index 4 removed
  * recalcMorphemes('jujual', ['juju', 'ɣal'], [4])
- * returns ['juju', 'al']
+ * // returns ['juju', 'al']
+ * @example
+ * // Addition: 'megl' → 'megol', 'o' inserted at index 3 (before final char)
+ * recalcMorphemes('megol', ['megl'], [], [3])
+ * // returns ['megol']
  */
-export function recalcMorphemes(result, originalMorphemes, removedIndices) {
+export function recalcMorphemes(result, originalMorphemes, removedIndices, addedIndices = []) {
   let originalPos = 0;
   let resultPos = 0;
   return originalMorphemes.map((m) => {
     const morphemeEnd = originalPos + m.length;
-    // Count removed chars in this morpheme's range
+    // Count removed chars in this morpheme's ORIGINAL range
     const removed = removedIndices.filter(
       idx => idx >= originalPos && idx < morphemeEnd
     ).length;
-    const newLength = m.length - removed;
+    // Count added chars at positions within this morpheme's ORIGINAL range
+    const added = addedIndices.filter(
+      idx => idx >= originalPos && idx < morphemeEnd
+    ).length;
+    const newLength = m.length - removed + added;
     const newMorpheme = result.substring(resultPos, resultPos + newLength);
     originalPos = morphemeEnd;
     resultPos += newLength;
