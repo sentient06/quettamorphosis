@@ -33,9 +33,13 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1989991061'].mechanic('ŋab').out).toBe('gab'); // Non-existent word
 
     // Morphemes: (non-existent word)
-    const compound = oldSindarinRules['1989991061'].mechanic('ŋgalatārigel', { morphemes: ['ŋgalatā', 'rigel'] });
-    expect(compound.out).toEqual('galatārigel');
-    expect(compound.morphemes).toEqual(['galatā', 'rigel']);
+    const compoundA = oldSindarinRules['1989991061'].mechanic('ŋgalatārigel', { morphemes: ['ŋgalatā', 'rigel'] });
+    expect(compoundA.out).toEqual('galatārigel');
+    expect(compoundA.morphemes).toEqual(['galatā', 'rigel']);
+
+    const compoundB = oldSindarinRules['1989991061'].mechanic('ŋalámeꝁotsē', { morphemes: ['ŋaláme', 'ꝁotsē'] });
+    expect(compoundB.out).toEqual('galámeꝁotsē');
+    expect(compoundB.morphemes).toEqual(['galáme', 'ꝁotsē']);
   });
 
   it('00300 - first in pair of voiced stops vocalized', () => {

@@ -47,16 +47,24 @@ export const oldSindarinRules = {
     description: 'initial [ŋ] became [ŋg] or [g]',
     url: 'https://eldamo.org/content/words/word-1989991061.html',
     mechanic: (str, options = {}) => {
-      if (str.startsWith('ŋ') === false)
-        return { in: str, out: str, morphemes: options.morphemes };
+      // Normalise to NFD for consistent character handling
+      const originalStr = str;
+      str = str.normaliseToMany();
+      const morphemes = options.morphemes?.map(m => m.normaliseToMany());
+
+      if (str.startsWith('ŋ') === false) {
+        return { in: originalStr, out: originalStr, morphemes: options.morphemes || [originalStr] };
+      }
 
       const nextChar = str.nth(1);
       const i = nextChar === 'g' ? 2 : 1;
       const result = 'g' + str.substring(i, str.length);
-      const morphemes = (result !== str && options.morphemes)
-        ? recalcMorphemes(result, options.morphemes, [0])
-        : (options.morphemes || [str]);
-      return { in: str, out: result, morphemes };
+      // Only index 0 is removed when ŋg → g; when ŋ → g it's same-length
+      const removedIndices = nextChar === 'g' ? [0] : [];
+      const updatedMorphemes = morphemes
+        ? recalcMorphemes(result, morphemes, removedIndices).map(m => m.normaliseToOne())
+        : [result.normaliseToOne()];
+      return { in: originalStr, out: result.normaliseToOne(), morphemes: updatedMorphemes };
     },
   },
   '4282797219': {
