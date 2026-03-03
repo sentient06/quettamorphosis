@@ -381,10 +381,15 @@ export const sindarinRules = {
           const validResult = isValidStart(start, multi);
           if (pattern !== patternStr || !validResult) continue;
 
-          // Check all vowels in the pattern are transformable (a/o/u)
+          // Check all vowels in the pattern are transformable (short a/o/u only)
+          // Long vowels (with macron ¯ or combining macron \u0304) should NOT be transformed
           const allTransformable = vowelPos.every(pos => {
             const v = unmarkedStr.charAt(start + pos);
-            return v === 'a' || v === 'o' || v === 'u';
+            if (v !== 'a' && v !== 'o' && v !== 'u') return false;
+            // Check if vowel has a length mark (macron) - if so, it's long and shouldn't transform
+            const mark = str.charAt(start + pos).getMark();
+            if (mark && (mark.includes('¯') || mark.includes('\u0304'))) return false;
+            return true;
           });
 
           if (allTransformable) {

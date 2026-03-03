@@ -200,6 +200,7 @@ describe('Sindarin rules', () => {
     });
     it('others', () => {
       expect(sindarinRules['3958031275'].mechanic('calatariɣell').out).toBe('calateriɣell');
+      expect(sindarinRules['3958031275'].mechanic('galatǭriɣer').out).toBe('galatǭriɣer');
     });
     it('morphemes', () => {
       // Morphemes: (non-existent compound for morpheme testing)
