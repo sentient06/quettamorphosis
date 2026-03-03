@@ -1,7 +1,6 @@
 import './utils.js'; // Load String prototype extensions
 import {
   recalcMorphemes,
-  findFirstOf,
   findAllOf,
   SyllableAnalyser,
   ANCIENT_TELERIN_PROFILE,

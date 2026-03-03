@@ -92,7 +92,6 @@ describe('Ancient Telerin rules', () => {
     const compound = ancientTelerinRules['1532676669'].mechanic('tjalaŋgando', { morphemes: ['tjal', 'aŋgando'] });
     expect(compound.out).toEqual('talaŋgando');
     expect(compound.morphemes).toEqual(['tal', 'aŋgando']);
-    
   });
 
   it('00400 - [ln] became [ll]', () => {

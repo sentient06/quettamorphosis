@@ -10,21 +10,32 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['71909447'].mechanic('abc').out).toBe('abc');
 
     // [-Sai] > [-Sī]:
-    expect(oldSindarinRules['71909447'].mechanic('ossai').out).toBe('ossī');
-    expect(oldSindarinRules['71909447'].mechanic('pʰelgai').out).toBe('pʰelgī');
+    expect(oldSindarinRules['71909447'].mechanic('oſai').out).toBe('oſī');
+    expect(oldSindarinRules['71909447'].mechanic('ƥelgai').out).toBe('ƥelgī');
     // [-Sei] > [-Sī]:
     expect(oldSindarinRules['71909447'].mechanic('wendēi').out).toBe('wendī');
     // [-Soi] > [-Sī]:
     expect(oldSindarinRules['71909447'].mechanic('etlōi').out).toBe('etlī');
     expect(oldSindarinRules['71909447'].mechanic('tonōi').out).toBe('tonī');
+    
+    // Morphemes: mornā + phelgai = dark mines
+    // The i here is already lost due to PE 200 (1056240093).
+    // We'll reverse only for testing.
+    const compound = oldSindarinRules['71909447'].mechanic('mornāƥelgai', { morphemes: ['mornā', 'ƥelgai'] });
+    expect(compound.out).toEqual('mornāƥelgī');
+    expect(compound.morphemes).toEqual(['mornā', 'ƥelgī']);
   });
 
   it('00200 - initial [ŋ] became [ŋg] or [g]', () => {
     expect(oldSindarinRules['1989991061'].mechanic('abc').out).toBe('abc');
     // There are not many examples and the ones existent are ambiguous.
-    expect(oldSindarinRules['1989991061'].mechanic('ñgalatārigel').out).toBe('galatārigel');
     expect(oldSindarinRules['1989991061'].mechanic('ŋgalatārigel').out).toBe('galatārigel');
     expect(oldSindarinRules['1989991061'].mechanic('ŋab').out).toBe('gab'); // Non-existent word
+
+    // Morphemes: (non-existent word)
+    const compound = oldSindarinRules['1989991061'].mechanic('ŋgalatārigel', { morphemes: ['ŋgalatā', 'rigel'] });
+    expect(compound.out).toEqual('galatārigel');
+    expect(compound.morphemes).toEqual(['galatā', 'rigel']);
   });
 
   it('00300 - first in pair of voiced stops vocalized', () => {
@@ -36,6 +47,11 @@ describe('Old Sindarin rules', () => {
     // [Vgd] > [Vid]:
     expect(oldSindarinRules['4282797219'].mechanic('negdē').out).toBe('neidē');
     expect(oldSindarinRules['4282797219'].mechanic('snagdē').out).toBe('snaidē');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['4282797219'].mechanic('mornalabdē', { morphemes: ['morna', 'labdē'] });
+    expect(compound.out).toEqual('mornalaudē');
+    expect(compound.morphemes).toEqual(['morna', 'laudē']);
   });
 
   it('00400 - [ɣ] became [g] before nasals and liquids', () => {
@@ -43,6 +59,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['107931923'].mechanic('taɣra').out).toBe('tagra');
     // Negative:
     expect(oldSindarinRules['107931923'].mechanic('taɣda').out).toBe('taɣda'); // Non-existent word
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['107931923'].mechanic('abataɣra', { morphemes: ['aba', 'taɣra'] });
+    expect(compound.out).toEqual('abatagra');
+    expect(compound.morphemes).toEqual(['aba', 'tagra']);
   });
 
   it('00500 - initial [ɣ]/[h] vanished', () => {
@@ -51,6 +72,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1117448055'].mechanic('ɣeklambar').out).toBe('eklambar');
     expect(oldSindarinRules['1117448055'].mechanic('ɣenet').out).toBe('enet');
     expect(oldSindarinRules['1117448055'].mechanic('ɣor-').out).toBe('or-');
+
+    // Morphemes:
+    const compound = oldSindarinRules['1117448055'].mechanic('ɣeklambar', { morphemes: ['ɣekla', 'mbar'] });
+    expect(compound.out).toEqual('eklambar');
+    expect(compound.morphemes).toEqual(['ekla', 'mbar']);
   });
 
   it('00600 - [j] was lost after initial velars', () => {
@@ -70,6 +96,10 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['345959193'].mechanic('ŋgjabab').out).toBe('ŋgabab'); // Non-existent word
     // Replace all occurrences:
     expect(oldSindarinRules['345959193'].mechanic('kjawathānekjāwen').out).toBe('kawathānekāwen'); // Non-existent word
+    // Morphemes: kjelepē + ornā = Celeborn
+    const compound = oldSindarinRules['345959193'].mechanic('kjelepornā', { morphemes: ['kjelep', 'ornā'] });
+    expect(compound.out).toEqual('kelepornā');
+    expect(compound.morphemes).toEqual(['kelep', 'ornā']);
   });
 
   it('00700 - medial [m] became [n] before [j], [w]', () => {
@@ -80,6 +110,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1484184939'].mechanic('amwa').out).toBe('anwa'); // Non-existent word
     // [-mw] > [-mm]:
     expect(oldSindarinRules['1484184939'].mechanic('abamw').out).toBe('abamm'); // Non-existent word
+
+    // Morphemes (non-existent word):
+    const compound = oldSindarinRules['1484184939'].mechanic('abamwaba', { morphemes: ['abam', 'waba'] });
+    expect(compound.out).toEqual('abanwaba');
+    expect(compound.morphemes).toEqual(['aban', 'waba']);
   });
 
   it('00800 - initial [ml], [mr] became [bl], [br]', () => {
@@ -91,6 +126,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1955360003'].mechanic('mloss').out).toBe('bloss'); // Gnomish word, ficticious transformation
     // [mr-] > [br-]:
     expect(oldSindarinRules['1955360003'].mechanic('mrekāla').out).toBe('brekāla'); // Noldorin
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1955360003'].mechanic('mrekālaba', { morphemes: ['mre', 'kāla', 'ba'] });
+    expect(compound.out).toEqual('brekālaba');
+    expect(compound.morphemes).toEqual(['bre', 'kāla', 'ba']);
   });
 
   it('00900 - initial syllabic [m], [n], [ŋ] became [am], [an], [aŋ]', () => {
@@ -102,6 +142,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1024355367'].mechanic('ṇdūnē').out).toBe('andūnē');
     // [ŋ̣-] > [aŋ-]:
     expect(oldSindarinRules['1024355367'].mechanic('ŋ̣golodō').out).toBe('aŋgolodō');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1024355367'].mechanic('ṃbarondō', { morphemes: ['ṃbar', 'ondō'] });
+    expect(compound.out).toEqual('ambarondō');
+    expect(compound.morphemes).toEqual(['ambar', 'ondō']);
   });
 
   it('01000 - voiceless stops were voiced before nasals', () => {
@@ -124,6 +169,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3463937975'].mechanic('jatmē').out).toBe('jadmē');
     // [km] > [gm]:
     expect(oldSindarinRules['3463937975'].mechanic('tulukmē').out).toBe('tulugmē');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['3463937975'].mechanic('abratekmā', { morphemes: ['abra', 'tek', 'mā'] });
+    expect(compound.out).toEqual('abrategmā');
+    expect(compound.morphemes).toEqual(['abra', 'teg', 'mā']);
   });
 
   it('01100 - [m] became [w] after aspirates', () => {
@@ -133,6 +183,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3883770909'].mechanic('paŧmā').out).toBe('paŧwā');
     expect(oldSindarinRules['3883770909'].mechanic('abaƥma').out).toBe('abaƥwa'); // Non-existent word
     expect(oldSindarinRules['3883770909'].mechanic('abaꝁma').out).toBe('abaꝁwa'); // Non-existent word
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['3883770909'].mechanic('abaŧmāra', { morphemes: ['aba', 'ŧmā', 'ra'] });
+    expect(compound.out).toEqual('abaŧwāra');
+    expect(compound.morphemes).toEqual(['aba', 'ŧwā', 'ra']);
   });
 
   it('01200 - [tʰn] became [ttʰ]', () => {
@@ -140,6 +195,11 @@ describe('Old Sindarin rules', () => {
     // Input uses single-char form: ŧ=tʰ
     // Only one example, and it's Old Noldorin:
     expect(oldSindarinRules['1757900715'].mechanic('paŧnā').out).toBe('patŧā');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1757900715'].mechanic('abaŧnāra', { morphemes: ['aba', 'ŧnā', 'ra'] });
+    expect(compound.out).toEqual('abatŧāra');
+    expect(compound.morphemes).toEqual(['aba', 'tŧā', 'ra']);
   });
 
   it('01300 - final [d] spirantalized and vanished', () => {
@@ -150,6 +210,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1789116309'].mechanic('badad').out).toBe('badā');
     expect(oldSindarinRules['1789116309'].mechanic('dadad').out).toBe('dadā');
     expect(oldSindarinRules['1789116309'].mechanic('dadadad').out).toBe('dadadā');
+
+    // Morphemes: (non-existent word)
+    const compound = oldSindarinRules['1789116309'].mechanic('badadad', { morphemes: ['bada', 'dad'] });
+    expect(compound.out).toEqual('badadā');
+    expect(compound.morphemes).toEqual(['bada', 'dā']);
   });
 
   it('01400 - final [tʰ] became [t]', () => {
@@ -157,6 +222,11 @@ describe('Old Sindarin rules', () => {
     // Input uses single-char form: ŧ=tʰ, x=kh/ch
     // Only example, from Noldorin:
     expect(oldSindarinRules['300026073'].mechanic('xōŧ').out).toBe('xōt');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['300026073'].mechanic('abaxōŧ', { morphemes: ['aba', 'xōŧ'] });
+    expect(compound.out).toEqual('abaxōt');
+    expect(compound.morphemes).toEqual(['aba', 'xōt']);
   });
 
   it('01500 - medial [sj], [sw] became [xʲ], [xʷ]', () => {
@@ -166,6 +236,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3229649933'].mechanic('teswā').out).toBe('teƕā');
     // Made-up value to test multiple occurrences:
     expect(oldSindarinRules['3229649933'].mechanic('tesjaswā').out).toBe('teꜧaƕā');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['3229649933'].mechanic('tesjaswā', { morphemes: ['tes', 'jaswā'] });
+    expect(compound.out).toEqual('teꜧaƕā');
+    expect(compound.morphemes).toEqual(['te', 'ꜧaƕā']);
   });
 
   it('01600 - long final vowels were shortened', () => {
@@ -183,6 +258,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2753394075'].mechanic('kamprū').out).toBe('kampru');
     expect(oldSindarinRules['2753394075'].mechanic('kamprú').out).toBe('kampru');
     expect(oldSindarinRules['2753394075'].mechanic('kamprû').out).toBe('kampru');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['2753394075'].mechanic('abaandūnē', { morphemes: ['aba', 'andū', 'nē'] });
+    expect(compound.out).toEqual('abaandūne');
+    expect(compound.morphemes).toEqual(['aba', 'andū', 'ne']);
   });
 
   it('01700 - [z] vanished before [d] lengthening preceding vowel', () => {
@@ -190,6 +270,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1249932447'].mechanic('ezde').out).toBe('ēde');
     expect(oldSindarinRules['1249932447'].mechanic('mizde').out).toBe('mīde');
     expect(oldSindarinRules['1249932447'].mechanic('rezda').out).toBe('rēda');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1249932447'].mechanic('ezdebaba', { morphemes: ['ezde', 'baba'] });
+    expect(compound.out).toEqual('ēdebaba');
+    expect(compound.morphemes).toEqual(['ēde', 'baba']);
   });
 
   it('01800 - syllabic initial [s] became [es]', () => {
@@ -198,17 +283,27 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2107885715'].mechanic('ṣpine').out).toBe('espine');
     expect(oldSindarinRules['2107885715'].mechanic('ṣtenna').out).toBe('estenna');
     expect(oldSindarinRules['2107885715'].mechanic('ṣtenta').out).toBe('estenta');
+
+    // Morphemes: ṣkala + duinē = Esgalduin
+    const compound = oldSindarinRules['2107885715'].mechanic('ṣkaladuinē', { morphemes: ['ṣkala', 'duinē'] });
+    expect(compound.out).toEqual('eskaladuinē');
+    expect(compound.morphemes).toEqual(['eskala', 'duinē']);
   });
 
   it('01900 - initial [s] unvoiced following consonants', () => {
     expect(oldSindarinRules['3923357111'].mechanic('abc').out).toBe('abc');
-    // Output uses single-char forms: ꟃ=mh, ꞃ=nh, ꝉ=lh, ꞧ=rh, ƕ=wh
+    // Output uses single-char forms: ᵯ=mh, ꞃ=nh, ꝉ=lh, ꞧ=rh, ƕ=wh
     expect(oldSindarinRules['3923357111'].mechanic('sjerwa').out).toBe('j̊erwa');
     expect(oldSindarinRules['3923357111'].mechanic('slasu').out).toBe('ꝉasu');
     expect(oldSindarinRules['3923357111'].mechanic('snaide').out).toBe('ꞃaide');
     expect(oldSindarinRules['3923357111'].mechanic('srāba').out).toBe('ꞧāba');
     expect(oldSindarinRules['3923357111'].mechanic('swa').out).toBe('ƕa');
     expect(oldSindarinRules['3923357111'].mechanic('swaiwar').out).toBe('ƕaiwar');
+
+    // Morphemes (random words put together):
+    const compound = oldSindarinRules['3923357111'].mechanic('swaiwarduinē', { morphemes: ['swaiwar', 'duinē'] });
+    expect(compound.out).toEqual('ƕaiwarduinē');
+    expect(compound.morphemes).toEqual(['ƕaiwar', 'duinē']);
   });
 
   it('02000 - final [e] became [a] after single [s] and [st]', () => {
@@ -223,6 +318,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1763851339'].mechanic('glasse').out).toBe('glasse'); // Old Noldorin
     // Shouldn't trigger:
     expect(oldSindarinRules['1763851339'].mechanic('litse').out).toBe('litse');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1763851339'].mechanic('abapʰaste', { morphemes: ['aba', 'pʰas', 'te'] });
+    expect(compound.out).toEqual('abapʰasta');
+    expect(compound.morphemes).toEqual(['aba', 'pʰas', 'ta']);
   });
 
   it('02100 - voiceless stops became spirants after initial [s]', () => {
@@ -236,6 +336,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['798037075'].mechanic('stenna').out).toBe('sθenna');
     // [sk-] > [sx-]:
     expect(oldSindarinRules['798037075'].mechanic('skalja-').out).toBe('sxalja-'); // Old Noldorin
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['798037075'].mechanic('spindeba', { morphemes: ['spin', 'de', 'ba'] });
+    expect(compound.out).toEqual('sɸindeba');
+    expect(compound.morphemes).toEqual(['sɸin', 'de', 'ba']);
   });
 
   it('02200 - voiceless stops aspirated after consonants except [s]', () => {
@@ -278,6 +383,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1683955225'].mechanic('urko').out).toBe('urꝁo');
     // [xt] > [xtʰ]:
     expect(oldSindarinRules['1683955225'].mechanic('axta').out).toBe('axŧa'); // Non-existent word
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1683955225'].mechanic('abaekta', { morphemes: ['aba', 'ek', 'ta'] });
+    expect(compound.out).toEqual('abaekŧa');
+    expect(compound.morphemes).toEqual(['aba', 'ek', 'ŧa']);
   });
 
   it('02300 - aspirates became voiceless spirants', () => {
@@ -301,6 +411,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['883570327'].mechanic('ekŧa').out).toBe('exθa');
     // [kkʰ] > [xx]:
     expect(oldSindarinRules['883570327'].mechanic('rokꝁo').out).toBe('roxxo');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['883570327'].mechanic('abaƥelga', { morphemes: ['aba', 'ƥel', 'ga'] });
+    expect(compound.out).toEqual('abaɸelga');
+    expect(compound.morphemes).toEqual(['aba', 'ɸel', 'ga']);
   });
 
   it('02400 - [eu] became [iu]', () => {
@@ -310,6 +425,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2662025405'].mechanic('keule').out).toBe('kiule');
     expect(oldSindarinRules['2662025405'].mechanic('keurāna').out).toBe('kiurāna');
     expect(oldSindarinRules['2662025405'].mechanic('leuka').out).toBe('liuka');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['2662025405'].mechanic('abadeura', { morphemes: ['aba', 'deu', 'ra'] });
+    expect(compound.out).toEqual('abadiura');
+    expect(compound.morphemes).toEqual(['aba', 'diu', 'ra']);
   });
 
   it('02500 - [ā], [au] became [ǭ]', () => {
@@ -319,20 +439,24 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2858643115'].mechanic('bakār').out).toBe('bakǭr');
     expect(oldSindarinRules['2858643115'].mechanic('gāja').out).toBe('gǭja');
     expect(oldSindarinRules['2858643115'].mechanic('gwābandina').out).toBe('gwǭbandina');
-    expect(oldSindarinRules['2858643115'].mechanic('kawathāne').out).toBe('kawathǭne');
+    expect(oldSindarinRules['2858643115'].mechanic('kawaθāne').out).toBe('kawaθǭne');
     expect(oldSindarinRules['2858643115'].mechanic('lindāna').out).toBe('lindǭna');
     expect(oldSindarinRules['2858643115'].mechanic('narāka').out).toBe('narǭka');
-    expect(oldSindarinRules['2858643115'].mechanic('r̥āba').out).toBe('r̥ǭba');
+    expect(oldSindarinRules['2858643115'].mechanic('ꞧāba').out).toBe('ꞧǭba');
     expect(oldSindarinRules['2858643115'].mechanic('tasāre').out).toBe('tasǭre');
     expect(oldSindarinRules['2858643115'].mechanic('wāja').out).toBe('wǭja');
     expect(oldSindarinRules['2858643115'].mechanic('xaðād').out).toBe('xaðǭd');
     expect(oldSindarinRules['2858643115'].mechanic('ɸindarāto').out).toBe('ɸindarǭto');
     // These are all Old Noldorin:
     expect(oldSindarinRules['2858643115'].mechanic('glaure').out).toBe('glǭre');
-    expect(oldSindarinRules['2858643115'].mechanic('gotʰombauko').out).toBe('gotʰombǭko');
-    expect(oldSindarinRules['2858643115'].mechanic('pʰauka').out).toBe('pʰǭka');
-    expect(oldSindarinRules['2858643115'].mechanic('tʰaurena').out).toBe('tʰǭrena');
+    expect(oldSindarinRules['2858643115'].mechanic('goŧombauko').out).toBe('goŧombǭko');
+    expect(oldSindarinRules['2858643115'].mechanic('ƥauka').out).toBe('ƥǭka');
+    expect(oldSindarinRules['2858643115'].mechanic('ŧaurena').out).toBe('ŧǭrena');
 
+    // Morphemes:
+    const compound = oldSindarinRules['2858643115'].mechanic('ɸindarāto', { morphemes: ['ɸinda', 'rāto'] });
+    expect(compound.out).toEqual('ɸindarǭto');
+    expect(compound.morphemes).toEqual(['ɸinda', 'rǭto']);
   });
 
   it('02600 - [j] became [i] after vowels', () => {
@@ -352,6 +476,17 @@ describe('Old Sindarin rules', () => {
     // These are all Old Noldorin:
     expect(oldSindarinRules['161840619'].mechanic('mbǭj').out).toBe('mbǭi');
     expect(oldSindarinRules['161840619'].mechanic('nǭj').out).toBe('nǭi');
+
+    // Morphemes:
+    // gwaja+lauto = S. gwaelod --> This shouldn't change much because the length doesn't change.
+    const compoundA = oldSindarinRules['161840619'].mechanic('gwajalauto', { morphemes: ['gwaja', 'lauto'] });
+    expect(compoundA.out).toEqual('gwaialauto');
+    expect(compoundA.morphemes).toEqual(['gwaia', 'lauto']);
+
+    // This one should change lengths, but it doesn't exist:
+    const compoundB = oldSindarinRules['161840619'].mechanic('gwaijalauto', { morphemes: ['gwaija', 'lauto'] });
+    expect(compoundB.out).toEqual('gwaīalauto');
+    expect(compoundB.morphemes).toEqual(['gwaīa', 'lauto']);
   });
 
   it('02700 - [ei], [ou] became [ī], [ū]', () => {
@@ -362,6 +497,12 @@ describe('Old Sindarin rules', () => {
     // [ou] > [ū]:
     expect(oldSindarinRules['1942848653'].mechanic('θouo').out).toBe('θūo');
     expect(oldSindarinRules['1942848653'].mechanic('θouson').out).toBe('θūson');
+
+    // Morphemes:
+    // jab + negdē (PE) --> fruit juice
+    const compound = oldSindarinRules['1942848653'].mechanic('jabneide', { morphemes: ['jab', 'neide'] });
+    expect(compound.out).toEqual('jabnīde');
+    expect(compound.morphemes).toEqual(['jab', 'nīde']);
   });
 
   it('02800 - [oi], [ǭi] became [ui], [oi]', () => {
@@ -374,6 +515,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2010669085'].mechanic('gǭia').out).toBe('goia');
     expect(oldSindarinRules['2010669085'].mechanic('l̥ǭire').out).toBe('l̥oire');
     expect(oldSindarinRules['2010669085'].mechanic('ɸanǭia').out).toBe('ɸanoia');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['2010669085'].mechanic('abaoioma', { morphemes: ['aba', 'oio', 'ma'] });
+    expect(compound.out).toEqual('abauioma');
+    expect(compound.morphemes).toEqual(['aba', 'uio', 'ma']);
   });
 
   it('02900 - medial [s] assimilated to following nasal', () => {
@@ -392,6 +538,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['1716741635'].mechanic('babas').out).toBe('babas'); // Non-existent word
     expect(oldSindarinRules['1716741635'].mechanic('sababa').out).toBe('sababa'); // Non-existent word
     expect(oldSindarinRules['1716741635'].mechanic('sbaba').out).toBe('sbaba'); // Non-existent word
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1716741635'].mechanic('abakasma', { morphemes: ['aba', 'kas', 'ma'] });
+    expect(compound.out).toEqual('abakamma');
+    expect(compound.morphemes).toEqual(['aba', 'kam', 'ma']);
   });
 
   it('03000 - intervocalic [s] became [h]', () => {
@@ -410,6 +561,11 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3388236413'].mechanic('sbaba').out).toBe('sbaba'); // Non-existent word
     expect(oldSindarinRules['3388236413'].mechanic('asbaba').out).toBe('asbaba'); // Non-existent word
     expect(oldSindarinRules['3388236413'].mechanic('absaba').out).toBe('absaba'); // Non-existent word
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['3388236413'].mechanic('abaasama', { morphemes: ['aba', 'asa', 'ma'] });
+    expect(compound.out).toEqual('abaahama');
+    expect(compound.morphemes).toEqual(['aba', 'aha', 'ma']);
   });
 
   it('03100 - [p], [t], [k] spirantalized before [s]', () => {
@@ -422,12 +578,22 @@ describe('Old Sindarin rules', () => {
     // [ts] > [θθ]:
     expect(oldSindarinRules['1516403107'].mechanic('lotse').out).toBe('loθθe');
     expect(oldSindarinRules['1516403107'].mechanic('otsōja').out).toBe('oθθōja');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1516403107'].mechanic('abaakseba', { morphemes: ['aba', 'akse', 'ba'] });
+    expect(compound.out).toEqual('abaaxxeba');
+    expect(compound.morphemes).toEqual(['aba', 'axxe', 'ba']);
   });
 
   it('03200 - [rl] became [ll]', () => {
     expect(oldSindarinRules['1288402337'].mechanic('abc').out).toBe('abc');
     // Only one example:
     expect(oldSindarinRules['1288402337'].mechanic('glawarlinde').out).toBe('glawallinde');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['1288402337'].mechanic('abaerliaba', { morphemes: ['aba', 'erli', 'aba'] });
+    expect(compound.out).toEqual('abaelliaba');
+    expect(compound.morphemes).toEqual(['aba', 'elli', 'aba']);
   });
 
   it('03300 - [j] vanished before [i], [ui]', () => {
@@ -438,6 +604,12 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2851583127'].mechanic('juial').out).toBe('uial');
     // [ji] > [i]:
     expect(oldSindarinRules['2851583127'].mechanic('jiabc').out).toBe('iabc'); // Non-existent word
+
+    // Morphemes:
+    // galad + juial = Gladuial (glad has unknown origin, this is a guess)
+    const compound = oldSindarinRules['2851583127'].mechanic('galadjuial', { morphemes: ['galad', 'juial'] });
+    expect(compound.out).toEqual('galaduial');
+    expect(compound.morphemes).toEqual(['galad', 'uial']);
   });
 
   it('03400 - [w] vanished before [u]', () => {
@@ -449,6 +621,13 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2167009353'].mechanic('gwuin').out).toBe('guin');
     expect(oldSindarinRules['2167009353'].mechanic('wuia').out).toBe('uia');
     expect(oldSindarinRules['2167009353'].mechanic('wuiar').out).toBe('uiar');
+
+    // Morphemes:
+    // kwildā -> pilda  - peace
+    // kukūwā -> kukūwa - dove
+    const compound = oldSindarinRules['2167009353'].mechanic('pildakukūwa', { morphemes: ['pilda', 'kukūwa'] });
+    expect(compound.out).toEqual('pildakukua');
+    expect(compound.morphemes).toEqual(['pilda', 'kukua']);
   });
 
   it('03500 - [bm], [dn] became [mm], [nn]', () => {
@@ -458,5 +637,10 @@ describe('Old Sindarin rules', () => {
     // [dn] > [nn]:
     expect(oldSindarinRules['2615312913'].mechanic('padna').out).toBe('panna'); // Old Noldorin
     expect(oldSindarinRules['2615312913'].mechanic('madna').out).toBe('manna'); // Old Noldorin
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = oldSindarinRules['2615312913'].mechanic('abapadnama', { morphemes: ['aba', 'pad', 'nama'] });
+    expect(compound.out).toEqual('abapannama');
+    expect(compound.morphemes).toEqual(['aba', 'pan', 'nama']);
   });
 });
