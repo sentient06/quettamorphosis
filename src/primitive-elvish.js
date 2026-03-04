@@ -352,8 +352,8 @@ export const primitiveElvishRules = {
 
       // Process from end to start so indices remain valid
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, nextChar } = occurrences[i];
-        if (['b', 'd', 'g'].includes(nextChar)) {
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        if (['b', 'd', 'g'].includes(nextChar) && prevChar.isConsonant()) {
           result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
           removedIndices.push(charIndex);
         }
@@ -576,7 +576,12 @@ export const primitiveElvishRules = {
     url: 'https://eldamo.org/content/words/word-2794740763.html',
     mechanic: (str, options = {}) => {
       const lastChar = str.nth(-1);
-      if (['e', 'a', 'o', 'ǝ'].includes(lastChar) === false)  return { in: str, out: str, morphemes: options.morphemes };
+      if (['e', 'a', 'o', 'ǝ'].includes(lastChar) === false)
+        return { in: str, out: str, morphemes: options.morphemes };
+      
+      const prevChar = str.nth(-2);
+      if (prevChar.isVowel() || prevChar === 'j')
+        return { in: str, out: str, morphemes: options.morphemes };
       
       const result = str.substring(0, str.length - 1);
 
@@ -800,7 +805,7 @@ export const primitiveElvishRules = {
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched, prevChar } = occurrences[i];
-        if ('ptkƥŧꝁs'.includes(prevChar)) {
+        if (['p', 't', 'k', 'ƥ', 'ŧ', 'ꝁ', 's'].includes(prevChar)) {
           result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
         }
       }

@@ -177,29 +177,29 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3958031275'].mechanic('atatia').out).toBe('etetia');
     });
     it('[ăCŭCi] > [eCyCi]', () => {
-      expect(sindarinRules['3958031275'].mechanic('andundi').out).toBe('endyndi'); // VCCVCCV
+      expect(sindarinRules['3958031275'].mechanic('andundi').out).toBe('endjndi'); // VCCVCCV
     });
     it('[ŏCi] > [œCi]', () => {
       expect(sindarinRules['3958031275'].mechanic('ronio').out).toBe('rœnio');
       expect(sindarinRules['3958031275'].mechanic('olia').out).toBe('œlia');
     });
     it('[ŏCŭCi] > [œCyCi]', () => {
-      expect(sindarinRules['3958031275'].mechanic('goluði').out).toBe('gœlyði');
-      expect(sindarinRules['3958031275'].mechanic('θoluhi').out).toBe('θœlyhi');
-      expect(sindarinRules['3958031275'].mechanic('oruti').out).toBe('œryti');
+      expect(sindarinRules['3958031275'].mechanic('goluði').out).toBe('gœljði');
+      expect(sindarinRules['3958031275'].mechanic('θoluhi').out).toBe('θœljhi');
+      expect(sindarinRules['3958031275'].mechanic('oruti').out).toBe('œrjti');
     });
     it('[ŏCŏCi] > [œCœCi]', () => {
       expect(sindarinRules['3958031275'].mechanic('doroni').out).toBe('dœrœni');
       expect(sindarinRules['3958031275'].mechanic('olohi').out).toBe('œlœhi');
     });
     it('[ŭCi] > [yCi]', () => {
-      expect(sindarinRules['3958031275'].mechanic('duri').out).toBe('dyri');
-      expect(sindarinRules['3958031275'].mechanic('puti').out).toBe('pyti');
+      expect(sindarinRules['3958031275'].mechanic('duri').out).toBe('djri');
+      expect(sindarinRules['3958031275'].mechanic('puti').out).toBe('pjti');
     });
     it('[ŭCCi] > [yCCi]', () => {
-      expect(sindarinRules['3958031275'].mechanic('dumbi').out).toBe('dymbi');
-      expect(sindarinRules['3958031275'].mechanic('tainakulli').out).toBe('tainakylli');
-      expect(sindarinRules['3958031275'].mechanic('ukli').out).toBe('ykli');
+      expect(sindarinRules['3958031275'].mechanic('dumbi').out).toBe('djmbi');
+      expect(sindarinRules['3958031275'].mechanic('tainakulli').out).toBe('tainakjlli');
+      expect(sindarinRules['3958031275'].mechanic('ukli').out).toBe('jkli');
     });
     it('others', () => {
       expect(sindarinRules['3958031275'].mechanic('calatariɣell').out).toBe('calateriɣell');
@@ -658,13 +658,13 @@ describe('Sindarin rules', () => {
 
   it('03300 - final [-wi] became [-y]', () => {
     expect(sindarinRules['677308549'].mechanic('abc').out).toBe('abc');
-    expect(sindarinRules['677308549'].mechanic('herwi').out).toBe('hery');
-    expect(sindarinRules['677308549'].mechanic('melui').out).toBe('mely');
+    expect(sindarinRules['677308549'].mechanic('herwi').out).toBe('herj');
+    expect(sindarinRules['677308549'].mechanic('melui').out).toBe('melj');
 
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = sindarinRules['677308549'].mechanic('abamelui', { morphemes: ['aba', 'melui'] });
-    expect(compound.out).toEqual('abamely');
-    expect(compound.morphemes).toEqual(['aba', 'mely']);
+    expect(compound.out).toEqual('abamelj');
+    expect(compound.morphemes).toEqual(['aba', 'melj']);
   });
 
   it('03400 - [h] vanished after vowels', () => {
@@ -831,13 +831,13 @@ describe('Sindarin rules', () => {
   it('04000 - [œi] became [ui] or [y]', () => {
     expect(sindarinRules['1787434575'].mechanic('abc').out).toBe('abc');
     // There is only one example of this rule. It also is mostly concerned with explaining plural formation.
-    expect(sindarinRules['1787434575'].mechanic('œrœin').out).toBe('œryn');
+    expect(sindarinRules['1787434575'].mechanic('œrœin').out).toBe('œrjn');
     expect(sindarinRules['1787434575'].mechanic('œrœin', { useUi: true }).out).toBe('œruin');
 
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = sindarinRules['1787434575'].mechanic('abaœrœin', { morphemes: ['aba', 'œr', 'œin'] });
-    expect(compound.out).toEqual('abaœryn');
-    expect(compound.morphemes).toEqual(['aba', 'œr', 'yn']);
+    expect(compound.out).toEqual('abaœrjn');
+    expect(compound.morphemes).toEqual(['aba', 'œr', 'jn']);
   });
 
   it('04100 - [nr] became [ðr]', () => {

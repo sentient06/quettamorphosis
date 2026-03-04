@@ -167,3 +167,112 @@ export function getResultsObject(ruleId, peRuleResults, atRuleResults, osRuleRes
   return null;
 }
 
+/**
+ * Evolve a word through all rules from Primitive Elvish to Sindarin.
+ * This is the core test helper for end-to-end word evolution testing.
+ *
+ * @param {string} input - The input word (in Primitive Elvish form)
+ * @param {Object} config - Configuration object
+ * @param {Set<string>} [config.disabledRules] - Set of rule IDs to disable (by ruleId or qualified orderId like 'S 06500')
+ * @param {Set<string>} [config.enabledRules] - Set of rule IDs to force-enable (overrides skip: true)
+ * @param {Set<string>} [config.disabledLanguages] - Set of language IDs to disable ('primitive-elvish', 'ancient-telerin', 'old-sindarin', 'sindarin')
+ * @param {Object} [config.ruleOptions] - Map of ruleId -> options object for rules with inputs
+ * @param {Array<string>} [config.morphemes] - Initial morpheme boundaries
+ * @returns {Object} Result object with evolution details
+ */
+export function evolveWord(input, config = {}) {
+  const {
+    disabledRules = new Set(),
+    enabledRules = new Set(),
+    disabledLanguages = new Set(),
+    ruleOptions = {},
+    morphemes: initialMorphemes = null,
+  } = config;
+
+  let currentValue = input;
+  let currentMorphemes = initialMorphemes || [input];
+  const tripped = [];
+  const steps = [];
+
+  // Map language names to orderId prefixes
+  const langPrefixMap = {
+    'primitive-elvish': 'PE',
+    'ancient-telerin': 'AT',
+    'old-sindarin': 'OS',
+    'sindarin': 'S',
+  };
+
+  for (const ruleId of allRuleKeys) {
+    const rulesObj = getRulesObject(ruleId);
+    if (!rulesObj) continue;
+
+    const rule = rulesObj[ruleId];
+    const language = getLanguage(ruleId);
+    const langPrefix = langPrefixMap[language] || '';
+    const qualifiedOrderId = langPrefix ? `${langPrefix} ${rule.orderId}` : rule.orderId;
+
+    // Check if language is disabled
+    if (language && disabledLanguages.has(language)) {
+      continue;
+    }
+
+    // Check if rule is disabled (by ID or qualified orderId)
+    if (disabledRules.has(ruleId) || disabledRules.has(qualifiedOrderId)) {
+      continue;
+    }
+
+    // Check if rule is explicitly enabled (overrides skip: true)
+    const isExplicitlyEnabled = enabledRules.has(ruleId) || enabledRules.has(qualifiedOrderId);
+
+    // Check if rule has skip: true and is not explicitly enabled
+    if (rule.skip === true && !isExplicitlyEnabled) {
+      continue;
+    }
+
+    // Build options: start with rule defaults, then apply custom options
+    const options = { morphemes: currentMorphemes };
+    if (rule.input) {
+      rule.input.forEach(inputDef => {
+        options[inputDef.name] = inputDef.default;
+      });
+    }
+    // Apply custom options for this rule (by ruleId or qualified orderId)
+    const customOpts = ruleOptions[ruleId] || ruleOptions[qualifiedOrderId] || {};
+    Object.assign(options, customOpts);
+
+    // Run the rule
+    const result = rule.mechanic(currentValue, options);
+    const isTripped = result.in !== result.out;
+
+    steps.push({
+      ruleId,
+      orderId: rule.orderId,
+      language,
+      in: result.in,
+      out: result.out,
+      tripped: isTripped,
+    });
+
+    if (isTripped) {
+      tripped.push({
+        ruleId,
+        orderId: rule.orderId,
+        language,
+        in: result.in,
+        out: result.out,
+      });
+    }
+
+    currentValue = result.out;
+    currentMorphemes = result.morphemes || currentMorphemes;
+  }
+
+  return {
+    input,
+    output: currentValue,
+    morphemes: currentMorphemes,
+    tripped,
+    steps,
+  };
+}
+

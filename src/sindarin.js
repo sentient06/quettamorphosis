@@ -359,7 +359,7 @@ export const sindarinRules = {
             if (vcPattern.charAt(k) === 'V') {
               const vowel = unmarkedStr.charAt(k);
               // Blocking vowels (i, e, y) invalidate the pattern entirely
-              if (vowel === 'i' || vowel === 'e' || vowel === 'y') {
+              if (vowel === 'i' || vowel === 'e' || vowel === 'y' || vowel === 'j') {
                 return false;
               }
               hasVowelBefore = true;
@@ -426,7 +426,7 @@ export const sindarinRules = {
             } else if (vowel === 'o') {
               replacement = 'œ'.addMark(mark);
             } else if (vowel === 'u') {
-              replacement = 'y'.addMark(mark);
+              replacement = 'j'.addMark(mark);
             }
             if (replacement) {
               newSegment = newSegment.substring(0, pos) + replacement + newSegment.substring(pos + 1);
@@ -1140,15 +1140,15 @@ export const sindarinRules = {
 
       let result = str;
       const removedIndices = [];
+
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, matched } = occurrences[i];
-        if (charIndex === result.length - matched.length) {
-          result = result.substring(0, charIndex) + 'y';
+        const { charIndex, lastChar } = occurrences[i];
+        // Only final:
+        if (lastChar) {
+          result = result.substring(0, charIndex) + 'j';
           removedIndices.unshift(charIndex);
           continue;
         }
-        result = result.substring(0, charIndex) + 'y' + result.substring(charIndex + 2);
-        removedIndices.unshift(charIndex);
       }
 
       const morphemes = (result !== str && options.morphemes)
@@ -1452,7 +1452,7 @@ export const sindarinRules = {
     info: ['This rule has no attested direct examples, it is mostly concerned with explaining plural formation.'],
     url: 'https://eldamo.org/content/words/word-3257758901.html',
     mechanic: (str, options = {}) => {
-      const result = str.replace(/yi/g, 'ui').replace(/yu/g, 'ui');
+      const result = str.replace(/[yj]i/g, 'ui').replace(/[yj]u/g, 'ui');
       const morphemes = (result !== str && options.morphemes)
         ? recalcMorphemes(result, options.morphemes, [])
         : (options.morphemes || [str]);
@@ -1476,7 +1476,7 @@ export const sindarinRules = {
       }
     ],
     mechanic: (str, { useUi = false, morphemes } = {}) => {
-      const result = str.replace(/œi/g, useUi ? 'ui' : 'y');
+      const result = str.replace(/œi/g, useUi ? 'ui' : 'j');
       const updatedMorphemes = (result !== str && morphemes)
         ? recalcMorphemes(result, morphemes, [])
         : (morphemes || [str]);

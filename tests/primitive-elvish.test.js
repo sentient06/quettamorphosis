@@ -184,8 +184,8 @@ describe('Primitive Elvish rules', () => {
 
     // Morphemes: (non-existent word)
     const compound = primitiveElvishRules['4126101193'].mechanic('abmbandorē', { morphemes: ['abmba', 'ndorē'] });
-    expect(compound.out).toEqual('abmanorē');
-    expect(compound.morphemes).toEqual(['abma', 'norē']); 
+    expect(compound.out).toEqual('abmandorē');
+    expect(compound.morphemes).toEqual(['abma', 'ndorē']); 
   });
 
   it('00015 - medial [ŋj], [ŋw] became [ŋgj], [ŋgw]', () => {

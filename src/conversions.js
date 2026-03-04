@@ -13,19 +13,19 @@ export const preProcessingRules = {
     mechanic: (str) => {
       // Parse morpheme boundaries (marked with '+')
       // If no '+' markers, treat the whole word as a single morpheme
-      const morphemeParts = str.split('+');
+      const morphemeParts = digraphsToSingle(str)
+        .replaceAll('c', 'k')
+        .replaceAll('y', 'j')
+        .replaceAll('ñ', 'ŋ')
+        .toLowerCase().split('+');
       const cleanedStr = morphemeParts.join('');
 
       // Convert digraphs to single characters in both the word and morphemes
-      const processedWord = digraphsToSingle(cleanedStr)
-        .replaceAll('c', 'k')
-        .replaceAll('y', 'j')
-        .toLowerCase();
       const morphemes = morphemeParts.map(m => digraphsToSingle(m).toLowerCase());
 
       return {
         in: str,
-        out: processedWord,
+        out: cleanedStr,
         morphemes
       };
     },
