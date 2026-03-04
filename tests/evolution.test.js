@@ -217,25 +217,19 @@ describe('Word Evolution', () => {
       expect(result.output).toBe('achol');
     });
 
-    it('kwende evolves through rules', () => {
-      const result = evolveWord('kwende');
-      expect(result.output).toBeDefined();
-      // Track the current output for future reference
-      console.log('kwende →', result.output);
+    it('edelā → edhel (target: edhel - elf)', () => {
+      const result = evolveWord('edelā');
+      expect(result.output).toBe('edhel');
     });
 
-    it('baradā → baradh (target: barad - tower)', () => {
-      const result = evolveWord('baradā');
-      // Current: paradh (unexpected changes)
-      // Target: barad
-      expect(result.output).toBe('baradh');
+    it('baratā → barad (target: barad - tower)', () => {
+      const result = evolveWord('baratā');
+      expect(result.output).toBe('barad');
     });
 
-    it('ndōre → dûr (target: dôr - land)', () => {
-      const result = evolveWord('ndōre');
-      // Current: nûr (nd simplification and vowel changes differ)
-      // Target: dôr
-      expect(result.output).toBe('dûr');
+    it('ndorē → dôr (target: dôr - land)', () => {
+      const result = evolveWord('ndorē');
+      expect(result.output).toBe('dôr');
     });
   });
 
