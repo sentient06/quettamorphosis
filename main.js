@@ -57,6 +57,8 @@ const peRuleResults = {};
 const atRuleResults = {};
 const osRuleResults = {};
 const sindarinRuleResults = {};
+// Track morphemes for each rule (needed when toggling rules mid-chain)
+const ruleMorphemes = {};
 const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
 const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
 const optionState = JSON.parse(localStorage.getItem('options') || '{}');
@@ -500,6 +502,9 @@ function toggleRule(ruleId, isEnabled) {
     ? document.getElementById(`output-${previousRuleId}`).value
     : $originalInput.value;
 
+  // Get morphemes from the previous rule (if any)
+  const previousMorphemes = previousRuleId ? ruleMorphemes[previousRuleId] : null;
+
   // Check effective enabled state for execution
   const effectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
 
@@ -511,17 +516,22 @@ function toggleRule(ruleId, isEnabled) {
     if (outputValue && nextRuleId) {
       const $nextInput = document.getElementById(`input-${nextRuleId}`);
       $nextInput.value = outputValue;
-      runRule(nextRuleId, outputValue, getNextRule(nextRuleId));
+      runRule(nextRuleId, outputValue, getNextRule(nextRuleId), previousMorphemes);
       return; // runRule will call printResults() at the end
     } else if (outputValue) {
       // This was the last rule - update output
       $originalOutput.value = outputValue;
     }
   } else {
-    // Rule is enabled - re-run it if there's input
+    // Rule is enabled - re-run it using the previous rule's output
     if (outputValue) {
-      rerunRule(ruleId);
-      return; // rerunRule -> runRule will call printResults() at the end
+      // Update this rule's input field with the correct value from previous rule
+      const $input = document.getElementById(`input-${ruleId}`);
+      if ($input) {
+        $input.value = outputValue;
+      }
+      runRule(ruleId, outputValue, nextRuleId, previousMorphemes);
+      return; // runRule will call printResults() at the end
     }
   }
 
@@ -795,6 +805,9 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
 
   // Get morphemes from result, or keep existing morphemes if not returned
   const outputMorphemes = result.morphemes || morphemes;
+
+  // Store morphemes for this rule (needed when toggling rules mid-chain)
+  ruleMorphemes[ruleId] = outputMorphemes;
 
   console.log('Rule', getLanguageAcronym(ruleId), rule.orderId, String(ruleId).padStart(10, ' '), 'in:', result.in.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId), 'morphemes:', outputMorphemes);
 
