@@ -60,24 +60,33 @@ export const sindarinRules = {
   '876455981': {
     orderId: '00300',
     pattern: '[-V{mn}] > [-Vø]',
-    description: 'final nasals vanished after vowels',
+    description: 'final nasals vanished after vowels in unstressed final syllables',
     url: 'https://eldamo.org/content/words/word-876455981.html',
     mechanic: (str, options = {}) => {
       const morphemes = options.morphemes || [str];
-      const finalNasal = morphemes.some((m) => {
-        const finalChar = m.nth(-1);
-        return finalChar === 'm' || finalChar === 'n';
-      });
-      if (finalNasal === false) return { in: str, out: str, morphemes: options.morphemes };
 
+      // Process each morpheme individually
       const newMorphemes = morphemes.map((m) => {
         const lastChar = m.nth(-1);
         const penultimateChar = m.nth(-2);
-        const isPenultimateVowel = penultimateChar.isVowel();
-        if (isPenultimateVowel && (lastChar === 'm' || lastChar === 'n')) {
-          return m.substring(0, m.length - 1);
-        }
-        return m;
+
+        // Check if ends in nasal after vowel
+        if (!['m', 'n'].includes(lastChar)) return m;
+        if (!penultimateChar || !penultimateChar.isVowel()) return m;
+
+        // Only apply to polysyllables with unstressed final syllable
+        const analyser = new SyllableAnalyser();
+        const syllableData = analyser.analyse(m);
+
+        // Monosyllables: final syllable is stressed, preserve nasal
+        if (syllableData.length < 2) return m;
+
+        // Polysyllables: check if final syllable is unstressed
+        const finalSyllable = syllableData.at(-1);
+        if (finalSyllable.stressed || finalSyllable.secondaryStress) return m;
+
+        // Final syllable is unstressed - remove the nasal
+        return m.substring(0, m.length - 1);
       });
 
       const result = newMorphemes.join('');
@@ -2272,8 +2281,373 @@ export const sindarinRules = {
     pattern: '[CCC] > [CC]',
     description: 'middle consonants frequently vanished in clusters',
     url: 'https://eldamo.org/content/words/word-3868328117.html',
-    info: ['This is a placeholder for all the Sandhi sound changes that occur in Sindarin compounds at morpheme boundaries.', 'This rule is skipped by default.'],
+    info: [
+      'This is a placeholder for all the Sandhi sound changes that occur in Sindarin compounds at morpheme boundaries.',
+      'This rule is skipped by default.',
+      'The sub-rules below are not all developed, and they execute in order.',
+    ],
     skip: true,
+    input: [
+      {
+        name: 'r116',
+        label: '[hC] > [øC] (placeholder)',
+        type: 'boolean',
+        default: false,
+        description: 'h was deleted before a following consonant',
+      },
+      /*
+      {
+        name: 'r117',
+        label: '[-{nθ|mɸ|ŋx}] > [-{nt|mp|ŋk}]',
+        type: 'boolean',
+        default: false,
+        description: 'nθ, mɸ, ŋx became nt, mp, ŋk at the end of a morpheme or word',
+      },
+      {
+        name: 'r118',
+        label: '[-{nθ|mɸ|ŋx}-] > [-{nn|mm|ŋŋ}-]',
+        type: 'boolean',
+        default: false,
+        description: 'medial nθ, mɸ, ŋx became nn, mm, ŋŋ',
+      },
+      {
+        name: 'r119',
+        label: '[ð{mnŋ}] > [ø{mnŋ}]',
+        type: 'boolean',
+        default: false,
+        description: 'ð was deleted before nasals',
+      },
+      {
+        name: 'r120',
+        label: '[X{r̥r̥|l̥l̥}] > [X{r|l}]',
+        type: 'boolean',
+        default: false,
+        description: 'long voiceless liquiquids became short and voiced after any consonant or vowel',
+      },
+      {
+        name: 'r121',
+        label: '[n{bm}|n{ɣŋg}] > [m{bm}|ŋ{ɣŋg}]', // [{nn|n}{bm}|n{ɣŋg}|nn{g}] > [{mm|m}{bm}|ŋ{ɣŋg}|ŋŋ{g}]
+        type: 'boolean',
+        default: false,
+        description: 'n, short or long, assimilated to following stop, fricative, or nasal',
+      },
+      {
+        name: 'r122',
+        label: '[CɣC] > [CøC]',
+        type: 'boolean',
+        default: false,
+        description: 'ɣ disappeared between consonants',
+      },
+      {
+        name: 'r123',
+        label: '[ð{bdg}] > [d{bdg}]',
+        type: 'boolean',
+        default: false,
+        description: 'ð became d before voiced stops',
+      },
+      {
+        name: 'r124',
+        label: '[ðl] > [dl]',
+        type: 'boolean',
+        default: false,
+        description: 'ð became d before l',
+      },
+      {
+        name: 'r125',
+        label: '[C·ðX] > [C·dX]',
+        type: 'boolean',
+        default: false,
+        description: 'ð became d at the beginning of morpheme boundaries after consonants',
+      },
+      {
+        name: 'r126',
+        label: '[Vw·C] > [Vø·C]',
+        type: 'boolean',
+        default: false,
+        description: 'w disappeared after a vowel at the end of a morpheme before a consonant',
+      },
+      {
+        name: 'r127',
+        label: 'r 127',
+        type: 'boolean',
+        default: false,
+        description: 'rule 127',
+      },
+      {
+        name: 'r128',
+        label: 'r 128',
+        type: 'boolean',
+        default: false,
+        description: 'rule 128',
+      },
+      {
+        name: 'r129',
+        label: 'r 129',
+        type: 'boolean',
+        default: false,
+        description: 'rule 129',
+      },
+      {
+        name: 'rule15',
+        label: 'rule 15',
+        type: 'boolean',
+        default: false,
+        description: 'rule 15',
+      },
+      {
+        name: 'rule16',
+        label: 'rule 16',
+        type: 'boolean',
+        default: false,
+        description: 'rule 16',
+      },
+      {
+        name: 'rule17',
+        label: 'rule 17',
+        type: 'boolean',
+        default: false,
+        description: 'rule 17',
+      },
+      {
+        name: 'rule18',
+        label: 'rule 18',
+        type: 'boolean',
+        default: false,
+        description: 'rule 18',
+      },
+      {
+        name: 'rule19',
+        label: 'rule 19',
+        type: 'boolean',
+        default: false,
+        description: 'rule 19',
+      },
+      {
+        name: 'rule20',
+        label: 'rule 20',
+        type: 'boolean',
+        default: false,
+        description: 'rule 20',
+      },
+      {
+        name: 'rule21',
+        label: 'rule 21',
+        type: 'boolean',
+        default: false,
+        description: 'rule 21',
+      },
+      {
+        name: 'rule22',
+        label: 'rule 22',
+        type: 'boolean',
+        default: false,
+        description: 'rule 22',
+      },
+      {
+        name: 'rule23',
+        label: 'rule 23',
+        type: 'boolean',
+        default: false,
+        description: 'rule 23',
+      },
+      {
+        name: 'rule24',
+        label: 'rule 24',
+        type: 'boolean',
+        default: false,
+        description: 'rule 24',
+      },
+      {
+        name: 'rule25',
+        label: 'rule 25',
+        type: 'boolean',
+        default: false,
+        description: 'rule 25',
+      },
+      {
+        name: 'rule26',
+        label: 'rule 26',
+        type: 'boolean',
+        default: false,
+        description: 'rule 26',
+      },
+      {
+        name: 'rule27',
+        label: 'rule 27',
+        type: 'boolean',
+        default: false,
+        description: 'rule 27',
+      },
+      {
+        name: 'rule28',
+        label: 'rule 28',
+        type: 'boolean',
+        default: false,
+        description: 'rule 28',
+      },
+      {
+        name: 'rule29',
+        label: 'rule 29',
+        type: 'boolean',
+        default: false,
+        description: 'rule 29',
+      },
+      {
+        name: 'rule30',
+        label: 'rule 30',
+        type: 'boolean',
+        default: false,
+        description: 'rule 30',
+      },
+      {
+        name: 'rule31',
+        label: 'rule 31',
+        type: 'boolean',
+        default: false,
+        description: 'rule 31',
+      },
+      {
+        name: 'rule32',
+        label: 'rule 32',
+        type: 'boolean',
+        default: false,
+        description: 'rule 32',
+      },
+      {
+        name: 'rule33',
+        label: 'rule 33',
+        type: 'boolean',
+        default: false,
+        description: 'rule 33',
+      },
+      {
+        name: 'rule34',
+        label: 'rule 34',
+        type: 'boolean',
+        default: false,
+        description: 'rule 34',
+      },
+      {
+        name: 'rule35',
+        label: 'rule 35',
+        type: 'boolean',
+        default: false,
+        description: 'rule 35',
+      },
+      {
+        name: 'rule36',
+        label: 'rule 36',
+        type: 'boolean',
+        default: false,
+        description: 'rule 36',
+      },
+      {
+        name: 'rule37',
+        label: 'rule 37',
+        type: 'boolean',
+        default: false,
+        description: 'rule 37',
+      },
+      {
+        name: 'rule38',
+        label: 'rule 38',
+        type: 'boolean',
+        default: false,
+        description: 'rule 38',
+      },
+      {
+        name: 'rule39',
+        label: 'rule 39',
+        type: 'boolean',
+        default: false,
+        description: 'rule 39',
+      },
+      {
+        name: 'rule40',
+        label: 'rule 40',
+        type: 'boolean',
+        default: false,
+        description: 'rule 40',
+      },
+      {
+        name: 'rule41',
+        label: 'rule 41',
+        type: 'boolean',
+        default: false,
+        description: 'rule 41',
+      },
+      {
+        name: 'rule42',
+        label: 'rule 42',
+        type: 'boolean',
+        default: false,
+        description: 'rule 42',
+      },
+      {
+        name: 'rule43',
+        label: 'rule 43',
+        type: 'boolean',
+        default: false,
+        description: 'rule 43',
+      },
+      {
+        name: 'rule44',
+        label: 'rule 44',
+        type: 'boolean',
+        default: false,
+        description: 'rule 44',
+      },
+      {
+        name: 'rule45',
+        label: 'rule 45',
+        type: 'boolean',
+        default: false,
+        description: 'rule 45',
+      },
+      {
+        name: 'rule46',
+        label: 'rule 46',
+        type: 'boolean',
+        default: false,
+        description: 'rule 46',
+      },
+      {
+        name: 'rule47',
+        label: 'rule 47',
+        type: 'boolean',
+        default: false,
+        description: 'rule 47',
+      },
+      {
+        name: 'rule48',
+        label: 'rule 48',
+        type: 'boolean',
+        default: false,
+        description: 'rule 48',
+      },
+      {
+        name: 'rule49',
+        label: 'rule 49',
+        type: 'boolean',
+        default: false,
+        description: 'rule 49',
+      },
+      {
+        name: 'rule50',
+        label: 'rule 50',
+        type: 'boolean',
+        default: false,
+        description: 'rule 50',
+      },
+      {
+        name: 'rule51',
+        label: 'rule 51',
+        type: 'boolean',
+        default: false,
+        description: 'rule 51',
+      },
+      */
+    ],
     mechanic: (str, options = {}) => {
       const vcPattern = breakIntoVowelsAndConsonants(str);
       // console.log({ str, vcPattern });
@@ -2461,24 +2835,51 @@ export const sindarinRules = {
     pattern: '[Vm|{lr}m|m{mbp}] > [Vv|{lr}v|m{mbp}]',
     description: 'non-initial [m] usually became [v]',
     url: 'https://eldamo.org/content/words/word-1951379117.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'northSindarin',
+        label: 'North Sindarin',
+        type: 'boolean',
+        default: false,
+        description: 'North Sindarin dialect: m was preserved after vowels and liquids'
+      },
+    ],
+    // North Sindarin exceptions where m was preserved (lómin, Celegorm, etc.)
+    northSindarinExceptions: new Set(['kelegorm', 'lomin', 'lómin']),
+    mechanic: function(str, options = { northSindarin: false }) {
+      // North Sindarin dialect preserved m entirely
+      if (options.northSindarin) {
+        return { in: str, out: str, morphemes: options.morphemes || [str] };
+      }
+
       const occurrences = findAllOf(['m'], str);
       if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes || [str] };
+
+      // Check if word is a known North Sindarin exception
+      if (this.northSindarinExceptions.has(str.toLowerCase())) {
+        return { in: str, out: str, morphemes: options.morphemes || [str] };
+      }
 
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, nextChar, prevChar } = occurrences[i];
         if (charIndex === 0) continue;
 
-        // The order of conditions is important:
+        // Skip if m is followed by m, b, or p (mm, mb, mp exceptions)
         if (['m', 'b', 'p'].includes(nextChar)) {
           continue;
         }
+        // Apply change when m follows a vowel, liquid (l, r), or ð
         if (prevChar.isVowel() || ['l', 'r', 'ð'].includes(prevChar)) {
           result = result.substring(0, charIndex) + 'v' + result.substring(charIndex + 1);
-          continue;
         }
       }
+
+      // Examples:
+      // parm -> parv (written parf)
+      // gorm -> gorv (written gorf)
+      // kelegorm -> kelegorm (North Sindarin exception)
+
       const morphemes = (result !== str && options.morphemes)
         ? recalcMorphemes(result, options.morphemes, [])
         : (options.morphemes || [str]);

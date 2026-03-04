@@ -594,7 +594,10 @@ export const primitiveElvishRules = {
     url: 'https://eldamo.org/content/words/word-3064357955.html',
     mechanic: (str, options = {}) => {
       const lastChar = str.nth(-1);
-      if (!'iu'.includes(lastChar)) return { in: str, out: str, morphemes: options.morphemes };
+      if (!['i', 'u'].includes(lastChar)) return { in: str, out: str, morphemes: options.morphemes };
+
+      const penultimateChar = str.nth(-2);
+      if (penultimateChar.isVowel()) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'i': 'e',

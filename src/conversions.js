@@ -17,7 +17,10 @@ export const preProcessingRules = {
       const cleanedStr = morphemeParts.join('');
 
       // Convert digraphs to single characters in both the word and morphemes
-      const processedWord = digraphsToSingle(cleanedStr).toLowerCase();
+      const processedWord = digraphsToSingle(cleanedStr)
+        .replaceAll('c', 'k')
+        .replaceAll('y', 'j')
+        .toLowerCase();
       const morphemes = morphemeParts.map(m => digraphsToSingle(m).toLowerCase());
 
       return {
@@ -56,7 +59,10 @@ export const postProcessingRules = {
       result = result.replace('j', 'y');
       result = result.replace('ꞥ', 'nth');
       if (['j', 'y'].includes(result.nth(0))) {
-        result = 'i' + result.substring(1);
+        if (result !== 'yrch') result = 'i' + result.substring(1);
+      }
+      if (result.nth(-1) === 'v') {
+        result = result.substring(0, result.length - 1) + 'f';
       }
       // Replace macrons with circumflexes: NFD decompose → swap combining marks → NFC recompose
       result = result.normalize('NFD').replace(/\u0304/g, '\u0302').normalize('NFC');

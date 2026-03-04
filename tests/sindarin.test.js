@@ -28,10 +28,13 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['dan', 'gwetha']);
   });
 
-  it('00300 - final nasals vanished after vowels', () => {
+  it('00300 - final nasals vanished after vowels in unstressed final syllables', () => {
     expect(sindarinRules['876455981'].mechanic('abc').out).toBe('abc');
-    expect(sindarinRules['876455981'].mechanic('kaim').out).toBe('kai');
-    expect(sindarinRules['876455981'].mechanic('ailin').out).toBe('aili');
+    // Monosyllables preserve (stressed)
+    expect(sindarinRules['876455981'].mechanic('tam').out).toBe('tam');
+    // Polysyllables with unstressed final syllable lose the nasal
+    expect(sindarinRules['876455981'].mechanic('elen').out).toBe('ele');
+    expect(sindarinRules['876455981'].mechanic('boron').out).toBe('boro');
 
     // Morphemes:
     // Elwing
