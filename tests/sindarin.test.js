@@ -1222,6 +1222,22 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'am', 'mara']);
   });
 
+  describe('05800 - sandhi changes', () => {
+    it('Rule 116: h was deleted before a following consonant', () => {
+      expect(sindarinRules['3868328117'].mechanic('barahnaur', { r116: true }).out).toBe('baranaur');
+    });
+
+    it('Rule 117: nθ, mɸ, ŋx became nt, mp, ŋk at the end of a morpheme or word', () => {
+      expect(sindarinRules['3868328117'].mechanic('kanθ', { r117: true }).out).toBe('kant');
+      expect(sindarinRules['3868328117'].mechanic('limɸ', { r117: true }).out).toBe('limp');
+      expect(sindarinRules['3868328117'].mechanic('xamɸ', { r117: true }).out).toBe('xamp');
+      expect(sindarinRules['3868328117'].mechanic('raŋx', { r117: true }).out).toBe('raŋk');
+      expect(sindarinRules['3868328117'].mechanic('panθhail', { r117: true }).out).toBe('panthail');
+      expect(sindarinRules['3868328117'].mechanic('aŋxalagaun', { r117: true }).out).toBe('aŋkalagaun');
+      expect(sindarinRules['3868328117'].mechanic('nimɸrass', { r117: true, r118: true }).out).toBe('nimprass');
+    });
+  });
+
   it('05800 - middle consonants frequently vanished in clusters', () => {
     // This rule is a placeholder and all tests experimental.
     expect(sindarinRules['3868328117'].mechanic('abc').out).toBe('abc');

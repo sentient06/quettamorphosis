@@ -2290,12 +2290,11 @@ export const sindarinRules = {
     input: [
       {
         name: 'r116',
-        label: '[hC] > [øC] (placeholder)',
+        label: '[hC] > [øC]',
         type: 'boolean',
         default: false,
         description: 'h was deleted before a following consonant',
       },
-      /*
       {
         name: 'r117',
         label: '[-{nθ|mɸ|ŋx}] > [-{nt|mp|ŋk}]',
@@ -2303,6 +2302,7 @@ export const sindarinRules = {
         default: false,
         description: 'nθ, mɸ, ŋx became nt, mp, ŋk at the end of a morpheme or word',
       },
+      /*
       {
         name: 'r118',
         label: '[-{nθ|mɸ|ŋx}-] > [-{nn|mm|ŋŋ}-]',
@@ -2649,6 +2649,67 @@ export const sindarinRules = {
       */
     ],
     mechanic: (str, options = {}) => {
+      const regularReturn = { in: str, out: str, morphemes: options.morphemes };
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 116: h was deleted before a following consonant
+      const rule116 = options.r116 || false;
+      if (rule116) {
+        const occurrences = findAllOf(['h'], str);
+        if (occurrences.length === 0) return regularReturn;
+
+        let result = str;
+        const removedIndices = [];
+        for (let i = occurrences.length - 1; i >= 0; i--) {
+          const { charIndex, nextChar } = occurrences[i];
+          if (nextChar.isConsonant()) {
+            result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+            removedIndices.unshift(charIndex);
+          }
+        }
+
+        const morphemes = (result !== str && options.morphemes)
+          ? recalcMorphemes(result, options.morphemes, removedIndices)
+          : (options.morphemes || [str]);
+        return {
+          in: str,
+          out: result,
+          morphemes,
+        };
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 117: nθ, mɸ, ŋx became nt, mp, ŋk at the end of a morpheme or word
+      const rule117 = options.r117 || false;
+      if (rule117) {
+        const occurrences = findAllOf(['nθ', 'mɸ', 'ŋx'], str);
+        if (occurrences.length === 0) return regularReturn;
+
+        const replacements = {
+          'nθ': 'nt',
+          'mɸ': 'mp',
+          'ŋx': 'ŋk',
+        };
+
+        let result = str;
+        for (let i = occurrences.length - 1; i >= 0; i--) {
+          const { charIndex, matched } = occurrences[i];
+          const replacement = replacements[matched];
+          result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
+        }
+
+        const morphemes = (result !== str && options.morphemes)
+          ? recalcMorphemes(result, options.morphemes, [])
+          : (options.morphemes || [str]);
+        return {
+          in: str,
+          out: result,
+          morphemes,
+        };
+      }
+
+      // ------------------------------------------------------------------------------------------
+
       const vcPattern = breakIntoVowelsAndConsonants(str);
       // console.log({ str, vcPattern });
       if (vcPattern.includes('CCC')) {
