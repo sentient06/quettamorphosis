@@ -409,11 +409,26 @@ div + div.smaller-title {
   background-color: #fafafa;
 }
 
+/* Multi-column layout for rules with many options */
+.rule .rule-options.rule-options-columns {
+  display: grid;
+  grid-template-columns: repeat(8, max-content);
+  gap: 2px 20px;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, auto);
+  overflow-x: auto;
+}
+
 .rule .rule-option {
   display: flex;
   align-items: center;
   gap: 4px;
   margin-bottom: 2px;
+}
+
+.rule .rule-options-columns .rule-option {
+  margin-bottom: 0;
+  white-space: nowrap;
 }
 
 .rule .rule-option:last-child {

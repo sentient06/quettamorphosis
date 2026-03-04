@@ -627,7 +627,10 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   }
 
   if (rule.hasOwnProperty('input')) {
-    const $inputRules = draw('div', $rule, { class: 'rule-options' });
+    // Use multi-column layout if there are many boolean inputs
+    const booleanCount = rule.input.filter(i => i.type === 'boolean').length;
+    const optionsClass = booleanCount > 5 ? 'rule-options rule-options-columns' : 'rule-options';
+    const $inputRules = draw('div', $rule, { class: optionsClass });
     rule.input.forEach((input) => {
       // { name: 'guess', label: 'Guess', type: 'boolean', default: true, description: 'Whether to guess boundary if no marker' },
       // { name: 'boundaryChar', label: 'Boundary', type: 'string', default: '-', description: 'The morpheme boundary marker' },

@@ -174,6 +174,7 @@ export const primitiveElvishRules = {
           return { in: str, out, morphemes };
         }
       }
+      return { in: str, out: str, morphemes: options.morphemes || [str] };
     },
   },
   '3385004377': {
