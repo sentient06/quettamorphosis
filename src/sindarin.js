@@ -2328,7 +2328,6 @@ export const sindarinRules = {
         default: false,
         description: '120: long voiceless liquids became short and voiced after any consonant or vowel',
       },
-      /*
       {
         name: 'r121',
         label: '[n{bm}|n{ɣŋg}] > [m{bm}|ŋ{ɣŋg}]', // [{nn|n}{bm}|n{ɣŋg}|nn{g}] > [{mm|m}{bm}|ŋ{ɣŋg}|ŋŋ{g}]
@@ -2336,6 +2335,7 @@ export const sindarinRules = {
         default: false,
         description: 'n, short or long, assimilated to following stop, fricative, or nasal',
       },
+      /*
       {
         name: 'r122',
         label: '[CɣC] > [CøC]',
@@ -2456,11 +2456,11 @@ export const sindarinRules = {
         description: '138: ɣ became g after nasals',
       },
       {
-        name: 'rule24',
-        label: 'rule 24',
+        name: 'r139',
+        label: '?',
         type: 'boolean',
         default: false,
-        description: 'rule 24',
+        description: '139: b something', new notation, double-check
       },
       {
         name: 'rule25',
@@ -2782,6 +2782,33 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 120', result, morphemes);
         } else {
           console.log(' - Sandhi rule 120 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 121: n, short or long, assimilated to following stop, fricative, or nasal
+      // [{nn|n}{bm}|n{ɣŋg}|nn{g}] > [{mm|m}{bm}|ŋ{ɣŋg}|ŋŋ{g}]
+      const rule121 = options.r121 || false;
+      if (rule121) {
+        const occurrences = findAllOf(['n'], str);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { matched, charIndex, nextChar, prevChar } = occurrences[i];
+            if (['b', 'm', 'g', 'ɣ', 'ŋ'].includes(nextChar) === false) continue;
+
+            let replacePrevious = ['b', 'm', 'g'].includes(nextChar);
+            let replaceWith = ['b', 'm'].includes(nextChar) ? 'm' : 'ŋ';
+
+            if (replacePrevious && prevChar === matched) {
+              result = result.substring(0, charIndex - 1) + replaceWith + result.substring(charIndex);
+            }
+            result = result.substring(0, charIndex) + `${replaceWith}${nextChar}` + result.substring(charIndex + 2);
+          }
+
+          morphemes = recalcMorphemes(result, options.morphemes, []);
+          console.log(' - Sandhi rule 121', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 121 skipped');
         }
       }
 

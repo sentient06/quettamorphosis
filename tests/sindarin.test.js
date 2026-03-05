@@ -1257,6 +1257,23 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3868328117'].mechanic('enꞧꞧūn', { r120: true }).out).toBe('enrūn');
       expect(sindarinRules['3868328117'].mechanic('iꞧꞧūn', { r120: true }).out).toBe('irūn');
     });
+
+    it('Rule 121: n, short or long, assimilated to following stop, fricative, or nasal', () => {
+      expect(sindarinRules['3868328117'].mechanic('kelebrinbaur', { r121: true }).out).toBe('kelebrimbaur');
+      expect(sindarinRules['3868328117'].mechanic('briθaunmbar', { r121: true }).out).toBe('briθaummbar');
+      expect(sindarinRules['3868328117'].mechanic('annūnminaſ', { r121: true }).out).toBe('annūmminaſ');
+      expect(sindarinRules['3868328117'].mechanic('nīnɣlaur', { r121: true }).out).toBe('nīŋɣlaur');
+      // expect(sindarinRules['3868328117'].mechanic('θoronŋil', { r121: true }).out).toBe('θoroŋŋīl');
+      expect(sindarinRules['3868328117'].mechanic('arngīr', { r121: true }).out).toBe('arŋgīr');
+      expect(sindarinRules['3868328117'].mechanic('arnɣonaθ', { r121: true }).out).toBe('arŋɣonaθ');
+      expect(sindarinRules['3868328117'].mechanic('mornben', { r121: true }).out).toBe('mormben');
+      expect(sindarinRules['3868328117'].mechanic('mornmegil', { r121: true }).out).toBe('mormmegil');
+      expect(sindarinRules['3868328117'].mechanic('θinngoll', { r121: true }).out).toBe('θiŋŋgoll');
+      expect(sindarinRules['3868328117'].mechanic('lennmbaſ', { r121: true }).out).toBe('lemmmbaſ');
+      expect(sindarinRules['3868328117'].mechanic('enmbar', { r121: true }).out).toBe('emmbar');
+      expect(sindarinRules['3868328117'].mechanic('enɣlad', { r121: true }).out).toBe('eŋɣlad');
+      expect(sindarinRules['3868328117'].mechanic('aunmenel', { r121: true }).out).toBe('aummenel');
+    });
   });
 
   it('05800 - middle consonants frequently vanished in clusters', () => {
