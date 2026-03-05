@@ -1222,7 +1222,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'am', 'mara']);
   });
 
-  describe('05800 - sandhi changes', () => {
+  describe.only('05800 - sandhi changes', () => {
     it('Rule 116: h was deleted before a following consonant', () => {
       expect(sindarinRules['3868328117'].mechanic('barahnaur', { r116: true }).out).toBe('baranaur');
     });
@@ -1234,7 +1234,28 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3868328117'].mechanic('raŋx', { r117: true }).out).toBe('raŋk');
       expect(sindarinRules['3868328117'].mechanic('panθhail', { r117: true }).out).toBe('panthail');
       expect(sindarinRules['3868328117'].mechanic('aŋxalagaun', { r117: true }).out).toBe('aŋkalagaun');
-      expect(sindarinRules['3868328117'].mechanic('nimɸrass', { r117: true, r118: true }).out).toBe('nimprass');
+      expect(sindarinRules['3868328117'].mechanic('nimɸrass', { r117: true }).out).toBe('nimprass');
+    });
+
+    it('Rule 118: medial nθ, mɸ, ŋx became nn, mm, ŋŋ', () => {
+      expect(sindarinRules['3868328117'].mechanic('penθaſ', { r118: true }).out).toBe('pennaſ');
+      expect(sindarinRules['3868328117'].mechanic('daŋxen', { r118: true }).out).toBe('daŋŋen');
+      expect(sindarinRules['3868328117'].mechanic('reŋxj', { r118: true }).out).toBe('reŋj');
+      expect(sindarinRules['3868328117'].mechanic('limɸida-', { r118: true }).out).toBe('limmida-');
+    });
+
+    it('Rule 119: ð was deleted before nasals', () => {
+      expect(sindarinRules['3868328117'].mechanic('eleðndor', { r119: true }).out).toBe('elendor');
+      expect(sindarinRules['3868328117'].mechanic('heleðmorn', { r119: true }).out).toBe('helemorn');
+      expect(sindarinRules['3868328117'].mechanic('goloðmīr', { r119: true }).out).toBe('golomīr');
+    });
+
+    it('Rule 120: long voiceless liquids became short and voiced after any consonant or vowel', () => {
+      expect(sindarinRules['3868328117'].mechanic('limmꝉꝉūg', { r120: true }).out).toBe('limmlūg');
+      expect(sindarinRules['3868328117'].mechanic('ammꞧꞧūn', { r120: true }).out).toBe('ammrūn');
+      expect(sindarinRules['3868328117'].mechanic('anꞧꞧīw', { r120: true }).out).toBe('anrīw');
+      expect(sindarinRules['3868328117'].mechanic('enꞧꞧūn', { r120: true }).out).toBe('enrūn');
+      expect(sindarinRules['3868328117'].mechanic('iꞧꞧūn', { r120: true }).out).toBe('irūn');
     });
   });
 

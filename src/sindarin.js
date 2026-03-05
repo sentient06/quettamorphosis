@@ -1170,8 +1170,13 @@ export const sindarinRules = {
       const removedIndices = [];
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, prevChar, nextChar, lastChar } = occurrences[i];
+        const anteriorChar = result.nth(charIndex - 2);
+
         // First character:
         if (charIndex === 0) continue;
+
+        // Diphtong:
+        if (prevChar.isVowel() && anteriorChar.isVowel()) continue;
 
         // Last character:
         if (lastChar && prevChar.isVowel()) {
@@ -2293,37 +2298,37 @@ export const sindarinRules = {
         label: '[hC] > [øC]',
         type: 'boolean',
         default: false,
-        description: 'h was deleted before a following consonant',
+        description: '116: h was deleted before a following consonant',
       },
       {
         name: 'r117',
         label: '[-{nθ|mɸ|ŋx}] > [-{nt|mp|ŋk}]',
         type: 'boolean',
         default: false,
-        description: 'nθ, mɸ, ŋx became nt, mp, ŋk at the end of a morpheme or word',
+        description: '117: nθ, mɸ, ŋx became nt, mp, ŋk at the end of a morpheme or word',
       },
-      /*
       {
         name: 'r118',
         label: '[-{nθ|mɸ|ŋx}-] > [-{nn|mm|ŋŋ}-]',
         type: 'boolean',
         default: false,
-        description: 'medial nθ, mɸ, ŋx became nn, mm, ŋŋ',
+        description: '118: medial nθ, mɸ, ŋx became nn, mm, ŋŋ',
       },
       {
         name: 'r119',
         label: '[ð{mnŋ}] > [ø{mnŋ}]',
         type: 'boolean',
         default: false,
-        description: 'ð was deleted before nasals',
+        description: '119: ð was deleted before nasals',
       },
       {
         name: 'r120',
         label: '[X{r̥r̥|l̥l̥}] > [X{r|l}]',
         type: 'boolean',
         default: false,
-        description: 'long voiceless liquiquids became short and voiced after any consonant or vowel',
+        description: '120: long voiceless liquids became short and voiced after any consonant or vowel',
       },
+      /*
       {
         name: 'r121',
         label: '[n{bm}|n{ɣŋg}] > [m{bm}|ŋ{ɣŋg}]', // [{nn|n}{bm}|n{ɣŋg}|nn{g}] > [{mm|m}{bm}|ŋ{ɣŋg}|ŋŋ{g}]
@@ -2649,33 +2654,32 @@ export const sindarinRules = {
       */
     ],
     mechanic: (str, options = {}) => {
+      if (!options.morphemes) {
+        options.morphemes = [str];
+      }
       const regularReturn = { in: str, out: str, morphemes: options.morphemes };
+      let result = str;
+      let morphemes = options.morphemes;
 
       // ------------------------------------------------------------------------------------------
       // Rule 116: h was deleted before a following consonant
       const rule116 = options.r116 || false;
       if (rule116) {
         const occurrences = findAllOf(['h'], str);
-        if (occurrences.length === 0) return regularReturn;
-
-        let result = str;
-        const removedIndices = [];
-        for (let i = occurrences.length - 1; i >= 0; i--) {
-          const { charIndex, nextChar } = occurrences[i];
-          if (nextChar.isConsonant()) {
-            result = result.substring(0, charIndex) + result.substring(charIndex + 1);
-            removedIndices.unshift(charIndex);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (nextChar.isConsonant()) {
+              result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+              removedIndices.unshift(charIndex);
+            }
           }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 116', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 116 skipped');
         }
-
-        const morphemes = (result !== str && options.morphemes)
-          ? recalcMorphemes(result, options.morphemes, removedIndices)
-          : (options.morphemes || [str]);
-        return {
-          in: str,
-          out: result,
-          morphemes,
-        };
       }
 
       // ------------------------------------------------------------------------------------------
@@ -2683,32 +2687,110 @@ export const sindarinRules = {
       const rule117 = options.r117 || false;
       if (rule117) {
         const occurrences = findAllOf(['nθ', 'mɸ', 'ŋx'], str);
-        if (occurrences.length === 0) return regularReturn;
+        if (occurrences.length > 0) {
+          const replacements = {
+            'nθ': 'nt',
+            'mɸ': 'mp',
+            'ŋx': 'ŋk',
+          };
 
-        const replacements = {
-          'nθ': 'nt',
-          'mɸ': 'mp',
-          'ŋx': 'ŋk',
-        };
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, matched } = occurrences[i];
+            const replacement = replacements[matched];
+            result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
+          }
 
-        let result = str;
-        for (let i = occurrences.length - 1; i >= 0; i--) {
-          const { charIndex, matched } = occurrences[i];
-          const replacement = replacements[matched];
-          result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
+          morphemes = recalcMorphemes(result, options.morphemes, []);
+          console.log(' - Sandhi rule 117', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 117 skipped');
         }
-
-        const morphemes = (result !== str && options.morphemes)
-          ? recalcMorphemes(result, options.morphemes, [])
-          : (options.morphemes || [str]);
-        return {
-          in: str,
-          out: result,
-          morphemes,
-        };
       }
 
       // ------------------------------------------------------------------------------------------
+      // Rule 118: medial nθ, mɸ, ŋx became nn, mm, ŋŋ
+      // This seem to mirror 2996915415 (4900)
+      const rule118 = options.r118 || false;
+      if (rule118) {
+        const occurrences = findAllOf(['nθ', 'mɸ', 'ŋx'], str);
+        if (occurrences.length > 0) {
+          const replacements = {
+            'nθ': 'nn',
+            'mɸ': 'mm',
+            'ŋx': 'ŋŋ',
+          };
+
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, matched, nextChar, lastChar } = occurrences[i];
+            if (charIndex === 0 || lastChar) continue;
+            const replacement = replacements[matched];
+
+            if (matched === 'ŋx' && nextChar === 'j') {
+              result = result.substring(0, charIndex) + 'ŋ' + result.substring(charIndex + 2);
+              removedIndices.unshift(charIndex + 1); // The second [ŋ]
+            } else {
+              result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
+            }
+          }
+          morphemes = recalcMorphemes(result, options.morphemes, removedIndices);
+          console.log(' - Sandhi rule 118', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 118 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 119: ð was deleted before nasals
+      const rule119 = options.r119 || false;
+      if (rule119) {
+        const occurrences = findAllOf(['ðm', 'ðn', 'ðŋ'], str);
+        if (occurrences.length > 0) {
+          result = str;
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+            removedIndices.unshift(charIndex);
+          }
+          morphemes = recalcMorphemes(result, options.morphemes, removedIndices);
+          console.log(' - Sandhi rule 119', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 119 skipped');
+        }
+      }
+      // ------------------------------------------------------------------------------------------
+      // Rule 120: long voiceless liquiquids became short and voiced after any consonant or vowel
+      // X{ꞧꞧ|ꝉꝉ} > X{r|l}
+      const rule120 = options.r120 || false;
+      if (rule120) {
+        const occurrences = findAllOf(['ꞧꞧ', 'ꝉꝉ'], str);
+        if (occurrences.length > 0) {
+          const replacements = {
+            'ꞧꞧ': 'r',
+            'ꝉꝉ': 'l',
+          };
+
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, matched } = occurrences[i];
+            result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+            removedIndices.unshift(charIndex);
+          }
+
+          morphemes = recalcMorphemes(result, options.morphemes, removedIndices);
+          console.log(' - Sandhi rule 120', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 120 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      return {
+        in: str,
+        out: result,
+        morphemes,
+      }
 
       const vcPattern = breakIntoVowelsAndConsonants(str);
       // console.log({ str, vcPattern });
