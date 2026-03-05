@@ -465,4 +465,3 @@ describe('syllabify', () => {
     expect(syllabify('Galadriel')).toEqual(['Ga', 'lad', 'ri', 'el']);
   });
 });
-

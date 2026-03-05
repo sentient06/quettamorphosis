@@ -157,8 +157,9 @@ describe('Word Evolution', () => {
       expect(result.output).toBe('lass');
     });
 
-    it('lassei → laiss (target: laiss - leaves)', () => {
-      const result = evolveWord('lassei');
+    it('laSSei → laiss (target: laiss - leaves)', () => {
+      // Using uppercase SS which converts to ſ - lowercase 'ss' no longer auto-converts
+      const result = evolveWord('laSSei');
       expect(result.output).toBe('laiss');
     });
 
@@ -197,8 +198,9 @@ describe('Word Evolution', () => {
       expect(result.output).toBe('lith');
     });
 
-    it('khīr → hîr (target: hîr - lord)', () => {
-      const result = evolveWord('khīr');
+    it('xīr → hîr (target: hîr - lord)', () => {
+      // Using phonetic x directly - lowercase 'kh' no longer auto-converts
+      const result = evolveWord('xīr');
       expect(result.output).toBe('hîr');
     });
 

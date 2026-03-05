@@ -1,0 +1,311 @@
+/**
+ * Debug tools for browser console.
+ * Usage: debug('word') and rules.enable('pe100'), etc.
+ */
+
+import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE } from './utils.js';
+import {
+  allRuleKeys,
+  isConversionRule,
+  getRulesObject,
+  getLanguage,
+} from './main-logic.js';
+
+// Language prefix mapping for rule references
+const langPrefixMap = {
+  'pe': 'primitive-elvish',
+  'at': 'ancient-telerin',
+  'os': 'old-sindarin',
+  's': 'sindarin',
+};
+
+const langToPrefix = {
+  'primitive-elvish': 'PE',
+  'ancient-telerin': 'AT',
+  'old-sindarin': 'OS',
+  'sindarin': 'S',
+};
+
+/**
+ * Parse a rule reference into its actual ruleId.
+ * Supports: PE 00100, PE00100, PE100, pe100, 3868328117 (number or string)
+ */
+function parseRuleRef(ref) {
+  if (typeof ref === 'number') {
+    ref = String(ref);
+  }
+  
+  const rulesObj = getRulesObject(ref);
+  if (rulesObj) {
+    return ref;
+  }
+  
+  const normalized = ref.toString().trim().toUpperCase();
+  const match = normalized.match(/^(PE|AT|OS|S)\s*(\d+)$/);
+  
+  if (match) {
+    const [, langPrefix, numPart] = match;
+    const targetLang = langPrefixMap[langPrefix.toLowerCase()];
+    const paddedOrderId = numPart.padStart(5, '0');
+    
+    for (const ruleId of allRuleKeys) {
+      const rulesObj = getRulesObject(ruleId);
+      if (!rulesObj) continue;
+      const rule = rulesObj[ruleId];
+      const lang = getLanguage(ruleId);
+      if (lang === targetLang && rule.orderId === paddedOrderId) {
+        return ruleId;
+      }
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Parse a range of rules (e.g., "pe100-pe500", "at300-s1000")
+ */
+function parseRuleRange(rangeStr) {
+  const [startRef, endRef] = rangeStr.split('-');
+  const startId = parseRuleRef(startRef);
+  const endId = parseRuleRef(endRef);
+  
+  if (!startId || !endId) {
+    console.error('Could not parse range:', rangeStr);
+    return [];
+  }
+  
+  const startIndex = allRuleKeys.indexOf(startId);
+  const endIndex = allRuleKeys.indexOf(endId);
+  
+  if (startIndex === -1 || endIndex === -1) {
+    console.error('Rules not found in allRuleKeys:', startId, endId);
+    return [];
+  }
+  
+  const [from, to] = startIndex <= endIndex ? [startIndex, endIndex] : [endIndex, startIndex];
+  return allRuleKeys.slice(from, to + 1);
+}
+
+/**
+ * Parse wildcard patterns like '*', 'pe*', 'at*', 'os*', 's*'
+ */
+function parseWildcard(pattern) {
+  const normalized = pattern.trim().toLowerCase();
+  
+  if (normalized === '*') {
+    return allRuleKeys.filter(ruleId => !isConversionRule(ruleId));
+  }
+  
+  const match = normalized.match(/^(pe|at|os|s)\*$/);
+  if (match) {
+    const [, langPrefix] = match;
+    const targetLang = langPrefixMap[langPrefix];
+    return allRuleKeys.filter(ruleId => {
+      if (isConversionRule(ruleId)) return false;
+      return getLanguage(ruleId) === targetLang;
+    });
+  }
+  
+  return null;
+}
+
+/**
+ * Parse rule parameter(s) - handles single refs, ranges, arrays, wildcards
+ */
+function parseRuleParams(param) {
+  if (Array.isArray(param)) {
+    return param.flatMap(p => parseRuleParams(p));
+  }
+
+  const paramStr = String(param).trim();
+
+  const wildcardResult = parseWildcard(paramStr);
+  if (wildcardResult) {
+    return wildcardResult;
+  }
+
+  if (paramStr.includes('-') && !paramStr.startsWith('-')) {
+    return parseRuleRange(paramStr);
+  }
+
+  const ruleId = parseRuleRef(param);
+  return ruleId ? [ruleId] : [];
+}
+
+/**
+ * Format a ruleId for display
+ */
+function formatRuleDisplay(ruleId) {
+  const rulesObj = getRulesObject(ruleId);
+  if (!rulesObj) return ruleId;
+  const rule = rulesObj[ruleId];
+  const lang = getLanguage(ruleId);
+  const prefix = langToPrefix[lang] || '';
+  return `${prefix} ${rule.orderId}`;
+}
+
+/**
+ * Setup debug tools on window object.
+ * @param {Object} deps - Dependencies from main.js
+ * @param {Function} deps.toggleRule - Function to toggle a rule
+ * @param {Function} deps.resetRule - Function to reset a rule
+ * @param {Function} deps.resetAllRules - Function to reset all rules
+ * @param {Function} deps.getRuleState - Function to get current rule state
+ */
+export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleState }) {
+  console.log('Type debug() to debug.\nType rules() to manage rules quickly.');
+
+  // Word debug tool
+  window.debug = (str, lang = 's') => {
+    if (!str) {
+      return 'Usage: debug(\'word\', \'<s|os|at>\')';
+    }
+    const toSingle = digraphsToSingle(str);
+    const toDigraphs = singleToDigraphs(str);
+    const toSingleAndToDigraphs = singleToDigraphs(toSingle);
+    const profile = lang === 's' ? SINDARIN_PROFILE : (lang === 'os' ? OLD_SINDARIN_PROFILE : ANCIENT_TELERIN_PROFILE);
+    const sAnalyser = new SyllableAnalyser({ profile });
+    const syllables = sAnalyser.analyse(str);
+    return {
+      toSingle,
+      toDigraphs,
+      toSingleAndToDigraphs,
+      syllables,
+    };
+  };
+
+  // Rules management API
+  const api = {
+    enable: (...params) => {
+      const ruleIds = params.flatMap(p => parseRuleParams(p));
+      const enabled = [];
+      ruleIds.forEach(ruleId => {
+        if (isConversionRule(ruleId)) return;
+        toggleRule(ruleId, true);
+        enabled.push(formatRuleDisplay(ruleId));
+      });
+      console.log(`Enabled ${enabled.length} rule(s):`, enabled.join(', '));
+      return enabled;
+    },
+
+    disable: (...params) => {
+      const ruleIds = params.flatMap(p => parseRuleParams(p));
+      const disabled = [];
+      ruleIds.forEach(ruleId => {
+        if (isConversionRule(ruleId)) return;
+        toggleRule(ruleId, false);
+        disabled.push(formatRuleDisplay(ruleId));
+      });
+      console.log(`Disabled ${disabled.length} rule(s):`, disabled.join(', '));
+      return disabled;
+    },
+
+    toggle: (...params) => {
+      const ruleIds = params.flatMap(p => parseRuleParams(p));
+      const toggled = [];
+      ruleIds.forEach(ruleId => {
+        if (isConversionRule(ruleId)) return;
+        const rulesObj = getRulesObject(ruleId);
+        const rule = rulesObj[ruleId];
+        const ruleState = getRuleState();
+        const currentState = ruleState[ruleId] !== undefined ? ruleState[ruleId] : !rule.skip;
+        toggleRule(ruleId, !currentState);
+        toggled.push(`${formatRuleDisplay(ruleId)} → ${!currentState ? 'ON' : 'OFF'}`);
+      });
+      console.log(`Toggled ${toggled.length} rule(s):`, toggled.join(', '));
+      return toggled;
+    },
+
+    reset: (...params) => {
+      const ruleIds = params.flatMap(p => parseRuleParams(p));
+      const reset = [];
+      ruleIds.forEach(ruleId => {
+        if (isConversionRule(ruleId)) return;
+        resetRule(ruleId);
+        reset.push(formatRuleDisplay(ruleId));
+      });
+      console.log(`Reset ${reset.length} rule(s):`, reset.join(', '));
+      return reset;
+    },
+
+    resetAll: () => {
+      resetAllRules();
+      console.log('All rules reset to default state.');
+    },
+
+    list: (langFilter = null) => {
+      const results = [];
+      const ruleState = getRuleState();
+      allRuleKeys.forEach(ruleId => {
+        if (isConversionRule(ruleId)) return;
+        const rulesObj = getRulesObject(ruleId);
+        const rule = rulesObj[ruleId];
+        const lang = getLanguage(ruleId);
+
+        if (langFilter) {
+          const filterNorm = langFilter.toLowerCase();
+          const matchesLang = lang === filterNorm ||
+            (langPrefixMap[filterNorm] && lang === langPrefixMap[filterNorm]);
+          if (!matchesLang) return;
+        }
+
+        const prefix = langToPrefix[lang] || '';
+        const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : !rule.skip;
+        results.push({
+          ref: `${prefix} ${rule.orderId}`,
+          id: ruleId,
+          enabled: isEnabled,
+          skip: rule.skip || false,
+        });
+      });
+      console.table(results);
+      return results;
+    },
+
+    find: (searchTerm) => {
+      const results = [];
+      const searchLower = searchTerm.toLowerCase();
+      allRuleKeys.forEach(ruleId => {
+        if (isConversionRule(ruleId)) return;
+        const rulesObj = getRulesObject(ruleId);
+        const rule = rulesObj[ruleId];
+        const desc = (rule.description || '').toLowerCase();
+        if (desc.includes(searchLower) || ruleId.includes(searchLower)) {
+          const lang = getLanguage(ruleId);
+          const prefix = langToPrefix[lang] || '';
+          results.push({
+            ref: `${prefix} ${rule.orderId}`,
+            id: ruleId,
+            description: rule.description,
+          });
+        }
+      });
+      console.table(results);
+      return results;
+    },
+  };
+
+  const rulesHelp = () => {
+    console.log('Rule management functions:');
+    console.log('  rules.enable(ref, ...)  - Enable rule(s)');
+    console.log('  rules.disable(ref, ...) - Disable rule(s)');
+    console.log('  rules.toggle(ref, ...)  - Toggle rule(s)');
+    console.log('  rules.reset(ref, ...)   - Reset rule(s) to default');
+    console.log('  rules.resetAll()        - Reset all rules');
+    console.log('  rules.list([lang])      - List all rules (optionally by language)');
+    console.log('  rules.find(term)        - Find rules by description');
+    console.log('');
+    console.log('Reference formats:');
+    console.log('  "PE 00100", "PE00100", "PE100", "pe100" - by orderId');
+    console.log('  "3868328117" or 3868328117             - by full ruleId');
+    console.log('  "pe100-pe500", "at300-s1000"           - range');
+    console.log('  "*", "pe*", "at*", "os*", "s*"         - wildcard (all rules)');
+    console.log('  ["pe100", "at200", "s300"]             - array');
+    return api;
+  };
+
+  Object.assign(rulesHelp, api);
+  window.rules = rulesHelp;
+}
+

@@ -2,7 +2,6 @@ import { sindarinRules } from './src/sindarin.js';
 import { oldSindarinRules } from './src/old-sindarin.js';
 import { ancientTelerinRules } from './src/ancient-telerin.js';
 import { primitiveElvishRules } from './src/primitive-elvish.js';
-import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE } from './src/utils.js';
 import {
   preProcessingRuleKeys,
   interLanguageRuleKeys,
@@ -24,6 +23,17 @@ import {
   isRuleEffectivelyEnabled as _isRuleEffectivelyEnabled,
   getResultsObject as _getResultsObject,
 } from './src/main-logic.js';
+import { setupDebugTools } from './src/debug.js';
+import {
+  getInputFromUrl,
+  updateUrlWithInput,
+  isShareMode,
+  removeShareModeFromUrl,
+  getDisabledFromUrl,
+  encodeQueryString,
+  encodeDisabledParam,
+} from './src/query-string.js';
+import { toBase36 } from './src/utils.js';
 
 // =============================================================================
 // DOM Elements
@@ -35,6 +45,7 @@ const $originalOutput = document.getElementById('output');
 const $topWrapper = document.querySelector('.top-wrapper');
 const $helpers = document.querySelector('.userInput .helpers');
 const $toggleHelpers = document.getElementById('toggle-helpers');
+const $shareUrlButton = document.getElementById('share-url');
 const $resetButton = document.getElementById('reset');
 const $resetOrderButton = document.getElementById('reset-order');
 const $resultsTripped = document.getElementById('results-tripped');
@@ -63,6 +74,40 @@ const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
 const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
 const optionState = JSON.parse(localStorage.getItem('options') || '{}');
 const orderState = JSON.parse(localStorage.getItem('order') || '{}');
+
+// Check for share mode: ?s parameter signals override mode
+// In share mode: enable all rules/languages first, then apply ?off= overrides
+if (isShareMode()) {
+  // Clear all rule overrides (all rules default to enabled)
+  Object.keys(ruleState).forEach(key => delete ruleState[key]);
+
+  // Enable all languages
+  Object.keys(languageState).forEach(key => delete languageState[key]);
+
+  // Get all rule IDs for parsing ranges
+  const allRuleIds = [
+    ...Object.keys(primitiveElvishRules),
+    ...Object.keys(ancientTelerinRules),
+    ...Object.keys(oldSindarinRules),
+    ...Object.keys(sindarinRules),
+  ];
+
+  // Parse ?off= parameter and apply disabled state
+  const { disabledRules, disabledLanguages } = getDisabledFromUrl(allRuleIds);
+
+  // Disable specified rules
+  disabledRules.forEach(ruleId => {
+    ruleState[ruleId] = false;
+  });
+
+  // Disable specified languages
+  disabledLanguages.forEach(langId => {
+    languageState[langId] = false;
+  });
+
+  // Remove the ?s parameter from URL (keep ?i and ?off)
+  removeShareModeFromUrl();
+}
 
 // Apply default disabled state for languages not yet stored
 LANGUAGES_DISABLED_BY_DEFAULT.forEach(langId => {
@@ -191,8 +236,8 @@ function moveRuleUp(ruleId) {
   saveOrderState();
 
   // Move DOM element
-  const $rule = document.getElementById(`rule-${ruleId}`);
-  const $prevRule = document.getElementById(`rule-${order[index]}`);
+  const $rule = document.getElementById(`rule-${toBase36(ruleId)}`);
+  const $prevRule = document.getElementById(`rule-${toBase36(order[index])}`);
   if ($rule && $prevRule) {
     $prevRule.parentNode.insertBefore($rule, $prevRule);
   }
@@ -218,8 +263,8 @@ function moveRuleDown(ruleId) {
   saveOrderState();
 
   // Move DOM element
-  const $rule = document.getElementById(`rule-${ruleId}`);
-  const $nextRule = document.getElementById(`rule-${order[index]}`);
+  const $rule = document.getElementById(`rule-${toBase36(ruleId)}`);
+  const $nextRule = document.getElementById(`rule-${toBase36(order[index])}`);
   if ($rule && $nextRule) {
     $nextRule.parentNode.insertBefore($nextRule, $rule);
   }
@@ -297,7 +342,7 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
       delete resultsObj[ruleId];
     }
 
-    const $ruleElement = document.getElementById(`rule-${ruleId}`);
+    const $ruleElement = document.getElementById(`rule-${toBase36(ruleId)}`);
     if ($ruleElement) {
       $ruleElement.classList.toggle('rule-tripped', isTripped);
       const hasFocus = $ruleElement.contains(document.activeElement);
@@ -409,7 +454,7 @@ function createConversionWrapper(sectionId, sectionName) {
 
 // Update visual state of a rule based on effective enabled state
 function updateRuleVisualState(ruleId) {
-  const $rule = document.getElementById(`rule-${ruleId}`);
+  const $rule = document.getElementById(`rule-${toBase36(ruleId)}`);
   const $toggle = document.getElementById(`toggle-${ruleId}`);
   const isEnabled = isRuleEffectivelyEnabled(ruleId);
 
@@ -545,10 +590,12 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   const isConversion = isConversionRule(ruleId);
   const isEffectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
   const hasOptions = rule.hasOwnProperty('input');
-  // Start collapsed if enabled (will expand when tripped)
-  let ruleClass = isEffectivelyEnabled ? 'rule rule-enabled rule-collapsed' : 'rule';
+  // Start collapsed if enabled (will expand when tripped), but keep conversion rules expanded
+  const startCollapsed = isEffectivelyEnabled && !isConversion;
+  let ruleClass = isEffectivelyEnabled ? 'rule rule-enabled' : 'rule';
+  if (startCollapsed) ruleClass += ' rule-collapsed';
   if (hasOptions) ruleClass += ' rule-has-options';
-  const $rule = draw('div', $parentContainer, { class: ruleClass, id: `rule-${ruleId}` });
+  const $rule = draw('div', $parentContainer, { class: ruleClass, id: `rule-${toBase36(ruleId)}` });
 
   // Header row: expand arrow + checkbox + order-id + pattern + description (inline when collapsed)
   const $headerRow = draw('div', $rule, { class: 'rule-header' });
@@ -625,7 +672,9 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     if (rule.url) {
       draw('a', $rightGroup, { class: 'rule-source', innerHtml: '🔗', href: rule.url, target: '_blank', title: 'Source' });
     }
-    draw('span', $rightGroup, { class: 'rule-id', innerHtml: ruleId });
+    // Display Base-36 ID with decimal shown on hover
+    const b36Id = toBase36(ruleId);
+    draw('span', $rightGroup, { class: 'rule-id', innerHtml: b36Id, title: `Eldamo ID: ${ruleId}` });
   }
 
   // Description (below pattern, shown when expanded)
@@ -755,7 +804,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   if (!isRuleEffectivelyEnabled(ruleId)) {
     console.log('Rule', getLanguageAcronym(ruleId), rule.orderId, String(ruleId).padStart(10, ' '), 'in:', input.padStart(10, '.'), 'out:', 'N/A'.padEnd(10, ' '), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId));
     // Clear tripped state when rule is skipped
-    const $ruleElement = document.getElementById(`rule-${ruleId}`);
+    const $ruleElement = document.getElementById(`rule-${toBase36(ruleId)}`);
     if ($ruleElement) {
       $ruleElement.classList.remove('rule-tripped');
     }
@@ -822,7 +871,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   }
 
   // Update tripped visual state and auto-expand if tripped
-  const $ruleElement = document.getElementById(`rule-${ruleId}`);
+  const $ruleElement = document.getElementById(`rule-${toBase36(ruleId)}`);
   if ($ruleElement) {
     $ruleElement.classList.toggle('rule-tripped', isTripped);
     // Auto-expand when tripped, but don't collapse if user is interacting with this rule
@@ -860,7 +909,7 @@ function resetRule(ruleId) {
   $output.value = "";
 
   // Clear tripped visual state
-  const $rule = document.getElementById(`rule-${ruleId}`);
+  const $rule = document.getElementById(`rule-${toBase36(ruleId)}`);
   if ($rule) {
     $rule.classList.remove('rule-tripped');
     // Collapse the rule since it's no longer tripped
@@ -938,11 +987,13 @@ function printResults() {
 // Event Handlers
 // =============================================================================
 
-// Handle input changes - save to storage and run rules
+// Handle input changes - save to storage, update URL, and run rules
 $originalInput.addEventListener('input', (e) => {
-  localStorage.setItem('original-input', e.target.value);
-
   const inputValue = e.target.value;
+
+  localStorage.setItem('original-input', inputValue);
+  updateUrlWithInput(inputValue);
+
   if (inputValue === '') {
     softResetPage();
     return;
@@ -979,6 +1030,80 @@ $helpers.addEventListener('click', (e) => {
   $originalInput.focus();
 });
 
+// Handle share URL button - generates a shareable URL with current state
+$shareUrlButton.addEventListener('click', async () => {
+  const input = $originalInput.value;
+
+  // Build disabled rules set (rules that are explicitly disabled)
+  const disabledRules = new Set();
+  const disabledLanguages = new Set();
+
+  // Check language states
+  ['primitive-elvish', 'ancient-telerin', 'old-sindarin', 'sindarin'].forEach(langId => {
+    if (languageState[langId] === false) {
+      disabledLanguages.add(langId);
+    }
+  });
+
+  // Get all rule IDs
+  const allRuleIds = [
+    ...Object.keys(primitiveElvishRules),
+    ...Object.keys(ancientTelerinRules),
+    ...Object.keys(oldSindarinRules),
+    ...Object.keys(sindarinRules),
+  ];
+
+  // Check each rule's state
+  allRuleIds.forEach(ruleId => {
+    const rule = primitiveElvishRules[ruleId] || ancientTelerinRules[ruleId] ||
+                 oldSindarinRules[ruleId] || sindarinRules[ruleId];
+    const isDefaultEnabled = !rule.skip;
+    const currentState = ruleState[ruleId];
+
+    // Rule is disabled if: explicitly set to false, or default-skipped and no override
+    const isEnabled = currentState !== undefined ? currentState : isDefaultEnabled;
+    if (!isEnabled) {
+      disabledRules.add(ruleId);
+    }
+  });
+
+  // Build the URL
+  const url = new URL(window.location.href);
+  url.search = ''; // Clear existing params
+
+  // Add share mode flag
+  url.searchParams.set('s', '');
+
+  // Add input if present
+  if (input) {
+    const encodedInput = encodeQueryString(input);
+    url.searchParams.set('i', encodedInput);
+  }
+
+  // Add disabled rules/languages if any
+  const offParam = encodeDisabledParam(disabledRules, disabledLanguages, allRuleIds);
+  if (offParam) {
+    url.searchParams.set('off', offParam);
+  }
+
+  // Copy to clipboard
+  try {
+    await navigator.clipboard.writeText(url.toString());
+    // Visual feedback
+    const originalTitle = $shareUrlButton.title;
+    $shareUrlButton.title = 'Copied!';
+    $shareUrlButton.textContent = '✓';
+    setTimeout(() => {
+      $shareUrlButton.title = originalTitle;
+      $shareUrlButton.textContent = '🔗';
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy URL:', err);
+    // Fallback: show the URL in an alert
+    alert('Share URL:\n' + url.toString());
+  }
+});
+
 // Handle reset order button (only resets rule order)
 $resetOrderButton.addEventListener('click', () => {
   localStorage.removeItem('order');
@@ -993,6 +1118,52 @@ $resetButton.addEventListener('click', () => {
   localStorage.removeItem('order');
   localStorage.removeItem('original-input');
   location.reload();
+});
+
+// Smooth scroll animation helper
+function smoothScrollTo(targetY, duration = 400) {
+  const startY = window.scrollY;
+  const diff = targetY - startY;
+  let startTime = null;
+
+  function step(currentTime) {
+    if (!startTime) startTime = currentTime;
+    const progress = Math.min((currentTime - startTime) / duration, 1);
+    // Ease out quad
+    const eased = 1 - (1 - progress) * (1 - progress);
+    window.scrollTo(0, startY + diff * eased);
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// Handle scroll to top link - seamless without page reload
+document.getElementById('scroll-top').addEventListener('click', (e) => {
+  e.preventDefault();
+  smoothScrollTo(0);
+  // Remove hash from URL without reload
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+});
+
+// Handle smooth scroll for rule anchor links in results area
+document.addEventListener('click', (e) => {
+  const anchor = e.target.closest('a[href^="#rule-"]');
+  if (!anchor) return;
+
+  e.preventDefault();
+  const targetId = anchor.getAttribute('href').slice(1); // Remove leading #
+  const targetElement = document.getElementById(targetId);
+  if (targetElement) {
+    const stickyHeight = $topWrapper.offsetHeight + 20;
+    const targetY = targetElement.getBoundingClientRect().top + window.scrollY - stickyHeight;
+    smoothScrollTo(targetY);
+    // Update URL hash without triggering scroll
+    history.replaceState(null, '', '#' + targetId);
+  }
 });
 
 // Toggle mobile results drawer
@@ -1103,8 +1274,9 @@ if (postProcessingRuleKeys.length > 0) {
   });
 }
 
-// Restore input from storage and run rules
-const storedInput = localStorage.getItem('original-input') || '';
+// Restore input from URL query string or storage
+const urlInput = getInputFromUrl();
+const storedInput = urlInput || localStorage.getItem('original-input') || '';
 if (storedInput) {
   $originalInput.value = storedInput;
   const $firstRuleInput = document.getElementById(`input-${firstRuleId}`);
@@ -1112,28 +1284,20 @@ if (storedInput) {
 
   const secondRuleId = getNextRule(firstRuleId);
   runRule(firstRuleId, storedInput, secondRuleId);
+
+  // Sync URL if we loaded from localStorage
+  if (!urlInput && storedInput) {
+    updateUrlWithInput(storedInput);
+  }
 }
 
 // =============================================================================
 // Live debugging tools
 // =============================================================================
 
-console.log('Type debug() to debug.');
-
-window.debug = (str, lang = 's') => {
-  if (!str) {
-    return 'Usage: debug(\'word\', language \'<s|os|at>\')';
-  }
-  const toSingle = digraphsToSingle(str);
-  const toDigraphs = singleToDigraphs(str);
-  const toSingleAndToDigraphs = singleToDigraphs(toSingle);
-  const profile = lang === 's' ? SINDARIN_PROFILE : (lang === 'os' ? OLD_SINDARIN_PROFILE : ANCIENT_TELERIN_PROFILE);
-  const sAnalyser = new SyllableAnalyser({ profile });
-  const syllables = sAnalyser.analyse(str);
-  return {
-    toSingle,
-    toDigraphs,
-    toSingleAndToDigraphs,
-    syllables,
-  };
-};
+setupDebugTools({
+  toggleRule,
+  resetRule,
+  resetAllRules,
+  getRuleState: () => ruleState,
+});

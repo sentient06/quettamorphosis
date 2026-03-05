@@ -20,6 +20,7 @@ import { oldSindarinRules } from '../src/old-sindarin.js';
 import { ancientTelerinRules } from '../src/ancient-telerin.js';
 import { primitiveElvishRules } from '../src/primitive-elvish.js';
 import { preProcessingRules } from '../src/conversions.js';
+import { toBase36 } from '../src/utils.js';
 
 describe('main-logic', () => {
   describe('rule keys', () => {
@@ -127,34 +128,34 @@ describe('main-logic', () => {
   });
 
   describe('formatTripped', () => {
-    it('should format tripped rules as HTML anchors', () => {
+    it('should format tripped rules as HTML anchors with Base-36 IDs', () => {
       const mockRules = {
-        'rule1': { orderId: '00100' },
-        'rule2': { orderId: '00200' },
+        '70600889': { orderId: '00100' },
+        '71909447': { orderId: '00200' },
       };
       const mockResults = {
-        'rule1': { in: 'input1', out: 'output1' },
-        'rule2': { in: 'input2', out: 'output2' },
+        '70600889': { in: 'input1', out: 'output1' },
+        '71909447': { in: 'input2', out: 'output2' },
       };
       const result = formatTripped(mockRules, mockResults);
-      expect(result).toContain('<a href="#rule-rule1">00100</a> - output1');
-      expect(result).toContain('<a href="#rule-rule2">00200</a> - output2');
+      expect(result).toContain(`<a href="#rule-${toBase36('70600889')}">00100</a> - output1`);
+      expect(result).toContain(`<a href="#rule-${toBase36('71909447')}">00200</a> - output2`);
     });
 
     it('should return empty string for empty results', () => {
-      const mockRules = { 'rule1': { orderId: '00100' } };
+      const mockRules = { '70600889': { orderId: '00100' } };
       const result = formatTripped(mockRules, {});
       expect(result).toBe('');
     });
 
     it('should sort by orderId', () => {
       const mockRules = {
-        'rule1': { orderId: '00200' },
-        'rule2': { orderId: '00100' },
+        '70600889': { orderId: '00200' },
+        '71909447': { orderId: '00100' },
       };
       const mockResults = {
-        'rule1': { in: 'input1', out: 'output1' },
-        'rule2': { in: 'input2', out: 'output2' },
+        '70600889': { in: 'input1', out: 'output1' },
+        '71909447': { in: 'input2', out: 'output2' },
       };
       const result = formatTripped(mockRules, mockResults);
       const lines = result.split('\n');

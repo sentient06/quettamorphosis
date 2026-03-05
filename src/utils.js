@@ -309,6 +309,15 @@ const DIGRAPH_MAP = {
   // 'rh': 'r̥', // This is a common consonantal encounter, risky to generalise
 };
 
+// Syllabic consonant shortcuts (uppercase + underscore)
+// These are handled separately since underscore isn't alphabetic
+const SYLLABIC_MAP = {
+  'M_': 'ṃ',   // syllabic m
+  'N_': 'ṇ',   // syllabic n
+  'S_': 'ṣ',   // syllabic s
+  'NG_': 'ŋ̣',  // syllabic ng (ŋ + combining dot below)
+};
+
 // Pre-sorted digraphs by length descending for correct replacement order
 const SORTED_DIGRAPHS = Object.keys(DIGRAPH_MAP).sort((a, b) => b.length - a.length);
 
@@ -339,18 +348,43 @@ const SINGLE_TO_DIGRAPH_MAP = {
   'l̥': 'lh',
   'r̥': 'rh',
   'ꞧ': 'rh',
+  // Syllabic consonants (reverse of SYLLABIC_MAP)
+  'ṃ': 'm̩',   // syllabic m → display form
+  'ṇ': 'n̩',   // syllabic n → display form
+  'ṣ': 's̩',   // syllabic s → display form
+  'ŋ̣': 'ŋ̩',   // syllabic ng → display form
 };
 
 /**
  * Converts digraphs to single characters for easier processing.
+ * Case-sensitive for ASCII digraphs: only UPPERCASE are converted (TH → θ, th stays).
+ * Non-ASCII sequences (kʰ, pʰ, etc.) are always converted.
+ * Syllabic shortcuts (M_, N_, S_, NG_) are also converted.
  * @param {string} str - The string to convert
  * @returns {string} String with digraphs replaced by single characters
  */
 export function digraphsToSingle(str) {
   let result = str;
+
+  // Process syllabic shortcuts first (longer patterns take priority)
+  // Sort by length descending to handle NG_ before N_
+  const sortedSyllabic = Object.keys(SYLLABIC_MAP).sort((a, b) => b.length - a.length);
+  for (const shortcut of sortedSyllabic) {
+    result = result.replaceAll(shortcut, SYLLABIC_MAP[shortcut]);
+  }
+
+  // Process regular digraphs
   for (const digraph of SORTED_DIGRAPHS) {
-    const regex = new RegExp(digraph, 'gi');
-    result = result.replace(regex, DIGRAPH_MAP[digraph]);
+    // Check if digraph is ASCII-only (can be uppercased)
+    const isAsciiDigraph = /^[a-z]+$/i.test(digraph);
+    if (isAsciiDigraph) {
+      // Only convert uppercase versions (case-sensitive)
+      const upperDigraph = digraph.toUpperCase();
+      result = result.replaceAll(upperDigraph, DIGRAPH_MAP[digraph]);
+    } else {
+      // Non-ASCII sequences (like kʰ, pʰ, xʲ) are always converted
+      result = result.replaceAll(digraph, DIGRAPH_MAP[digraph]);
+    }
   }
   return result;
 }
@@ -547,6 +581,29 @@ export function recalcMorphemes(result, originalMorphemes, removedIndices, added
     resultPos += newLength;
     return newMorpheme;
   });
+}
+
+// =============================================================================
+// Base-36 ID Utilities
+// =============================================================================
+
+/**
+ * Convert a decimal string or number to Base-36 (uppercase).
+ * Base-36 uses 0-9 and A-Z, providing compact representation of large numbers.
+ * @param {string|number} decimal - The decimal number to convert
+ * @returns {string} Base-36 representation (uppercase)
+ */
+export function toBase36(decimal) {
+  return parseInt(decimal, 10).toString(36).toUpperCase();
+}
+
+/**
+ * Convert a Base-36 string to decimal string.
+ * @param {string} b36 - The Base-36 string to convert
+ * @returns {string} Decimal representation
+ */
+export function fromBase36(b36) {
+  return parseInt(b36, 36).toString(10);
 }
 
 // =============================================================================

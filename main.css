@@ -2,6 +2,10 @@
   --sticky-h: 200px; /* approximate height of sticky header */
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', 'Source Code Pro', monospace;
   font-size: 14px;

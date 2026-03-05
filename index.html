@@ -28,12 +28,13 @@
   <div class="top-wrapper">
     <div class="top-wrapper-style">
       <div class="details-anchor">
-        <a href="">Top</a> | <a href="" id="open-notes">Notes</a>
+        <a href="#" id="scroll-top">Top</a> | <a href="" id="open-notes">Notes</a>
       </div>
       <div class="input-wrapper">
         <div class="title">Input</div>
         <div class="userInput">
           <input type="text" id="input" placeholder="Enter text to transform" />
+          <button id="share-url" title="Copy shareable URL to clipboard">🔗</button>
           <button id="toggle-helpers" title="Show special characters">⌨</button>
           <div class="helpers hidden">
             <button>θ</button>
@@ -91,35 +92,96 @@
     <div class="controls">
       <a href="" id="close-notes">× close</a>
     </div>
+    <h3 style="margin-top: 0;">How to use the input</h3>
     <p>
-      Notes on symbols:
+      Type a Primitive Elvish word using these conventions:
     </p>
-    <p>
-      This page uses single characters to represent digraphs for ease of processing. Some phonemes that use markings are also made into different characters because the unicode standard uses two or three code points. The following characters are used:
-    </p>
-    <ul>
-      <li>dh: ð</li>
-      <li>gw: ƣ</li>
-      <li>hw: ʍ</li>
-      <li>ch: x</li>
-      <li>kh: χ</li>
-      <li>kʰ: ꝁ</li>
-      <li>ng: ŋ</li>
-      <li>ph: ɸ</li>
-      <li>pʰ: ƥ</li>
-      <li>ss: ſ</li>
-      <li>th: θ</li>
-      <li>tʰ: ŧ</li>
-      <li>gh: ɣ</li>
-      <li>xʲ: ꜧ</li>
-      <li>xʷ: ƕ</li>
-      <li>rh: ꞧ</li>
-      <li>w̥: ƕ</li>
-      <li>n̥: ꞃ</li>
-      <li>l̥: ꝉ</li>
-      <li>r̥: ꞧ</li>
-      <li>m̥: ᵯ</li>
+    <ul style="margin-bottom: 1em;">
+      <li><strong>Long vowels:</strong> Use macrons (ā, ē, ī, ō, ū) or type a colon after the vowel (a: → ā)</li>
+      <li><strong>Morpheme boundaries:</strong> Use <code>+</code> to mark morpheme boundaries (e.g., <code>aran+θorn</code>)</li>
+      <li><strong>Digraph shortcuts:</strong> Type uppercase digraphs to auto-convert (e.g., <code>TH</code> → θ, <code>DH</code> → ð)</li>
     </ul>
+
+    <h3>Uppercase shortcuts</h3>
+    <p>These UPPERCASE digraphs in the input are converted to phonetic symbols:</p>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>TH</code> → θ</li>
+        <li><code>DH</code> → ð</li>
+        <li><code>CH</code> → x</li>
+        <li><code>KH</code> → x</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>GH</code> → ɣ</li>
+        <li><code>PH</code> → ɸ</li>
+        <li><code>NG</code> → ŋ</li>
+        <li><code>GW</code> → ƣ</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>HW</code> → ʍ</li>
+        <li><code>SS</code> → ſ</li>
+      </ul>
+    </div>
+    <p style="margin-top: 0.5em;"><em>Lowercase digraphs (th, dh, etc.) are kept as-is.</em></p>
+
+    <h3>Syllabic consonants</h3>
+    <p>Use uppercase letter + underscore for syllabic consonants:</p>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>M_</code> → ṃ (syllabic m)</li>
+        <li><code>N_</code> → ṇ (syllabic n)</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>S_</code> → ṣ (syllabic s)</li>
+        <li><code>NG_</code> → ŋ̣ (syllabic ng)</li>
+      </ul>
+    </div>
+
+    <h3>Why single characters?</h3>
+    <p>
+      This app uses single characters to represent digraphs and other complex phonemes for ease of processing.
+      Many phonetic symbols with diacritics (like <em>kʰ</em> or <em>r̥</em>) occupy multiple Unicode code points,
+      which makes string manipulation unreliable. The single-character substitutes below are <strong>not</strong>
+      meant to be IPA — they are simply practical placeholders that allow the rules to work correctly.
+    </p>
+    <p>
+      The main input is automatically converted to these characters, and the final output is converted back.
+      Rule displays use the single-character forms throughout.
+    </p>
+
+    <h3>Symbol reference</h3>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li>θ = th (voiceless)</li>
+        <li>ð = dh (voiced)</li>
+        <li>x = ch (spirant)</li>
+        <li>ɣ = gh (voiced velar)</li>
+        <li>ɸ = ph (spirant)</li>
+        <li>ŋ = ng (velar nasal)</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li>ƣ = gw (labiovelar)</li>
+        <li>ʍ = hw (voiceless w)</li>
+        <li>ſ = ss (long s)</li>
+        <li>ꝁ = kʰ (aspirated k)</li>
+        <li>ƥ = pʰ (aspirated p)</li>
+        <li>ŧ = tʰ (aspirated t)</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li>ꜧ = xʲ (palatalized)</li>
+        <li>ƕ = xʷ (labialized)</li>
+        <li>λ = lh (voiceless l)</li>
+        <li>ꝛ / ꞧ = rh (voiceless r)</li>
+        <li>ᵯ = m̥ (voiceless m)</li>
+        <li>ꞃ = n̥ (voiceless n)</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li>ṃ = syllabic m</li>
+        <li>ṇ = syllabic n</li>
+        <li>ṣ = syllabic s</li>
+        <li>ŋ̣ = syllabic ng</li>
+      </ul>
+    </div>
   </div>
   <div id="wrapper"></div>
 </body>

@@ -20,29 +20,34 @@ describe('Conversion Rules', () => {
       expect(rule).toBeDefined();
       expect(rule.orderId).toBe('PRE-01');
 
-      // Test basic digraph conversions (only those in DIGRAPH_MAP)
-      expect(rule.mechanic('th').out).toBe('θ');
-      expect(rule.mechanic('dh').out).toBe('ð');
-      expect(rule.mechanic('ch').out).toBe('x');
-      expect(rule.mechanic('ng').out).toBe('ŋ');
-      expect(rule.mechanic('ph').out).toBe('ɸ');
-      expect(rule.mechanic('hw').out).toBe('ʍ');
-      expect(rule.mechanic('gw').out).toBe('ƣ');
-      expect(rule.mechanic('gh').out).toBe('ɣ');
-      expect(rule.mechanic('ss').out).toBe('ſ');
+      // Test UPPERCASE digraph conversions (case-sensitive: TH → θ, th stays literal)
+      expect(rule.mechanic('TH').out).toBe('θ');
+      expect(rule.mechanic('DH').out).toBe('ð');
+      expect(rule.mechanic('CH').out).toBe('x');
+      expect(rule.mechanic('NG').out).toBe('ŋ');
+      expect(rule.mechanic('PH').out).toBe('ɸ');
+      expect(rule.mechanic('HW').out).toBe('ʍ');
+      expect(rule.mechanic('GW').out).toBe('ƣ');
+      expect(rule.mechanic('GH').out).toBe('ɣ');
+      expect(rule.mechanic('SS').out).toBe('ſ');
+
+      // Lowercase digraphs stay literal (new behavior)
+      expect(rule.mechanic('th').out).toBe('th');
+      expect(rule.mechanic('dh').out).toBe('dh');
+      expect(rule.mechanic('ng').out).toBe('ng');
 
       // Note: lh and rh are commented out in DIGRAPH_MAP
       // expect(rule.mechanic('lh').out).toBe('λ');
       // expect(rule.mechanic('rh').out).toBe('ꝛ');
 
-      // Test aspirated stops (distinct from spirants)
+      // Test aspirated stops (non-ASCII, always convert)
       expect(rule.mechanic('kʰ').out).toBe('ꝁ');
       expect(rule.mechanic('pʰ').out).toBe('ƥ');
       expect(rule.mechanic('tʰ').out).toBe('ŧ');
 
-      // Test full word
-      expect(rule.mechanic('ithil').out).toBe('iθil');
-      expect(rule.mechanic('thorondor').out).toBe('θorondor');
+      // Test full word with UPPERCASE digraphs
+      expect(rule.mechanic('iTHil').out).toBe('iθil');
+      expect(rule.mechanic('THorondor').out).toBe('θorondor');
     });
   });
 
@@ -98,23 +103,23 @@ describe('Conversion Rules', () => {
       const preRule = preProcessingRules['pre-digraphs-to-single'];
       const postRule = postProcessingRules['post-single-to-digraphs'];
 
-      // Note: Some digraphs may not round-trip perfectly due to alternate spellings
-      // e.g., 'hw' → 'ʍ' → 'wh' (SINGLE_TO_DIGRAPH_MAP uses 'wh' as the canonical form)
-      const testWords = [
-        'ithil',
-        'thorondor',
-        'edhil',
-        'galadh',
-        'meleth',
-        'angband',
-        'gwaith',
-        // 'hwesta' excluded - hw → ʍ → wh (different but equivalent)
+      // Note: Now case-sensitive - uppercase digraphs convert, lowercase stay literal
+      // After round-trip, uppercase digraphs become lowercase (canonical form)
+      const testCases = [
+        { input: 'iTHil', expected: 'ithil' },
+        { input: 'THorondor', expected: 'thorondor' },
+        { input: 'eDHil', expected: 'edhil' },
+        { input: 'galaDH', expected: 'galadh' },
+        { input: 'meleTH', expected: 'meleth' },
+        { input: 'aNGband', expected: 'angband' },
+        { input: 'GWaiTH', expected: 'gwaith' },
+        // 'HWesta' excluded - HW → ʍ → wh (different but equivalent)
       ];
 
-      testWords.forEach((word) => {
-        const toSingle = preRule.mechanic(word).out;
+      testCases.forEach(({ input, expected }) => {
+        const toSingle = preRule.mechanic(input).out;
         const backToDigraph = postRule.mechanic(toSingle).out;
-        expect(backToDigraph).toBe(word);
+        expect(backToDigraph).toBe(expected);
       });
     });
 

@@ -15,6 +15,7 @@ import {
   interLanguageRuleKeys,
   postProcessingRuleKeys,
 } from './conversions.js';
+import { toBase36 } from './utils.js';
 
 // Separate rule keys for each language, sorted by orderId
 export const peRuleKeys = Object.keys(primitiveElvishRules).sort((a, b) => {
@@ -95,7 +96,7 @@ export function formatTripped(rulesObj, resultsObj) {
     return rulesObj[a].orderId.localeCompare(rulesObj[b].orderId);
   });
   return rulesUsed.map((ruleId) => {
-    const anchor = `<a href="#rule-${ruleId}">${rulesObj[ruleId].orderId}</a>`;
+    const anchor = `<a href="#rule-${toBase36(ruleId)}">${rulesObj[ruleId].orderId}</a>`;
     const result = resultsObj[ruleId];
     return `${anchor} - ${result.out}`;
   }).join('\n');
@@ -118,7 +119,7 @@ export function formatSkipped(rulesObj, ruleKeys, ruleState) {
     return (isDefaultSkipped && !isExplicitlyEnabled) || isExplicitlyDisabled;
   });
   return skippedRules.map((ruleId) => {
-    return `<a href="#rule-${ruleId}">${rulesObj[ruleId].orderId}</a>`;
+    return `<a href="#rule-${toBase36(ruleId)}">${rulesObj[ruleId].orderId}</a>`;
   }).join('\n');
 }
 
