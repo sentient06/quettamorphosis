@@ -77,7 +77,12 @@ const orderState = JSON.parse(localStorage.getItem('order') || '{}');
 
 // Check for share mode: ?s parameter signals override mode
 // In share mode: enable all rules/languages first, then apply ?off= overrides
+// Capture the input BEFORE removing params (since removeShareModeFromUrl clears ?i)
+let shareModeInput = null;
 if (isShareMode()) {
+  // Save input from URL before we clear the params
+  shareModeInput = getInputFromUrl();
+
   // Clear all rule overrides (all rules default to enabled)
   Object.keys(ruleState).forEach(key => delete ruleState[key]);
 
@@ -105,7 +110,7 @@ if (isShareMode()) {
     languageState[langId] = false;
   });
 
-  // Remove the ?s parameter from URL (keep ?i and ?off)
+  // Remove all share params from URL (?s, ?i, ?off)
   removeShareModeFromUrl();
 }
 
@@ -1274,8 +1279,9 @@ if (postProcessingRuleKeys.length > 0) {
   });
 }
 
-// Restore input from URL query string or storage
-const urlInput = getInputFromUrl();
+// Restore input from URL query string (or share mode) or storage
+// shareModeInput was captured before URL params were cleared
+const urlInput = shareModeInput || getInputFromUrl();
 const storedInput = urlInput || localStorage.getItem('original-input') || '';
 if (storedInput) {
   $originalInput.value = storedInput;
