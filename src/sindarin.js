@@ -2370,7 +2370,6 @@ export const sindarinRules = {
         default: false,
         description: '126: w disappeared after a vowel at the end of a morpheme before a consonant',
       },
-      /*
       {
         name: 'r127',
         label: '[{Vwjrl}m] > [{Vwjrl}ṽ]',
@@ -2391,7 +2390,9 @@ export const sindarinRules = {
         type: 'boolean',
         default: false,
         description: '129: a long or double consonant became short when preceding another consonant',
+        // I think this is meant to be at morpheme ends.
       },
+      /*
       {
         name: 'r130',
         label: '[x-] > [h-]',
@@ -2399,6 +2400,7 @@ export const sindarinRules = {
         default: false,
         description: '130: initial x became h',
       },
+      /*
       {
         name: 'r131',
         label: '[hr] > [ør]',
@@ -2406,6 +2408,7 @@ export const sindarinRules = {
         default: false,
         description: '131: h disappeared before r',
       },
+      /*
       {
         name: 'r132',
         label: '[{^Vwrl}·x] > [{^Vwrl}·h]',
@@ -2413,6 +2416,7 @@ export const sindarinRules = {
         default: false,
         description: '132: x became h at the beginning of a morpheme after a consonant, except w and liquids',
       },
+      /*
       {
         name: 'r133',
         label: '[{bdg}{hθ}] > [{ptk}{hθ}]',
@@ -2420,6 +2424,7 @@ export const sindarinRules = {
         default: false,
         description: '133: voiced stops (b, d, g) became voiceless (p, t, k) before h and θ',
       },
+      /*
       {
         name: 'r134',
         label: '[{ptk}h] > [{fθx}h]',
@@ -2427,6 +2432,7 @@ export const sindarinRules = {
         default: false,
         description: '134: voiceless stops (p, t, k) became voiceless fricatives (f, θ, x) preceding h',
       },
+      /*
       {
         name: 'r135',
         label: '[ð{ptkfsθhxw̥l̥r̥}] > [θ{ptkfsθhxw̥l̥r̥}]',
@@ -2434,6 +2440,7 @@ export const sindarinRules = {
         default: false,
         description: '135: ð became θ before a voiceless sound',
       },
+      /*
       {
         name: 'r136',
         label: '[{fsθhx}h] > [{fsθhx}ø]',
@@ -2441,6 +2448,7 @@ export const sindarinRules = {
         default: false,
         description: '136: h disappeared after voiceless fricatives',
       },
+      /*
       {
         name: 'r137',
         label: '[mpC] > [møC]',
@@ -2448,6 +2456,7 @@ export const sindarinRules = {
         default: false,
         description: '137: p disappeared between m and another consonant',
       },
+      /*
       {
         name: 'r138',
         label: '[{mnŋ}ɣ] > [{mnŋ}g]',
@@ -2455,6 +2464,7 @@ export const sindarinRules = {
         default: false,
         description: '138: ɣ became g after nasals',
       },
+      /*
       {
         name: 'r139',
         label: '?',
@@ -2462,6 +2472,7 @@ export const sindarinRules = {
         default: false,
         description: '139: b something', new notation, double-check
       },
+      /*
       {
         name: 'rule25',
         label: 'rule 25',
@@ -2469,6 +2480,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 25',
       },
+      /*
       {
         name: 'rule26',
         label: 'rule 26',
@@ -2476,6 +2488,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 26',
       },
+      /*
       {
         name: 'rule27',
         label: 'rule 27',
@@ -2483,6 +2496,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 27',
       },
+      /*
       {
         name: 'rule28',
         label: 'rule 28',
@@ -2490,6 +2504,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 28',
       },
+      /*
       {
         name: 'rule29',
         label: 'rule 29',
@@ -2497,6 +2512,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 29',
       },
+      /*
       {
         name: 'rule30',
         label: 'rule 30',
@@ -2504,6 +2520,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 30',
       },
+      /*
       {
         name: 'rule31',
         label: 'rule 31',
@@ -2511,6 +2528,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 31',
       },
+      /*
       {
         name: 'rule32',
         label: 'rule 32',
@@ -2518,6 +2536,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 32',
       },
+      /*
       {
         name: 'rule33',
         label: 'rule 33',
@@ -2525,6 +2544,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 33',
       },
+      /*
       {
         name: 'rule34',
         label: 'rule 34',
@@ -2532,6 +2552,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 34',
       },
+      /*
       {
         name: 'rule35',
         label: 'rule 35',
@@ -2539,6 +2560,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 35',
       },
+      /*
       {
         name: 'rule36',
         label: 'rule 36',
@@ -2546,6 +2568,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 36',
       },
+      /*
       {
         name: 'rule37',
         label: 'rule 37',
@@ -2553,6 +2576,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 37',
       },
+      /*
       {
         name: 'rule38',
         label: 'rule 38',
@@ -2560,6 +2584,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 38',
       },
+      /*
       {
         name: 'rule39',
         label: 'rule 39',
@@ -2567,6 +2592,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 39',
       },
+      /*
       {
         name: 'rule40',
         label: 'rule 40',
@@ -2574,6 +2600,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 40',
       },
+      /*
       {
         name: 'rule41',
         label: 'rule 41',
@@ -2581,6 +2608,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 41',
       },
+      /*
       {
         name: 'rule42',
         label: 'rule 42',
@@ -2588,6 +2616,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 42',
       },
+      /*
       {
         name: 'rule43',
         label: 'rule 43',
@@ -2595,6 +2624,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 43',
       },
+      /*
       {
         name: 'rule44',
         label: 'rule 44',
@@ -2602,6 +2632,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 44',
       },
+      /*
       {
         name: 'rule45',
         label: 'rule 45',
@@ -2609,6 +2640,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 45',
       },
+      /*
       {
         name: 'rule46',
         label: 'rule 46',
@@ -2616,6 +2648,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 46',
       },
+      /*
       {
         name: 'rule47',
         label: 'rule 47',
@@ -2623,6 +2656,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 47',
       },
+      /*
       {
         name: 'rule48',
         label: 'rule 48',
@@ -2630,6 +2664,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 48',
       },
+      /*
       {
         name: 'rule49',
         label: 'rule 49',
@@ -2637,6 +2672,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 49',
       },
+      /*
       {
         name: 'rule50',
         label: 'rule 50',
@@ -2644,6 +2680,7 @@ export const sindarinRules = {
         default: false,
         description: 'rule 50',
       },
+      /*
       {
         name: 'rule51',
         label: 'rule 51',
@@ -2700,7 +2737,7 @@ export const sindarinRules = {
             result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
           }
 
-          morphemes = recalcMorphemes(result, options.morphemes, []);
+          morphemes = recalcMorphemes(result, morphemes, []);
           console.log(' - Sandhi rule 117', result, morphemes);
         } else {
           console.log(' - Sandhi rule 117 skipped');
@@ -2733,7 +2770,7 @@ export const sindarinRules = {
               result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
             }
           }
-          morphemes = recalcMorphemes(result, options.morphemes, removedIndices);
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
           console.log(' - Sandhi rule 118', result, morphemes);
         } else {
           console.log(' - Sandhi rule 118 skipped');
@@ -2753,7 +2790,7 @@ export const sindarinRules = {
             result = result.substring(0, charIndex) + result.substring(charIndex + 1);
             removedIndices.unshift(charIndex);
           }
-          morphemes = recalcMorphemes(result, options.morphemes, removedIndices);
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
           console.log(' - Sandhi rule 119', result, morphemes);
         } else {
           console.log(' - Sandhi rule 119 skipped');
@@ -2778,7 +2815,7 @@ export const sindarinRules = {
             removedIndices.unshift(charIndex);
           }
 
-          morphemes = recalcMorphemes(result, options.morphemes, removedIndices);
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
           console.log(' - Sandhi rule 120', result, morphemes);
         } else {
           console.log(' - Sandhi rule 120 skipped');
@@ -2805,7 +2842,7 @@ export const sindarinRules = {
             result = result.substring(0, charIndex) + `${replaceWith}${nextChar}` + result.substring(charIndex + 2);
           }
 
-          morphemes = recalcMorphemes(result, options.morphemes, []);
+          morphemes = recalcMorphemes(result, morphemes, []);
           console.log(' - Sandhi rule 121', result, morphemes);
         } else {
           console.log(' - Sandhi rule 121 skipped');
@@ -2827,7 +2864,7 @@ export const sindarinRules = {
               removedIndices.unshift(charIndex);
             }
           }
-          morphemes = recalcMorphemes(result, options.morphemes, removedIndices);
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
           console.log(' - Sandhi rule 122', result, morphemes);
         } else {
           console.log(' - Sandhi rule 122 skipped');
@@ -2847,7 +2884,7 @@ export const sindarinRules = {
               result = result.substring(0, charIndex) + 'd' + result.substring(charIndex + 1);
             }
           }
-          morphemes = recalcMorphemes(result, options.morphemes, []);
+          morphemes = recalcMorphemes(result, morphemes, []);
           console.log(' - Sandhi rule 123', result, morphemes);
         } else {
           console.log(' - Sandhi rule 123 skipped');
@@ -2867,7 +2904,7 @@ export const sindarinRules = {
               result = result.substring(0, charIndex) + 'd' + result.substring(charIndex + 1);
             }
           }
-          morphemes = recalcMorphemes(result, options.morphemes, []);
+          morphemes = recalcMorphemes(result, morphemes, []);
           console.log(' - Sandhi rule 124', result, morphemes);
         } else {
           console.log(' - Sandhi rule 124 skipped');
@@ -2932,6 +2969,101 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 126', result, morphemes);
         } else {
           console.log(' - Sandhi rule 126 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 127: m became ṽ after a vowel, semivowel or liquid
+      // [{Vwjrl}m] > [{Vwjrl}ṽ]
+      const rule127 = options.r127 || false;
+      if (rule127) {
+        const occurrences = findAllOf(['m'], str);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar, nextChar } = occurrences[i];
+            if (['w', 'j', 'r', 'l', 'ꞧ', 'ꝉ'].includes(prevChar) || prevChar.isVowel()) {
+              // This is a wild guess:
+              const skipLAndI = prevChar === 'l' && nextChar === 'i';
+              if (skipLAndI) continue;
+              // - - - - - - - - - - -
+              if (nextChar !== 'm') {
+                result = result.substring(0, charIndex) + 'ṽ' + result.substring(charIndex + 1);
+              }
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 127', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 127 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 128: n became ð before r
+      // [nr] > [ðr]
+      const rule128 = options.r128 || false;
+      if (rule128) {
+        const occurrences = findAllOf(['n'], str);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (nextChar === 'r') {
+              result = result.substring(0, charIndex) + 'ð' + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 128', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 128 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 129: a long or double consonant became short when preceding another consonant
+      // [C₁C₁C] > [C₁C]
+      const rule129 = options.r129 || false;
+      if (rule129) {
+        const regex = /(.)\1/g;
+        const matches = result.match(regex);
+        const hasLongSymbol = result.includes('ſ');
+        const hasDoubleNasal = result.includes('nm');
+        if (matches?.length > 0 || hasLongSymbol || hasDoubleNasal) {
+          for (let i = 0; i < morphemes.length; i++) {
+            const morpheme = morphemes[i];
+
+            // Cross-morpheme case:
+            if (i < morphemes.length - 1) {
+              const nextMorpheme = morphemes[i + 1];
+              const lastChar = morpheme.nth(-1);
+              const firstChar = nextMorpheme.nth(0);
+              const isSame = lastChar === firstChar;
+              const isNM = lastChar === 'n' && firstChar === 'm';
+              if (isSame || isNM) {
+                morphemes[i] = morpheme.substring(0, morpheme.length - 1);
+              }
+            }
+
+            // Inside morpheme case:
+            const localMatches = morpheme.match(regex);
+            if (localMatches?.length > 0) {
+              for (let j = localMatches.length - 1; j >= 0; j--) {
+                const match = localMatches[j];
+                morphemes[i] = morphemes[i].replace(match, match[0]);
+              }
+            }
+
+            // Long chars:
+            const sIndex = morpheme.indexOf('ſ');
+            if (sIndex > -1) {
+              if (morpheme.nth(sIndex + 1).isConsonant() || sIndex === morpheme.length - 1) {
+                morphemes[i] = morphemes[i].substring(0, sIndex) + 's' + morphemes[i].substring(sIndex + 1);
+              }
+            }
+          }
+          result = morphemes.join('');
+          console.log(' - Sandhi rule 129', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 129 skipped');
         }
       }
 
