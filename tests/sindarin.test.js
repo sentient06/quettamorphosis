@@ -1515,6 +1515,42 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3868328117'].mechanic('gwaθhīr', { r136: true, morphemes: ['gwaθ', 'hīr'] }))
         .toMatchObject({ out: 'gwaθīr', morphemes: ['gwaθ', 'īr'] });
     });
+
+    it('Rule 137: p disappeared between m and another consonant', () => {
+      expect(sindarinRules['3868328117'].mechanic('nimpdill', { r137: true, morphemes: ['nimp', 'dill'] }))
+        .toMatchObject({ out: 'nimdill', morphemes: ['nim', 'dill'] });
+      expect(sindarinRules['3868328117'].mechanic('nimpβreθil', { r137: true, morphemes: ['nimp', 'βreθil'] }))
+        .toMatchObject({ out: 'nimβreθil', morphemes: ['nim', 'βreθil'] });
+      expect(sindarinRules['3868328117'].mechanic('nimploθθ', { r137: true, morphemes: ['nimp', 'loθθ'] }))
+        .toMatchObject({ out: 'nimloθθ', morphemes: ['nim', 'loθθ'] });
+      expect(sindarinRules['3868328117'].mechanic('nimpraſ', { r137: true, morphemes: ['nimp', 'raſ'] }))
+        .toMatchObject({ out: 'nimraſ', morphemes: ['nim', 'raſ'] });
+    });
+
+    it('Rule 138: ɣ became g after nasals', () => {
+      expect(sindarinRules['3868328117'].mechanic('nīŋɣlaur', { r138: true, morphemes: ['nīŋ', 'ɣlaur'] }))
+        .toMatchObject({ out: 'nīŋglaur', morphemes: ['nīŋ', 'glaur'] });
+      expect(sindarinRules['3868328117'].mechanic('arŋɣonaθ', { r138: true, morphemes: ['arŋ', 'ɣonaθ'] }))
+        .toMatchObject({ out: 'arŋgonaθ', morphemes: ['arŋ', 'gonaθ'] });
+      expect(sindarinRules['3868328117'].mechanic('daŋɣweθ', { r138: true, morphemes: ['daŋ', 'ɣweθ'] }))
+        .toMatchObject({ out: 'daŋgweθ', morphemes: ['daŋ', 'gweθ'] });
+      expect(sindarinRules['3868328117'].mechanic('θūriŋɣweθil', { r138: true, morphemes: ['θūriŋ', 'ɣweθil'] }))
+        .toMatchObject({ out: 'θūriŋgweθil', morphemes: ['θūriŋ', 'gweθil'] });
+      expect(sindarinRules['3868328117'].mechanic('eŋɣlad', { r138: true, morphemes: ['eŋ', 'ɣlad'] }))
+        .toMatchObject({ out: 'eŋglad', morphemes: ['eŋ', 'glad'] });
+    });
+
+    it('Rule 139: β became b after consonants except r', () => {
+      expect(sindarinRules['3868328117'].mechanic('halβarad', { r139: true, morphemes: ['hal', 'βarad'] }))
+        .toMatchObject({ out: 'halbarad', morphemes: ['hal', 'barad'] });
+      expect(sindarinRules['3868328117'].mechanic('nimβreθil', { r139: true, morphemes: ['nim', 'βreθil'] }))
+        .toMatchObject({ out: 'nimbreθil', morphemes: ['nim', 'breθil'] });
+      expect(sindarinRules['3868328117'].mechanic('herβenn', { r139: true, morphemes: ['her', 'βenn'] }))
+        .toMatchObject({ out: 'herβenn', morphemes: ['her', 'βenn'] });
+      expect(sindarinRules['3868328117'].mechanic('arβeleg', { r139: true, morphemes: ['ar', 'βeleg'] }))
+        .toMatchObject({ out: 'arβeleg', morphemes: ['ar', 'βeleg'] });
+    });
+
   });
 
   it('05800 - middle consonants frequently vanished in clusters', () => {

@@ -2424,46 +2424,43 @@ export const sindarinRules = {
         name: 'r134',
         label: '[{ptk}h] > [{fθx}h]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '134: voiceless stops (p, t, k) became voiceless fricatives (f, θ, x) preceding h',
       },
       {
         name: 'r135',
         label: '[ð{ptkfsθhxw̥l̥r̥}] > [θ{ptkfsθhxw̥l̥r̥}]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '135: ð became θ before a voiceless sound',
       },
       {
         name: 'r136',
         label: '[{ɸfsθhx}h] > [{ɸfsθhx}ø]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '136: h disappeared after voiceless fricatives',
       },
-      /*
       {
         name: 'r137',
         label: '[mpC] > [møC]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '137: p disappeared between m and another consonant',
       },
-      /*
       {
         name: 'r138',
         label: '[{mnŋ}ɣ] > [{mnŋ}g]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '138: ɣ became g after nasals',
       },
-      /*
       {
         name: 'r139',
-        label: '?',
+        label: '[{^Vr}β] > [{^Vr}b]',
         type: 'boolean',
-        default: false,
-        description: '139: b something', new notation, double-check
+        default: true,
+        description: '139: β became b after consonants except r',
       },
       /*
       {
@@ -3211,6 +3208,68 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 136', result, morphemes);
         } else {
           console.log(' - Sandhi rule 136 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 137: p disappeared between m and another consonant
+      // [mpC] > [møC]
+      const rule137 = options.r137 || false;
+      if (rule137) {
+        const occurrences = findAllOf(['p'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar, nextChar } = occurrences[i];
+            if (['m', 'n', 'ŋ'].includes(prevChar) && nextChar.isConsonant()) {
+              result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+              removedIndices.unshift(charIndex);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 137', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 137 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 138: ɣ became g after nasals
+      // [{mnŋ}ɣ] > [{mnŋ}g]
+      const rule138 = options.r138 || false;
+      if (rule138) {
+        const occurrences = findAllOf(['ɣ'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            if (['m', 'n', 'ŋ'].includes(prevChar)) {
+              result = result.substring(0, charIndex) + 'g' + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 138', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 138 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 139: β became b after consonants except r
+      // [{^Vr}β] > [{^Vr}b]
+      const rule139 = options.r139 || false;
+      if (rule139) {
+        const occurrences = findAllOf(['β'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            if (prevChar.isConsonant() && prevChar !== 'r') {
+              result = result.substring(0, charIndex) + 'b' + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 139', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 139 skipped');
         }
       }
 
