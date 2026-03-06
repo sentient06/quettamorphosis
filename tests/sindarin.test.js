@@ -1419,10 +1419,10 @@ describe('Sindarin rules', () => {
         .toMatchObject({ out: 'lasgalen', morphemes: ['las', 'galen'] });
       expect(sindarinRules['3868328117'].mechanic('goſθīr', { r129: true, morphemes: ['goſ', 'θīr'] }))
         .toMatchObject({ out: 'gosθīr', morphemes: ['gos', 'θīr'] });
-      expect(sindarinRules['3868328117'].mechanic('ɸalaſrimb', { r129: true, morphemes: ['ɸalaſ', 'rimb'] }))
-        .toMatchObject({ out: 'ɸalasrimb', morphemes: ['ɸalas', 'rimb'] });
-      expect(sindarinRules['3868328117'].mechanic('noſlīr', { r129: true, morphemes: ['noſ', 'līr'] }))
-        .toMatchObject({ out: 'noslīr', morphemes: ['nos', 'līr'] });
+      expect(sindarinRules['3868328117'].mechanic('ɸalaſꞧimb', { r129: true, morphemes: ['ɸalaſ', 'ꞧimb'] }))
+        .toMatchObject({ out: 'ɸalasꞧimb', morphemes: ['ɸalas', 'ꞧimb'] });
+      expect(sindarinRules['3868328117'].mechanic('noſꝉīr', { r129: true, morphemes: ['noſ', 'ꝉīr'] }))
+        .toMatchObject({ out: 'nosꝉīr', morphemes: ['nos', 'ꝉīr'] });
       expect(sindarinRules['3868328117'].mechanic('roxxxīr', { r129: true, morphemes: ['roxx', 'xīr'] }))
         .toMatchObject({ out: 'roxxīr', morphemes: ['rox', 'xīr'] });
       expect(sindarinRules['3868328117'].mechanic('emmbar', { r129: true, morphemes: ['em', 'mbar'] }))
@@ -1441,6 +1441,31 @@ describe('Sindarin rules', () => {
         .toMatchObject({ out: 'endor', morphemes: ['e', 'ndor'] });
       expect(sindarinRules['3868328117'].mechanic('enmbar', { r129: true, morphemes: ['en', 'mbar'] }))
         .toMatchObject({ out: 'embar', morphemes: ['e', 'mbar'] });
+    });
+
+    it('Rule 130: initial x became h', () => {
+      expect(sindarinRules['3868328117'].mechanic('xarad', { r130: true }).out).toBe('harad');
+      expect(sindarinRules['3868328117'].mechanic('xaðaud', { r130: true }).out).toBe('haðaud');
+      expect(sindarinRules['3868328117'].mechanic('xꞧaſ', { r130: true }).out).toBe('hꞧaſ');
+    });
+
+    it('Rule 131: h disappeared before r', () => {
+      expect(sindarinRules['3868328117'].mechanic('hꞧaſ', { r131: true }).out).toBe('ꞧaſ');
+    });
+
+    it('Rule 132: x became h at the beginning of a morpheme after a consonant, except w and liquids', () => {
+      expect(sindarinRules['3868328117'].mechanic('elɸxīr', { r132: true, morphemes: ['elɸ', 'xīr'] }))
+        .toMatchObject({ out: 'elɸhīr', morphemes: ['elɸ', 'hīr'] });
+      expect(sindarinRules['3868328117'].mechanic('roxxīr', { r132: true, morphemes: ['rox', 'xīr'] }))
+        .toMatchObject({ out: 'roxhīr', morphemes: ['rox', 'hīr'] });
+      expect(sindarinRules['3868328117'].mechanic('glamxoθ', { r132: true, morphemes: ['glam', 'xoθ'] }))
+        .toMatchObject({ out: 'glamhoθ', morphemes: ['glam', 'hoθ'] });
+      expect(sindarinRules['3868328117'].mechanic('duinxīr', { r132: true, morphemes: ['duin', 'xīr'] }))
+        .toMatchObject({ out: 'duinhīr', morphemes: ['duin', 'hīr'] });
+      expect(sindarinRules['3868328117'].mechanic('loſxoθ', { r132: true, morphemes: ['loſ', 'xoθ'] }))
+        .toMatchObject({ out: 'loſhoθ', morphemes: ['loſ', 'hoθ'] });
+      expect(sindarinRules['3868328117'].mechanic('galaðxīr', { r132: true, morphemes: ['galað', 'xīr'] }))
+        .toMatchObject({ out: 'galaðhīr', morphemes: ['galað', 'hīr'] });
     });
   });
 

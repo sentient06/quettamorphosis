@@ -2392,7 +2392,6 @@ export const sindarinRules = {
         description: '129: a long or double consonant became short when preceding another consonant',
         // I think this is meant to be at morpheme ends.
       },
-      /*
       {
         name: 'r130',
         label: '[x-] > [h-]',
@@ -2400,7 +2399,6 @@ export const sindarinRules = {
         default: false,
         description: '130: initial x became h',
       },
-      /*
       {
         name: 'r131',
         label: '[hr] > [ør]',
@@ -2408,7 +2406,6 @@ export const sindarinRules = {
         default: false,
         description: '131: h disappeared before r',
       },
-      /*
       {
         name: 'r132',
         label: '[{^Vwrl}·x] > [{^Vwrl}·h]',
@@ -3064,6 +3061,69 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 129', result, morphemes);
         } else {
           console.log(' - Sandhi rule 129 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 130: initial x became h
+      // [x-] > [h-]:
+      const rule130 = options.r130 || false;
+      if (rule130) {
+        const firstChar = str.nth(0);
+        if (firstChar === 'x') {
+          result = 'h' + str.substring(1);
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 130', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 130 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 131: h disappeared before r
+      // [hr] > [ør]:
+      const rule131 = options.r131 || false;
+      if (rule131) {
+        const occurrences = findAllOf(['hꞧ', 'hr'], str);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, matched } = occurrences[i];
+            result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+            removedIndices.unshift(charIndex);
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 131', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 131 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 132: x became h at the beginning of a morpheme after a consonant, except w and liquids
+      // [{^Vwrl}·x] > [{^Vwrl}·h]:
+      const rule132 = options.r132 || false;
+      if (rule132) {
+        const occurrences = findAllOf(['x'], str);
+        if (occurrences.length > 0) {
+          for (let i = 0; i < morphemes.length; i++) {
+            if (i === 0) continue;
+            const morpheme = morphemes[i];
+            const prevMorpheme = morphemes[i - 1];
+            const firstChar = morpheme.nth(0);
+            const lastCharOfPrev = prevMorpheme.nth(-1);
+            const isExempt =
+              ['w', 'l', 'r', 'ꞧ', 'ꝉ'].includes(lastCharOfPrev) ||
+              lastCharOfPrev.isVowel();
+            if (firstChar === 'x') {
+              if (isExempt) continue;
+              morphemes[i] = 'h' + morpheme.substring(1);
+            }
+          }
+          result = morphemes.join('');
+          console.log(' - Sandhi rule 132', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 132 skipped');
         }
       }
 
