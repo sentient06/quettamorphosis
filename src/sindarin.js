@@ -2333,42 +2333,42 @@ export const sindarinRules = {
         label: '[n{bm}|n{ɣŋg}] > [m{bm}|ŋ{ɣŋg}]', // [{nn|n}{bm}|n{ɣŋg}|nn{g}] > [{mm|m}{bm}|ŋ{ɣŋg}|ŋŋ{g}]
         type: 'boolean',
         default: false,
-        description: 'n, short or long, assimilated to following stop, fricative, or nasal',
+        description: '121: n, short or long, assimilated to following stop, fricative, or nasal',
       },
       {
         name: 'r122',
         label: '[CɣC] > [CøC]',
         type: 'boolean',
         default: false,
-        description: 'ɣ disappeared between consonants',
+        description: '122: ɣ disappeared between consonants',
       },
       {
         name: 'r123',
         label: '[ð{bdg}] > [d{bdg}]',
         type: 'boolean',
         default: false,
-        description: 'ð became d before voiced stops',
+        description: '123: ð became d before voiced stops',
       },
       {
         name: 'r124',
         label: '[ðl] > [dl]',
         type: 'boolean',
         default: false,
-        description: 'ð became d before l',
+        description: '124: ð became d before l',
       },
       {
         name: 'r125',
         label: '[C·ðX] > [C·dX]',
         type: 'boolean',
         default: false,
-        description: 'ð became d at the beginning of morpheme boundaries after consonants',
+        description: '125: ð became d at the beginning of morpheme boundaries after consonants',
       },
       {
         name: 'r126',
         label: '[Vw·C] > [Vø·C]',
         type: 'boolean',
         default: false,
-        description: 'w disappeared after a vowel at the end of a morpheme before a consonant',
+        description: '126: w disappeared after a vowel at the end of a morpheme before a consonant',
       },
       /*
       {
