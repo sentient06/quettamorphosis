@@ -15,6 +15,7 @@
 const DIGRAPH_CONVERSIONS = {
   'TH': 'θ',
   'DH': 'ð',
+  'BH': 'β',
   'CH': 'x',
   'KH': 'x',
   'PH': 'ɸ',

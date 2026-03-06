@@ -283,6 +283,7 @@ const VOWELS = ['a','e','i','o','u','y','á','é','í','ó','ú','ý'];
  *       for compound word handling. In sound change rules, 'nth' is 'n' + 'th' (two sounds).
  */
 const DIGRAPH_MAP = {
+  'bh': 'β',   // voiced bilabial fricative (fricative b)
   'dh': 'ð',
   'gw': 'ƣ',
   'hw': 'ʍ',
@@ -324,6 +325,7 @@ const SORTED_DIGRAPHS = Object.keys(DIGRAPH_MAP).sort((a, b) => b.length - a.len
 // Reverse map for converting single chars back to digraphs
 // Note: 'x' maps back to 'ch' (not 'kh'), 'ʍ' maps back to 'hw' (not 'wh')
 const SINGLE_TO_DIGRAPH_MAP = {
+  'β': 'bh',   // voiced bilabial fricative
   'ð': 'dh',
   'ƣ': 'gw',
   'x': 'ch',   // spirant

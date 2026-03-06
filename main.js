@@ -1306,4 +1306,6 @@ setupDebugTools({
   resetRule,
   resetAllRules,
   getRuleState: () => ruleState,
+  smoothScrollTo,
+  getStickyHeight: () => $topWrapper.offsetHeight + 20,
 });

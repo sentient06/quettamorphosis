@@ -3,7 +3,7 @@
  * Usage: debug('word') and rules.enable('pe100'), etc.
  */
 
-import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE } from './utils.js';
+import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE, toBase36, fromBase36 } from './utils.js';
 import {
   allRuleKeys,
   isConversionRule,
@@ -28,26 +28,28 @@ const langToPrefix = {
 
 /**
  * Parse a rule reference into its actual ruleId.
- * Supports: PE 00100, PE00100, PE100, pe100, 3868328117 (number or string)
+ * Supports: PE 00100, PE00100, PE100, pe100, 3868328117 (number or string), 1RZ3P2T (Base-36)
  */
 function parseRuleRef(ref) {
   if (typeof ref === 'number') {
     ref = String(ref);
   }
-  
+
+  // Check if it's a direct decimal ruleId
   const rulesObj = getRulesObject(ref);
   if (rulesObj) {
     return ref;
   }
-  
+
   const normalized = ref.toString().trim().toUpperCase();
+
+  // Check if it's an order ID format (PE 00100, PE100, s5800, etc.)
   const match = normalized.match(/^(PE|AT|OS|S)\s*(\d+)$/);
-  
   if (match) {
     const [, langPrefix, numPart] = match;
     const targetLang = langPrefixMap[langPrefix.toLowerCase()];
     const paddedOrderId = numPart.padStart(5, '0');
-    
+
     for (const ruleId of allRuleKeys) {
       const rulesObj = getRulesObject(ruleId);
       if (!rulesObj) continue;
@@ -58,7 +60,16 @@ function parseRuleRef(ref) {
       }
     }
   }
-  
+
+  // Check if it's a Base-36 ID (alphanumeric, try to convert)
+  if (/^[0-9A-Z]+$/i.test(normalized)) {
+    const decimalId = fromBase36(normalized);
+    const rulesObj = getRulesObject(decimalId);
+    if (rulesObj) {
+      return decimalId;
+    }
+  }
+
   return null;
 }
 
@@ -152,9 +163,11 @@ function formatRuleDisplay(ruleId) {
  * @param {Function} deps.resetRule - Function to reset a rule
  * @param {Function} deps.resetAllRules - Function to reset all rules
  * @param {Function} deps.getRuleState - Function to get current rule state
+ * @param {Function} deps.smoothScrollTo - Function to smooth scroll to a Y position
+ * @param {Function} deps.getStickyHeight - Function to get the sticky header height offset
  */
-export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleState }) {
-  console.log('Type debug() to debug.\nType rules() to manage rules quickly.');
+export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleState, smoothScrollTo, getStickyHeight }) {
+  console.log('Commands: debug(word), rules(), rule(ref), goto(ref)');
 
   // Word debug tool
   window.debug = (str, lang = 's') => {
@@ -307,5 +320,84 @@ export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleS
 
   Object.assign(rulesHelp, api);
   window.rules = rulesHelp;
+
+  // rule() command - shows all identifiers for a given rule
+  window.rule = (ref) => {
+    if (!ref) {
+      console.log('Usage: rule(ref)');
+      console.log('Shows all identifiers that can be used to reference a rule.');
+      console.log('Example: rule("s5800"), rule("PE100"), rule(3868328117)');
+      return;
+    }
+
+    const ruleId = parseRuleRef(ref);
+    if (!ruleId) {
+      console.error(`Could not find rule: ${ref}`);
+      return null;
+    }
+
+    const rulesObj = getRulesObject(ruleId);
+    if (!rulesObj) {
+      console.error(`Could not find rules object for: ${ruleId}`);
+      return null;
+    }
+
+    const rule = rulesObj[ruleId];
+    const lang = getLanguage(ruleId);
+    const prefix = langToPrefix[lang] || '';
+    const base36Id = toBase36(ruleId);
+
+    const identifiers = {
+      'Order ID': `${prefix}${rule.orderId}`,
+      'Decimal ID': ruleId,
+      'Base-36 ID': base36Id,
+      'Description': rule.description || '(none)',
+    };
+
+    console.log(`Rule identifiers for: ${prefix} ${rule.orderId}`);
+    console.table(identifiers);
+    return identifiers;
+  };
+
+  // goto() command - scrolls to a rule in the UI
+  window.goto = (ref) => {
+    if (!ref) {
+      console.log('Usage: goto(ref)');
+      console.log('Scrolls the UI to the specified rule.');
+      console.log('Example: goto("s5800"), goto("PE100"), goto(3868328117)');
+      return;
+    }
+
+    const ruleId = parseRuleRef(ref);
+    if (!ruleId) {
+      console.error(`Could not find rule: ${ref}`);
+      return null;
+    }
+
+    const base36Id = toBase36(ruleId);
+    const targetElement = document.getElementById(`rule-${base36Id}`);
+
+    if (!targetElement) {
+      console.error(`Rule element not found in DOM: rule-${base36Id}`);
+      return null;
+    }
+
+    // Calculate target position accounting for sticky header
+    const stickyHeight = getStickyHeight();
+    const targetY = targetElement.getBoundingClientRect().top + window.scrollY - stickyHeight;
+    smoothScrollTo(targetY);
+
+    // Update URL hash
+    history.replaceState(null, '', `#rule-${base36Id}`);
+
+    // Format for display
+    const rulesObj = getRulesObject(ruleId);
+    const rule = rulesObj[ruleId];
+    const lang = getLanguage(ruleId);
+    const prefix = langToPrefix[lang] || '';
+
+    console.log(`Scrolled to: ${prefix} ${rule.orderId}`);
+    return `${prefix} ${rule.orderId}`;
+  };
 }
 
