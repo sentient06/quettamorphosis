@@ -2335,7 +2335,6 @@ export const sindarinRules = {
         default: false,
         description: 'n, short or long, assimilated to following stop, fricative, or nasal',
       },
-      /*
       {
         name: 'r122',
         label: '[CɣC] > [CøC]',
@@ -2371,6 +2370,7 @@ export const sindarinRules = {
         default: false,
         description: 'w disappeared after a vowel at the end of a morpheme before a consonant',
       },
+      /*
       {
         name: 'r127',
         label: '[{Vwjrl}m] > [{Vwjrl}ṽ]',
@@ -2809,6 +2809,129 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 121', result, morphemes);
         } else {
           console.log(' - Sandhi rule 121 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 122: ɣ disappeared between consonants
+      // [CɣC] > [CøC]
+      const rule122 = options.r122 || false;
+      if (rule122) {
+        const occurrences = findAllOf(['ɣ'], str);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar, nextChar } = occurrences[i];
+            if (prevChar.isConsonant() && nextChar.isConsonant()) {
+              result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+              removedIndices.unshift(charIndex);
+            }
+          }
+          morphemes = recalcMorphemes(result, options.morphemes, removedIndices);
+          console.log(' - Sandhi rule 122', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 122 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 123: ð became d before voiced stops
+      // [ð{bdg}] > [d{bdg}]
+      const rule123 = options.r123 || false;
+      if (rule123) {
+        const occurrences = findAllOf(['ð'], str);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (['b', 'd', 'g'].includes(nextChar)) {
+              result = result.substring(0, charIndex) + 'd' + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, options.morphemes, []);
+          console.log(' - Sandhi rule 123', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 123 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 124: ð became d before l
+      // [ðl] > [dl]
+      const rule124 = options.r124 || false;
+      if (rule124) {
+        const occurrences = findAllOf(['ð'], str);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (nextChar === 'l') {
+              result = result.substring(0, charIndex) + 'd' + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, options.morphemes, []);
+          console.log(' - Sandhi rule 124', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 124 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 125: ð became d at the beginning of morpheme boundaries after consonants
+      // [C·ðX] > [C·dX]
+      const rule125 = options.r125 || false;
+      if (rule125) {
+        const occurrences = findAllOf(['ð'], str);
+        if (occurrences.length > 0 && morphemes.length > 1) {
+          let tempMorphemes = [];
+          for (let i = 0; i < morphemes.length; i++) {
+            if (i === 0) {
+              tempMorphemes.push(morphemes[i]);
+              continue;
+            }
+            const prevMorpheme = morphemes[i - 1];
+            const morpheme = morphemes[i];
+            const firstChar = morpheme.nth(0);
+            if (firstChar === 'ð' && prevMorpheme.nth(-1).isConsonant()) {
+              tempMorphemes.push('d' + morpheme.substring(1));
+            } else {
+              tempMorphemes.push(morpheme);
+            }
+          }
+          morphemes = tempMorphemes;
+          result = morphemes.join('');
+          console.log(' - Sandhi rule 125', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 125 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 126: w disappeared after a vowel at the end of a morpheme before a consonant
+      // [Vw·C] > [Vø·C]
+      const rule126 = options.r126 || false;
+      if (rule126) {
+        const occurrences = findAllOf(['w'], str);
+        if (occurrences.length > 0 && morphemes.length > 1) {
+          let tempMorphemes = [];
+          for (let i = 0; i < morphemes.length; i++) {
+            if (i === morphemes.length - 1) {
+              tempMorphemes.push(morphemes[i]);
+              continue;
+            }
+            const morpheme = morphemes[i];
+            const lastChar = morpheme.nth(-1);
+            const nextMorpheme = morphemes[i + 1];
+            const firstChar = nextMorpheme.nth(0);
+            if (lastChar === 'w' && firstChar.isConsonant()) {
+              tempMorphemes.push(morpheme.substring(0, morpheme.length - 1));
+            } else {
+              tempMorphemes.push(morpheme);
+            }
+          }
+          morphemes = tempMorphemes;
+          result = morphemes.join('');
+          console.log(' - Sandhi rule 126', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 126 skipped');
         }
       }
 

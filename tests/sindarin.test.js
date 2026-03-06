@@ -1274,6 +1274,55 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3868328117'].mechanic('enɣlad', { r121: true }).out).toBe('eŋɣlad');
       expect(sindarinRules['3868328117'].mechanic('aunmenel', { r121: true }).out).toBe('aummenel');
     });
+
+    it('Rule 122: ɣ disappeared between consonants', () => {
+      expect(sindarinRules['3868328117'].mechanic('kelebɣrond', { r122: true }).out).toBe('kelebrond');
+      expect(sindarinRules['3868328117'].mechanic('maigɣlīn', { r122: true }).out).toBe('maiglīn');
+      expect(sindarinRules['3868328117'].mechanic('menegɣroθ', { r122: true }).out).toBe('menegroθ');
+      expect(sindarinRules['3868328117'].mechanic('raθɣlauriel', { r122: true }).out).toBe('raθlauriel');
+      expect(sindarinRules['3868328117'].mechanic('galaðɣlauriel', { r122: true }).out).toBe('galaðlauriel');
+      expect(sindarinRules['3868328117'].mechanic('nauβɣrod', { r122: true }).out).toBe('nauβrod');
+      expect(sindarinRules['3868328117'].mechanic('dūmɣwaθ', { r122: true }).out).toBe('dūmwaθ');
+      expect(sindarinRules['3868328117'].mechanic('tarɣlaŋk', { r122: true }).out).toBe('tarlaŋk');
+    });
+
+    it('Rule 123: ð became d before voiced stops', () => {
+      expect(sindarinRules['3868328117'].mechanic('arðgalen', { r123: true }).out).toBe('ardgalen');
+    });
+
+    it('Rule 124: ð became d before l', () => {
+      expect(sindarinRules['3868328117'].mechanic('galaðlauriel', { r124: true }).out).toBe('galadlauriel');
+    });
+
+    it('Rule 125: ð became d at the beginning of morpheme boundaries after consonants', () => {
+      expect(sindarinRules['3868328117'].mechanic('karagðūr', { r125: true, morphemes: ['karag', 'ðūr'] }))
+        .toMatchObject({ out: 'karagdūr', morphemes: ['karag', 'dūr'] });
+      expect(sindarinRules['3868328117'].mechanic('annðuin', { r125: true, morphemes: ['ann', 'ðuin'] }))
+        .toMatchObject({ out: 'annduin', morphemes: ['ann', 'duin'] });
+      expect(sindarinRules['3868328117'].mechanic('baranðuin', { r125: true, morphemes: ['baran', 'ðuin'] }))
+        .toMatchObject({ out: 'baranduin', morphemes: ['baran', 'duin'] });
+      expect(sindarinRules['3868328117'].mechanic('glammðriŋg', { r125: true, morphemes: ['glamm', 'ðriŋg'] }))
+        .toMatchObject({ out: 'glammdriŋg', morphemes: ['glamm', 'driŋg'] });
+      expect(sindarinRules['3868328117'].mechanic('gasðil', { r125: true, morphemes: ['gas', 'ðil'] }))
+        .toMatchObject({ out: 'gasdil', morphemes: ['gas', 'dil'] });
+      expect(sindarinRules['3868328117'].mechanic('gūlðūr', { r125: true, morphemes: ['gūl', 'ðūr'] }))
+        .toMatchObject({ out: 'gūldūr', morphemes: ['gūl', 'dūr'] });
+      expect(sindarinRules['3868328117'].mechanic('mallðuin', { r125: true, morphemes: ['mall', 'ðuin'] }))
+        .toMatchObject({ out: 'mallduin', morphemes: ['mall', 'duin'] });
+      expect(sindarinRules['3868328117'].mechanic('nelðorn', { r125: true, morphemes: ['nel', 'ðorn'] }))
+        .toMatchObject({ out: 'neldorn', morphemes: ['nel', 'dorn'] });
+      expect(sindarinRules['3868328117'].mechanic('enðant', { r125: true, morphemes: ['en', 'ðant'] }))
+        .toMatchObject({ out: 'endant', morphemes: ['en', 'dant'] });
+      expect(sindarinRules['3868328117'].mechanic('fanuiðol', { r125: true, morphemes: ['fanui', 'ðol'] }))
+        .toMatchObject({ out: 'fanuiðol', morphemes: ['fanui', 'ðol'] });
+    });
+
+    it('Rule 126: w disappeared after a vowel at the end of a morpheme before a consonant', () => {
+      expect(sindarinRules['3868328117'].mechanic('gwaiwhīr', { r126: true, morphemes: ['gwaiw', 'hīr'] }))
+        .toMatchObject({ out: 'gwaihīr', morphemes: ['gwai', 'hīr'] });
+      expect(sindarinRules['3868328117'].mechanic('gwaiwraun', { r126: true, morphemes: ['gwaiw', 'raun'] }))
+        .toMatchObject({ out: 'gwairaun', morphemes: ['gwai', 'raun'] });
+    });
   });
 
   it('05800 - middle consonants frequently vanished in clusters', () => {
