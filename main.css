@@ -465,10 +465,11 @@ div + div.smaller-title {
   position: fixed;
   top: 100px;
   left: 100px;
+  right: 100px;
+  bottom: 100px;
+  overflow-y: auto;
   box-sizing: border-box;
   z-index: 100;
-  right: 100px;
-  overflow: auto;
 }
 
 #notes ul {
@@ -484,6 +485,14 @@ div + div.smaller-title {
 @media (max-width: 768px) {
   .mobile-only {
     display: block;
+  }
+
+  #notes {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    max-height: none;
   }
 
   #toggle-results {
