@@ -3,7 +3,7 @@
  * Usage: debug('word') and rules.enable('pe100'), etc.
  */
 
-import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE, toBase36, fromBase36 } from './utils.js';
+import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE, PRIMITIVE_ELVISH_PROFILE, toBase36, fromBase36 } from './utils.js';
 import {
   allRuleKeys,
   isConversionRule,
@@ -172,12 +172,18 @@ export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleS
   // Word debug tool
   window.debug = (str, lang = 's') => {
     if (!str) {
-      return 'Usage: debug(\'word\', \'<s|os|at>\')';
+      return 'Usage: debug(\'word\', \'<s|os|at|pe>\')';
     }
     const toSingle = digraphsToSingle(str);
     const toDigraphs = singleToDigraphs(str);
     const toSingleAndToDigraphs = singleToDigraphs(toSingle);
-    const profile = lang === 's' ? SINDARIN_PROFILE : (lang === 'os' ? OLD_SINDARIN_PROFILE : ANCIENT_TELERIN_PROFILE);
+    const profile = lang === 'pe' ? PRIMITIVE_ELVISH_PROFILE : (
+      lang === 'at' ? ANCIENT_TELERIN_PROFILE : (
+        lang === 'os' ? 
+        OLD_SINDARIN_PROFILE :
+        SINDARIN_PROFILE
+      )
+    );
     const sAnalyser = new SyllableAnalyser({ profile });
     const syllables = sAnalyser.analyse(str);
     return {

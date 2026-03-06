@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quettamorphosis</title>
   <link rel="stylesheet" href="main.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
 </head>
 <body>
   <h1>Quettamorphosis</h1>
@@ -170,8 +174,8 @@
         <li>ŧ = tʰ (aspirated t)</li>
       </ul>
       <ul style="margin: 0; list-style: none; padding: 0;">
-        <li>ꜧ = xʲ (palatalized)</li>
-        <li>ƕ = xʷ (labialized)</li>
+        <li>ꜧ = xʲ (palatalised)</li>
+        <li>ƕ = xʷ (labialised)</li>
         <li>ꝉ = l̥ (voiceless l)</li>
         <li>ꞧ = r̥ (voiceless r)</li>
         <li>ᵯ = m̥ (voiceless m)</li>
@@ -183,6 +187,18 @@
         <li>ṣ = syllabic s</li>
         <li>ŋ̣ = syllabic ng</li>
       </ul>
+    </div>
+    <h3>Advanced use</h3>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <span>
+        If you are technically-minded, you can try using the console from the browser's inspector and run the following commands:
+      </span>
+      <pre style="margin: 0; list-style: none; padding: 0;">
+        debug(word) - splits the word in syllables and shows details of each
+        rules()     - rule manipulation, can be used to bulk-toggle, reset and find
+        rule(ref)   - meant to extract description and identifiers of a rule
+        goto(ref)   - scrolls interface to rule
+      </pre>
     </div>
   </div>
   <div id="wrapper"></div>

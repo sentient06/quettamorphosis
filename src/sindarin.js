@@ -2465,27 +2465,93 @@ export const sindarinRules = {
       /*
       {
         name: 'r140',
-        label: '[] > []',
+        label: '[{mnŋlr}{mnŋ}{bdgvðɣlr}] > [{mnŋlr}ø{bdgvðɣlr}]',
         type: 'boolean',
         default: true,
-        description: '140: ',
+        description: '140: nasals disappeared between a nasal or liquid and a voiced consonants, except semivowels',
       },
+
+// arŋgīr argīr
+// arŋgonaθ argonaθ
+// mormben morben
+// mormmegil mormegil
+// karnnen karnen
+// elmbereθ elbereθ
+// mornndor mordor
+// briθaummbar briθaumbar
+// θorondīr θorondīr
+// linndīr lindīr
+// herndīr herdīr
+// gilndīss gildīss
+// lemmbass lembass
+// aŋmband aŋband
+// mōrŋgoθ mōrgoθ
+
+// dornhoθ
+// ɸornwobel
+
       /*
       {
         name: 'r141',
-        label: '[] > []',
+        label: '[{ptkbdg}₁{mnŋ}{ptkbdg}₁] > [{ptkbdg}₁ø{ptkbdg}₁]',
         type: 'boolean',
         default: true,
-        description: '141: ',
+        description: '141: nasals were lost between two stops of the same place of articulation',
+      },
+
+      // Halfway there
+
+// ɸeredndīr ɸereddīr
+// belegŋgurθ beleggurθ
+
+      /*
+      // Original:
+      // 142: nd and mb became the nasals n and m after non-nasal stops and spirants, after semivowels, vowels, or nasals following nonliquids.
+// eglmbar eglmar ???? No idea where to put this example because l is a liquid.
+      
+      {
+        name: 'r142-1',
+        label: '[{ptkbdg}nd|mb] > [{ptkbdg}n|m]',
+        type: 'boolean',
+        default: true,
+        description: '142-1: nd and mb became the nasals n and m after non-nasal stops.',
+      },
+// dagndīr dagnīr
+      /*
+      {
+        name: 'r142-2',
+        label: '[{fsθhxvðɣ}nd|mb] > [{fsθhxvðɣ}n|m]',
+        type: 'boolean',
+        default: true,
+        description: '142-2: nd and mb became the nasals n and m after spirants.',
+      },
+// goθmbaug goθmaug
+      /*
+      {
+        name: 'r142-3',
+        label: '[{jw}nd|mb] > [{jw}n|m]',
+        type: 'boolean',
+        default: true,
+        description: '142-3: nd and mb became the nasals n and m after semivowels.',
+      },
+// kurwndīr kurwnīr
+      /*
+      {
+        name: 'r142-4',
+        label: '[Vnd|Vmb] > [Vn|Vm]',
+        type: 'boolean',
+        default: true,
+        description: '142-4: nd and mb became the nasals n and m after vowels.',
       },
       /*
       {
-        name: 'r142',
-        label: '[] > []',
+        name: 'r142-5',
+        label: '[{{^rl}mnŋ}nd|mb] > [{{^rl}mnŋ}n|m]',
         type: 'boolean',
         default: true,
-        description: '142: ',
+        description: '142-5: nd and mb became the nasals n and m after nasals following nonliquids.',
       },
+// lemnndīr lemnnīr
       /*
       {
         name: 'r143',
