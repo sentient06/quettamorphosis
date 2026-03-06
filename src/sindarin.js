@@ -2297,98 +2297,98 @@ export const sindarinRules = {
         name: 'r116',
         label: '[hC] > [øC]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '116: h was deleted before a following consonant',
       },
       {
         name: 'r117',
         label: '[-{nθ|mɸ|ŋx}] > [-{nt|mp|ŋk}]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '117: nθ, mɸ, ŋx became nt, mp, ŋk at the end of a morpheme or word',
       },
       {
         name: 'r118',
         label: '[-{nθ|mɸ|ŋx}-] > [-{nn|mm|ŋŋ}-]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '118: medial nθ, mɸ, ŋx became nn, mm, ŋŋ',
       },
       {
         name: 'r119',
         label: '[ð{mnŋ}] > [ø{mnŋ}]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '119: ð was deleted before nasals',
       },
       {
         name: 'r120',
         label: '[X{r̥r̥|l̥l̥}] > [X{r|l}]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '120: long voiceless liquids became short and voiced after any consonant or vowel',
       },
       {
         name: 'r121',
         label: '[n{bm}|n{ɣŋg}] > [m{bm}|ŋ{ɣŋg}]', // [{nn|n}{bm}|n{ɣŋg}|nn{g}] > [{mm|m}{bm}|ŋ{ɣŋg}|ŋŋ{g}]
         type: 'boolean',
-        default: false,
+        default: true,
         description: '121: n, short or long, assimilated to following stop, fricative, or nasal',
       },
       {
         name: 'r122',
         label: '[CɣC] > [CøC]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '122: ɣ disappeared between consonants',
       },
       {
         name: 'r123',
         label: '[ð{bdg}] > [d{bdg}]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '123: ð became d before voiced stops',
       },
       {
         name: 'r124',
         label: '[ðl] > [dl]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '124: ð became d before l',
       },
       {
         name: 'r125',
         label: '[C·ðX] > [C·dX]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '125: ð became d at the beginning of morpheme boundaries after consonants',
       },
       {
         name: 'r126',
         label: '[Vw·C] > [Vø·C]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '126: w disappeared after a vowel at the end of a morpheme before a consonant',
       },
       {
         name: 'r127',
         label: '[{Vwjrl}m] > [{Vwjrl}ṽ]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '127: m became ṽ after a vowel, semivowel or liquid',
       },
       {
         name: 'r128',
         label: '[nr] > [ðr]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '128: n became ð before r',
       },
       {
         name: 'r129',
         label: '[C₁C₁C] > [C₁C]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '129: a long or double consonant became short when preceding another consonant',
         // I think this is meant to be at morpheme ends.
       },
@@ -2396,32 +2396,30 @@ export const sindarinRules = {
         name: 'r130',
         label: '[x-] > [h-]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '130: initial x became h',
       },
       {
         name: 'r131',
         label: '[hr] > [ør]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '131: h disappeared before r',
       },
       {
         name: 'r132',
         label: '[{^Vwrl}·x] > [{^Vwrl}·h]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '132: x became h at the beginning of a morpheme after a consonant, except w and liquids',
       },
-      /*
       {
         name: 'r133',
         label: '[{bdg}{hθ}] > [{ptk}{hθ}]',
         type: 'boolean',
-        default: false,
+        default: true,
         description: '133: voiced stops (b, d, g) became voiceless (p, t, k) before h and θ',
       },
-      /*
       {
         name: 'r134',
         label: '[{ptk}h] > [{fθx}h]',
@@ -2429,7 +2427,6 @@ export const sindarinRules = {
         default: false,
         description: '134: voiceless stops (p, t, k) became voiceless fricatives (f, θ, x) preceding h',
       },
-      /*
       {
         name: 'r135',
         label: '[ð{ptkfsθhxw̥l̥r̥}] > [θ{ptkfsθhxw̥l̥r̥}]',
@@ -2437,10 +2434,9 @@ export const sindarinRules = {
         default: false,
         description: '135: ð became θ before a voiceless sound',
       },
-      /*
       {
         name: 'r136',
-        label: '[{fsθhx}h] > [{fsθhx}ø]',
+        label: '[{ɸfsθhx}h] > [{ɸfsθhx}ø]',
         type: 'boolean',
         default: false,
         description: '136: h disappeared after voiceless fricatives',
@@ -3069,9 +3065,9 @@ export const sindarinRules = {
       // [x-] > [h-]:
       const rule130 = options.r130 || false;
       if (rule130) {
-        const firstChar = str.nth(0);
+        const firstChar = result.nth(0);
         if (firstChar === 'x') {
-          result = 'h' + str.substring(1);
+          result = 'h' + result.substring(1);
           morphemes = recalcMorphemes(result, morphemes, []);
           console.log(' - Sandhi rule 130', result, morphemes);
         } else {
@@ -3084,7 +3080,7 @@ export const sindarinRules = {
       // [hr] > [ør]:
       const rule131 = options.r131 || false;
       if (rule131) {
-        const occurrences = findAllOf(['hꞧ', 'hr'], str);
+        const occurrences = findAllOf(['hꞧ', 'hr'], result);
         if (occurrences.length > 0) {
           const removedIndices = [];
           for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -3104,7 +3100,7 @@ export const sindarinRules = {
       // [{^Vwrl}·x] > [{^Vwrl}·h]:
       const rule132 = options.r132 || false;
       if (rule132) {
-        const occurrences = findAllOf(['x'], str);
+        const occurrences = findAllOf(['x'], result);
         if (occurrences.length > 0) {
           for (let i = 0; i < morphemes.length; i++) {
             if (i === 0) continue;
@@ -3126,6 +3122,97 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 132 skipped');
         }
       }
+      // ------------------------------------------------------------------------------------------
+      // Rule 133: voiced stops (b, d, g) became voiceless (p, t, k) before h and θ
+      // [{bdg}{hθ}] > [{ptk}{hθ}]
+      const rule133 = options.r133 || false;
+      if (rule133) {
+        const occurrences = findAllOf(['b', 'd', 'g'], result);
+        if (occurrences.length > 0) {
+          const replacements = {
+            'b': 'p',
+            'd': 't',
+            'g': 'k',
+          };
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, matched, nextChar } = occurrences[i];
+            if (['h', 'θ'].includes(nextChar)) {
+              result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 133', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 133 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 134: voiceless stops (p, t, k) became voiceless fricatives (f, θ, x) preceding h
+      // [{ptk}h] > [{fθx}h]
+      const rule134 = options.r134 || false;
+      if (rule134) {
+        const occurrences = findAllOf(['p', 't', 'k'], result);
+        if (occurrences.length > 0) {
+          const replacements = {
+            'p': 'ɸ',
+            't': 'θ',
+            'k': 'x',
+          };
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, matched, nextChar } = occurrences[i];
+            if (nextChar === 'h') {
+              result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 134', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 134 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 135: ð became θ before a voiceless sound
+      // [ð{ptkfsθhxw̥l̥r̥}] > [θ{ptkfsθhxw̥l̥r̥}]
+      const rule135 = options.r135 || false;
+      if (rule135) {
+        const occurrences = findAllOf(['ð'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (['p', 't', 'k', 'f', 's', 'θ', 'h', 'x', 'ʍ', 'ꝉ', 'ꞧ'].includes(nextChar)) {
+              result = result.substring(0, charIndex) + 'θ' + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 135', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 135 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 136: h disappeared after voiceless fricatives
+      // [{ɸfsθhx}h] > [{ɸfsθhx}ø]:
+      const rule136 = options.r136 || false;
+      if (rule136) {
+        const occurrences = findAllOf(['h'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            if (['ɸ', 'f', 's', 'ſ', 'θ', 'h', 'x'].includes(prevChar)) {
+              result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+              removedIndices.unshift(charIndex);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 136', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 136 skipped');
+        }
+      }
 
       // ------------------------------------------------------------------------------------------
       return {
@@ -3133,29 +3220,6 @@ export const sindarinRules = {
         out: result,
         morphemes,
       }
-
-      const vcPattern = breakIntoVowelsAndConsonants(str);
-      // console.log({ str, vcPattern });
-      if (vcPattern.includes('CCC')) {
-        const index = vcPattern.indexOf('CCC');
-        const char = str.charAt(index);
-        const nextChar = str.charAt(index + 2);
-
-        let removeNo = 2;
-        const removedIndices = [index];
-        if (char === nextChar) {
-          removeNo = 3;
-          removedIndices.push(index + 1);
-        }
-
-        const result = str.slice(0, index + 1) + str.slice(index + removeNo);
-        const morphemes = (result !== str && options.morphemes)
-          ? recalcMorphemes(result, options.morphemes, removedIndices)
-          : (options.morphemes || [str]);
-
-        return { in: str, out: result, morphemes };
-      }
-      return { in: str, out: str, morphemes: options.morphemes };
     },
   },
   '3736793827': {

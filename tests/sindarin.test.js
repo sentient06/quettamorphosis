@@ -1467,6 +1467,54 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3868328117'].mechanic('galaðxīr', { r132: true, morphemes: ['galað', 'xīr'] }))
         .toMatchObject({ out: 'galaðhīr', morphemes: ['galað', 'hīr'] });
     });
+
+    it('Rule 133: voiced stops (b, d, g) became voiceless (p, t, k) before h and θ', () => {
+      expect(sindarinRules['3868328117'].mechanic('kelebharn', { r133: true, morphemes: ['keleb', 'harn'] }))
+        .toMatchObject({ out: 'kelepharn', morphemes: ['kelep', 'harn'] });
+      expect(sindarinRules['3868328117'].mechanic('aigθeliond', { r133: true, morphemes: ['aig', 'θeliond'] }))
+        .toMatchObject({ out: 'aikθeliond', morphemes: ['aik', 'θeliond'] });
+      expect(sindarinRules['3868328117'].mechanic('belegθor', { r133: true, morphemes: ['beleg', 'θor'] }))
+        .toMatchObject({ out: 'belekθor', morphemes: ['belek', 'θor'] });
+      expect(sindarinRules['3868328117'].mechanic('maigheneb', { r133: true, morphemes: ['maig', 'heneb'] }))
+        .toMatchObject({ out: 'maikheneb', morphemes: ['maik', 'heneb'] });
+      expect(sindarinRules['3868328117'].mechanic('araudhīr', { r133: true, morphemes: ['araud', 'hīr'] }))
+        .toMatchObject({ out: 'arauthīr', morphemes: ['araut', 'hīr'] });
+    });
+
+    it('Rule 134: voiceless stops (p, t, k) became voiceless fricatives (f, θ, x) preceding h', () => {
+      expect(sindarinRules['3868328117'].mechanic('kelepharn', { r134: true, morphemes: ['kelep', 'harn'] }))
+        .toMatchObject({ out: 'keleɸharn', morphemes: ['keleɸ', 'harn'] });
+      expect(sindarinRules['3868328117'].mechanic('maekheneb', { r134: true, morphemes: ['maek', 'heneb'] }))
+        .toMatchObject({ out: 'maexheneb', morphemes: ['maex', 'heneb'] });
+      expect(sindarinRules['3868328117'].mechanic('arauthir', { r134: true, morphemes: ['araut', 'hir'] }))
+        .toMatchObject({ out: 'arauθhir', morphemes: ['arauθ', 'hir'] });
+    });
+
+    it('Rule 135: ð became θ before a voiceless sound', () => {
+      expect(sindarinRules['3868328117'].mechanic('galaðhīr', { r135: true, morphemes: ['galað', 'hīr'] }))
+        .toMatchObject({ out: 'galaθhīr', morphemes: ['galaθ', 'hīr'] });
+      expect(sindarinRules['3868328117'].mechanic('galaðθiliaun', { r135: true, morphemes: ['galað', 'θiliaun'] }))
+        .toMatchObject({ out: 'galaθθiliaun', morphemes: ['galaθ', 'θiliaun'] });
+    });
+
+    it('Rule 136: h disappeared after voiceless fricatives', () => {
+      expect(sindarinRules['3868328117'].mechanic('keleɸharn', { r136: true, morphemes: ['keleɸ', 'harn'] }))
+        .toMatchObject({ out: 'keleɸarn', morphemes: ['keleɸ', 'arn'] });
+      expect(sindarinRules['3868328117'].mechanic('maixheneb', { r136: true, morphemes: ['maix', 'heneb'] }))
+        .toMatchObject({ out: 'maixeneb', morphemes: ['maix', 'eneb'] });
+      expect(sindarinRules['3868328117'].mechanic('arauθhīr', { r136: true, morphemes: ['arauθ', 'hīr'] }))
+        .toMatchObject({ out: 'arauθīr', morphemes: ['arauθ', 'īr'] });
+      expect(sindarinRules['3868328117'].mechanic('galaθhīr', { r136: true, morphemes: ['galaθ', 'hīr'] }))
+        .toMatchObject({ out: 'galaθīr', morphemes: ['galaθ', 'īr'] });
+      expect(sindarinRules['3868328117'].mechanic('elɸhīr', { r136: true, morphemes: ['elɸ', 'hīr'] }))
+        .toMatchObject({ out: 'elɸīr', morphemes: ['elɸ', 'īr'] });
+      expect(sindarinRules['3868328117'].mechanic('roxhīr', { r136: true, morphemes: ['rox', 'hīr'] }))
+        .toMatchObject({ out: 'roxīr', morphemes: ['rox', 'īr'] });
+      expect(sindarinRules['3868328117'].mechanic('loſhoθ', { r136: true, morphemes: ['loſ', 'hoθ'] }))
+        .toMatchObject({ out: 'loſoθ', morphemes: ['loſ', 'oθ'] });
+      expect(sindarinRules['3868328117'].mechanic('gwaθhīr', { r136: true, morphemes: ['gwaθ', 'hīr'] }))
+        .toMatchObject({ out: 'gwaθīr', morphemes: ['gwaθ', 'īr'] });
+    });
   });
 
   it('05800 - middle consonants frequently vanished in clusters', () => {
