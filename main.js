@@ -519,7 +519,10 @@ function rerunRule(ruleId) {
   const $input = document.getElementById(`input-${ruleId}`);
   if ($input && $input.value) {
     const nextRuleId = getNextRule(ruleId);
-    runRule(ruleId, $input.value, nextRuleId);
+    // Get morphemes from the previous rule (needed to preserve morpheme boundaries)
+    const previousRuleId = getPreviousRule(ruleId);
+    const morphemes = previousRuleId ? ruleMorphemes[previousRuleId] : null;
+    runRule(ruleId, $input.value, nextRuleId, morphemes);
   }
 }
 
@@ -813,6 +816,8 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     if ($ruleElement) {
       $ruleElement.classList.remove('rule-tripped');
     }
+    // Store morphemes even for skipped rules (needed when toggling rules mid-chain)
+    ruleMorphemes[ruleId] = morphemes;
     if (nextRuleId) {
       const $nextInput = document.getElementById(`input-${nextRuleId}`);
       $nextInput.value = input;
