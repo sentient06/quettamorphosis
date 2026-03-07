@@ -3385,7 +3385,7 @@ export const sindarinRules = {
 
             // Each occurrence inside a morpheme:
             for (let j = occurrences.length - 1; j >= 0; j--) {
-              const { charIndex, prevChar, nextChar } = occurrences[j];
+              const { charIndex, prevChar, nextChar, lastChar } = occurrences[j];
               
               // First char of morpheme:
               if (charIndex === 0 && isFirstMorpheme === false) {
