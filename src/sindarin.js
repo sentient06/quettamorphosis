@@ -2462,7 +2462,6 @@ export const sindarinRules = {
         default: true,
         description: '139: β became b after consonants except r',
       },
-      /*
       {
         name: 'r140',
         label: '[{mnŋlr}{mnŋ}{bdgvðɣlr}] > [{mnŋlr}ø{bdgvðɣlr}]',
@@ -2470,25 +2469,6 @@ export const sindarinRules = {
         default: true,
         description: '140: nasals disappeared between a nasal or liquid and a voiced consonants, except semivowels',
       },
-
-// arŋgīr argīr
-// arŋgonaθ argonaθ
-// mormben morben
-// mormmegil mormegil
-// karnnen karnen
-// elmbereθ elbereθ
-// mornndor mordor
-// briθaummbar briθaumbar
-// θorondīr θorondīr
-// linndīr lindīr
-// herndīr herdīr
-// gilndīss gildīss
-// lemmbass lembass
-// aŋmband aŋband
-// mōrŋgoθ mōrgoθ
-
-// dornhoθ
-// ɸornwobel
 
       /*
       {
@@ -3336,6 +3316,65 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 139', result, morphemes);
         } else {
           console.log(' - Sandhi rule 139 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 140: nasals disappeared between a nasal or liquid and a voiced consonants, except semivowels
+      // [{mnŋlr}{mnŋ}{bdgvðɣlr}] > [{mnŋlr}ø{bdgvðɣlr}]
+      const rule140 = options.r140 || false;
+      if (rule140) {
+        let precheckOccurrences = findAllOf(['m', 'n', 'ŋ'], result);
+        if (precheckOccurrences.length > 0) {
+          const prevConsonants = ['m', 'n', 'ŋ', 'l', 'r', 'ꝉ', 'ꞧ'];
+          const nextConsonants = ['b', 'd', 'g', 'v', 'ð', 'ɣ', 'l', 'r'];
+
+          // Changing each morpheme:
+          for (let i = 0; i < morphemes.length; i++) {
+            const morpheme = morphemes[i];
+            const isFirstMorpheme = i === 0;
+            const isLastMorpheme = i === morphemes.length - 1;
+            const occurrences = findAllOf(['m', 'n', 'ŋ'], morpheme);
+
+            // Each occurrence inside a morpheme:
+            for (let j = occurrences.length - 1; j >= 0; j--) {
+              const { charIndex, matched, prevChar, nextChar, lastChar } = occurrences[j];
+              
+              // First char of morpheme:
+              if (charIndex === 0 && isFirstMorpheme === false) {
+                const lastCharOfPrev = morphemes[i - 1].nth(-1);
+                if (prevConsonants.includes(lastCharOfPrev) && nextConsonants.includes(nextChar)) {
+                  morphemes[i] = morpheme.substring(1);
+                }
+              } else
+
+              // Last char of morpheme:
+              if (lastChar && isLastMorpheme === false) {
+                const firstCharOfNext = morphemes[i + 1].nth(0);
+                if (
+                  (
+                    prevConsonants.includes(prevChar) &&
+                    nextConsonants.includes(firstCharOfNext)
+                  ) || (
+                    matched === firstCharOfNext
+                  )
+                ) {
+                  morphemes[i] = morpheme.substring(0, morpheme.length - 1);
+                }
+              } else
+              
+              // Medial matches:
+              {
+                if (prevConsonants.includes(prevChar) && nextConsonants.includes(nextChar)) {
+                  morphemes[i] = morpheme.substring(0, charIndex) + morpheme.substring(charIndex + 1);
+                }
+              }
+            }
+            result = morphemes.join('');
+          }
+          console.log(' - Sandhi rule 140', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 140 skipped');
         }
       }
 
