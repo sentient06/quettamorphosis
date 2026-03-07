@@ -1589,6 +1589,13 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3868328117'].mechanic('ɸornwobel', { r140: true, morphemes: ['ɸorn', 'wobel'] }))
         .toMatchObject({ out: 'ɸornwobel', morphemes: ['ɸorn', 'wobel'] });
     });
+
+    it('Rule 141: nasals were lost between two stops of the same place of articulation', () => {
+      expect(sindarinRules['3868328117'].mechanic('ɸeredndīr', { r141: true, morphemes: ['ɸered', 'ndīr'] }))
+        .toMatchObject({ out: 'ɸereddīr', morphemes: ['ɸered', 'dīr'] });
+      expect(sindarinRules['3868328117'].mechanic('belegŋgurθ', { r141: true, morphemes: ['beleg', 'ŋgurθ'] }))
+        .toMatchObject({ out: 'beleggurθ', morphemes: ['beleg', 'gurθ'] });
+    });
   });
 
   it('05800 - middle consonants frequently vanished in clusters', () => {
