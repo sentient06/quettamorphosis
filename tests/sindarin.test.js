@@ -1596,6 +1596,33 @@ describe('Sindarin rules', () => {
       expect(sindarinRules['3868328117'].mechanic('belegŋgurθ', { r141: true, morphemes: ['beleg', 'ŋgurθ'] }))
         .toMatchObject({ out: 'beleggurθ', morphemes: ['beleg', 'gurθ'] });
     });
+
+    it('Rule 142-1: nd and mb became the nasals n and m after non-nasal stops', () => {
+      expect(sindarinRules['3868328117'].mechanic('dagndīr', { r142_1: true, morphemes: ['dag', 'ndīr'] }))
+        .toMatchObject({ out: 'dagnīr', morphemes: ['dag', 'nīr'] });
+    });
+
+    it('Rule 142-2: nd and mb became the nasals n and m after spirants', () => {
+      expect(sindarinRules['3868328117'].mechanic('goθmbaug', { r142_2: true, morphemes: ['goθ', 'mbaug'] }))
+        .toMatchObject({ out: 'goθmaug', morphemes: ['goθ', 'maug'] });
+    });
+
+    it('Rule 142-3: nd and mb became the nasals n and m after semivowels', () => {
+      expect(sindarinRules['3868328117'].mechanic('kurwndīr', { r142_3: true, morphemes: ['kurw', 'ndīr'] }))
+        .toMatchObject({ out: 'kurwnīr', morphemes: ['kurw', 'nīr'] });
+    });
+
+    it('Rule 142-4: nd and mb became the nasals n and m after vowels', () => {
+      // Not a real example, it was adapted from 142-3.
+      expect(sindarinRules['3868328117'].mechanic('kurundīr', { r142_4: true, morphemes: ['kuru', 'ndīr'] }))
+        .toMatchObject({ out: 'kurunīr', morphemes: ['kuru', 'nīr'] });
+    });
+
+    it('Rule 142-5: nd and mb became the nasals n and m after nasals following nonliquids', () => {
+      expect(sindarinRules['3868328117'].mechanic('lemnndīr', { r142_5: true, morphemes: ['lemn', 'ndīr'] }))
+        .toMatchObject({ out: 'lemnnīr', morphemes: ['lemn', 'nīr'] });
+    });
+
   });
 
   it('05800 - middle consonants frequently vanished in clusters', () => {

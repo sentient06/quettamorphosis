@@ -2477,7 +2477,6 @@ export const sindarinRules = {
         description: '141: nasals were lost between two stops of the same place of articulation',
       },
       // Halfway there
-      /*
       // Original:
       // 142: nd and mb became the nasals n and m after non-nasal stops and spirants, after semivowels, vowels, or nasals following nonliquids.
 // eglmbar eglmar ???? No idea where to put this example because l is a liquid.
@@ -2487,10 +2486,8 @@ export const sindarinRules = {
         label: '[{ptkbdg}nd|mb] > [{ptkbdg}n|m]',
         type: 'boolean',
         default: true,
-        description: '142-1: nd and mb became the nasals n and m after non-nasal stops.',
+        description: '142-1: nd and mb became the nasals n and m after non-nasal stops',
       },
-// dagndīr dagnīr
-      /*
       {
         name: 'r142-2',
         label: '[{fsθhxvðɣ}nd|mb] > [{fsθhxvðɣ}n|m]',
@@ -2498,8 +2495,6 @@ export const sindarinRules = {
         default: true,
         description: '142-2: nd and mb became the nasals n and m after spirants.',
       },
-// goθmbaug goθmaug
-      /*
       {
         name: 'r142-3',
         label: '[{jw}nd|mb] > [{jw}n|m]',
@@ -2507,8 +2502,6 @@ export const sindarinRules = {
         default: true,
         description: '142-3: nd and mb became the nasals n and m after semivowels.',
       },
-// kurwndīr kurwnīr
-      /*
       {
         name: 'r142-4',
         label: '[Vnd|Vmb] > [Vn|Vm]',
@@ -2516,7 +2509,6 @@ export const sindarinRules = {
         default: true,
         description: '142-4: nd and mb became the nasals n and m after vowels.',
       },
-      /*
       {
         name: 'r142-5',
         label: '[{{^rl}mnŋ}nd|mb] > [{{^rl}mnŋ}n|m]',
@@ -2524,7 +2516,6 @@ export const sindarinRules = {
         default: true,
         description: '142-5: nd and mb became the nasals n and m after nasals following nonliquids.',
       },
-// lemnndīr lemnnīr
       /*
       {
         name: 'r143',
@@ -3408,6 +3399,122 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 141', result, morphemes);
         } else {
           console.log(' - Sandhi rule 141 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 142-1: nd and mb became the nasals n and m after non-nasal stops
+      // [{ptkbdg}nd|mb] > [{ptkbdg}n|m]
+      const rule142_1 = options.r142_1 || false;
+      if (rule142_1) {
+        const occurrences = findAllOf(['nd', 'mb'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          const validConsonants = ['p', 't', 'k', 'b', 'd', 'g'];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            if (validConsonants.includes(prevChar)) {
+              result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
+              removedIndices.unshift(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 142-1', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 142-1 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 142-2: nd and mb became the nasals n and m after spirants
+      // [{fsθhxvðɣ}nd|mb] > [{fsθhxvðɣ}n|m]
+      const rule142_2 = options.r142_2 || false;
+      if (rule142_2) {
+        const occurrences = findAllOf(['nd', 'mb'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          const validConsonants = ['f', 's', 'θ', 'h', 'x', 'v', 'ð', 'ɣ'];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            if (validConsonants.includes(prevChar)) {
+              result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
+              removedIndices.unshift(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 142-2', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 142-2 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 142-3: nd and mb became the nasals n and m after semivowels
+      // [{jw}nd|mb] > [{jw}n|m]
+      const rule142_3 = options.r142_3 || false;
+      if (rule142_3) {
+        const occurrences = findAllOf(['nd', 'mb'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          const validConsonants = ['j', 'w'];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            if (validConsonants.includes(prevChar)) {
+              result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
+              removedIndices.unshift(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 142-3', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 142-3 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 142-4: nd and mb became the nasals n and m after vowels
+      // [Vnd|Vmb] > [Vn|Vm]
+      const rule142_4 = options.r142_4 || false;
+      if (rule142_4) {
+        const occurrences = findAllOf(['nd', 'mb'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            if (prevChar.isVowel()) {
+              result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
+              removedIndices.unshift(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 142-4', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 142-4 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 142-5: nd and mb became the nasals n and m after nasals following nonliquids
+      // [{{^rl}mnŋ}nd|mb] > [{{^rl}mnŋ}n|m]
+      const rule142_5 = options.r142_5 || false;
+      if (rule142_5) {
+        const occurrences = findAllOf(['nd', 'mb'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          const nasalConsonants = ['m', 'n', 'ŋ'];
+          const liquidConsonants = ['l', 'r', 'ꞧ', 'ꝉ'];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            const anteriorChar = result.nth(charIndex - 2);
+            if (nasalConsonants.includes(prevChar) && !liquidConsonants.includes(anteriorChar)) {
+              result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
+              removedIndices.unshift(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 142-5', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 142-5 skipped');
         }
       }
 
