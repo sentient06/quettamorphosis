@@ -163,10 +163,11 @@ function formatRuleDisplay(ruleId) {
  * @param {Function} deps.resetRule - Function to reset a rule
  * @param {Function} deps.resetAllRules - Function to reset all rules
  * @param {Function} deps.getRuleState - Function to get current rule state
+ * @param {Function} deps.isRuleEffectivelyEnabled - Function to check if a rule is effectively enabled
  * @param {Function} deps.smoothScrollTo - Function to smooth scroll to a Y position
  * @param {Function} deps.getStickyHeight - Function to get the sticky header height offset
  */
-export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleState, smoothScrollTo, getStickyHeight }) {
+export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleState, isRuleEffectivelyEnabled, smoothScrollTo, getStickyHeight }) {
   console.log('Commands: debug(word), rules(), rule(ref), goto(ref)');
 
   // Word debug tool
@@ -255,7 +256,6 @@ export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleS
 
     list: (langFilter = null) => {
       const results = [];
-      const ruleState = getRuleState();
       allRuleKeys.forEach(ruleId => {
         if (isConversionRule(ruleId)) return;
         const rulesObj = getRulesObject(ruleId);
@@ -270,12 +270,13 @@ export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleS
         }
 
         const prefix = langToPrefix[lang] || '';
-        const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : !rule.skip;
+        const isEnabled = isRuleEffectivelyEnabled(ruleId);
         results.push({
           ref: `${prefix} ${rule.orderId}`,
           id: ruleId,
           enabled: isEnabled,
           skip: rule.skip || false,
+          isSandhi: rule.isSandhi || false,
         });
       });
       console.table(results);

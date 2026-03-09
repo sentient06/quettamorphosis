@@ -1,4 +1,5 @@
 import { sindarinRules } from './src/sindarin.js';
+import { SANDHI_MASTER_RULE_ID } from './src/sandhi.js';
 import { oldSindarinRules } from './src/old-sindarin.js';
 import { ancientTelerinRules } from './src/ancient-telerin.js';
 import { primitiveElvishRules } from './src/primitive-elvish.js';
@@ -331,7 +332,7 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
       options.morphemes = currentMorphemes;
     }
 
-    const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : !rule.skip;
+    const isEnabled = isRuleEffectivelyEnabled(ruleId);
     const result = isEnabled ? rule.mechanic(currentInput, options) : { in: currentInput, out: currentInput };
     const output = result.out;
 
@@ -548,6 +549,16 @@ function toggleRule(ruleId, isEnabled) {
   // Update visual state based on effective enabled (considers language too)
   updateRuleVisualState(ruleId);
 
+  // If this is the sandhi master switch, update all sandhi rules' visual states
+  if (ruleId === SANDHI_MASTER_RULE_ID) {
+    sindarinRuleKeys.forEach(sandhiRuleId => {
+      const sandhiRule = sindarinRules[sandhiRuleId];
+      if (sandhiRule?.isSandhi) {
+        updateRuleVisualState(sandhiRuleId);
+      }
+    });
+  }
+
   const previousRuleId = getPreviousRule(ruleId);
   const nextRuleId = getNextRule(ruleId);
 
@@ -598,11 +609,13 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   const isConversion = isConversionRule(ruleId);
   const isEffectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
   const hasOptions = rule.hasOwnProperty('input');
+  const isSandhi = rule.isSandhi === true;
   // Start collapsed if enabled (will expand when tripped), but keep conversion rules expanded
   const startCollapsed = isEffectivelyEnabled && !isConversion;
   let ruleClass = isEffectivelyEnabled ? 'rule rule-enabled' : 'rule';
   if (startCollapsed) ruleClass += ' rule-collapsed';
   if (hasOptions) ruleClass += ' rule-has-options';
+  if (isSandhi) ruleClass += ' rule-sandhi';
   const $rule = draw('div', $parentContainer, { class: ruleClass, id: `rule-${toBase36(ruleId)}` });
 
   // Header row: expand arrow + checkbox + order-id + pattern + description (inline when collapsed)
@@ -632,7 +645,13 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     });
   }
 
-  draw('span', $headerRow, { class: 'rule-order-id', innerHtml: rule.orderId });
+  // For sandhi rules, prepend the master rule's orderId
+  let displayOrderId = rule.orderId;
+  if (isSandhi) {
+    const masterRule = getRulesObject(SANDHI_MASTER_RULE_ID)[SANDHI_MASTER_RULE_ID];
+    displayOrderId = `${masterRule.orderId}.${rule.orderId}`;
+  }
+  draw('span', $headerRow, { class: 'rule-order-id', innerHtml: displayOrderId });
   draw('span', $headerRow, { class: 'rule-pattern', innerHtml: rule.pattern });
   // Options indicator (shown when collapsed and has options)
   if (hasOptions) {
@@ -858,7 +877,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     options.morphemes = morphemes;
   }
 
-  const isEnabled = ruleState[ruleId] !== undefined ? ruleState[ruleId] : true;
+  const isEnabled = isRuleEffectivelyEnabled(ruleId);
   const result = isEnabled ? rule.mechanic(input, options) : { in: input, out: input };
   const output = result.out;
 
@@ -1311,6 +1330,7 @@ setupDebugTools({
   resetRule,
   resetAllRules,
   getRuleState: () => ruleState,
+  isRuleEffectivelyEnabled,
   smoothScrollTo,
   getStickyHeight: () => $topWrapper.offsetHeight + 20,
 });

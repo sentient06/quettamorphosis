@@ -275,6 +275,37 @@ div + div.smaller-title {
   --indent: 22px; /* checkbox width + gap */
 }
 
+/* Sandhi rules - visually distinct as sub-rules of the master switch (05800) */
+.rule.rule-sandhi {
+  margin-left: 24px;
+  border-left: 3px solid #a0a0d0;
+  font-size: 0.9em;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  background-color: #fafaff;
+}
+
+.rule.rule-sandhi.rule-enabled {
+  background-color: #f0f0ff;
+}
+
+.rule.rule-sandhi.rule-tripped {
+  background-color: #e0ffe0;
+}
+
+.rule.rule-sandhi:not(.rule-enabled) {
+  background-color: #fff0f0;
+}
+
+.rule.rule-sandhi .rule-order-id {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.rule.rule-sandhi .rule-pattern {
+  font-size: 0.95em;
+}
+
 .rule .rule-header {
   display: flex;
   align-items: center;

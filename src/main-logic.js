@@ -16,6 +16,7 @@ import {
   postProcessingRuleKeys,
 } from './conversions.js';
 import { toBase36 } from './utils.js';
+import { SANDHI_MASTER_RULE_ID } from './sandhi.js';
 
 // Separate rule keys for each language, sorted by orderId
 export const peRuleKeys = Object.keys(primitiveElvishRules).sort((a, b) => {
@@ -125,6 +126,7 @@ export function formatSkipped(rulesObj, ruleKeys, ruleState) {
 
 /**
  * Check if a rule is effectively enabled (language AND rule must both be enabled)
+ * For sandhi rules, the master switch must also be enabled.
  * @param {string} ruleId - The rule ID
  * @param {Object} ruleState - The rule state object
  * @param {Object} languageState - The language state object
@@ -147,6 +149,15 @@ export function isRuleEffectivelyEnabled(ruleId, ruleState, languageState) {
   const ruleEnabled = ruleState[ruleId] !== undefined
     ? ruleState[ruleId]
     : (rule?.skip !== true);
+
+  // For sandhi rules (isSandhi: true), also check if master switch is enabled
+  if (rule?.isSandhi) {
+    const masterRule = sindarinRules[SANDHI_MASTER_RULE_ID];
+    const masterEnabled = ruleState[SANDHI_MASTER_RULE_ID] !== undefined
+      ? ruleState[SANDHI_MASTER_RULE_ID]
+      : (masterRule?.skip !== true);
+    return langEnabled && ruleEnabled && masterEnabled;
+  }
 
   return langEnabled && ruleEnabled;
 }
@@ -228,6 +239,17 @@ export function evolveWord(input, config = {}) {
     // Check if rule has skip: true and is not explicitly enabled
     if (rule.skip === true && !isExplicitlyEnabled) {
       continue;
+    }
+
+    // For sandhi rules, check if master switch is enabled
+    if (rule.isSandhi) {
+      const masterQualifiedOrderId = 'S 05800';
+      const isMasterExplicitlyEnabled = enabledRules.has(SANDHI_MASTER_RULE_ID) || enabledRules.has(masterQualifiedOrderId);
+      const isMasterDisabled = disabledRules.has(SANDHI_MASTER_RULE_ID) || disabledRules.has(masterQualifiedOrderId);
+      // Master switch has skip: true, so it must be explicitly enabled and not disabled
+      if (!isMasterExplicitlyEnabled || isMasterDisabled) {
+        continue;
+      }
     }
 
     // Build options: start with rule defaults, then apply custom options
