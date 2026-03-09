@@ -419,7 +419,7 @@ div + div.smaller-title {
   grid-template-columns: repeat(8, max-content);
   gap: 2px 20px;
   grid-auto-flow: column;
-  grid-template-rows: repeat(10, auto);
+  grid-template-rows: repeat(12, auto);
   overflow-x: auto;
 }
 

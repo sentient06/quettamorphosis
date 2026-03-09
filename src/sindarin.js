@@ -2519,178 +2519,178 @@ export const sindarinRules = {
       /*
       {
         name: 'r143',
-        label: '[] > []',
+        label: '[stC] > [sC]',
         type: 'boolean',
         default: true,
-        description: '143: ',
+        description: '143: st simplifies to s before a consonant',
       },
       /*
       {
         name: 'r144',
-        label: '[] > []',
+        label: '[s{lr}] > [θ{lr}]',
         type: 'boolean',
         default: true,
-        description: '144: ',
+        description: '144: s became θ before liquids l and r',
       },
       /*
       {
         name: 'r145',
-        label: '[] > []',
+        label: '[sθ] > [st]',
         type: 'boolean',
         default: true,
-        description: '145: ',
+        description: '145: θ became t after s',
       },
       /*
       {
         name: 'r146',
-        label: '[] > []',
+        label: '[n{lr}|n{lr}Vd}] > [nd{lr}|n{lr}Vd]',
         type: 'boolean',
         default: true,
-        description: '146: ',
+        description: '146: n became nd before a following liquid, unless when the following consonant is d',
       },
       /*
       {
         name: 'r147',
-        label: '[] > []',
+        label: '[ŋ{lrw}] > [ŋg{lrw}]',
         type: 'boolean',
         default: true,
-        description: '147: ',
+        description: '147: ŋ became ŋg before l, r, w',
       },
       /*
       {
         name: 'r148',
-        label: '[] > []',
+        label: '[ndl] > [ŋgl]',
         type: 'boolean',
         default: true,
-        description: '148: ',
+        description: '148: nd became ŋg before l',
       },
       /*
       {
         name: 'r149',
-        label: '[] > []',
+        label: '[wṽ] > [wø]',
         type: 'boolean',
         default: true,
-        description: '149: ',
+        description: '149: ṽ disappeared after w',
       },
       /*
       {
         name: 'r150',
-        label: '[] > []',
+        label: '[lṽ] > [lw]',
         type: 'boolean',
         default: true,
-        description: '150: ',
+        description: '150: lṽ sometimes became lw',
       },
       /*
       {
         name: 'r151',
-        label: '[] > []',
+        label: '[w{oœǭ}] > [ø{oœǭ}]',
         type: 'boolean',
         default: true,
-        description: '151: ',
+        description: '151: w disappeared before o, œ, and ǭ',
       },
       /*
       {
         name: 'r152',
-        label: '[] > []',
+        label: '[{rl}ɣV] > [{rl}iV]',
         type: 'boolean',
         default: true,
-        description: '152: ',
+        description: '152: rɣ, lɣ usually became ri, li before a vowel',
       },
       /*
       {
         name: 'r153',
-        label: '[] > []',
+        label: '[ji] > [j]',
         type: 'boolean',
         default: true,
-        description: '153: ',
+        description: '153: the sequence ji became j',
       },
       /*
       {
         name: 'r154',
-        label: '[] > []',
+        label: '[-Sɣ] > [-Sø]',
         type: 'boolean',
         default: true,
-        description: '154: ',
+        description: '154: ɣ disappeared at the end of a polysyllable',
       },
       /*
       {
         name: 'r155',
-        label: '[] > []',
+        label: '[-{^S}{ae}ɣ] > [-{^S}{ae}a]',
         type: 'boolean',
         default: true,
-        description: '155: ',
+        description: '155: ɣ became a after at the end of monosyllables following a and e',
       },
       /*
       {
         name: 'r156',
-        label: '[] > []',
+        label: '[{rl}ɣV] > [{rl}iV]',
         type: 'boolean',
         default: true,
-        description: '156: ',
+        description: '156: rɣ, lɣ usually became ri, li before a vowel',
       },
       /*
       {
         name: 'r157',
-        label: '[] > []',
+        label: '[lð] > [ll]',
         type: 'boolean',
         default: true,
-        description: '157: ',
+        description: '157: the sequence lð became ll',
       },
       /*
       {
         name: 'r158',
-        label: '[] > []',
+        label: '[nl] > [ll]',
         type: 'boolean',
         default: true,
-        description: '158: ',
+        description: '158: the sequence nl sometimes became ll but sometimes remained',
       },
       /*
       {
         name: 'r159',
-        label: '[] > []',
+        label: '[V̄nn] > [V̄øn]',
         type: 'boolean',
         default: true,
-        description: '159: ',
+        description: '159: n might disappear after a long vowel before another n',
       },
       /*
       {
         name: 'r160',
-        label: '[] > []',
+        label: '[lr] > [ll]',
         type: 'boolean',
         default: true,
-        description: '160: ',
+        description: '160: lr normally became ll in suffixes, but not in compounds',
       },
       /*
       {
         name: 'r161',
-        label: '[] > []',
+        label: '[rl] > [ll]',
         type: 'boolean',
         default: true,
-        description: '161: ',
+        description: '161: the sequence rl sometimes became ll',
       },
       /*
       {
         name: 'r162',
-        label: '[] > []',
+        label: '[rr] > [r]',
         type: 'boolean',
         default: true,
-        description: '162: ',
+        description: '162: the sequence rr sometimes simplified to r but often remained',
       },
       /*
       {
         name: 'r163',
-        label: '[] > []',
+        label: '[ç] > [h]',
         type: 'boolean',
         default: true,
-        description: '163: ',
+        description: '163: ç became h',
       },
       /*
       {
         name: 'r164',
-        label: '[] > []',
+        label: '[uu|jj|ii] > [ū|ӯ|ī]',
         type: 'boolean',
         default: true,
-        description: '164: ',
+        description: '164: uu, yy and ii became ū, ӯ and ī',
       },
       /*
       {
@@ -2698,15 +2698,23 @@ export const sindarinRules = {
         label: '[] > []',
         type: 'boolean',
         default: true,
-        description: '165: ',
+        description: '165: accent shift',
       },
       /*
       {
         name: 'r166',
-        label: '[] > []',
+        label: '[ī|ū{^nlr}] > [i|u]',
         type: 'boolean',
         default: true,
-        description: '166: ',
+        description: '166: ī and ū became short, except before n, l, or r',
+      },
+      /*
+      {
+        name: 'r167',
+        label: '[{VV̄}C?^C] > [{V̄}C?]',
+        type: 'boolean',
+        default: true,
+        description: '167: all vowels became long in monosyllables when followed by a single consonant or none, otherwise, they were short',
       },
       */
     ],
