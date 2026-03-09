@@ -2497,7 +2497,8 @@ export const sindarinRules = {
         if (charIndex === 0) continue;
 
         // Skip if m is followed by m, b, or p (mm, mb, mp exceptions)
-        if (['m', 'b', 'p'].includes(nextChar)) {
+        // --> The "d" is an extra addition because of "glamdring". It's not on Eldamo.
+        if (['m', 'b', 'p', 'd'].includes(nextChar)) {
           continue;
         }
         // Apply change when m follows a vowel, liquid (l, r), or ð

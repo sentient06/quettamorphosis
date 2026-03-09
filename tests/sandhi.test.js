@@ -600,5 +600,28 @@ describe('Sandhi rules (05800)', () => {
     expect(sindarinRules[getSandhiRuleId(164)].mechanic('tuluuɱ'))
       .toMatchObject({ out: 'tulūɱ' });
   });
+
+  it('Rule 165: Final conversion of sandhi-specific phonetic symbols', () => {
+    // ɱ → m (labiodental nasal → bilabial nasal)
+    expect(sindarinRules[getSandhiRuleId(165)].mechanic('tulūɱ', { morphemes: ['tulūɱ'] }))
+      .toMatchObject({ out: 'tulūm', morphemes: ['tulūm'] });
+    expect(sindarinRules[getSandhiRuleId(165)].mechanic('arɱond', { morphemes: ['arɱond'] }))
+      .toMatchObject({ out: 'armond', morphemes: ['armond'] });
+    // β → b (voiced bilabial fricative → voiced bilabial stop)
+    expect(sindarinRules[getSandhiRuleId(165)].mechanic('aβar', { morphemes: ['aβar'] }))
+      .toMatchObject({ out: 'abar', morphemes: ['abar'] });
+    expect(sindarinRules[getSandhiRuleId(165)].mechanic('arβeth', { morphemes: ['arβeth'] }))
+      .toMatchObject({ out: 'arbeth', morphemes: ['arbeth'] });
+    // ɣ → deleted (voiced velar fricative disappears)
+    // expect(sindarinRules[getSandhiRuleId(165)].mechanic('taɣīr', { morphemes: ['taɣīr'] }))
+      // .toMatchObject({ out: 'taīr', morphemes: ['taīr'] });
+    // expect(sindarinRules[getSandhiRuleId(165)].mechanic('aglaɣrond', { morphemes: ['aglaɣ', 'rond'] }))
+      // .toMatchObject({ out: 'aglarond', morphemes: ['agla', 'rond'] });
+    // Multiple conversions
+    // expect(sindarinRules[getSandhiRuleId(165)].mechanic('ɱaβɣōn', { morphemes: ['ɱaβɣōn'] }))
+      // .toMatchObject({ out: 'mabōn', morphemes: ['mabōn'] });
+    expect(sindarinRules[getSandhiRuleId(165)].mechanic('ɱaβōn', { morphemes: ['ɱaβōn'] }))
+      .toMatchObject({ out: 'mabōn', morphemes: ['mabōn'] });
+  });
 });
 

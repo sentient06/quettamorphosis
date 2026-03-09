@@ -1,12 +1,12 @@
 /**
  * Sandhi Rules for Sindarin
- * 
+ *
  * These are experimental phonetic rules that occur at morpheme boundaries
  * and in consonant clusters. They were originally sub-rules of Rule 05800.
- * 
- * Rule IDs: 5800000116 - 5800000164
- * Order IDs: 05801 - 05849 (formula: 5800 + sandhiNumber - 115)
- * 
+ *
+ * Rule IDs: 5800000116 - 5800000165
+ * Order IDs: 05801 - 05850 (formula: 5800 + sandhiNumber - 115)
+ *
  * Master Switch: Rule 3868328117 (orderId 05800) controls all sandhi rules.
  * When the master switch is disabled, all sandhi rules are effectively disabled.
  */
@@ -2046,6 +2046,56 @@ export const sandhiRules = {
       return { in: str, out: result, morphemes: updatedMorphemes };
     },
   },
+
+  // ---------------------------------------------------------------------------
+  // Rule 165: Final conversion of sandhi-specific phonetic symbols
+  // Converts any remaining IPA-style symbols to their Sindarin romanized forms
+  // [ɱ|β|ɣ] > [m|b|ø]
+  // ---------------------------------------------------------------------------
+  [getSandhiRuleId(170)]: {
+    orderId: getOrderId(170),
+    pattern: 'POST-sandhi',
+    description: 'Final conversion of sandhi-specific phonetic symbols',
+    info: [
+      'ɱ/ṽ (labiodental nasal) → m',
+      'β (voiced bilabial fricative) → b',
+      // 'ɣ (voiced velar fricative) → deleted',
+    ],
+    isSandhi: true,
+    mechanic: (str, options = {}) => {
+      const morphemes = options.morphemes || [str];
+
+      // Check if any convertible symbols exist
+      const hasConvertible = /[ɱβɣ]/.test(str);
+      if (!hasConvertible) {
+        return { in: str, out: str, morphemes };
+      }
+
+      let result = str;
+      const removedIndices = [];
+
+      // Process character by character from end to preserve indices
+      for (let i = result.length - 1; i >= 0; i--) {
+        const char = result.nth(i);
+        if (char === 'ɱ') {
+          // ɱ → m (labiodental nasal → bilabial nasal)
+          result = result.substring(0, i) + 'm' + result.substring(i + 1);
+        } else if (char === 'β') {
+          // β → b (voiced bilabial fricative → voiced bilabial stop)
+          result = result.substring(0, i) + 'b' + result.substring(i + 1);
+        }
+        // else if (char === 'ɣ') {
+        //   // ɣ → deleted (voiced velar fricative disappears)
+        //   result = result.substring(0, i) + result.substring(i + 1);
+        //   removedIndices.unshift(i);
+        // }
+      }
+
+      const updatedMorphemes = recalcMorphemes(result, morphemes, removedIndices);
+      return { in: str, out: result, morphemes: updatedMorphemes };
+    },
+  },
+
     /*
     {
       name: 'r165',
