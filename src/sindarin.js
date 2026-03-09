@@ -2516,7 +2516,6 @@ export const sindarinRules = {
         default: true,
         description: '142-5: nd and mb became the nasals n and m after nasals following nonliquids.',
       },
-      /*
       {
         name: 'r143',
         label: '[stC] > [sC]',
@@ -2524,7 +2523,6 @@ export const sindarinRules = {
         default: true,
         description: '143: st simplifies to s before a consonant',
       },
-      /*
       {
         name: 'r144',
         label: '[s{lr}] > [θ{lr}]',
@@ -2532,7 +2530,6 @@ export const sindarinRules = {
         default: true,
         description: '144: s became θ before liquids l and r',
       },
-      /*
       {
         name: 'r145',
         label: '[sθ] > [st]',
@@ -2540,7 +2537,6 @@ export const sindarinRules = {
         default: true,
         description: '145: θ became t after s',
       },
-      /*
       {
         name: 'r146',
         label: '[n{lr}|n{lr}Vd}] > [nd{lr}|n{lr}Vd]',
@@ -2548,7 +2544,6 @@ export const sindarinRules = {
         default: true,
         description: '146: n became nd before a following liquid, unless when the following consonant is d',
       },
-      /*
       {
         name: 'r147',
         label: '[ŋ{lrw}] > [ŋg{lrw}]',
@@ -2556,7 +2551,6 @@ export const sindarinRules = {
         default: true,
         description: '147: ŋ became ŋg before l, r, w',
       },
-      /*
       {
         name: 'r148',
         label: '[ndl] > [ŋgl]',
@@ -2564,7 +2558,6 @@ export const sindarinRules = {
         default: true,
         description: '148: nd became ŋg before l',
       },
-      /*
       {
         name: 'r149',
         label: '[wṽ] > [wø]',
@@ -2572,7 +2565,6 @@ export const sindarinRules = {
         default: true,
         description: '149: ṽ disappeared after w',
       },
-      /*
       {
         name: 'r150',
         label: '[lṽ] > [lw]',
@@ -3523,6 +3515,281 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 142-5', result, morphemes);
         } else {
           console.log(' - Sandhi rule 142-5 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 143: st simplifies to s before a consonant
+      // [stC] > [sC]
+      const rule143 = options.r143 || false;
+      if (rule143) {
+        const occurrences = findAllOf(['st'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            // Check if followed by a consonant (nextChar is the char after 'st', i.e. at charIndex + 2)
+            if (nextChar && nextChar.isConsonant()) {
+              // Remove the 't' at charIndex + 1
+              result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
+              removedIndices.unshift(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 143', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 143 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 144: s became θ before liquids l and r
+      // [s{lr}] > [θ{lr}]
+      const rule144 = options.r144 || false;
+      if (rule144) {
+        const occurrences = findAllOf(['s'], result);
+        if (occurrences.length > 0) {
+          const liquidConsonants = ['l', 'r', 'ꝉ', 'ꞧ'];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (liquidConsonants.includes(nextChar)) {
+              result = result.substring(0, charIndex) + 'θ' + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 144', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 144 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 145: θ became t after s
+      // [sθ] > [st]
+      const rule145 = options.r145 || false;
+      if (rule145) {
+        const occurrences = findAllOf(['sθ'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            // Replace θ (at charIndex + 1) with t
+            result = result.substring(0, charIndex + 1) + 't' + result.substring(charIndex + 2);
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 145', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 145 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 146: n became nd before a following liquid, unless when the following consonant is d
+      // [n{lr}] > [nd{lr}], except when pattern is n + liquid + vowel/diphthong + d
+      const rule146 = options.r146 || false;
+      if (rule146) {
+        const occurrences = findAllOf(['n'], result);
+        if (occurrences.length > 0) {
+          const liquidConsonants = ['l', 'r', 'ꝉ', 'ꞧ'];
+          const insertedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (liquidConsonants.includes(nextChar)) {
+              // Check for exception: liquid + vowel/diphthong + d
+              // Look at characters after the liquid (charIndex + 1 is the liquid)
+              const afterLiquid = result.nth(charIndex + 2);
+              const afterAfterLiquid = result.nth(charIndex + 3);
+              // Check if it's a vowel followed by 'd', or a diphthong ending in 'd'
+              let isException = false;
+              if (afterLiquid && afterLiquid.isVowel()) {
+                // Check for diphthong (two vowels) then d, or single vowel then d
+                if (afterAfterLiquid && afterAfterLiquid.isVowel()) {
+                  // Diphthong case: check char at +4 for 'd'
+                  const charAfterDiphthong = result.nth(charIndex + 4);
+                  if (charAfterDiphthong === 'd') {
+                    isException = true;
+                  }
+                } else if (afterAfterLiquid === 'd') {
+                  // Single vowel + d
+                  isException = true;
+                }
+              }
+              if (!isException) {
+                // Insert 'd' after 'n' (at charIndex + 1)
+                result = result.substring(0, charIndex + 1) + 'd' + result.substring(charIndex + 1);
+                insertedIndices.unshift(charIndex + 1);
+              }
+            }
+          }
+          // For insertions, we need to adjust morphemes differently
+          // recalcMorphemes handles removals; for insertions at morpheme boundary, update morpheme
+          if (insertedIndices.length > 0) {
+            // Recalculate morphemes accounting for inserted characters
+            let offset = 0;
+            const newMorphemes = [...morphemes];
+            let currentPos = 0;
+            for (let m = 0; m < newMorphemes.length; m++) {
+              const morphemeEnd = currentPos + newMorphemes[m].length;
+              // Check if any insertion happened at end of this morpheme
+              for (const insertIdx of insertedIndices) {
+                if (insertIdx === morphemeEnd + offset) {
+                  // The 'd' was inserted right after this morpheme ends, so add it to this morpheme
+                  newMorphemes[m] = newMorphemes[m] + 'd';
+                  offset++;
+                }
+              }
+              currentPos = morphemeEnd;
+            }
+            morphemes = newMorphemes;
+          }
+          console.log(' - Sandhi rule 146', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 146 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 147: ŋ became ŋg before l, r, w
+      // [ŋ{lrw}] > [ŋg{lrw}]
+      // If ŋ is at end of morpheme, g goes to start of next morpheme
+      // If ŋ is within a morpheme, g is inserted within that morpheme
+      const rule147 = options.r147 || false;
+      if (rule147) {
+        const occurrences = findAllOf(['ŋ'], result);
+        if (occurrences.length > 0) {
+          const targetConsonants = ['l', 'r', 'w'];
+          const insertedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (targetConsonants.includes(nextChar)) {
+              // Insert 'g' after ŋ (before the liquid/w)
+              result = result.substring(0, charIndex + 1) + 'g' + result.substring(charIndex + 1);
+              insertedIndices.unshift(charIndex + 1);
+            }
+          }
+          // Update morphemes based on where insertion happened
+          if (insertedIndices.length > 0) {
+            let offset = 0;
+            const newMorphemes = [...morphemes];
+            let currentPos = 0;
+            for (let m = 0; m < newMorphemes.length; m++) {
+              const morphemeStart = currentPos;
+              const morphemeEnd = currentPos + newMorphemes[m].length;
+              for (let j = 0; j < insertedIndices.length; j++) {
+                const insertIdx = insertedIndices[j];
+                const adjustedInsert = insertIdx - offset;
+                // If insertion is at the boundary (end of this morpheme = start of next)
+                if (adjustedInsert === morphemeEnd && m < newMorphemes.length - 1) {
+                  // g goes to start of next morpheme
+                  newMorphemes[m + 1] = 'g' + newMorphemes[m + 1];
+                  offset++;
+                } else if (adjustedInsert > morphemeStart && adjustedInsert < morphemeEnd) {
+                  // Insertion is within this morpheme
+                  const localPos = adjustedInsert - morphemeStart;
+                  newMorphemes[m] = newMorphemes[m].substring(0, localPos) + 'g' + newMorphemes[m].substring(localPos);
+                  offset++;
+                }
+              }
+              currentPos = morphemeEnd;
+            }
+            morphemes = newMorphemes;
+          }
+          console.log(' - Sandhi rule 147', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 147 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 148: nd became ŋg before l (changes both morphemes: nd→ŋ at end, g→ at start of next)
+      // [ndl] > [ŋgl]
+      const rule148 = options.r148 || false;
+      if (rule148) {
+        const occurrences = findAllOf(['nd'], result);
+        if (occurrences.length > 0) {
+          const modifications = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, nextChar } = occurrences[i];
+            if (nextChar === 'l') {
+              // Replace 'nd' with 'ŋg' (same length, so no index adjustment needed)
+              result = result.substring(0, charIndex) + 'ŋg' + result.substring(charIndex + 2);
+              modifications.push(charIndex);
+            }
+          }
+          // Update morphemes: first morpheme loses 'd' and gains nothing (nd→ŋ),
+          // second morpheme gains 'g' at start (l→gl)
+          if (modifications.length > 0) {
+            const newMorphemes = [...morphemes];
+            let currentPos = 0;
+            for (let m = 0; m < newMorphemes.length - 1; m++) {
+              const morphemeEnd = currentPos + newMorphemes[m].length;
+              for (const modIdx of modifications) {
+                // If 'nd' was at end of this morpheme (charIndex is at 'n', charIndex+1 is 'd')
+                if (modIdx + 2 === morphemeEnd) {
+                  // The 'd' became 'g' but it's now at start of next morpheme
+                  // First morpheme: remove last char ('d') and replace second-to-last with 'ŋ'
+                  newMorphemes[m] = newMorphemes[m].slice(0, -2) + 'ŋ';
+                  // Second morpheme: add 'g' at start
+                  newMorphemes[m + 1] = 'g' + newMorphemes[m + 1];
+                }
+              }
+              currentPos = morphemeEnd;
+            }
+            morphemes = newMorphemes;
+          }
+          console.log(' - Sandhi rule 148', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 148 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 149: ṽ disappeared after w
+      // [wṽ] > [wø]
+      const rule149 = options.r149 || false;
+      if (rule149) {
+        const occurrences = findAllOf(['wṽ'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            // Remove ṽ (at charIndex + 1)
+            result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
+            removedIndices.unshift(charIndex + 1);
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 149', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 149 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 150: lṽ sometimes became lw
+      // [lṽ] > [lw], except when pattern is non-liquid consonant + a + l + ṽ
+      const rule150 = options.r150 || false;
+      if (rule150) {
+        const occurrences = findAllOf(['lṽ'], result);
+        if (occurrences.length > 0) {
+          const liquidConsonants = ['l', 'r', 'ꝉ', 'ꞧ'];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            // Check for exception: non-liquid consonant + 'a' + 'l' + 'ṽ'
+            // charIndex is at 'l', so we check charIndex-1 for 'a' and charIndex-2 for consonant
+            const prevChar = result.nth(charIndex - 1);
+            const prevPrevChar = result.nth(charIndex - 2);
+            const isException = prevChar === 'a' &&
+                                prevPrevChar &&
+                                prevPrevChar.isConsonant() &&
+                                !liquidConsonants.includes(prevPrevChar);
+            if (!isException) {
+              // Replace ṽ with w (at charIndex + 1)
+              result = result.substring(0, charIndex + 1) + 'w' + result.substring(charIndex + 2);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 150', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 150 skipped');
         }
       }
 
