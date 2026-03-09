@@ -1324,24 +1324,24 @@ describe('Sindarin rules', () => {
         .toMatchObject({ out: 'gwairaun', morphemes: ['gwai', 'raun'] });
     });
 
-    it('Rule 127: m became ṽ after a vowel, semivowel or liquid', () => {
-      expect(sindarinRules['3868328117'].mechanic('daum', { r127: true }).out).toBe('dauṽ');
-      expect(sindarinRules['3868328117'].mechanic('kaim', { r127: true }).out).toBe('kaiṽ');
-      expect(sindarinRules['3868328117'].mechanic('tuim', { r127: true }).out).toBe('tuiṽ');
-      expect(sindarinRules['3868328117'].mechanic('rīm', { r127: true }).out).toBe('rīṽ');
-      expect(sindarinRules['3868328117'].mechanic('dūm', { r127: true }).out).toBe('dūṽ');
-      expect(sindarinRules['3868328117'].mechanic('ɸalm', { r127: true }).out).toBe('ɸalṽ');
-      expect(sindarinRules['3868328117'].mechanic('jlm', { r127: true }).out).toBe('jlṽ');
-      expect(sindarinRules['3868328117'].mechanic('parm', { r127: true }).out).toBe('parṽ');
-      expect(sindarinRules['3868328117'].mechanic('helemorn', { r127: true }).out).toBe('heleṽorn');
-      expect(sindarinRules['3868328117'].mechanic('ɸormen', { r127: true }).out).toBe('ɸorṽen');
-      expect(sindarinRules['3868328117'].mechanic('galmorn', { r127: true }).out).toBe('galṽorn');
-      expect(sindarinRules['3868328117'].mechanic('mallmegil', { r127: true }).out).toBe('mallṽegil');
-      expect(sindarinRules['3868328117'].mechanic('dūmwaθ', { r127: true }).out).toBe('dūṽwaθ');
-      expect(sindarinRules['3868328117'].mechanic('lemn', { r127: true }).out).toBe('leṽn');
-      expect(sindarinRules['3868328117'].mechanic('udumn', { r127: true }).out).toBe('uduṽn');
-      expect(sindarinRules['3868328117'].mechanic('gwelwmen', { r127: true }).out).toBe('gwelwṽen');
-      expect(sindarinRules['3868328117'].mechanic('imedui', { r127: true }).out).toBe('iṽedui');
+    it('Rule 127: m became ɱ after a vowel, semivowel or liquid', () => {
+      expect(sindarinRules['3868328117'].mechanic('daum', { r127: true }).out).toBe('dauɱ');
+      expect(sindarinRules['3868328117'].mechanic('kaim', { r127: true }).out).toBe('kaiɱ');
+      expect(sindarinRules['3868328117'].mechanic('tuim', { r127: true }).out).toBe('tuiɱ');
+      expect(sindarinRules['3868328117'].mechanic('rīm', { r127: true }).out).toBe('rīɱ');
+      expect(sindarinRules['3868328117'].mechanic('dūm', { r127: true }).out).toBe('dūɱ');
+      expect(sindarinRules['3868328117'].mechanic('ɸalm', { r127: true }).out).toBe('ɸalɱ');
+      expect(sindarinRules['3868328117'].mechanic('jlm', { r127: true }).out).toBe('jlɱ');
+      expect(sindarinRules['3868328117'].mechanic('parm', { r127: true }).out).toBe('parɱ');
+      expect(sindarinRules['3868328117'].mechanic('helemorn', { r127: true }).out).toBe('heleɱorn');
+      expect(sindarinRules['3868328117'].mechanic('ɸormen', { r127: true }).out).toBe('ɸorɱen');
+      expect(sindarinRules['3868328117'].mechanic('galmorn', { r127: true }).out).toBe('galɱorn');
+      expect(sindarinRules['3868328117'].mechanic('mallmegil', { r127: true }).out).toBe('mallɱegil');
+      expect(sindarinRules['3868328117'].mechanic('dūmwaθ', { r127: true }).out).toBe('dūɱwaθ');
+      expect(sindarinRules['3868328117'].mechanic('lemn', { r127: true }).out).toBe('leɱn');
+      expect(sindarinRules['3868328117'].mechanic('udumn', { r127: true }).out).toBe('uduɱn');
+      expect(sindarinRules['3868328117'].mechanic('gwelwmen', { r127: true }).out).toBe('gwelwɱen');
+      expect(sindarinRules['3868328117'].mechanic('imedui', { r127: true }).out).toBe('iɱedui');
       // Same:
       expect(sindarinRules['3868328117'].mechanic('raθmallen', { r127: true }).out).toBe('raθmallen');
       expect(sindarinRules['3868328117'].mechanic('annūmminaſ', { r127: true }).out).toBe('annūmminaſ');
@@ -1683,20 +1683,20 @@ describe('Sindarin rules', () => {
     });
 
     it('Rule 149: ṽ disappeared after w', () => {
-      expect(sindarinRules['3868328117'].mechanic('gwelwṽen', { r149: true, morphemes: ['gwel', 'wṽen'] }))
+      expect(sindarinRules['3868328117'].mechanic('gwelwɱen', { r149: true, morphemes: ['gwel', 'wɱen'] }))
         .toMatchObject({ out: 'gwelwen', morphemes: ['gwel', 'wen'] });
     });
 
     it('Rule 150: lṽ sometimes became lw', () => {
-      expect(sindarinRules['3868328117'].mechanic('lalṽen', { r150: true, morphemes: ['lal', 'ṽen'] }))
+      expect(sindarinRules['3868328117'].mechanic('lalɱen', { r150: true, morphemes: ['lal', 'ɱen'] }))
         .toMatchObject({ out: 'lalwen', morphemes: ['lal', 'wen'] });
-      expect(sindarinRules['3868328117'].mechanic('lalṽorn', { r150: true, morphemes: ['lal', 'ṽorn'] }))
+      expect(sindarinRules['3868328117'].mechanic('lalɱorn', { r150: true, morphemes: ['lal', 'ɱorn'] }))
         .toMatchObject({ out: 'lalworn', morphemes: ['lal', 'worn'] });
-      expect(sindarinRules['3868328117'].mechanic('gilṽen', { r150: true, morphemes: ['gil', 'ṽen'] }))
+      expect(sindarinRules['3868328117'].mechanic('gilɱen', { r150: true, morphemes: ['gil', 'ɱen'] }))
         .toMatchObject({ out: 'gilwen', morphemes: ['gil', 'wen'] });
-      // Exception: doesn't change when pattern is non-liquid consonant + a + l + ṽ
-      expect(sindarinRules['3868328117'].mechanic('galṽorn', { r150: true, morphemes: ['gal', 'ṽorn'] }))
-        .toMatchObject({ out: 'galṽorn', morphemes: ['gal', 'ṽorn'] });
+      // Exception: doesn't change when pattern is non-liquid consonant + a + l + ɱ
+      expect(sindarinRules['3868328117'].mechanic('galɱorn', { r150: true, morphemes: ['gal', 'ɱorn'] }))
+        .toMatchObject({ out: 'galɱorn', morphemes: ['gal', 'ɱorn'] });
     });
 
     it('Rule 151: w disappeared before o, œ, and ǭ', () => {
@@ -1774,6 +1774,59 @@ describe('Sindarin rules', () => {
     it('Rule 159: n disappeared after a long vowel before another n', () => {
       expect(sindarinRules['3868328117'].mechanic('nīnnimp', { r159: true, morphemes: ['nīn', 'nimp'] }))
         .toMatchObject({ out: 'nīnimp', morphemes: ['nī', 'nimp'] });
+    });
+
+    it('Rule 160: lr became ll in suffixes, but not in compounds', () => {
+      // Suffixes: longer first morpheme → lr becomes ll
+      expect(sindarinRules['3868328117'].mechanic('eðelrimb', { r160: true, morphemes: ['eðel', 'rimb'] }))
+        .toMatchObject({ out: 'eðellimb', morphemes: ['eðel', 'limb'] });
+      expect(sindarinRules['3868328117'].mechanic('eðelren', { r160: true, morphemes: ['eðel', 'ren'] }))
+        .toMatchObject({ out: 'eðellen', morphemes: ['eðel', 'len'] });
+      expect(sindarinRules['3868328117'].mechanic('kalrond', { r160: true, morphemes: ['kal', 'rond'] }))
+        .toMatchObject({ out: 'kallond', morphemes: ['kal', 'lond'] });
+      // Compounds: short first morpheme (2 chars) → stays lr
+      expect(sindarinRules['3868328117'].mechanic('elrond', { r160: true, morphemes: ['el', 'rond'] }))
+        .toMatchObject({ out: 'elrond', morphemes: ['el', 'rond'] });
+      expect(sindarinRules['3868328117'].mechanic('elroſ', { r160: true, morphemes: ['el', 'roſ'] }))
+        .toMatchObject({ out: 'elroſ', morphemes: ['el', 'roſ'] });
+    });
+
+    it('Rule 161: rl sometimes became ll', () => {
+      // Changes when vowel before r is 'e'
+      expect(sindarinRules['3868328117'].mechanic('glewerlind', { r161: true, morphemes: ['glewer', 'lind'] }))
+        .toMatchObject({ out: 'glewellind', morphemes: ['glewel', 'lind'] });
+      expect(sindarinRules['3868328117'].mechanic('erloθ', { r161: true, morphemes: ['er', 'loθ'] }))
+        .toMatchObject({ out: 'elloθ', morphemes: ['el', 'loθ'] });
+      // Exception: doesn't change when vowel before r is 'o'
+      expect(sindarinRules['3868328117'].mechanic('forlond', { r161: true, morphemes: ['for', 'lond'] }))
+        .toMatchObject({ out: 'forlond', morphemes: ['for', 'lond'] });
+    });
+
+    it('Rule 162: rr sometimes simplified to r', () => {
+      // Changes when vowel before r is diphthong ending (like 'ai') or 'a'
+      expect(sindarinRules['3868328117'].mechanic('airrandīr', { r162: true, morphemes: ['air', 'randīr'] }))
+        .toMatchObject({ out: 'airandīr', morphemes: ['ai', 'randīr'] });
+      expect(sindarinRules['3868328117'].mechanic('aglarrond', { r162: true, morphemes: ['aglar', 'rond'] }))
+        .toMatchObject({ out: 'aglarond', morphemes: ['agla', 'rond'] });
+      // Exception: doesn't change when vowel before r is 'e'
+      expect(sindarinRules['3868328117'].mechanic('telerrimb', { r162: true, morphemes: ['teler', 'rimb'] }))
+        .toMatchObject({ out: 'telerrimb', morphemes: ['teler', 'rimb'] });
+    });
+
+    it('Rule 163: ç became h', () => {
+      expect(sindarinRules['3868328117'].mechanic('çast', { r163: true }))
+        .toMatchObject({ out: 'hast' });
+      expect(sindarinRules['3868328117'].mechanic('çūl', { r163: true }))
+        .toMatchObject({ out: 'hūl' });
+    });
+
+    it('Rule 164: uu, jj and ii became ū, ӯ and ī', () => {
+      expect(sindarinRules['3868328117'].mechanic('θiin', { r164: true }))
+        .toMatchObject({ out: 'θīn' });
+      expect(sindarinRules['3868328117'].mechanic('ljjg', { r164: true }))
+        .toMatchObject({ out: 'lӯg' });
+      expect(sindarinRules['3868328117'].mechanic('tuluuɱ', { r164: true }))
+        .toMatchObject({ out: 'tulūɱ' });
     });
 
   });

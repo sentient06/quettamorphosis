@@ -2372,10 +2372,10 @@ export const sindarinRules = {
       },
       {
         name: 'r127',
-        label: '[{Vwjrl}m] > [{Vwjrl}ṽ]',
+        label: '[{Vwjrl}m] > [{Vwjrl}ɱ]',
         type: 'boolean',
         default: true,
-        description: '127: m became ṽ after a vowel, semivowel or liquid',
+        description: '127: m became ɱ after a vowel, semivowel or liquid',
       },
       {
         name: 'r128',
@@ -2563,14 +2563,14 @@ export const sindarinRules = {
         label: '[wṽ] > [wø]',
         type: 'boolean',
         default: true,
-        description: '149: ṽ disappeared after w',
+        description: '149: ɱ disappeared after w',
       },
       {
         name: 'r150',
         label: '[lṽ] > [lw]',
         type: 'boolean',
         default: true,
-        description: '150: lṽ sometimes became lw',
+        description: '150: lɱ sometimes became lw',
       },
       {
         name: 'r151',
@@ -2635,7 +2635,6 @@ export const sindarinRules = {
         default: true,
         description: '159: n might disappear after a long vowel before another n',
       },
-      /*
       {
         name: 'r160',
         label: '[lr] > [ll]',
@@ -2643,7 +2642,6 @@ export const sindarinRules = {
         default: true,
         description: '160: lr normally became ll in suffixes, but not in compounds',
       },
-      /*
       {
         name: 'r161',
         label: '[rl] > [ll]',
@@ -2651,7 +2649,6 @@ export const sindarinRules = {
         default: true,
         description: '161: the sequence rl sometimes became ll',
       },
-      /*
       {
         name: 'r162',
         label: '[rr] > [r]',
@@ -2659,7 +2656,6 @@ export const sindarinRules = {
         default: true,
         description: '162: the sequence rr sometimes simplified to r but often remained',
       },
-      /*
       {
         name: 'r163',
         label: '[ç] > [h]',
@@ -2667,7 +2663,6 @@ export const sindarinRules = {
         default: true,
         description: '163: ç became h',
       },
-      /*
       {
         name: 'r164',
         label: '[uu|jj|ii] > [ū|ӯ|ī]',
@@ -2984,8 +2979,8 @@ export const sindarinRules = {
       }
 
       // ------------------------------------------------------------------------------------------
-      // Rule 127: m became ṽ after a vowel, semivowel or liquid
-      // [{Vwjrl}m] > [{Vwjrl}ṽ]
+      // Rule 127: m became ɱ after a vowel, semivowel or liquid
+      // [{Vwjrl}m] > [{Vwjrl}ɱ]
       const rule127 = options.r127 || false;
       if (rule127) {
         const occurrences = findAllOf(['m'], str);
@@ -2998,7 +2993,7 @@ export const sindarinRules = {
               if (skipLAndI) continue;
               // - - - - - - - - - - -
               if (nextChar !== 'm') {
-                result = result.substring(0, charIndex) + 'ṽ' + result.substring(charIndex + 1);
+                result = result.substring(0, charIndex) + 'ɱ' + result.substring(charIndex + 1);
               }
             }
           }
@@ -3734,16 +3729,16 @@ export const sindarinRules = {
       }
 
       // ------------------------------------------------------------------------------------------
-      // Rule 149: ṽ disappeared after w
-      // [wṽ] > [wø]
+      // Rule 149: ɱ disappeared after w
+      // [wɱ] > [wø]
       const rule149 = options.r149 || false;
       if (rule149) {
-        const occurrences = findAllOf(['wṽ'], result);
+        const occurrences = findAllOf(['wɱ'], result);
         if (occurrences.length > 0) {
           const removedIndices = [];
           for (let i = occurrences.length - 1; i >= 0; i--) {
             const { charIndex } = occurrences[i];
-            // Remove ṽ (at charIndex + 1)
+            // Remove ɱ (at charIndex + 1)
             result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
             removedIndices.unshift(charIndex + 1);
           }
@@ -3755,25 +3750,25 @@ export const sindarinRules = {
       }
 
       // ------------------------------------------------------------------------------------------
-      // Rule 150: lṽ sometimes became lw
-      // [lṽ] > [lw], except when pattern is non-liquid consonant + a + l + ṽ
+      // Rule 150: lɱ sometimes became lw
+      // [lɱ] > [lw], except when pattern is non-liquid consonant + a + l + ɱ
       /*
        * HYPOTHESIS for "sometimes":
-       * The change lṽ → lw is blocked when preceded by a non-liquid consonant + 'a'.
-       * Examples: galṽorn stays galṽorn (g + a + lṽ), but lalṽen → lalwen (l + a + lṽ).
+       * The change lɱ → lw is blocked when preceded by a non-liquid consonant + 'a'.
+       * Examples: galɱorn stays galɱorn (g + a + lɱ), but lalɱen → lalwen (l + a + lɱ).
        * Reasoning: The back vowel 'a' after a stop consonant (like 'g') may create a
-       * phonological environment that preserves the labial fricative ṽ, whereas a
-       * preceding liquid (like 'l') or front vowel (like 'i' in gilṽen) allows the
+       * phonological environment that preserves the labial fricative ɱ, whereas a
+       * preceding liquid (like 'l') or front vowel (like 'i' in gilɱen) allows the
        * simplification to 'w'.
        */
       const rule150 = options.r150 || false;
       if (rule150) {
-        const occurrences = findAllOf(['lṽ'], result);
+        const occurrences = findAllOf(['lɱ'], result);
         if (occurrences.length > 0) {
           const liquidConsonants = ['l', 'r', 'ꝉ', 'ꞧ'];
           for (let i = occurrences.length - 1; i >= 0; i--) {
             const { charIndex } = occurrences[i];
-            // Check for exception: non-liquid consonant + 'a' + 'l' + 'ṽ'
+            // Check for exception: non-liquid consonant + 'a' + 'l' + 'ɱ'
             // charIndex is at 'l', so we check charIndex-1 for 'a' and charIndex-2 for consonant
             const prevChar = result.nth(charIndex - 1);
             const prevPrevChar = result.nth(charIndex - 2);
@@ -3782,7 +3777,7 @@ export const sindarinRules = {
                                 prevPrevChar.isConsonant() &&
                                 !liquidConsonants.includes(prevPrevChar);
             if (!isException) {
-              // Replace ṽ with w (at charIndex + 1)
+              // Replace ɱ with w (at charIndex + 1)
               result = result.substring(0, charIndex + 1) + 'w' + result.substring(charIndex + 2);
             }
           }
@@ -4042,6 +4037,144 @@ export const sindarinRules = {
           }
         } else {
           console.log(' - Sandhi rule 159 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 160: lr normally became ll in suffixes, but not in compounds
+      // [lr] > [ll]
+      /*
+       * HYPOTHESIS for "suffixes vs compounds":
+       * The change lr → ll occurs when the first morpheme is a longer root (3+ chars)
+       * that takes a suffix. It doesn't occur in "true compounds" where both morphemes
+       * are short independent roots (like "el" + "rond").
+       * Short monosyllabic roots (2 chars like "el") combining with another root
+       * preserve the 'r', treating it as a compound rather than suffixation.
+       */
+      const rule160 = options.r160 || false;
+      if (rule160) {
+        // Find morpheme boundary where first ends with 'l' and second starts with 'r'
+        for (let m = 0; m < morphemes.length - 1; m++) {
+          const firstMorph = morphemes[m];
+          const secondMorph = morphemes[m + 1];
+          if (firstMorph.endsWith('l') && secondMorph.startsWith('r')) {
+            // Exception: short first morpheme (2 chars) = compound, no change
+            const isCompound = firstMorph.length <= 2;
+            if (!isCompound) {
+              // Replace 'r' at start of second morpheme with 'l'
+              morphemes[m + 1] = 'l' + secondMorph.substring(1);
+              result = morphemes.join('');
+            }
+          }
+        }
+        console.log(' - Sandhi rule 160', result, morphemes);
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 161: the sequence rl sometimes became ll
+      // [rl] > [ll]
+      /*
+       * HYPOTHESIS for "sometimes":
+       * The change rl → ll occurs when the vowel before 'r' is 'e'.
+       * When the vowel is 'o' (as in "for"), the sequence is preserved.
+       * The front vowel 'e' may facilitate assimilation to 'll', while
+       * the back vowel 'o' preserves the distinct 'r'.
+       */
+      const rule161 = options.r161 || false;
+      if (rule161) {
+        // Find morpheme boundary where first ends with 'r' and second starts with 'l'
+        for (let m = 0; m < morphemes.length - 1; m++) {
+          const firstMorph = morphemes[m];
+          const secondMorph = morphemes[m + 1];
+          if (firstMorph.endsWith('r') && secondMorph.startsWith('l')) {
+            // Check vowel before 'r'
+            const vowelBeforeR = firstMorph.length >= 2 ? firstMorph.nth(firstMorph.length - 2) : '';
+            // Exception: don't change if vowel before r is 'o'
+            const isException = vowelBeforeR === 'o' || vowelBeforeR === 'ō';
+            if (!isException) {
+              // Replace 'r' at end of first morpheme with 'l'
+              morphemes[m] = firstMorph.substring(0, firstMorph.length - 1) + 'l';
+              result = morphemes.join('');
+            }
+          }
+        }
+        console.log(' - Sandhi rule 161', result, morphemes);
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 162: the sequence rr sometimes simplified to r but often remained
+      // [rr] > [r]
+      /*
+       * HYPOTHESIS for "sometimes":
+       * The change r+r → r occurs when the vowel before the first 'r' is 'a' or a diphthong.
+       * When the vowel is 'e' (as in "teler"), the double 'r' is preserved.
+       * Diphthongs (like 'ai') and the low vowel 'a' trigger simplification.
+       */
+      const rule162 = options.r162 || false;
+      if (rule162) {
+        // Find morpheme boundary where first ends with 'r' and second starts with 'r'
+        for (let m = 0; m < morphemes.length - 1; m++) {
+          const firstMorph = morphemes[m];
+          const secondMorph = morphemes[m + 1];
+          if (firstMorph.endsWith('r') && secondMorph.startsWith('r')) {
+            // Check vowel(s) before 'r'
+            const charBeforeR = firstMorph.length >= 2 ? firstMorph.nth(firstMorph.length - 2) : '';
+            // Check for diphthong or 'a'
+            const isDiphthongEnding = charBeforeR === 'i' || charBeforeR === 'u'; // ai, au, etc.
+            const isA = charBeforeR === 'a' || charBeforeR === 'ā';
+            const shouldChange = isDiphthongEnding || isA;
+            if (shouldChange) {
+              // Remove 'r' at end of first morpheme
+              morphemes[m] = firstMorph.substring(0, firstMorph.length - 1);
+              result = morphemes.join('');
+            }
+          }
+        }
+        console.log(' - Sandhi rule 162', result, morphemes);
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 163: ç became h
+      // [ç] > [h]
+      const rule163 = options.r163 || false;
+      if (rule163) {
+        const occurrences = findAllOf(['ç'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            result = result.substring(0, charIndex) + 'h' + result.substring(charIndex + 1);
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 163', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 163 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 164: uu, jj and ii became ū, ӯ and ī
+      // [uu|jj|ii] > [ū|ӯ|ī]
+      const rule164 = options.r164 || false;
+      if (rule164) {
+        const replacements = [
+          { pattern: 'ii', replacement: 'ī' },
+          { pattern: 'jj', replacement: 'ӯ' },
+          { pattern: 'uu', replacement: 'ū' },
+        ];
+        const removedIndices = [];
+        for (const { pattern, replacement } of replacements) {
+          const occurrences = findAllOf([pattern], result);
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
+            removedIndices.unshift(charIndex + 1); // Second char removed
+          }
+        }
+        if (removedIndices.length > 0) {
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 164', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 164 skipped');
         }
       }
 
