@@ -1100,13 +1100,25 @@ export const sandhiRules = {
   },
 
   // ---------------------------------------------------------------------------
-  // Rule 142: nd and mb became the nasals n and m after nasals following nonliquids
-  // This is a combined rule (142-1 through 142-5)
+  // Rule 142: nd and mb became the nasals n and m
+  // This is a combined rule (142-1 through 142-5):
+  // 142-1: after non-nasal stops (p, t, k, b, d, g)
+  // 142-2: after spirants (f, s, θ, h, x, v, ð, ɣ)
+  // 142-3: after semivowels (j, w)
+  // 142-4: after vowels
+  // 142-5: after nasals following nonliquids
   // ---------------------------------------------------------------------------
   [getSandhiRuleId(142)]: {
     orderId: getOrderId(142),
-    pattern: '[{^lr}{mn}{nd|mb}] > [{^lr}{mn}{n|m}]',
-    description: '§4.142. nd and mb became n and m after nasals following nonliquids',
+    pattern: '[{stops|spirants|semivowels|vowels|^lr·nasals}{nd|mb}] > [...{n|m}]',
+    description: '§4.142. nd and mb became n and m after stops, spirants, semivowels, vowels, or ‹nasals following nonliquids›',
+    info: [
+      '142-1: [{ptkbdg}nd|mb] > [{ptkbdg}n|m]',
+      '142-2: [{fsθhxvðɣ}nd|mb] > [{fsθhxvðɣ}n|m]',
+      '142-3: [{jw}nd|mb] > [{jw}n|m]',
+      '142-4: [Vnd|Vmb] > [Vn|Vm]',
+      '142-5: [{{^rl}mnŋ}nd|mb] > [{{^rl}mnŋ}n|m]',
+    ],
     isSandhi: true,
     mechanic: (str, options = {}) => {
       const morphemes = options.morphemes || [str];
@@ -1116,20 +1128,49 @@ export const sandhiRules = {
         return { in: str, out: str, morphemes };
       }
 
+      // Define character classes for each sub-rule
+      const nonNasalStops = ['p', 't', 'k', 'b', 'd', 'g'];  // 142-1
+      const spirants = ['f', 's', 'θ', 'h', 'x', 'v', 'ð', 'ɣ'];  // 142-2
+      const semivowels = ['j', 'w'];  // 142-3
+      const nasals = ['m', 'n', 'ŋ'];  // 142-5
+      const liquids = ['l', 'r', 'ꞧ', 'ꝉ'];  // exception for 142-5
+
       let result = str;
       const removedIndices = [];
 
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched, prevChar } = occurrences[i];
-        // Check: prev char is nasal, and char before that is not a liquid
-        if (['m', 'n'].includes(prevChar)) {
+        let shouldTransform = false;
+
+        // 142-1: after non-nasal stops
+        if (nonNasalStops.includes(prevChar)) {
+          shouldTransform = true;
+        }
+        // 142-2: after spirants
+        else if (spirants.includes(prevChar)) {
+          shouldTransform = true;
+        }
+        // 142-3: after semivowels
+        else if (semivowels.includes(prevChar)) {
+          shouldTransform = true;
+        }
+        // 142-4: after vowels
+        else if (prevChar && prevChar.isVowel()) {
+          shouldTransform = true;
+        }
+        // 142-5: after nasals following nonliquids
+        else if (nasals.includes(prevChar)) {
           const charBeforeNasal = charIndex >= 2 ? str.nth(charIndex - 2) : '';
-          if (!['l', 'r'].includes(charBeforeNasal)) {
-            // Remove the stop (d or b)
-            const replacement = matched === 'nd' ? 'n' : 'm';
-            result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
-            removedIndices.unshift(charIndex + 1);
+          if (!liquids.includes(charBeforeNasal)) {
+            shouldTransform = true;
           }
+        }
+
+        if (shouldTransform) {
+          // Remove the stop (d or b), keeping only the nasal (n or m)
+          const replacement = matched === 'nd' ? 'n' : 'm';
+          result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
+          removedIndices.unshift(charIndex + 1);
         }
       }
 
@@ -2005,5 +2046,33 @@ export const sandhiRules = {
       return { in: str, out: result, morphemes: updatedMorphemes };
     },
   },
+    /*
+    {
+      name: 'r165',
+      label: '[] > []',
+      type: 'boolean',
+      default: true,
+      description: '165: accent shift',
+    },
+    /*
+    {
+      name: 'r166',
+      label: '[ī|ū{^nlr}] > [i|u]',
+      type: 'boolean',
+      default: true,
+      description: '166: ī and ū became short, except before n, l, or r',
+    },
+
+    /*
+    {
+      name: 'r167',
+      label: '[{VV̄}C?^C] > [{V̄}C?]',
+      type: 'boolean',
+      default: true,
+      description: '167: all vowels became long in monosyllables when followed by a single consonant or none, otherwise, they were short',
+    },
+    */
+
+
 };
 

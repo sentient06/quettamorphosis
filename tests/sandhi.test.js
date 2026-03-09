@@ -377,7 +377,20 @@ describe('Sandhi rules (05800)', () => {
       .toMatchObject({ out: 'beleggurθ', morphemes: ['beleg', 'gurθ'] });
   });
 
-  it('Rule 142: nd and mb became the nasals n and m after nasals following nonliquids', () => {
+  it('Rule 142: nd and mb became the nasals n and m', () => {
+    // 142-1: after non-nasal stops (p, t, k, b, d, g)
+    expect(sindarinRules[getSandhiRuleId(142)].mechanic('dagndīr', { morphemes: ['dag', 'ndīr'] }))
+      .toMatchObject({ out: 'dagnīr', morphemes: ['dag', 'nīr'] });
+    // 142-2: after spirants (f, s, θ, h, x, v, ð, ɣ)
+    expect(sindarinRules[getSandhiRuleId(142)].mechanic('goθmbaug', { morphemes: ['goθ', 'mbaug'] }))
+      .toMatchObject({ out: 'goθmaug', morphemes: ['goθ', 'maug'] });
+    // 142-3: after semivowels (j, w)
+    expect(sindarinRules[getSandhiRuleId(142)].mechanic('kurwndīr', { morphemes: ['kurw', 'ndīr'] }))
+      .toMatchObject({ out: 'kurwnīr', morphemes: ['kurw', 'nīr'] });
+    // 142-4: after vowels
+    expect(sindarinRules[getSandhiRuleId(142)].mechanic('kurundīr', { morphemes: ['kuru', 'ndīr'] }))
+      .toMatchObject({ out: 'kurunīr', morphemes: ['kuru', 'nīr'] });
+    // 142-5: after nasals following nonliquids
     expect(sindarinRules[getSandhiRuleId(142)].mechanic('lemnndīr', { morphemes: ['lemn', 'ndīr'] }))
       .toMatchObject({ out: 'lemnnīr', morphemes: ['lemn', 'nīr'] });
   });
