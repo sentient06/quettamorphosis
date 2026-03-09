@@ -3,7 +3,7 @@ import { SANDHI_MASTER_RULE_ID, getSandhiRuleId } from './src/sandhi.js';
 
 // Sandhi rule range constants
 const FIRST_SANDHI_RULE_ID = getSandhiRuleId(116);
-const LAST_SANDHI_RULE_ID = getSandhiRuleId(164);
+const LAST_SANDHI_RULE_ID = getSandhiRuleId(170);
 import { oldSindarinRules } from './src/old-sindarin.js';
 import { ancientTelerinRules } from './src/ancient-telerin.js';
 import { primitiveElvishRules } from './src/primitive-elvish.js';
