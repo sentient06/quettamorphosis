@@ -1699,6 +1699,83 @@ describe('Sindarin rules', () => {
         .toMatchObject({ out: 'galṽorn', morphemes: ['gal', 'ṽorn'] });
     });
 
+    it('Rule 151: w disappeared before o, œ, and ǭ', () => {
+      expect(sindarinRules['3868328117'].mechanic('gwolass', { r151: true, morphemes: ['gwo', 'lass'] }))
+        .toMatchObject({ out: 'golass', morphemes: ['go', 'lass'] });
+      expect(sindarinRules['3868328117'].mechanic('gwǭin', { r151: true, morphemes: ['gwǭin'] }))
+        .toMatchObject({ out: 'gǭin', morphemes: ['gǭin'] });
+      expect(sindarinRules['3868328117'].mechanic('gwœnœdiad', { r151: true, morphemes: ['gwœ', 'nœdiad'] }))
+        .toMatchObject({ out: 'gœnœdiad', morphemes: ['gœ', 'nœdiad'] });
+      expect(sindarinRules['3868328117'].mechanic('lalworn', { r151: true, morphemes: ['lalworn'] }))
+        .toMatchObject({ out: 'lalorn', morphemes: ['lalorn'] });
+      expect(sindarinRules['3868328117'].mechanic('ɸornwobel', { r151: true, morphemes: ['ɸorn', 'wobel'] }))
+        .toMatchObject({ out: 'ɸornobel', morphemes: ['ɸorn', 'obel'] });
+      expect(sindarinRules['3868328117'].mechanic('ɸorwoxell', { r151: true, morphemes: ['ɸor', 'woxell'] }))
+        .toMatchObject({ out: 'ɸoroxell', morphemes: ['ɸor', 'oxell'] });
+      expect(sindarinRules['3868328117'].mechanic('arwonoded', { r151: true, morphemes: ['ar', 'wonoded'] }))
+        .toMatchObject({ out: 'aronoded', morphemes: ['ar', 'onoded'] });
+    });
+
+    it('Rule 152: rɣ, lɣ usually became ri, li before a vowel', () => {
+      expect(sindarinRules['3868328117'].mechanic('tarɣaſ', { r152: true, morphemes: ['tarɣaſ'] }))
+        .toMatchObject({ out: 'tariaſ', morphemes: ['tariaſ'] });
+      expect(sindarinRules['3868328117'].mechanic('θalɣond', { r152: true, morphemes: ['θalɣond'] }))
+        .toMatchObject({ out: 'θaliond', morphemes: ['θaliond'] });
+      expect(sindarinRules['3868328117'].mechanic('θelɣjnd', { r152: true, morphemes: ['θelɣjnd'] }))
+        .toMatchObject({ out: 'θelijnd', morphemes: ['θelijnd'] });
+      expect(sindarinRules['3868328117'].mechanic('dīrɣell', { r152: true, morphemes: ['dīrɣell'] }))
+        .toMatchObject({ out: 'dīriell', morphemes: ['dīriell'] });
+      // Exception: when 'e' before liquid and back vowel 'o' after ɣ, ɣ just disappears
+      expect(sindarinRules['3868328117'].mechanic('delɣoſ', { r152: true, morphemes: ['delɣoſ'] }))
+        .toMatchObject({ out: 'deloſ', morphemes: ['deloſ'] });
+    });
+
+    it('Rule 153: the sequence ji became j', () => {
+      expect(sindarinRules['3868328117'].mechanic('mirijni', { r153: true, morphemes: ['mirijni'] }))
+        .toMatchObject({ out: 'mirjni', morphemes: ['mirjni'] });
+      expect(sindarinRules['3868328117'].mechanic('θelijnd', { r153: true, morphemes: ['θelijnd'] }))
+        .toMatchObject({ out: 'θeljnd', morphemes: ['θeljnd'] });
+    });
+
+    it('Rule 154: ɣ disappeared at the end of a polysyllable', () => {
+      expect(sindarinRules['3868328117'].mechanic('ekθelɣ', { r154: true, morphemes: ['ek', 'θelɣ'] }))
+        .toMatchObject({ out: 'ekθel', morphemes: ['ek', 'θel'] });
+    });
+
+    it('Rule 155: ɣ became a at the end of monosyllables following a and e', () => {
+      expect(sindarinRules['3868328117'].mechanic('θelɣ', { r155: true, morphemes: ['θelɣ'] }))
+        .toMatchObject({ out: 'θela', morphemes: ['θela'] });
+      expect(sindarinRules['3868328117'].mechanic('tarɣ', { r155: true, morphemes: ['tarɣ'] }))
+        .toMatchObject({ out: 'tara', morphemes: ['tara'] });
+    });
+
+    it('Rule 156: ɣ became i at the end of monosyllables following i', () => {
+      expect(sindarinRules['3868328117'].mechanic('θeilɣ', { r156: true, morphemes: ['θeilɣ'] }))
+        .toMatchObject({ out: 'θeili', morphemes: ['θeili'] });
+      expect(sindarinRules['3868328117'].mechanic('ɸilɣ', { r156: true, morphemes: ['ɸilɣ'] }))
+        .toMatchObject({ out: 'ɸili', morphemes: ['ɸili'] });
+    });
+
+    it('Rule 157: the sequence lð became ll', () => {
+      expect(sindarinRules['3868328117'].mechanic('kolð', { r157: true, morphemes: ['kolð'] }))
+        .toMatchObject({ out: 'koll', morphemes: ['koll'] });
+      expect(sindarinRules['3868328117'].mechanic('golðr', { r157: true, morphemes: ['golðr'] }))
+        .toMatchObject({ out: 'gollr', morphemes: ['gollr'] });
+    });
+
+    it('Rule 158: the sequence nl sometimes became ll', () => {
+      expect(sindarinRules['3868328117'].mechanic('miθꞧenlaſ', { r158: true, morphemes: ['miθꞧen', 'laſ'] }))
+        .toMatchObject({ out: 'miθꞧellaſ', morphemes: ['miθꞧel', 'laſ'] });
+      // Exception: stays unchanged when vowel before n is 'i'
+      expect(sindarinRules['3868328117'].mechanic('minlammad', { r158: true, morphemes: ['min', 'lammad'] }))
+        .toMatchObject({ out: 'minlammad', morphemes: ['min', 'lammad'] });
+    });
+
+    it('Rule 159: n disappeared after a long vowel before another n', () => {
+      expect(sindarinRules['3868328117'].mechanic('nīnnimp', { r159: true, morphemes: ['nīn', 'nimp'] }))
+        .toMatchObject({ out: 'nīnimp', morphemes: ['nī', 'nimp'] });
+    });
+
   });
 
   it('05800 - middle consonants frequently vanished in clusters', () => {

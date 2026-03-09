@@ -2572,7 +2572,6 @@ export const sindarinRules = {
         default: true,
         description: '150: lṽ sometimes became lw',
       },
-      /*
       {
         name: 'r151',
         label: '[w{oœǭ}] > [ø{oœǭ}]',
@@ -2580,7 +2579,6 @@ export const sindarinRules = {
         default: true,
         description: '151: w disappeared before o, œ, and ǭ',
       },
-      /*
       {
         name: 'r152',
         label: '[{rl}ɣV] > [{rl}iV]',
@@ -2588,7 +2586,6 @@ export const sindarinRules = {
         default: true,
         description: '152: rɣ, lɣ usually became ri, li before a vowel',
       },
-      /*
       {
         name: 'r153',
         label: '[ji] > [j]',
@@ -2596,7 +2593,6 @@ export const sindarinRules = {
         default: true,
         description: '153: the sequence ji became j',
       },
-      /*
       {
         name: 'r154',
         label: '[-Sɣ] > [-Sø]',
@@ -2604,7 +2600,6 @@ export const sindarinRules = {
         default: true,
         description: '154: ɣ disappeared at the end of a polysyllable',
       },
-      /*
       {
         name: 'r155',
         label: '[-{^S}{ae}ɣ] > [-{^S}{ae}a]',
@@ -2612,15 +2607,13 @@ export const sindarinRules = {
         default: true,
         description: '155: ɣ became a after at the end of monosyllables following a and e',
       },
-      /*
       {
         name: 'r156',
-        label: '[{rl}ɣV] > [{rl}iV]',
+        label: '[-{^S}iɣ] > [-{^S}ii]',
         type: 'boolean',
         default: true,
-        description: '156: rɣ, lɣ usually became ri, li before a vowel',
+        description: '156: ɣ became i at the end of monosyllables following i',
       },
-      /*
       {
         name: 'r157',
         label: '[lð] > [ll]',
@@ -2628,7 +2621,6 @@ export const sindarinRules = {
         default: true,
         description: '157: the sequence lð became ll',
       },
-      /*
       {
         name: 'r158',
         label: '[nl] > [ll]',
@@ -2636,7 +2628,6 @@ export const sindarinRules = {
         default: true,
         description: '158: the sequence nl sometimes became ll but sometimes remained',
       },
-      /*
       {
         name: 'r159',
         label: '[V̄nn] > [V̄øn]',
@@ -3766,6 +3757,15 @@ export const sindarinRules = {
       // ------------------------------------------------------------------------------------------
       // Rule 150: lṽ sometimes became lw
       // [lṽ] > [lw], except when pattern is non-liquid consonant + a + l + ṽ
+      /*
+       * HYPOTHESIS for "sometimes":
+       * The change lṽ → lw is blocked when preceded by a non-liquid consonant + 'a'.
+       * Examples: galṽorn stays galṽorn (g + a + lṽ), but lalṽen → lalwen (l + a + lṽ).
+       * Reasoning: The back vowel 'a' after a stop consonant (like 'g') may create a
+       * phonological environment that preserves the labial fricative ṽ, whereas a
+       * preceding liquid (like 'l') or front vowel (like 'i' in gilṽen) allows the
+       * simplification to 'w'.
+       */
       const rule150 = options.r150 || false;
       if (rule150) {
         const occurrences = findAllOf(['lṽ'], result);
@@ -3790,6 +3790,258 @@ export const sindarinRules = {
           console.log(' - Sandhi rule 150', result, morphemes);
         } else {
           console.log(' - Sandhi rule 150 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 151: w disappeared before o, œ, and ǭ
+      // [w{oœǭ}] > [ø{oœǭ}]
+      const rule151 = options.r151 || false;
+      if (rule151) {
+        const occurrences = findAllOf(['wo', 'wœ', 'wǭ'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            // Remove w (at charIndex)
+            result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+            removedIndices.unshift(charIndex);
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 151', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 151 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 152: rɣ, lɣ usually became ri, li before a vowel
+      // [{rl}ɣV] > [{rl}iV]
+      /*
+       * HYPOTHESIS for "usually":
+       * The ɣ normally becomes 'i' before a vowel, but when 'e' precedes the liquid
+       * AND a back vowel (like 'o') follows ɣ, the ɣ simply disappears without
+       * leaving an 'i'.
+       * Examples: θalɣond → θaliond (a before l), but delɣoſ → deloſ (e before l + o after).
+       * Reasoning: The front vowel 'e' is already close to 'i' in the vowel space,
+       * so inserting another front vowel would be redundant—especially when
+       * transitioning to a back vowel like 'o'. The sound simplifies to el+o
+       * rather than el+i+o.
+       */
+      const rule152 = options.r152 || false;
+      if (rule152) {
+        const liquids = ['l', 'r', 'ꝉ', 'ꞧ'];
+        const occurrences = findAllOf(['ɣ'], result);
+        if (occurrences.length > 0) {
+          const backVowels = ['o', 'ɔ', 'u', 'ō', 'ǭ', 'ū'];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar, nextChar } = occurrences[i];
+            // Check if preceded by a liquid and followed by a vowel (or j)
+            if (liquids.includes(prevChar) && (nextChar?.isVowel() || nextChar === 'j')) {
+              // Check for exception: 'e' before the liquid and back vowel after ɣ
+              const charBeforeLiquid = result.nth(charIndex - 2);
+              const isException = charBeforeLiquid === 'e' && backVowels.includes(nextChar);
+              if (isException) {
+                // Just remove ɣ (no i insertion)
+                result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+              } else {
+                // Replace ɣ with i
+                result = result.substring(0, charIndex) + 'i' + result.substring(charIndex + 1);
+              }
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 152', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 152 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 153: the sequence ij became j (i before j disappears)
+      // [ij] > [j]
+      const rule153 = options.r153 || false;
+      if (rule153) {
+        const occurrences = findAllOf(['ij'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            // Remove i (at charIndex)
+            result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+            removedIndices.unshift(charIndex);
+          }
+          morphemes = recalcMorphemes(result, morphemes, removedIndices);
+          console.log(' - Sandhi rule 153', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 153 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 154: ɣ disappeared at the end of a polysyllable
+      // [-Sɣ] > [-Sø]
+      const rule154 = options.r154 || false;
+      if (rule154) {
+        const occurrences = findAllOf(['ɣ'], result);
+        if (occurrences.length > 0) {
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, lastChar } = occurrences[i];
+            // Only at word end and in a polysyllable (more than one vowel)
+            if (lastChar) {
+              const beforeGh = result.substring(0, charIndex);
+              const vowelCount = [...beforeGh].filter(c => c.isVowel()).length;
+              if (vowelCount >= 2) {
+                result = result.substring(0, charIndex);
+                removedIndices.unshift(charIndex);
+              }
+            }
+          }
+          if (removedIndices.length > 0) {
+            morphemes = recalcMorphemes(result, morphemes, removedIndices);
+            console.log(' - Sandhi rule 154', result, morphemes);
+          } else {
+            console.log(' - Sandhi rule 154 skipped (no polysyllable match)');
+          }
+        } else {
+          console.log(' - Sandhi rule 154 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 155: ɣ became a at the end of monosyllables following a and e
+      // [-{^S}{ae}ɣ] > [-{^S}{ae}a]
+      const rule155 = options.r155 || false;
+      if (rule155) {
+        const occurrences = findAllOf(['ɣ'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, lastChar } = occurrences[i];
+            // Only at word end, in a monosyllable, after 'a' or 'e' (via liquid)
+            if (lastChar) {
+              const beforeGh = result.substring(0, charIndex);
+              const vowelCount = [...beforeGh].filter(c => c.isVowel()).length;
+              // Check if the vowel in the monosyllable is 'a' or 'e'
+              const vowelInWord = [...beforeGh].find(c => c.isVowel());
+              if (vowelCount === 1 && (vowelInWord === 'a' || vowelInWord === 'e')) {
+                result = result.substring(0, charIndex) + 'a';
+              }
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 155', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 155 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 156: ɣ became i at the end of monosyllables following i
+      // [-{^S}iɣ] > [-{^S}ii]
+      const rule156 = options.r156 || false;
+      if (rule156) {
+        const occurrences = findAllOf(['ɣ'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, lastChar } = occurrences[i];
+            // Only at word end, in a monosyllable, after 'i' (via liquid)
+            if (lastChar) {
+              const beforeGh = result.substring(0, charIndex);
+              const vowelCount = [...beforeGh].filter(c => c.isVowel()).length;
+              // Check if the vowel in the monosyllable contains 'i'
+              const vowelsInWord = [...beforeGh].filter(c => c.isVowel());
+              const hasI = vowelsInWord.some(v => v === 'i' || v === 'ī');
+              if (vowelCount === 1 && hasI) {
+                result = result.substring(0, charIndex) + 'i';
+              } else if (vowelCount === 2 && vowelsInWord[1] === 'i') {
+                // Diphthong ending in i (like 'ei' in θeilɣ)
+                result = result.substring(0, charIndex) + 'i';
+              }
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 156', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 156 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 157: the sequence lð became ll
+      // [lð] > [ll]
+      const rule157 = options.r157 || false;
+      if (rule157) {
+        const occurrences = findAllOf(['lð'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex } = occurrences[i];
+            // Replace ð with l (at charIndex + 1)
+            result = result.substring(0, charIndex + 1) + 'l' + result.substring(charIndex + 2);
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 157', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 157 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 158: the sequence nl sometimes became ll but sometimes remained
+      // [nl] > [ll]
+      /*
+       * HYPOTHESIS for "sometimes":
+       * The change nl → ll is blocked when the vowel before 'n' is 'i'.
+       * Examples: miθꞧen+laſ → miθꞧel+laſ (e before n), but min+lammad stays (i before n).
+       * Reasoning: The high front vowel 'i' may create a palatal environment that
+       * preserves the 'n', whereas other vowels (like 'e') allow the assimilation to 'l'.
+       */
+      const rule158 = options.r158 || false;
+      if (rule158) {
+        const occurrences = findAllOf(['nl'], result);
+        if (occurrences.length > 0) {
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            // Exception: don't change if vowel before n is 'i'
+            const isException = prevChar === 'i' || prevChar === 'ī';
+            if (!isException) {
+              // Replace n with l (at charIndex)
+              result = result.substring(0, charIndex) + 'l' + result.substring(charIndex + 1);
+            }
+          }
+          morphemes = recalcMorphemes(result, morphemes, []);
+          console.log(' - Sandhi rule 158', result, morphemes);
+        } else {
+          console.log(' - Sandhi rule 158 skipped');
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------
+      // Rule 159: n disappeared after a long vowel before another n
+      // [V̄nn] > [V̄øn]
+      const rule159 = options.r159 || false;
+      if (rule159) {
+        const occurrences = findAllOf(['nn'], result);
+        if (occurrences.length > 0) {
+          const longVowels = ['ā', 'ē', 'ī', 'ō', 'ū', 'ǣ', 'œ̄', 'ȳ', 'ǭ'];
+          const removedIndices = [];
+          for (let i = occurrences.length - 1; i >= 0; i--) {
+            const { charIndex, prevChar } = occurrences[i];
+            // Only if preceded by a long vowel
+            if (longVowels.includes(prevChar)) {
+              // Remove first n (at charIndex)
+              result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+              removedIndices.unshift(charIndex);
+            }
+          }
+          if (removedIndices.length > 0) {
+            morphemes = recalcMorphemes(result, morphemes, removedIndices);
+            console.log(' - Sandhi rule 159', result, morphemes);
+          } else {
+            console.log(' - Sandhi rule 159 skipped (no long vowel match)');
+          }
+        } else {
+          console.log(' - Sandhi rule 159 skipped');
         }
       }
 
