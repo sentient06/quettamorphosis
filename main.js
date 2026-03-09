@@ -1,5 +1,9 @@
 import { sindarinRules } from './src/sindarin.js';
-import { SANDHI_MASTER_RULE_ID } from './src/sandhi.js';
+import { SANDHI_MASTER_RULE_ID, getSandhiRuleId } from './src/sandhi.js';
+
+// Sandhi rule range constants
+const FIRST_SANDHI_RULE_ID = getSandhiRuleId(116);
+const LAST_SANDHI_RULE_ID = getSandhiRuleId(164);
 import { oldSindarinRules } from './src/old-sindarin.js';
 import { ancientTelerinRules } from './src/ancient-telerin.js';
 import { primitiveElvishRules } from './src/primitive-elvish.js';
@@ -71,6 +75,10 @@ const osRuleResults = {};
 const sindarinRuleResults = {};
 // Track morphemes for each rule (needed when toggling rules mid-chain)
 const ruleMorphemes = {};
+// Track sandhi execution state for master rule aggregation
+let sandhiInputValue = null;
+let sandhiInputMorphemes = null;
+let anySandhiTripped = false;
 const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
 const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
 const optionState = JSON.parse(localStorage.getItem('options') || '{}');
@@ -312,6 +320,11 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
   let currentInput = inputValue;
   let currentMorphemes = morphemes;
 
+  // Track sandhi aggregation within the chain
+  let chainSandhiInput = null;
+  let chainSandhiInputMorphemes = null;
+  let chainAnySandhiTripped = false;
+
   // Run each rule in sequence within the language
   for (let i = startIndex; i < order.length; i++) {
     const ruleId = order[i];
@@ -361,6 +374,24 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
     const $output = document.getElementById(`output-${ruleId}`);
     if ($output) {
       $output.value = output;
+    }
+
+    // Track sandhi rule execution for master rule aggregation
+    if (rule.isSandhi) {
+      // First sandhi rule: capture input value
+      if (ruleId === FIRST_SANDHI_RULE_ID) {
+        chainSandhiInput = currentInput;
+        chainSandhiInputMorphemes = currentMorphemes;
+        chainAnySandhiTripped = false;
+      }
+      // Track if any sandhi rule tripped
+      if (isTripped) {
+        chainAnySandhiTripped = true;
+      }
+      // Last sandhi rule: update master rule's visual state and output
+      if (ruleId === LAST_SANDHI_RULE_ID) {
+        updateSandhiMasterRule(chainSandhiInput, output, chainSandhiInputMorphemes, currentMorphemes, chainAnySandhiTripped);
+      }
     }
 
     currentInput = output;
@@ -837,6 +868,21 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     }
     // Store morphemes even for skipped rules (needed when toggling rules mid-chain)
     ruleMorphemes[ruleId] = morphemes;
+
+    // Track sandhi rule skipping for master rule aggregation
+    if (rule.isSandhi) {
+      // First sandhi rule: capture input value
+      if (ruleId === FIRST_SANDHI_RULE_ID) {
+        sandhiInputValue = input;
+        sandhiInputMorphemes = morphemes;
+        anySandhiTripped = false;
+      }
+      // Last sandhi rule: update master rule (no rules tripped since all skipped)
+      if (ruleId === LAST_SANDHI_RULE_ID) {
+        updateSandhiMasterRule(sandhiInputValue, input, sandhiInputMorphemes, morphemes, anySandhiTripped);
+      }
+    }
+
     if (nextRuleId) {
       const $nextInput = document.getElementById(`input-${nextRuleId}`);
       $nextInput.value = input;
@@ -919,6 +965,24 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   const $output = document.getElementById(`output-${ruleId}`);
   $output.value = output;
 
+  // Track sandhi rule execution for master rule aggregation
+  if (rule.isSandhi) {
+    // First sandhi rule: capture input value
+    if (ruleId === FIRST_SANDHI_RULE_ID) {
+      sandhiInputValue = input;
+      sandhiInputMorphemes = morphemes;
+      anySandhiTripped = false;
+    }
+    // Track if any sandhi rule tripped
+    if (isTripped) {
+      anySandhiTripped = true;
+    }
+    // Last sandhi rule: update master rule's visual state and output
+    if (ruleId === LAST_SANDHI_RULE_ID) {
+      updateSandhiMasterRule(sandhiInputValue, output, sandhiInputMorphemes, outputMorphemes, anySandhiTripped);
+    }
+  }
+
   // Continue to next rule or finish
   if (!nextRuleId) {
     $originalOutput.value = output;
@@ -929,6 +993,52 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   const $nextInput = document.getElementById(`input-${nextRuleId}`);
   $nextInput.value = output;
   runRule(nextRuleId, output, getNextRule(nextRuleId), outputMorphemes);
+}
+
+/**
+ * Update the sandhi master rule's visual state and input/output fields
+ * based on the aggregated results of all sandhi sub-rules.
+ */
+function updateSandhiMasterRule(inputValue, outputValue, inputMorphemes, outputMorphemes, anyTripped) {
+  const masterRuleId = SANDHI_MASTER_RULE_ID;
+  const $masterRule = document.getElementById(`rule-${toBase36(masterRuleId)}`);
+  const $masterInput = document.getElementById(`input-${masterRuleId}`);
+  const $masterOutput = document.getElementById(`output-${masterRuleId}`);
+
+  // Update input/output fields
+  if ($masterInput) {
+    $masterInput.value = inputValue || '';
+  }
+  if ($masterOutput) {
+    $masterOutput.value = outputValue || '';
+  }
+
+  // Update visual state
+  if ($masterRule) {
+    $masterRule.classList.toggle('rule-tripped', anyTripped);
+    // Auto-expand when tripped, but don't collapse if user is interacting with this rule
+    const hasFocus = $masterRule.contains(document.activeElement);
+    if (anyTripped || !hasFocus) {
+      $masterRule.classList.toggle('rule-collapsed', !anyTripped);
+    }
+  }
+
+  // Track result for the master rule
+  const resultsObj = getResultsObject(masterRuleId);
+  if (resultsObj) {
+    if (anyTripped) {
+      resultsObj[masterRuleId] = {
+        in: inputValue,
+        out: outputValue,
+        morphemes: outputMorphemes
+      };
+    } else {
+      delete resultsObj[masterRuleId];
+    }
+  }
+
+  // Store morphemes for master rule
+  ruleMorphemes[masterRuleId] = outputMorphemes;
 }
 
 function resetRule(ruleId) {
