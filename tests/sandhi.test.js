@@ -601,26 +601,26 @@ describe('Sandhi rules (05800)', () => {
       .toMatchObject({ out: 'tulūɱ' });
   });
 
-  it('Rule 165: Final conversion of sandhi-specific phonetic symbols', () => {
+  it('Rule 170: Final conversion of sandhi-specific phonetic symbols', () => {
     // ɱ → m (labiodental nasal → bilabial nasal)
-    expect(sindarinRules[getSandhiRuleId(165)].mechanic('tulūɱ', { morphemes: ['tulūɱ'] }))
+    expect(sindarinRules[getSandhiRuleId(170)].mechanic('tulūɱ', { morphemes: ['tulūɱ'] }))
       .toMatchObject({ out: 'tulūm', morphemes: ['tulūm'] });
-    expect(sindarinRules[getSandhiRuleId(165)].mechanic('arɱond', { morphemes: ['arɱond'] }))
+    expect(sindarinRules[getSandhiRuleId(170)].mechanic('arɱond', { morphemes: ['arɱond'] }))
       .toMatchObject({ out: 'armond', morphemes: ['armond'] });
     // β → b (voiced bilabial fricative → voiced bilabial stop)
-    expect(sindarinRules[getSandhiRuleId(165)].mechanic('aβar', { morphemes: ['aβar'] }))
+    expect(sindarinRules[getSandhiRuleId(170)].mechanic('aβar', { morphemes: ['aβar'] }))
       .toMatchObject({ out: 'abar', morphemes: ['abar'] });
-    expect(sindarinRules[getSandhiRuleId(165)].mechanic('arβeth', { morphemes: ['arβeth'] }))
+    expect(sindarinRules[getSandhiRuleId(170)].mechanic('arβeth', { morphemes: ['arβeth'] }))
       .toMatchObject({ out: 'arbeth', morphemes: ['arbeth'] });
     // ɣ → deleted (voiced velar fricative disappears)
-    // expect(sindarinRules[getSandhiRuleId(165)].mechanic('taɣīr', { morphemes: ['taɣīr'] }))
+    // expect(sindarinRules[getSandhiRuleId(170)].mechanic('taɣīr', { morphemes: ['taɣīr'] }))
       // .toMatchObject({ out: 'taīr', morphemes: ['taīr'] });
-    // expect(sindarinRules[getSandhiRuleId(165)].mechanic('aglaɣrond', { morphemes: ['aglaɣ', 'rond'] }))
+    // expect(sindarinRules[getSandhiRuleId(170)].mechanic('aglaɣrond', { morphemes: ['aglaɣ', 'rond'] }))
       // .toMatchObject({ out: 'aglarond', morphemes: ['agla', 'rond'] });
     // Multiple conversions
-    // expect(sindarinRules[getSandhiRuleId(165)].mechanic('ɱaβɣōn', { morphemes: ['ɱaβɣōn'] }))
+    // expect(sindarinRules[getSandhiRuleId(170)].mechanic('ɱaβɣōn', { morphemes: ['ɱaβɣōn'] }))
       // .toMatchObject({ out: 'mabōn', morphemes: ['mabōn'] });
-    expect(sindarinRules[getSandhiRuleId(165)].mechanic('ɱaβōn', { morphemes: ['ɱaβōn'] }))
+    expect(sindarinRules[getSandhiRuleId(170)].mechanic('ɱaβōn', { morphemes: ['ɱaβōn'] }))
       .toMatchObject({ out: 'mabōn', morphemes: ['mabōn'] });
   });
 });

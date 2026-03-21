@@ -1301,6 +1301,11 @@ export const sindarinRules = {
       for (let i = 0; i < morphemes.length; i++) {
         const morpheme = morphemes[i];
         const lastChar = morpheme.nth(-1);
+        // Skip last morpheme:
+        if (i === morphemes.length - 1) {
+          newMorphemes.push(morpheme);
+          continue;
+        }
         if (!lastChar.isVowel()) {
           newMorphemes.push(morpheme);
           continue;
