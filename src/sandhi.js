@@ -123,6 +123,9 @@ export const sandhiRules = {
     orderId: getOrderId(118),
     pattern: '[-{nθ|mɸ|ŋx}-] > [-{nn|mm|ŋŋ}-]',
     description: '§4.118. medial nθ, mɸ, ŋx became nn, mm, ŋŋ',
+    info: [
+      'May collide with 1DKAAQF (S 4900).'
+    ],
     isSandhi: true,
     mechanic: (str, options = {}) => {
       const morphemes = options.morphemes || [str];
