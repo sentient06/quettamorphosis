@@ -75,9 +75,63 @@ export const primitiveElvishRules = {
     pattern: '[{ptk}ʰ{ptk|pʰtʰkʰ}] > [{ptk}{ptk}ʰ]',
     description: 'aspiration moved to end of group of stops',
     url: 'https://eldamo.org/content/words/word-3183451073.html',
-    mechanic: (str, options = {}) => {
-      const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
-      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+    input: [
+      {
+        name: 'enablePhT',
+        label: 'Enable [pʰt] > [ptʰ]',
+        type: 'boolean',
+        default: false,
+      },
+      {
+        name: 'enablePhTh',
+        label: 'Enable [pʰtʰ] > [ptʰ]',
+        type: 'boolean',
+        default: false,
+      },
+      {
+        name: 'enableThT',
+        label: 'Enable [tʰt] > [ttʰ]',
+        type: 'boolean',
+        default: false,
+      },
+      {
+        name: 'enableThTh',
+        label: 'Enable [tʰtʰ] > [ttʰ]',
+        type: 'boolean',
+        default: false,
+      },
+    ],
+    mechanic: (str, {
+      enablePhT = false,
+      enablePhTh = false,
+      enableThT = false,
+      enableThTh = false,
+      morphemes,
+    } = {}) => {
+      const findPatterns = [];
+      const nextPatterns = ['ƥ', 'ꝁ', 'p', 'k'];
+
+      if (enablePhT) {
+        findPatterns.push('ƥ');
+        nextPatterns.push('t');
+      }
+      if (enableThT) {
+        findPatterns.push('ŧ');
+        nextPatterns.push('t');
+      }
+      if (enablePhTh) {
+        findPatterns.push('ƥ');
+        nextPatterns.push('ŧ');
+      }
+      if (enableThTh) {
+        findPatterns.push('ŧ');
+        nextPatterns.push('ŧ');
+      }
+
+      findPatterns.push('ꝁ');
+
+      const occurrences = findAllOf(findPatterns, str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes };
 
       const firstReplacements = {
         'ƥ': 'p',
@@ -96,15 +150,15 @@ export const primitiveElvishRules = {
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched, nextChar } = occurrences[i];
         // [{ƥŧꝁ}{ptk|ƥŧꝁ}] > [{ptk}{ƥŧꝁ}]
-        if (['ƥ', 'ŧ', 'ꝁ', 'p', 't', 'k'].includes(nextChar)) {
+        if (nextPatterns.includes(nextChar)) {
           result = result.substring(0, charIndex) + firstReplacements[matched] + secondReplacements[nextChar] + result.substring(charIndex + 2);
         }
       }
 
-      const morphemes = (result !== str && options.morphemes)
-        ? recalcMorphemes(result, options.morphemes, [])
-        : (options.morphemes || [str]);
-      return { in: str, out: result, morphemes };
+      const newMorphemes = (result !== str && morphemes)
+        ? recalcMorphemes(result, morphemes, [])
+        : (morphemes || [str]);
+      return { in: str, out: result, morphemes: newMorphemes };
     },
   },
   '3882201769': {

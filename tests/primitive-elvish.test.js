@@ -34,20 +34,26 @@ describe('Primitive Elvish rules', () => {
   });
 
   it('00003 - aspiration moved to end of group of stops', () => {
-    expect(primitiveElvishRules['3183451073'].mechanic('abc').out).toBe('abc');
+    const all = { enablePhT: true, enablePhTh: true, enableThT: true, enableThTh: true };
+    expect(primitiveElvishRules['3183451073'].mechanic('abc', all).out).toBe('abc');
     // [{ƥŧꝁ}{ptk|ƥŧꝁ}] > [{ptk}{ƥŧꝁ}]
-    expect(primitiveElvishRules['3183451073'].mechanic('aƥpa').out).toBe('apƥa');
-    expect(primitiveElvishRules['3183451073'].mechanic('aƥƥa').out).toBe('apƥa');
-    expect(primitiveElvishRules['3183451073'].mechanic('aƥta').out).toBe('apŧa');
-    expect(primitiveElvishRules['3183451073'].mechanic('aŧta').out).toBe('atŧa');
-    expect(primitiveElvishRules['3183451073'].mechanic('aŧŧa').out).toBe('atŧa');
-    expect(primitiveElvishRules['3183451073'].mechanic('aꝁƥa').out).toBe('akƥa');
-    expect(primitiveElvishRules['3183451073'].mechanic('aꝁka').out).toBe('akꝁa');
+    expect(primitiveElvishRules['3183451073'].mechanic('aƥpa', all).out).toBe('apƥa');
+    expect(primitiveElvishRules['3183451073'].mechanic('aƥƥa', all).out).toBe('apƥa');
+    expect(primitiveElvishRules['3183451073'].mechanic('aƥta', all).out).toBe('apŧa');
+    expect(primitiveElvishRules['3183451073'].mechanic('aŧta', all).out).toBe('atŧa');
+    expect(primitiveElvishRules['3183451073'].mechanic('aŧŧa', all).out).toBe('atŧa');
+    expect(primitiveElvishRules['3183451073'].mechanic('aꝁƥa', all).out).toBe('akƥa');
+    expect(primitiveElvishRules['3183451073'].mechanic('aꝁka', all).out).toBe('akꝁa');
 
     // Morphemes: (non-existent word)
-    const compound = primitiveElvishRules['3183451073'].mechanic('ngaláƥpeꝁotsē', { morphemes: ['ngaláƥpe', 'ꝁotsē'] });
+    const compound = primitiveElvishRules['3183451073'].mechanic('ngaláƥpeꝁotsē', { morphemes: ['ngaláƥpe', 'ꝁotsē'], ...all });
     expect(compound.out).toEqual('ngalápƥeꝁotsē');
     expect(compound.morphemes).toEqual(['ngalápƥe', 'ꝁotsē']);
+
+    // Limiting:
+    expect(primitiveElvishRules['3183451073'].mechanic('aƥpa').out).toBe('aƥpa');
+    expect(primitiveElvishRules['3183451073'].mechanic('aŧta').out).toBe('aŧta');
+    expect(primitiveElvishRules['3183451073'].mechanic('aꝁka').out).toBe('akꝁa');
   });
 
   it('00004 - [bm], [dn] became [mb], [nd]', () => {
