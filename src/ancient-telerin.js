@@ -202,12 +202,15 @@ export const ancientTelerinRules = {
     description: 'final voiceless stops and [s] vanished in polysyllables',
     url: 'https://eldamo.org/content/words/word-981459769.html',
     mechanic: (str, options = {}) => {
-      if (['p', 't', 'k', 's'].includes(str.nth(-1)) === false)
-        return { in: str, out: str, morphemes: options.morphemes };
+      const skipReturn = { in: str, out: str, morphemes: options.morphemes };
+      if (['p', 't', 'k', 's'].includes(str.nth(-1)) === false) return skipReturn;
       
       const analyser = new SyllableAnalyser({ profile: ANCIENT_TELERIN_PROFILE });
       const syllableData = analyser.analyse(str);
-      if (syllableData.length === 1) return { in: str, out: str, morphemes: options.morphemes };
+      if (syllableData.length === 1) return skipReturn;
+
+      const penultimateChar = str.nth(-2, 1);
+      if (penultimateChar.isVowel() === false) return skipReturn;
 
       const result = str.slice(0, -1);
       const morphemes = (result !== str && options.morphemes)

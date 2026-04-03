@@ -119,6 +119,9 @@ describe('Ancient Telerin rules', () => {
     const compound = ancientTelerinRules['981459769'].mechanic('kyeledrāk', { morphemes: ['kyele', 'drāk'] });
     expect(compound.out).toEqual('kyeledrā');
     expect(compound.morphemes).toEqual(['kyele', 'drā']);
+
+    // It only affects words in which the penultimate char is a vowel:
+    expect(ancientTelerinRules['981459769'].mechanic('rast').out).toBe('rast');
   });
 
   it('00600 - [ms], [ns] became [ss]', () => {
