@@ -705,6 +705,9 @@ describe('Sindarin rules', () => {
     // Words not ending in i or u are unchanged
     expect(sindarinRules['1815401039'].mechanic('tindūmielð').out).toBe('tindūmielð');
 
+    // Diphtongs shouldn't be affected:
+    expect(sindarinRules['1815401039'].mechanic('minui').out).toBe('minui');
+
     // Morphemes: 'elem' + 'berethi' (from ✶elen-barathī "star-queen" → S. Elbereth)
     // The final i at the end of 'berethi' vanishes: [-Sĭ] > [-Sø]
     const compound = sindarinRules['1815401039'].mechanic('elemberethi', { morphemes: ['elem', 'berethi'] });

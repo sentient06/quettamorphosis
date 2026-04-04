@@ -1244,16 +1244,25 @@ export const sindarinRules = {
      * @param {*} options - The options object
      * @returns {Object} - The result object
      */
+    info: [
+      'This ignores diphtongs. ([-ai], [-ei] and [-ui])',
+    ],
     mechanic(str, options = {}) {
+      const defaultReturn = { in: str, out: str, morphemes: options.morphemes };
       if (['u', 'i'].includes(str.nth(-1).removeVowelMarks()) === false)
-        return { in: str, out: str, morphemes: options.morphemes };
+        return defaultReturn;
 
       // Exception: uCu pattern is preserved (e.g., guru stays guru)
       if (str.length >= 3) {
         const last3 = str.slice(-3);
         if (last3[0] === 'u' && last3[1].isConsonant() && last3[2] === 'u') {
-          return { in: str, out: str, morphemes: options.morphemes };
+          return defaultReturn;
         }
+      }
+
+      // Exception: diphtongs
+      if (['a', 'e', 'u'].includes(str.nth(-2))) {
+        return defaultReturn;
       }
 
       // Final short i or u after consonant vanishes
