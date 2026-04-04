@@ -731,6 +731,14 @@ export const oldSindarinRules = {
             result = result.substring(0, charIndex) + 'i' + result.substring(charIndex + 1);
           }
         }
+
+        if (prevChar.isVowel()) {
+          const mark = prevChar.getMark();
+          if (mark === '¯') {
+            result = result.substring(0, charIndex - 1) + prevChar.removeMarks() + result.substring(charIndex);
+          }
+        }
+
         if (prevChar.isVowel() && charIndex === str.length - 1) {
           result = result.substring(0, charIndex) + 'i';
         }

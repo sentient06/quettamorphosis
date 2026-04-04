@@ -476,10 +476,14 @@ describe('Old Sindarin rules', () => {
     // Not sure about this one:
     // expect(oldSindarinRules['161840619'].mechanic('ɸereja').out).toBe('ɸereiā');
     // The a becomes long. It seems related to the preceding 'e', but I can't be sure without more data.
+    
     // [-Vj] > [-Vi]:
     // These are all Old Noldorin:
     expect(oldSindarinRules['161840619'].mechanic('mbǭj').out).toBe('mbǭi');
     expect(oldSindarinRules['161840619'].mechanic('nǭj').out).toBe('nǭi');
+
+    // It looks like this suffix reduces the length of the previous vowel:
+    expect(oldSindarinRules['161840619'].mechanic('-ōja').out).toBe('-oia');
 
     // Morphemes:
     // gwaja+lauto = S. gwaelod --> This shouldn't change much because the length doesn't change.

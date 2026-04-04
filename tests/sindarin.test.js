@@ -41,6 +41,8 @@ describe('Sindarin rules', () => {
     const compound = sindarinRules['876455981'].mechanic('elenwiŋe', { morphemes: ['elen', 'wiŋe'] });
     expect(compound.out).toEqual('elewiŋe');
     expect(compound.morphemes).toEqual(['ele', 'wiŋe']);
+
+    expect(sindarinRules['876455981'].mechanic('-uia').out).toBe('-uia');
   });
 
   it('00400 - initial [s] vanished before spirants', () => {
