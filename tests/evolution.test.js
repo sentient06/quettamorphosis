@@ -233,6 +233,11 @@ describe('Word Evolution', () => {
       const result = evolveWord('ndorē');
       expect(result.output).toBe('dôr');
     });
+
+    it('-ōjā → -ui (target: -ui - adjective suffix)', () => {
+      const result = evolveWord('-ōjā');
+      expect(result.output).toBe('-ui');
+    });
   });
 
   describe('Compounds with morpheme boundaries', () => {
