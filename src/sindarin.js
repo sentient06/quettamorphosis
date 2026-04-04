@@ -1135,9 +1135,22 @@ export const sindarinRules = {
     pattern: '[-wi] > [-y]',
     description: 'final [-wi] became [-y]',
     url: 'https://eldamo.org/content/words/word-677308549.html',
-    mechanic: (str, options = {}) => {
-      const occurrences = findAllOf(['wi', 'ui'], str);
-      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+    input: [
+      {
+        name: 'useUi',
+        label: 'Include "ui"',
+        type: 'boolean',
+        default: false,
+        description: 'Include "-ui" along with "-wi"'
+      }
+    ],
+    mechanic: (str, { useUi = false, morphemes } = {}) => {
+      const target = ['wi'];
+      if (useUi) {
+        target.push('ui');
+      }
+      const occurrences = findAllOf(target, str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes };
 
       let result = str;
       const removedIndices = [];
@@ -1152,10 +1165,10 @@ export const sindarinRules = {
         }
       }
 
-      const morphemes = (result !== str && options.morphemes)
-        ? recalcMorphemes(result, options.morphemes, removedIndices)
-        : (options.morphemes || [str]);
-      return { in: str, out: result, morphemes };
+      const newMorphemes = (result !== str && morphemes)
+        ? recalcMorphemes(result, morphemes, removedIndices)
+        : (morphemes || [str]);
+      return { in: str, out: result, morphemes: newMorphemes };
     },
   },
   '875184187': {

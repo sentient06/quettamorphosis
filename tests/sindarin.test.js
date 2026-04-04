@@ -661,10 +661,10 @@ describe('Sindarin rules', () => {
   it('03300 - final [-wi] became [-y]', () => {
     expect(sindarinRules['677308549'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['677308549'].mechanic('herwi').out).toBe('herj');
-    expect(sindarinRules['677308549'].mechanic('melui').out).toBe('melj');
+    expect(sindarinRules['677308549'].mechanic('melui', { useUi: true }).out).toBe('melj');
 
     // Morphemes: (non-existent compound for morpheme testing)
-    const compound = sindarinRules['677308549'].mechanic('abamelui', { morphemes: ['aba', 'melui'] });
+    const compound = sindarinRules['677308549'].mechanic('abamelui', { useUi: true, morphemes: ['aba', 'melui'] });
     expect(compound.out).toEqual('abamelj');
     expect(compound.morphemes).toEqual(['aba', 'melj']);
   });
