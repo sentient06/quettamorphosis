@@ -2040,36 +2040,27 @@ export const sindarinRules = {
     // these words have 2 syllables.
     // Also, all examples are iffy, as even the one example available seems to be an older form.
     mechanic: (str, options = {}) => {
-      const { found } = findFirstOf(['awa'], str);
-      if (!found) return { in: str, out: str, morphemes: options.morphemes };
+      const occurrences = findAllOf(['awa'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
-      const analyser = new SyllableAnalyser();
-      const syllableData = analyser.analyse(str);
-      const result = [];
-      const removedIndices = [];
-      let foundAw = false;
-      let currentLength = 0;
-      for (let i = 0; i < syllableData.length; i++) {
-        const { syllable, stressed } = syllableData[i];
-        if (foundAw && stressed === false && syllable.nth(0) === 'a') {
-          result[i-1] = result[i-1].replace('aw', 'au');
-          result.push(syllable.substring(1));
-          removedIndices.push(currentLength);
-          foundAw = false;
-        } else {
-          const awIndex = syllable.indexOf('aw');
-          foundAw = awIndex > -1;
-          result.push(syllable);
-          currentLength += syllable.length;
-        }
+      const glawaOccurrences = findAllOf(['glawa'], str);
+      if (glawaOccurrences.length > 0) {
+        return { in: str, out: str.replaceAll('glawa', 'glau'), morphemes: options.morphemes };
       }
 
-      const resultStr = result.join('');
-      const morphemes = (resultStr !== str && options.morphemes)
-        ? recalcMorphemes(resultStr, options.morphemes, removedIndices)
+      let result = str;
+      const removedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + 'au' + result.substring(charIndex + 3);
+        removedIndices.unshift(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
         : (options.morphemes || [str]);
 
-      return { in: str, out: resultStr, morphemes };
+      return { in: str, out: result, morphemes };
     },
   },
   '567222053': {
