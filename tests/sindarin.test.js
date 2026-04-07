@@ -1134,6 +1134,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['567222053'].mechanic('magalaur').out).toBe('magalor');
     expect(sindarinRules['567222053'].mechanic('r̥auvan').out).toBe('r̥ovan');
     expect(sindarinRules['567222053'].mechanic('θauniel').out).toBe('θoniel');
+    expect(sindarinRules['567222053'].mechanic('glaurxaðm', { morphemes: ['glaur', 'xaðm'] }).out).toBe('glorxaðm');
 
     // Exceptions:
     expect(sindarinRules['567222053'].mechanic('Bauglir').out).toBe('Bauglir');

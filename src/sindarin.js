@@ -2107,6 +2107,14 @@ export const sindarinRules = {
 
       if (syllableData.length === 1) return { in: str, out: str, morphemes };
 
+      // Build morpheme boundary info: cumulative positions where morphemes end
+      const morphemeBoundaries = [];
+      let cumulative = 0;
+      for (const m of morphemes) {
+        cumulative += m.length;
+        morphemeBoundaries.push(cumulative);
+      }
+
       // Check if any OTHER syllable contains o or u (inhibition check)
       const hasOtherOU = (excludeIndex) => {
         for (let j = 0; j < syllableData.length; j++) {
@@ -2125,20 +2133,51 @@ export const sindarinRules = {
 
       // Check what follows the au in a syllable
       // This includes: consonants after 'au' in current syllable + onset of next syllable
-      const getFollowingConsonants = (syllableIndex) => {
+      // BUT respects morpheme boundaries - don't count consonants from the next morpheme
+      // Returns { consonants, atMorphemeBoundary } - atMorphemeBoundary indicates if consonants end at a boundary
+      const getFollowingConsonants = (syllableIndex, syllableStartPos) => {
         const syl = syllableData[syllableIndex].syllable;
         const auIndex = syl.toLowerCase().indexOf('au');
-        if (auIndex === -1) return '';
+        if (auIndex === -1) return { consonants: '', atMorphemeBoundary: false };
+
+        // Position of 'au' in the full string
+        const auPosInStr = syllableStartPos + auIndex;
+        // Position right after 'au'
+        const afterAuPos = auPosInStr + 2;
+
+        // Find which morpheme boundary comes after the 'au'
+        let morphemeBoundaryAfterAu = str.length; // default: end of string
+        for (const boundary of morphemeBoundaries) {
+          if (boundary > auPosInStr && boundary < str.length) {
+            morphemeBoundaryAfterAu = boundary;
+            break;
+          }
+        }
 
         // Consonants after 'au' within current syllable (coda)
         const codaAfterAu = syl.slice(auIndex + 2);
 
-        // If this is the last syllable, just return the coda
-        if (syllableIndex >= syllableData.length - 1) {
-          return codaAfterAu;
+        // Check if the coda extends beyond the morpheme boundary
+        const codaEndPos = syllableStartPos + syl.length;
+        if (codaEndPos > morphemeBoundaryAfterAu) {
+          // The coda crosses a morpheme boundary, only count up to the boundary
+          const charsToKeep = morphemeBoundaryAfterAu - afterAuPos;
+          return { consonants: codaAfterAu.slice(0, Math.max(0, charsToKeep)), atMorphemeBoundary: true };
         }
 
-        // Get the onset of the next syllable
+        // If this is the last syllable, just return the coda
+        if (syllableIndex >= syllableData.length - 1) {
+          return { consonants: codaAfterAu, atMorphemeBoundary: false };
+        }
+
+        // Check if next syllable is in a different morpheme
+        const nextSylStartPos = syllableStartPos + syl.length;
+        if (nextSylStartPos >= morphemeBoundaryAfterAu) {
+          // Next syllable is in a different morpheme, don't include its onset
+          return { consonants: codaAfterAu, atMorphemeBoundary: true };
+        }
+
+        // Get the onset of the next syllable (same morpheme)
         const nextSyl = syllableData[syllableIndex + 1].syllable;
         let nextOnset = '';
         for (let k = 0; k < nextSyl.length; k++) {
@@ -2149,12 +2188,13 @@ export const sindarinRules = {
         }
 
         // Combine coda + next onset
-        return codaAfterAu + nextOnset;
+        return { consonants: codaAfterAu + nextOnset, atMorphemeBoundary: false };
       };
 
       const result = [];
       const removedIndices = [];
       let currentLength = 0;
+      let syllableStartPos = 0; // Track position of each syllable in the original string
 
       for (let i = 0; i < syllableData.length; i++) {
         const { syllable, stressed } = syllableData[i];
@@ -2163,14 +2203,14 @@ export const sindarinRules = {
         if (!matched) {
           result.push(syllable);
           currentLength += syllable.length;
+          syllableStartPos += syllable.length;
           continue;
         }
 
         const inhibited = hasOtherOU(i);
-        const followingConsonants = getFollowingConsonants(i);
+        const { consonants: followingConsonants, atMorphemeBoundary } = getFollowingConsonants(i, syllableStartPos);
         const followedBySingleConsonant = followingConsonants.length === 1;
         const followedByCluster = followingConsonants.length >= 2;
-
         if (stressed === false) {
           // Unstressed: au → o, unless inhibited
           if (inhibited) {
@@ -2189,9 +2229,10 @@ export const sindarinRules = {
             currentLength += syllable.length;
           } else if (followedBySingleConsonant) {
             // Followed by single consonant:
-            // - If followed by 'r': au → ō (long o) - e.g., Glauredhel, Rathlauriel
+            // - If followed by 'r' (not at morpheme boundary): au → ō (long o) - e.g., Glauredhel, Rathlauriel
+            // - If followed by 'r' at morpheme boundary: au → o (short o) - e.g., glaurxaðm → glorxaðm
             // - Otherwise: au → o (short o) - e.g., r̥auvan, θauniel
-            if (followingConsonants === 'r') {
+            if (followingConsonants === 'r' && !atMorphemeBoundary) {
               result.push(syllable.replace(matched, 'ó'));
               removedIndices.push(currentLength + charIndex);
               currentLength += charIndex;
@@ -2202,6 +2243,7 @@ export const sindarinRules = {
             }
             /*
              * 'r' is a sonorant consonant that tends to lengthen preceding vowels in many languages.
+             * However, at morpheme boundaries the lengthening effect doesn't apply.
              */
           } else {
             // No following consonants (end of word or before vowel): au → o
@@ -2215,6 +2257,8 @@ export const sindarinRules = {
             }
           }
         }
+        // Always advance syllableStartPos by the original syllable length
+        syllableStartPos += syllable.length;
       }
 
       const fullStrResult = result.join('');
