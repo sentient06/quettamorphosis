@@ -115,10 +115,11 @@ export const ancientTelerinRules = {
     description: 'labialized velars became labials',
     url: 'https://eldamo.org/content/words/word-171120983.html',
     mechanic: (str, options = {}) => {
-      const occurrences = findAllOf(['ŋgw', 'ŋkw', 'kw', 'ꝁw', 'gw', 'ŋw'], str);
+      const occurrences = findAllOf(['ŋƣ', 'ŋgw', 'ŋkw', 'kw', 'ꝁw', 'gw', 'ŋw'], str);
       if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
+        'ŋƣ': 'mb',
         'ŋgw': 'mb',
         'ŋkw': 'mp',
         'kw': 'p',

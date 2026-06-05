@@ -16,7 +16,7 @@ import {
   postProcessingRuleKeys,
 } from './conversions.js';
 import { toBase36 } from './utils.js';
-import { SANDHI_MASTER_RULE_ID } from './sandhi.js';
+import { SANDHI_MASTER_RULE_ID, shouldSkipSandhi } from './sandhi.js';
 
 // Separate rule keys for each language, sorted by orderId
 export const peRuleKeys = Object.keys(primitiveElvishRules).sort((a, b) => {
@@ -263,8 +263,17 @@ export function evolveWord(input, config = {}) {
     const customOpts = ruleOptions[ruleId] || ruleOptions[qualifiedOrderId] || {};
     Object.assign(options, customOpts);
 
-    // Run the rule
-    const result = rule.mechanic(currentValue, options);
+    // Run the rule (skip sandhi for non-compound words if compoundsOnly is enabled on master switch)
+    let compoundsOnly = false;
+    if (rule.isSandhi) {
+      const masterRule = sindarinRules[SANDHI_MASTER_RULE_ID];
+      const masterCustomOpts = ruleOptions[SANDHI_MASTER_RULE_ID] || ruleOptions['S 05800'] || {};
+      compoundsOnly = masterCustomOpts.compoundsOnly !== undefined
+        ? masterCustomOpts.compoundsOnly
+        : (masterRule.input?.find(i => i.name === 'compoundsOnly')?.default ?? true);
+    }
+    const sandhiCheck = shouldSkipSandhi(rule, currentValue, options, compoundsOnly);
+    const result = sandhiCheck.skip ? sandhiCheck.result : rule.mechanic(currentValue, options);
     const isTripped = result.in !== result.out;
 
     steps.push({

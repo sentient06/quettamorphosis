@@ -790,6 +790,13 @@ export const sindarinRules = {
         return { in: str, out: str, morphemes: options.morphemes };
       }
 
+      const secondLastChar = unmarkedStr.nth(-2);
+      if (secondLastChar.isVowel()) {
+        if (secondLastChar !== 'i' && lastChar !== 'u') {
+          return { in: str, out: str, morphemes: options.morphemes };
+        }
+      }
+
       const morphemes = options.morphemes
         ? recalcMorphemes(str, options.morphemes, [str.length - 1])
         : (options.morphemes || [str]);
@@ -2354,6 +2361,15 @@ export const sindarinRules = {
       'When disabled, all sandhi rules (05801-05849) are also disabled.',
       'Enable this rule to activate individual sandhi rules below.',
       'These rules are documented on David Salo\'s book "A Gateway to Sindarin" (2004), pp. 51-59.',
+    ],
+    input: [
+      {
+        name: 'compoundsOnly',
+        label: 'Compounds only',
+        type: 'boolean',
+        default: true,
+        description: 'Only apply sandhi rules to compound words (multiple morphemes)',
+      },
     ],
     isSandhiMaster: true,
     skip: true,

@@ -61,6 +61,9 @@ export const postProcessingRules = {
       if (['j', 'y'].includes(result.nth(0))) {
         if (result !== 'yrch') result = 'i' + result.substring(1);
       }
+      if (result.nth(0, 2) === 'xʷ') {
+        result = 'wh' + result.substring(2);
+      }
       if (result.nth(-1) === 'v') {
         result = result.substring(0, result.length - 1) + 'f';
       }

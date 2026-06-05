@@ -180,7 +180,7 @@ describe('Sandhi rules (05800)', () => {
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('annnest', { morphemes: ['ann', 'nest'] }))
       .toMatchObject({ out: 'annest', morphemes: ['an', 'nest'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('annɸalaſ', { morphemes: ['ann', 'ɸalaſ'] }))
-      .toMatchObject({ out: 'anɸalas', morphemes: ['an', 'ɸalas'] });
+      .toMatchObject({ out: 'anɸalaſ', morphemes: ['an', 'ɸalaſ'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('gonnndor', { morphemes: ['gonn', 'ndor'] }))
       .toMatchObject({ out: 'gonndor', morphemes: ['gon', 'ndor'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('lemmmbas', { morphemes: ['lemm', 'mbas'] }))
@@ -192,7 +192,7 @@ describe('Sandhi rules (05800)', () => {
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('aŋŋmband', { morphemes: ['aŋŋ', 'mband'] }))
       .toMatchObject({ out: 'aŋmband', morphemes: ['aŋ', 'mband'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('θiŋŋgoll', { morphemes: ['θiŋŋ', 'goll'] }))
-      .toMatchObject({ out: 'θiŋgol', morphemes: ['θiŋ', 'gol'] });
+      .toMatchObject({ out: 'θiŋgoll', morphemes: ['θiŋ', 'goll'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('laſbelin', { morphemes: ['laſ', 'belin'] }))
       .toMatchObject({ out: 'lasbelin', morphemes: ['las', 'belin'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('laſgalen', { morphemes: ['laſ', 'galen'] }))

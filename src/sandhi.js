@@ -39,6 +39,24 @@ function getOrderId(sandhiNumber) {
   return String(5800 + sandhiNumber - 115).padStart(5, '0');
 }
 
+/**
+ * Check if a sandhi rule should be skipped for a non-compound word.
+ * When compoundsOnly is true, sandhi changes only apply to compound words (multiple morphemes).
+ * @param {object} rule - The rule object
+ * @param {string} input - The input string
+ * @param {object} options - The options passed to the rule (containing morphemes)
+ * @param {boolean} compoundsOnly - Whether to restrict sandhi to compounds only (from master switch)
+ * @returns {{ skip: boolean, result?: object }} - Whether to skip, and the passthrough result if so
+ */
+export function shouldSkipSandhi(rule, input, options, compoundsOnly) {
+  if (!rule.isSandhi || !compoundsOnly) return { skip: false };
+  const morphemes = options?.morphemes || [input];
+  if (morphemes.length <= 1) {
+    return { skip: true, result: { in: input, out: input, morphemes } };
+  }
+  return { skip: false };
+}
+
 // =============================================================================
 // Sandhi Rules
 // =============================================================================
@@ -56,14 +74,14 @@ export const sandhiRules = {
     mechanic: (str, options = {}) => {
       const morphemes = options.morphemes || [str];
       const occurrences = findAllOf(['h'], str);
-      
+
       if (occurrences.length === 0) {
         return { in: str, out: str, morphemes };
       }
-      
+
       let result = str;
       const removedIndices = [];
-      
+
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, nextChar } = occurrences[i];
         if (nextChar.isConsonant()) {
@@ -71,11 +89,11 @@ export const sandhiRules = {
           removedIndices.unshift(charIndex);
         }
       }
-      
+
       const updatedMorphemes = removedIndices.length > 0
         ? recalcMorphemes(result, morphemes, removedIndices)
         : morphemes;
-      
+
       return { in: str, out: result, morphemes: updatedMorphemes };
     },
   },
@@ -92,24 +110,24 @@ export const sandhiRules = {
     mechanic: (str, options = {}) => {
       const morphemes = options.morphemes || [str];
       const occurrences = findAllOf(['nθ', 'mɸ', 'ŋx'], str);
-      
+
       if (occurrences.length === 0) {
         return { in: str, out: str, morphemes };
       }
-      
+
       const replacements = {
         'nθ': 'nt',
         'mɸ': 'mp',
         'ŋx': 'ŋk',
       };
-      
+
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched } = occurrences[i];
         const replacement = replacements[matched];
         result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
       }
-      
+
       const updatedMorphemes = recalcMorphemes(result, morphemes, []);
       return { in: str, out: result, morphemes: updatedMorphemes };
     },
@@ -130,27 +148,27 @@ export const sandhiRules = {
     mechanic: (str, options = {}) => {
       const morphemes = options.morphemes || [str];
       const occurrences = findAllOf(['nθ', 'mɸ', 'ŋx'], str);
-      
+
       if (occurrences.length === 0) {
         return { in: str, out: str, morphemes };
       }
-      
+
       const replacements = {
         'nθ': 'nn',
         'mɸ': 'mm',
         'ŋx': 'ŋŋ',
       };
-      
+
       let result = str;
       const removedIndices = [];
-      
+
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched, nextChar, lastChar } = occurrences[i];
         // Skip if at start or end (not medial)
         if (charIndex === 0 || lastChar) continue;
-        
+
         const replacement = replacements[matched];
-        
+
         if (matched === 'ŋx' && nextChar === 'j') {
           result = result.substring(0, charIndex) + 'ŋ' + result.substring(charIndex + 2);
           removedIndices.unshift(charIndex + 1);
@@ -158,7 +176,7 @@ export const sandhiRules = {
           result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
         }
       }
-      
+
       const updatedMorphemes = recalcMorphemes(result, morphemes, removedIndices);
       return { in: str, out: result, morphemes: updatedMorphemes };
     },
@@ -529,11 +547,14 @@ export const sandhiRules = {
       let result = str;
       const removedIndices = [];
 
-      // Handle ſ (ss) → s unconditionally (ſ represents long/double s)
+      // Handle ſ (ss) → s only when followed by a consonant
       const ssOccurrences = findAllOf(['ſ'], result);
       for (let i = ssOccurrences.length - 1; i >= 0; i--) {
         const { charIndex } = ssOccurrences[i];
-        result = result.substring(0, charIndex) + 's' + result.substring(charIndex + 1);
+        const nextChar = result.nth(charIndex + 1);
+        if (nextChar && nextChar.isConsonant()) {
+          result = result.substring(0, charIndex) + 's' + result.substring(charIndex + 1);
+        }
       }
 
       // Find morpheme boundary positions
@@ -586,11 +607,10 @@ export const sandhiRules = {
       }
 
       // Process from end to preserve indices
-      // Shorten when: preceding another consonant OR at word-final position
+      // Shorten only when preceding another consonant (not at word-final position)
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, nextChar } = occurrences[i];
-        const isWordFinal = !nextChar; // No next char = word-final
-        if ((nextChar && nextChar.isConsonant()) || isWordFinal) {
+        if (nextChar && nextChar.isConsonant()) {
           result = result.substring(0, charIndex) + result.substring(charIndex + 1);
           removedIndices.unshift(charIndex);
         }

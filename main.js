@@ -1,5 +1,5 @@
 import { sindarinRules } from './src/sindarin.js';
-import { SANDHI_MASTER_RULE_ID, getSandhiRuleId } from './src/sandhi.js';
+import { SANDHI_MASTER_RULE_ID, getSandhiRuleId, shouldSkipSandhi } from './src/sandhi.js';
 
 // Sandhi rule range constants
 const FIRST_SANDHI_RULE_ID = getSandhiRuleId(116);
@@ -346,7 +346,11 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
     }
 
     const isEnabled = isRuleEffectivelyEnabled(ruleId);
-    const result = isEnabled ? rule.mechanic(currentInput, options) : { in: currentInput, out: currentInput };
+    const compoundsOnly = rule.isSandhi ? getOptions(SANDHI_MASTER_RULE_ID, sindarinRules[SANDHI_MASTER_RULE_ID]).compoundsOnly !== false : false;
+    const sandhiCheck = shouldSkipSandhi(rule, currentInput, options, compoundsOnly);
+    const result = !isEnabled ? { in: currentInput, out: currentInput }
+      : sandhiCheck.skip ? sandhiCheck.result
+      : rule.mechanic(currentInput, options);
     const output = result.out;
 
     // Get morphemes from result, or keep existing morphemes if not returned
@@ -924,7 +928,11 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   }
 
   const isEnabled = isRuleEffectivelyEnabled(ruleId);
-  const result = isEnabled ? rule.mechanic(input, options) : { in: input, out: input };
+  const compoundsOnly = rule.isSandhi ? getOptions(SANDHI_MASTER_RULE_ID, sindarinRules[SANDHI_MASTER_RULE_ID]).compoundsOnly !== false : false;
+  const sandhiCheck = shouldSkipSandhi(rule, input, options, compoundsOnly);
+  const result = !isEnabled ? { in: input, out: input }
+    : sandhiCheck.skip ? sandhiCheck.result
+    : rule.mechanic(input, options);
   const output = result.out;
 
   // Get morphemes from result, or keep existing morphemes if not returned
