@@ -641,9 +641,34 @@ export const SINDARIN_PROFILE = {
   alternateSpelling: { 'm': 'mm', 's': 'ss' },
 };
 
+export const QUENYA_PROFILE = {
+  diphthongs: ['ai', 'oi', 'ui', 'au', 'eu', 'iu'],
+  vowels: ['a', 'á', 'e', 'é', 'i', 'í', 'o', 'ó', 'u', 'ú', 'y'],
+  consonants: ['p', 't', 'k', 'c', 'b', 'd', 'g', 'f', 's', 'þ', 'h', 'x', 'v', 'm', 'n', 'w', 'l', 'r', 'j'],
+  digraphs: ['ty', 'qu', 'dy', 'gw', 'ny', 'nw', 'hl', 'hr', 'hy', 'hw'],
+  digraphMap: {
+    'ty': 'ȶ', // [tʲ]
+    'qu': 'ꝗ', // [kʷ]
+    'dy': 'ȡ', // [dʲ]
+    'gw': 'ƣ',
+    'ny': 'ȵ', // [nʲ]
+    'ñ': 'ŋ',
+    'nw': 'ɴ', // [ŋʷ]
+    'hl': 'λ', // [l̥]
+    'hr': 'ꝛ', // [r̥]
+    'hy': 'ʝ', // [j̊]
+    'hw': 'ʍ',
+  },
+  validInitialConsonants: ['p', 't', 'k', 'c', 'b', 'd', 'g', 'f', 's', 'þ', 'h', 'x', 'v', 'm', 'n', 'w', 'l', 'r', 'j'],
+};
+
 export const OLD_SINDARIN_PROFILE = {
   ...SINDARIN_PROFILE,
   diphthongs: ['ai', 'ui', 'iu'],
+};
+
+export const ANCIENT_QUENYA_PROFILE = {
+  ...QUENYA_PROFILE,
 };
 
 export const ANCIENT_TELERIN_PROFILE = {
