@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest';
 import {
   preProcessingRules,
   interLanguageRules,
-  postProcessingRules,
+  sindarinPostProcessingRules as postProcessingRules,
   preProcessingRuleKeys,
   interLanguageRuleKeys,
-  postProcessingRuleKeys,
+  sindarinPostProcessingRuleKeys as postProcessingRuleKeys,
 } from '../src/conversions.js';
 
 describe('Conversion Rules', () => {

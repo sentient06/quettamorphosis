@@ -43,11 +43,13 @@ export const interLanguageRules = {
 };
 
 // =============================================================================
-// Post-processing Rules (after Sindarin)
-// Convert single characters back to digraphs for final output
+// Sindarin Post-processing Rules (after Sindarin stage)
+// Convert single characters back to digraphs and apply Sindarin-specific
+// orthographic conventions. Other pipelines (e.g. Quenya) will define their
+// own post-processing.
 // =============================================================================
 
-export const postProcessingRules = {
+export const sindarinPostProcessingRules = {
   'post-single-to-digraphs': {
     orderId: 'POST-01',
     pattern: 'single characters → digraphs',
@@ -81,5 +83,5 @@ export const postProcessingRules = {
 
 export const preProcessingRuleKeys = Object.keys(preProcessingRules);
 export const interLanguageRuleKeys = Object.keys(interLanguageRules);
-export const postProcessingRuleKeys = Object.keys(postProcessingRules);
+export const sindarinPostProcessingRuleKeys = Object.keys(sindarinPostProcessingRules);
 

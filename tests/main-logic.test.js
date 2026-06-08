@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
+  PIPELINE,
   peRuleKeys,
   atRuleKeys,
   osRuleKeys,
@@ -13,7 +14,6 @@ import {
   formatTripped,
   formatSkipped,
   isRuleEffectivelyEnabled,
-  getResultsObject,
 } from '../src/main-logic.js';
 import { sindarinRules } from '../src/sindarin.js';
 import { oldSindarinRules } from '../src/old-sindarin.js';
@@ -258,48 +258,31 @@ describe('main-logic', () => {
     });
   });
 
-  describe('getResultsObject', () => {
-    it('should return the PE results object for PE rules', () => {
-      const peResults = {};
-      const atResults = {};
-      const osResults = {};
-      const sindarinResults = {};
-      expect(getResultsObject(peRuleKeys[0], peResults, atResults, osResults, sindarinResults)).toBe(peResults);
+  describe('PIPELINE', () => {
+    it('should export a PIPELINE array with at least one stage', () => {
+      expect(Array.isArray(PIPELINE)).toBe(true);
+      expect(PIPELINE.length).toBeGreaterThan(0);
     });
 
-    it('should return the AT results object for AT rules', () => {
-      const peResults = {};
-      const atResults = {};
-      const osResults = {};
-      const sindarinResults = {};
-      expect(getResultsObject(atRuleKeys[0], peResults, atResults, osResults, sindarinResults)).toBe(atResults);
+    it('each stage should have id, name, acronym, rules, and ruleKeys', () => {
+      PIPELINE.forEach(stage => {
+        expect(stage).toHaveProperty('id');
+        expect(stage).toHaveProperty('name');
+        expect(stage).toHaveProperty('acronym');
+        expect(stage).toHaveProperty('rules');
+        expect(stage).toHaveProperty('ruleKeys');
+        expect(Array.isArray(stage.ruleKeys)).toBe(true);
+        expect(stage.ruleKeys.length).toBeGreaterThan(0);
+      });
     });
 
-    it('should return the OS results object for OS rules', () => {
-      const peResults = {};
-      const atResults = {};
-      const osResults = {};
-      const sindarinResults = {};
-      expect(getResultsObject(osRuleKeys[0], peResults, atResults, osResults, sindarinResults)).toBe(osResults);
-    });
-
-    it('should return the Sindarin results object for Sindarin rules', () => {
-      const peResults = {};
-      const atResults = {};
-      const osResults = {};
-      const sindarinResults = {};
-      expect(getResultsObject(sindarinRuleKeys[0], peResults, atResults, osResults, sindarinResults)).toBe(sindarinResults);
-    });
-
-    it('should return null for unknown rules', () => {
-      expect(getResultsObject('nonexistent', {}, {}, {}, {})).toBe(null);
-    });
-
-    it('should return null for conversion rules', () => {
-      const preProcessingKeys = Object.keys(preProcessingRules);
-      if (preProcessingKeys.length > 0) {
-        expect(getResultsObject(preProcessingKeys[0], {}, {}, {}, {})).toBe(null);
-      }
+    it('ruleKeys should match the keys of the rules object', () => {
+      PIPELINE.forEach(stage => {
+        const ruleIds = Object.keys(stage.rules);
+        stage.ruleKeys.forEach(ruleId => {
+          expect(ruleIds).toContain(ruleId);
+        });
+      });
     });
   });
 });

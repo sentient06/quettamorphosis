@@ -10,42 +10,72 @@ import { primitiveElvishRules } from './primitive-elvish.js';
 import {
   preProcessingRules,
   interLanguageRules,
-  postProcessingRules,
+  sindarinPostProcessingRules,
   preProcessingRuleKeys,
   interLanguageRuleKeys,
-  postProcessingRuleKeys,
+  sindarinPostProcessingRuleKeys,
 } from './conversions.js';
+
+// Alias: the current pipeline uses Sindarin post-processing.
+// When Quenya is added, a separate pipeline config will reference different post-processing.
+const postProcessingRules = sindarinPostProcessingRules;
+const postProcessingRuleKeys = sindarinPostProcessingRuleKeys;
 import { toBase36 } from './utils.js';
 import { SANDHI_MASTER_RULE_ID, shouldSkipSandhi } from './sandhi.js';
 
-// Separate rule keys for each language, sorted by orderId
-export const peRuleKeys = Object.keys(primitiveElvishRules).sort((a, b) => {
-  return primitiveElvishRules[a].orderId.localeCompare(primitiveElvishRules[b].orderId);
+// =============================================================================
+// Pipeline Configuration
+// =============================================================================
+
+// Defines the language stages in execution order.
+// Each stage has: id, name, acronym, rules object, and optionally hasSandhi.
+const PIPELINE = [
+  { id: 'primitive-elvish', name: 'Primitive Elvish', acronym: 'PE', rules: primitiveElvishRules, hasSandhi: false },
+  { id: 'ancient-telerin', name: 'Ancient Telerin', acronym: 'AT', rules: ancientTelerinRules, hasSandhi: false },
+  { id: 'old-sindarin', name: 'Old Sindarin', acronym: 'OS', rules: oldSindarinRules, hasSandhi: false },
+  { id: 'sindarin', name: 'Sindarin', acronym: 'S', rules: sindarinRules, hasSandhi: true },
+];
+
+// Export the pipeline so consumers (e.g., main.js) can use it
+export { PIPELINE };
+
+// Derived lookups
+const stageByLangId = Object.fromEntries(PIPELINE.map(s => [s.id, s]));
+const sandhiStage = PIPELINE.find(s => s.hasSandhi);
+
+// Build sorted rule keys per stage
+PIPELINE.forEach(stage => {
+  stage.ruleKeys = Object.keys(stage.rules).sort((a, b) => {
+    return stage.rules[a].orderId.localeCompare(stage.rules[b].orderId);
+  });
 });
 
-export const atRuleKeys = Object.keys(ancientTelerinRules).sort((a, b) => {
-  return ancientTelerinRules[a].orderId.localeCompare(ancientTelerinRules[b].orderId);
-});
-
-export const osRuleKeys = Object.keys(oldSindarinRules).sort((a, b) => {
-  return oldSindarinRules[a].orderId.localeCompare(oldSindarinRules[b].orderId);
-});
-
-export const sindarinRuleKeys = Object.keys(sindarinRules).sort((a, b) => {
-  return sindarinRules[a].orderId.localeCompare(sindarinRules[b].orderId);
-});
+// Export individual key arrays for backward compatibility
+export const peRuleKeys = PIPELINE[0].ruleKeys;
+export const atRuleKeys = PIPELINE[1].ruleKeys;
+export const osRuleKeys = PIPELINE[2].ruleKeys;
+export const sindarinRuleKeys = PIPELINE[3].ruleKeys;
 
 // Combined keys: all conversions + languages in execution order
-// Pre-processing → PE → AT → OS → Inter-language → Sindarin → Post-processing
+// Pre-processing → PE → ... → Inter-language → last stage → Post-processing
 export const allRuleKeys = [
   ...preProcessingRuleKeys,
-  ...peRuleKeys,
-  ...atRuleKeys,
-  ...osRuleKeys,
-  ...interLanguageRuleKeys,
-  ...sindarinRuleKeys,
+  ...PIPELINE.flatMap((stage, i) => {
+    if (i === PIPELINE.length - 1 && interLanguageRuleKeys.length > 0) {
+      return [...interLanguageRuleKeys, ...stage.ruleKeys];
+    }
+    return stage.ruleKeys;
+  }),
   ...postProcessingRuleKeys,
 ];
+
+// Reverse lookup: ruleId → stage (for language rules only)
+const ruleIdToStage = new Map();
+PIPELINE.forEach(stage => {
+  for (const ruleId of stage.ruleKeys) {
+    ruleIdToStage.set(ruleId, stage);
+  }
+});
 
 // Helper to check if a rule is a conversion rule
 export function isConversionRule(ruleId) {
@@ -55,11 +85,9 @@ export function isConversionRule(ruleId) {
 // Helper to get rules object for a given ruleId
 export function getRulesObject(ruleId) {
   if (preProcessingRules[ruleId]) return preProcessingRules;
-  if (primitiveElvishRules[ruleId]) return primitiveElvishRules;
-  if (ancientTelerinRules[ruleId]) return ancientTelerinRules;
-  if (oldSindarinRules[ruleId]) return oldSindarinRules;
+  const stage = ruleIdToStage.get(ruleId);
+  if (stage) return stage.rules;
   if (interLanguageRules[ruleId]) return interLanguageRules;
-  if (sindarinRules[ruleId]) return sindarinRules;
   if (postProcessingRules[ruleId]) return postProcessingRules;
   return null;
 }
@@ -67,11 +95,9 @@ export function getRulesObject(ruleId) {
 // Helper to get language/section name for a given ruleId
 export function getLanguage(ruleId) {
   if (preProcessingRules[ruleId]) return 'pre-processing';
-  if (primitiveElvishRules[ruleId]) return 'primitive-elvish';
-  if (ancientTelerinRules[ruleId]) return 'ancient-telerin';
-  if (oldSindarinRules[ruleId]) return 'old-sindarin';
+  const stage = ruleIdToStage.get(ruleId);
+  if (stage) return stage.id;
   if (interLanguageRules[ruleId]) return 'inter-language';
-  if (sindarinRules[ruleId]) return 'sindarin';
   if (postProcessingRules[ruleId]) return 'post-processing';
   return null;
 }
@@ -151,8 +177,8 @@ export function isRuleEffectivelyEnabled(ruleId, ruleState, languageState) {
     : (rule?.skip !== true);
 
   // For sandhi rules (isSandhi: true), also check if master switch is enabled
-  if (rule?.isSandhi) {
-    const masterRule = sindarinRules[SANDHI_MASTER_RULE_ID];
+  if (rule?.isSandhi && sandhiStage) {
+    const masterRule = sandhiStage.rules[SANDHI_MASTER_RULE_ID];
     const masterEnabled = ruleState[SANDHI_MASTER_RULE_ID] !== undefined
       ? ruleState[SANDHI_MASTER_RULE_ID]
       : (masterRule?.skip !== true);
@@ -163,24 +189,7 @@ export function isRuleEffectivelyEnabled(ruleId, ruleState, languageState) {
 }
 
 /**
- * Get the results object for a given ruleId
- * @param {string} ruleId - The rule ID
- * @param {Object} peRuleResults - Primitive Elvish results
- * @param {Object} atRuleResults - Ancient Telerin results
- * @param {Object} osRuleResults - Old Sindarin results
- * @param {Object} sindarinRuleResults - Sindarin results
- * @returns {Object|null}
- */
-export function getResultsObject(ruleId, peRuleResults, atRuleResults, osRuleResults, sindarinRuleResults) {
-  if (primitiveElvishRules[ruleId]) return peRuleResults;
-  if (ancientTelerinRules[ruleId]) return atRuleResults;
-  if (oldSindarinRules[ruleId]) return osRuleResults;
-  if (sindarinRules[ruleId]) return sindarinRuleResults;
-  return null;
-}
-
-/**
- * Evolve a word through all rules from Primitive Elvish to Sindarin.
+ * Evolve a word through all rules from Primitive Elvish to the final stage.
  * This is the core test helper for end-to-end word evolution testing.
  *
  * @param {string} input - The input word (in Primitive Elvish form)
@@ -206,21 +215,14 @@ export function evolveWord(input, config = {}) {
   const tripped = [];
   const steps = [];
 
-  // Map language names to orderId prefixes
-  const langPrefixMap = {
-    'primitive-elvish': 'PE',
-    'ancient-telerin': 'AT',
-    'old-sindarin': 'OS',
-    'sindarin': 'S',
-  };
-
   for (const ruleId of allRuleKeys) {
     const rulesObj = getRulesObject(ruleId);
     if (!rulesObj) continue;
 
     const rule = rulesObj[ruleId];
     const language = getLanguage(ruleId);
-    const langPrefix = langPrefixMap[language] || '';
+    const stage = stageByLangId[language];
+    const langPrefix = stage ? stage.acronym : '';
     const qualifiedOrderId = langPrefix ? `${langPrefix} ${rule.orderId}` : rule.orderId;
 
     // Check if language is disabled
@@ -242,8 +244,9 @@ export function evolveWord(input, config = {}) {
     }
 
     // For sandhi rules, check if master switch is enabled
-    if (rule.isSandhi) {
-      const masterQualifiedOrderId = 'S 05800';
+    if (rule.isSandhi && sandhiStage) {
+      const masterRule = sandhiStage.rules[SANDHI_MASTER_RULE_ID];
+      const masterQualifiedOrderId = `${sandhiStage.acronym} ${masterRule.orderId}`;
       const isMasterExplicitlyEnabled = enabledRules.has(SANDHI_MASTER_RULE_ID) || enabledRules.has(masterQualifiedOrderId);
       const isMasterDisabled = disabledRules.has(SANDHI_MASTER_RULE_ID) || disabledRules.has(masterQualifiedOrderId);
       // Master switch has skip: true, so it must be explicitly enabled and not disabled
@@ -265,9 +268,10 @@ export function evolveWord(input, config = {}) {
 
     // Run the rule (skip sandhi for non-compound words if compoundsOnly is enabled on master switch)
     let compoundsOnly = false;
-    if (rule.isSandhi) {
-      const masterRule = sindarinRules[SANDHI_MASTER_RULE_ID];
-      const masterCustomOpts = ruleOptions[SANDHI_MASTER_RULE_ID] || ruleOptions['S 05800'] || {};
+    if (rule.isSandhi && sandhiStage) {
+      const masterRule = sandhiStage.rules[SANDHI_MASTER_RULE_ID];
+      const masterQualifiedOrderId = `${sandhiStage.acronym} ${masterRule.orderId}`;
+      const masterCustomOpts = ruleOptions[SANDHI_MASTER_RULE_ID] || ruleOptions[masterQualifiedOrderId] || {};
       compoundsOnly = masterCustomOpts.compoundsOnly !== undefined
         ? masterCustomOpts.compoundsOnly
         : (masterRule.input?.find(i => i.name === 'compoundsOnly')?.default ?? true);

@@ -5,26 +5,22 @@
 
 import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE, PRIMITIVE_ELVISH_PROFILE, toBase36, fromBase36 } from './utils.js';
 import {
+  PIPELINE,
   allRuleKeys,
   isConversionRule,
   getRulesObject,
   getLanguage,
 } from './main-logic.js';
 
-// Language prefix mapping for rule references
-const langPrefixMap = {
-  'pe': 'primitive-elvish',
-  'at': 'ancient-telerin',
-  'os': 'old-sindarin',
-  's': 'sindarin',
-};
-
-const langToPrefix = {
-  'primitive-elvish': 'PE',
-  'ancient-telerin': 'AT',
-  'old-sindarin': 'OS',
-  'sindarin': 'S',
-};
+// Language prefix mappings derived from pipeline
+// langPrefixMap: short lowercase prefix → language id (e.g. 'pe' → 'primitive-elvish')
+// langToPrefix: language id → uppercase prefix (e.g. 'primitive-elvish' → 'PE')
+const langPrefixMap = Object.fromEntries(
+  PIPELINE.map(s => [s.acronym.toLowerCase(), s.id])
+);
+const langToPrefix = Object.fromEntries(
+  PIPELINE.map(s => [s.id, s.acronym])
+);
 
 /**
  * Parse a rule reference into its actual ruleId.
@@ -44,7 +40,8 @@ function parseRuleRef(ref) {
   const normalized = ref.toString().trim().toUpperCase();
 
   // Check if it's an order ID format (PE 00100, PE100, s5800, etc.)
-  const match = normalized.match(/^(PE|AT|OS|S)\s*(\d+)$/);
+  const prefixPattern = PIPELINE.map(s => s.acronym).join('|');
+  const match = normalized.match(new RegExp(`^(${prefixPattern})\\s*(\\d+)$`));
   if (match) {
     const [, langPrefix, numPart] = match;
     const targetLang = langPrefixMap[langPrefix.toLowerCase()];
@@ -108,7 +105,8 @@ function parseWildcard(pattern) {
     return allRuleKeys.filter(ruleId => !isConversionRule(ruleId));
   }
   
-  const match = normalized.match(/^(pe|at|os|s)\*$/);
+  const wildcardPattern = PIPELINE.map(s => s.acronym.toLowerCase()).join('|');
+  const match = normalized.match(new RegExp(`^(${wildcardPattern})\\*$`));
   if (match) {
     const [, langPrefix] = match;
     const targetLang = langPrefixMap[langPrefix];

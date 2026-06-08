@@ -10,9 +10,10 @@ import { primitiveElvishRules } from './src/primitive-elvish.js';
 import {
   preProcessingRuleKeys,
   interLanguageRuleKeys,
-  postProcessingRuleKeys,
+  sindarinPostProcessingRuleKeys as postProcessingRuleKeys,
 } from './src/conversions.js';
 import {
+  PIPELINE,
   peRuleKeys,
   atRuleKeys,
   osRuleKeys,
@@ -26,7 +27,6 @@ import {
   formatTripped,
   formatSkipped,
   isRuleEffectivelyEnabled as _isRuleEffectivelyEnabled,
-  getResultsObject as _getResultsObject,
 } from './src/main-logic.js';
 import { setupDebugTools } from './src/debug.js';
 import {
@@ -39,6 +39,21 @@ import {
   encodeDisabledParam,
 } from './src/query-string.js';
 import { toBase36 } from './src/utils.js';
+
+// =============================================================================
+// Pipeline-derived helpers
+// =============================================================================
+
+// Derived lookup maps
+const stageByLangId = Object.fromEntries(PIPELINE.map(s => [s.id, s]));
+const stageResults = Object.fromEntries(PIPELINE.map(s => [s.id, {}]));
+const allLanguageIds = PIPELINE.map(s => s.id);
+
+// Sandhi helpers (only present in some pipelines)
+const sandhiStage = PIPELINE.find(s => s.hasSandhi);
+function getSandhiMasterRule() {
+  return sandhiStage ? sandhiStage.rules[SANDHI_MASTER_RULE_ID] : null;
+}
 
 // =============================================================================
 // DOM Elements
@@ -69,10 +84,7 @@ const $drawerOverlay = document.querySelector('.drawer-overlay');
 // Languages that are disabled by default (temporary for incomplete implementations)
 const LANGUAGES_DISABLED_BY_DEFAULT = [];
 
-const peRuleResults = {};
-const atRuleResults = {};
-const osRuleResults = {};
-const sindarinRuleResults = {};
+
 // Track morphemes for each rule (needed when toggling rules mid-chain)
 const ruleMorphemes = {};
 // Track sandhi execution state for master rule aggregation
@@ -99,12 +111,7 @@ if (isShareMode()) {
   Object.keys(languageState).forEach(key => delete languageState[key]);
 
   // Get all rule IDs for parsing ranges
-  const allRuleIds = [
-    ...Object.keys(primitiveElvishRules),
-    ...Object.keys(ancientTelerinRules),
-    ...Object.keys(oldSindarinRules),
-    ...Object.keys(sindarinRules),
-  ];
+  const allRuleIds = PIPELINE.flatMap(stage => Object.keys(stage.rules));
 
   // Parse ?off= parameter and apply disabled state
   const { disabledRules, disabledLanguages } = getDisabledFromUrl(allRuleIds);
@@ -136,44 +143,19 @@ LANGUAGES_DISABLED_BY_DEFAULT.forEach(langId => {
 
 // Initialize order state with default orderId-based sorting if not present
 function initializeOrderState() {
-  if (!orderState['primitive-elvish']) {
-    orderState['primitive-elvish'] = [...peRuleKeys];
-  }
-  if (!orderState['ancient-telerin']) {
-    orderState['ancient-telerin'] = [...atRuleKeys];
-  }
-  if (!orderState['old-sindarin']) {
-    orderState['old-sindarin'] = [...osRuleKeys];
-  }
-  if (!orderState['sindarin']) {
-    orderState['sindarin'] = [...sindarinRuleKeys];
-  }
-  // Add any new rules that might have been added since last save
-  peRuleKeys.forEach(ruleId => {
-    if (!orderState['primitive-elvish'].includes(ruleId)) {
-      orderState['primitive-elvish'].push(ruleId);
+  PIPELINE.forEach(stage => {
+    if (!orderState[stage.id]) {
+      orderState[stage.id] = [...stage.ruleKeys];
     }
+    // Add any new rules that might have been added since last save
+    stage.ruleKeys.forEach(ruleId => {
+      if (!orderState[stage.id].includes(ruleId)) {
+        orderState[stage.id].push(ruleId);
+      }
+    });
+    // Remove any rules that no longer exist
+    orderState[stage.id] = orderState[stage.id].filter(id => stage.ruleKeys.includes(id));
   });
-  atRuleKeys.forEach(ruleId => {
-    if (!orderState['ancient-telerin'].includes(ruleId)) {
-      orderState['ancient-telerin'].push(ruleId);
-    }
-  });
-  osRuleKeys.forEach(ruleId => {
-    if (!orderState['old-sindarin'].includes(ruleId)) {
-      orderState['old-sindarin'].push(ruleId);
-    }
-  });
-  sindarinRuleKeys.forEach(ruleId => {
-    if (!orderState['sindarin'].includes(ruleId)) {
-      orderState['sindarin'].push(ruleId);
-    }
-  });
-  // Remove any rules that no longer exist
-  orderState['primitive-elvish'] = orderState['primitive-elvish'].filter(id => peRuleKeys.includes(id));
-  orderState['ancient-telerin'] = orderState['ancient-telerin'].filter(id => atRuleKeys.includes(id));
-  orderState['old-sindarin'] = orderState['old-sindarin'].filter(id => osRuleKeys.includes(id));
-  orderState['sindarin'] = orderState['sindarin'].filter(id => sindarinRuleKeys.includes(id));
 }
 
 initializeOrderState();
@@ -185,15 +167,16 @@ function getOrderedRuleKeys(language) {
 
 // Build the complete ordered list of all rule keys
 function getAllOrderedRuleKeys() {
-  return [
-    ...preProcessingRuleKeys,
-    ...getOrderedRuleKeys('primitive-elvish'),
-    ...getOrderedRuleKeys('ancient-telerin'),
-    ...getOrderedRuleKeys('old-sindarin'),
-    ...interLanguageRuleKeys,
-    ...getOrderedRuleKeys('sindarin'),
-    ...postProcessingRuleKeys,
-  ];
+  const keys = [...preProcessingRuleKeys];
+  PIPELINE.forEach((stage, i) => {
+    // Insert inter-language conversions before the last stage
+    if (i === PIPELINE.length - 1 && interLanguageRuleKeys.length > 0) {
+      keys.push(...interLanguageRuleKeys);
+    }
+    keys.push(...getOrderedRuleKeys(stage.id));
+  });
+  keys.push(...postProcessingRuleKeys);
+  return keys;
 }
 
 // Save order state to localStorage
@@ -346,7 +329,7 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
     }
 
     const isEnabled = isRuleEffectivelyEnabled(ruleId);
-    const compoundsOnly = rule.isSandhi ? getOptions(SANDHI_MASTER_RULE_ID, sindarinRules[SANDHI_MASTER_RULE_ID]).compoundsOnly !== false : false;
+    const compoundsOnly = rule.isSandhi && getSandhiMasterRule() ? getOptions(SANDHI_MASTER_RULE_ID, getSandhiMasterRule()).compoundsOnly !== false : false;
     const sandhiCheck = shouldSkipSandhi(rule, currentInput, options, compoundsOnly);
     const result = !isEnabled ? { in: currentInput, out: currentInput }
       : sandhiCheck.skip ? sandhiCheck.result
@@ -423,7 +406,8 @@ const firstRuleId = allRuleKeys[0];
 
 // Wrapper functions that use module-level state
 function getResultsObject(ruleId) {
-  return _getResultsObject(ruleId, peRuleResults, atRuleResults, osRuleResults, sindarinRuleResults);
+  const langId = getLanguage(ruleId);
+  return langId ? stageResults[langId] : null;
 }
 
 function isRuleEffectivelyEnabled(ruleId) {
@@ -518,20 +502,9 @@ function toggleLanguage(langId, isEnabled) {
   }
 
   // Clear results for this language (they will be repopulated on re-run if enabled)
-  const ruleKeysMap = {
-    'primitive-elvish': peRuleKeys,
-    'ancient-telerin': atRuleKeys,
-    'old-sindarin': osRuleKeys,
-    'sindarin': sindarinRuleKeys,
-  };
-  const resultsObjMap = {
-    'primitive-elvish': peRuleResults,
-    'ancient-telerin': atRuleResults,
-    'old-sindarin': osRuleResults,
-    'sindarin': sindarinRuleResults,
-  };
-  const ruleKeys = ruleKeysMap[langId] || [];
-  const resultsObj = resultsObjMap[langId] || {};
+  const stage = stageByLangId[langId];
+  const ruleKeys = stage ? stage.ruleKeys : [];
+  const resultsObj = stage ? stageResults[langId] : {};
   ruleKeys.forEach((ruleId) => {
     delete resultsObj[ruleId];
     updateRuleVisualState(ruleId);
@@ -585,9 +558,9 @@ function toggleRule(ruleId, isEnabled) {
   updateRuleVisualState(ruleId);
 
   // If this is the sandhi master switch, update all sandhi rules' visual states
-  if (ruleId === SANDHI_MASTER_RULE_ID) {
-    sindarinRuleKeys.forEach(sandhiRuleId => {
-      const sandhiRule = sindarinRules[sandhiRuleId];
+  if (ruleId === SANDHI_MASTER_RULE_ID && sandhiStage) {
+    sandhiStage.ruleKeys.forEach(sandhiRuleId => {
+      const sandhiRule = sandhiStage.rules[sandhiRuleId];
       if (sandhiRule?.isSandhi) {
         updateRuleVisualState(sandhiRuleId);
       }
@@ -848,13 +821,8 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
 // Get language acronym for logging
 function getLanguageAcronym(ruleId) {
   const lang = getLanguage(ruleId);
-  switch (lang) {
-    case 'primitive-elvish': return 'PE';
-    case 'ancient-telerin': return 'AT';
-    case 'old-sindarin': return 'OS';
-    case 'sindarin': return ' S';
-    default: return '??';
-  }
+  const stage = stageByLangId[lang];
+  return stage ? stage.acronym.padStart(2) : '??';
 }
 
 function runRule(ruleId, input, nextRuleId, morphemes = null) {
@@ -928,7 +896,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   }
 
   const isEnabled = isRuleEffectivelyEnabled(ruleId);
-  const compoundsOnly = rule.isSandhi ? getOptions(SANDHI_MASTER_RULE_ID, sindarinRules[SANDHI_MASTER_RULE_ID]).compoundsOnly !== false : false;
+  const compoundsOnly = rule.isSandhi && getSandhiMasterRule() ? getOptions(SANDHI_MASTER_RULE_ID, getSandhiMasterRule()).compoundsOnly !== false : false;
   const sandhiCheck = shouldSkipSandhi(rule, input, options, compoundsOnly);
   const result = !isEnabled ? { in: input, out: input }
     : sandhiCheck.skip ? sandhiCheck.result
@@ -1084,46 +1052,24 @@ function softResetPage() {
 // =============================================================================
 
 function printResults() {
-  // Build tripped results: Primitive Elvish, Ancient Telerin, then OS, then Sindarin
-  const peTripped = formatTripped(primitiveElvishRules, peRuleResults);
-  const atTripped = formatTripped(ancientTelerinRules, atRuleResults);
-  const osTripped = formatTripped(oldSindarinRules, osRuleResults);
-  const sindarinTripped = formatTripped(sindarinRules, sindarinRuleResults);
-
+  // Build tripped results from pipeline stages
   let trippedHtml = '';
-  if (peTripped) {
-    trippedHtml += '<strong>Primitive Elvish:</strong>\n' + peTripped + '\n\n';
-  }
-  if (atTripped) {
-    trippedHtml += '<strong>Ancient Telerin:</strong>\n' + atTripped + '\n\n';
-  }
-  if (osTripped) {
-    trippedHtml += '<strong>Old Sindarin:</strong>\n' + osTripped + '\n\n';
-  }
-  if (sindarinTripped) {
-    trippedHtml += '<strong>Sindarin:</strong>\n' + sindarinTripped;
-  }
+  PIPELINE.forEach(stage => {
+    const tripped = formatTripped(stage.rules, stageResults[stage.id]);
+    if (tripped) {
+      trippedHtml += `<strong>${stage.name}:</strong>\n` + tripped + '\n\n';
+    }
+  });
   $resultsTripped.innerHTML = trippedHtml.trim();
 
-  // Build skipped results: Primitive Elvish, Ancient Telerin, then OS, then Sindarin
-  const peSkipped = formatSkipped(primitiveElvishRules, peRuleKeys, ruleState);
-  const atSkipped = formatSkipped(ancientTelerinRules, atRuleKeys, ruleState);
-  const osSkipped = formatSkipped(oldSindarinRules, osRuleKeys, ruleState);
-  const sindarinSkipped = formatSkipped(sindarinRules, sindarinRuleKeys, ruleState);
-
+  // Build skipped results from pipeline stages
   let skippedHtml = '';
-  if (peSkipped) {
-    skippedHtml += '<strong>Primitive Elvish:</strong>\n' + peSkipped + '\n\n';
-  }
-  if (atSkipped) {
-    skippedHtml += '<strong>Ancient Telerin:</strong>\n' + atSkipped + '\n\n';
-  }
-  if (osSkipped) {
-    skippedHtml += '<strong>Old Sindarin:</strong>\n' + osSkipped + '\n\n';
-  }
-  if (sindarinSkipped) {
-    skippedHtml += '<strong>Sindarin:</strong>\n' + sindarinSkipped;
-  }
+  PIPELINE.forEach(stage => {
+    const skipped = formatSkipped(stage.rules, stage.ruleKeys, ruleState);
+    if (skipped) {
+      skippedHtml += `<strong>${stage.name}:</strong>\n` + skipped + '\n\n';
+    }
+  });
   $resultsSkipped.innerHTML = skippedHtml.trim();
 
   // Update sticky header height since results may have changed the top-wrapper size
@@ -1186,24 +1132,19 @@ $shareUrlButton.addEventListener('click', async () => {
   const disabledLanguages = new Set();
 
   // Check language states
-  ['primitive-elvish', 'ancient-telerin', 'old-sindarin', 'sindarin'].forEach(langId => {
+  allLanguageIds.forEach(langId => {
     if (languageState[langId] === false) {
       disabledLanguages.add(langId);
     }
   });
 
   // Get all rule IDs
-  const allRuleIds = [
-    ...Object.keys(primitiveElvishRules),
-    ...Object.keys(ancientTelerinRules),
-    ...Object.keys(oldSindarinRules),
-    ...Object.keys(sindarinRules),
-  ];
+  const allRuleIds = PIPELINE.flatMap(stage => Object.keys(stage.rules));
 
   // Check each rule's state
   allRuleIds.forEach(ruleId => {
-    const rule = primitiveElvishRules[ruleId] || ancientTelerinRules[ruleId] ||
-                 oldSindarinRules[ruleId] || sindarinRules[ruleId];
+    const rulesObj = getRulesObject(ruleId);
+    const rule = rulesObj ? rulesObj[ruleId] : null;
     const isDefaultEnabled = !rule.skip;
     const currentState = ruleState[ruleId];
 
@@ -1369,46 +1310,25 @@ if (preProcessingRuleKeys.length > 0) {
   });
 }
 
-// 2. Primitive Elvish rules
-const $peWrapper = createLanguageWrapper('primitive-elvish', 'Primitive Elvish');
-getOrderedRuleKeys('primitive-elvish').forEach((ruleId) => {
-  const globalIndex = allOrderedKeys.indexOf(ruleId);
-  const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-  drawRule(ruleId, nextRuleId, $peWrapper);
-});
+// 2. Language stages (from pipeline)
+PIPELINE.forEach((stage, i) => {
+  // Insert inter-language conversions before the last stage
+  if (i === PIPELINE.length - 1 && interLanguageRuleKeys.length > 0) {
+    const prevStage = PIPELINE[i - 1];
+    const $interWrapper = createConversionWrapper('inter-language', `${prevStage.name} → ${stage.name} Transition`);
+    interLanguageRuleKeys.forEach((ruleId) => {
+      const globalIndex = allOrderedKeys.indexOf(ruleId);
+      const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
+      drawRule(ruleId, nextRuleId, $interWrapper);
+    });
+  }
 
-// 3. Ancient Telerin rules
-const $atWrapper = createLanguageWrapper('ancient-telerin', 'Ancient Telerin');
-getOrderedRuleKeys('ancient-telerin').forEach((ruleId) => {
-  const globalIndex = allOrderedKeys.indexOf(ruleId);
-  const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-  drawRule(ruleId, nextRuleId, $atWrapper);
-});
-
-// 4. Old Sindarin rules
-const $osWrapper = createLanguageWrapper('old-sindarin', 'Old Sindarin');
-getOrderedRuleKeys('old-sindarin').forEach((ruleId) => {
-  const globalIndex = allOrderedKeys.indexOf(ruleId);
-  const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-  drawRule(ruleId, nextRuleId, $osWrapper);
-});
-
-// 5. Inter-language conversions (currently empty but structure is ready)
-if (interLanguageRuleKeys.length > 0) {
-  const $interWrapper = createConversionWrapper('inter-language', 'OS → Sindarin Transition');
-  interLanguageRuleKeys.forEach((ruleId) => {
+  const $stageWrapper = createLanguageWrapper(stage.id, stage.name);
+  getOrderedRuleKeys(stage.id).forEach((ruleId) => {
     const globalIndex = allOrderedKeys.indexOf(ruleId);
     const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-    drawRule(ruleId, nextRuleId, $interWrapper);
+    drawRule(ruleId, nextRuleId, $stageWrapper);
   });
-}
-
-// 6. Sindarin rules
-const $sindarinWrapper = createLanguageWrapper('sindarin', 'Sindarin');
-getOrderedRuleKeys('sindarin').forEach((ruleId) => {
-  const globalIndex = allOrderedKeys.indexOf(ruleId);
-  const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-  drawRule(ruleId, nextRuleId, $sindarinWrapper);
 });
 
 // 7. Post-processing conversions
