@@ -669,7 +669,20 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'melj']);
   });
 
-  it('03400 - [h] vanished after vowels', () => {
+  it('03400 - [ls], [rs] became [lθ], [ss]', () => {
+    expect(sindarinRules['298324969'].mechanic('abc').out).toBe('abc');
+    expect(sindarinRules['298324969'].mechanic('falso').out).toBe('falθo');
+    expect(sindarinRules['298324969'].mechanic('olsa-').out).toBe('olθa-');
+    expect(sindarinRules['298324969'].mechanic('tars').out).toBe('tass');
+    expect(sindarinRules['298324969'].mechanic('perso').out).toBe('pesso');
+
+    // Morphemes: (non-existent compound for morpheme testing)
+    const compound = sindarinRules['298324969'].mechanic('abafalso', { morphemes: ['aba', 'fal', 'so'] });
+    expect(compound.out).toEqual('abafalθo');
+    expect(compound.morphemes).toEqual(['aba', 'fal', 'θo']);
+  });
+
+  it('03500 - [h] vanished after vowels', () => {
     expect(sindarinRules['875184187'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['875184187'].mechanic('ahamar').out).toBe('āmar');
     expect(sindarinRules['875184187'].mechanic('ahaum').out).toBe('aum');
@@ -689,7 +702,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['tindūmi', 'elð']);
   });
 
-  it('03500 - final [i], [u] generally vanished', () => {
+  it('03600 - final [i], [u] generally vanished', () => {
     expect(sindarinRules['1815401039'].mechanic('abc').out).toBe('abc');
     // Final short i after consonant vanishes: [-Sĭ] > [-Sø]
     expect(sindarinRules['1815401039'].mechanic('bereθi').out).toBe('bereθ');
@@ -715,7 +728,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['elem', 'bereth']);
   });
 
-  it('03600 - short vowels vanished before morpheme boundaries', () => {
+  it('03700 - short vowels vanished before morpheme boundaries', () => {
     expect(sindarinRules['2749565259'].mechanic('abc').out).toBe('abc');
 
     /*
@@ -788,7 +801,7 @@ describe('Sindarin rules', () => {
       .toMatchObject({ out: 'turgond', morphemes: ['tur', 'gond'] });
   });
 
-  it('03700 - [ai], [oi] became [ae], [oe]', () => {
+  it('03800 - [ai], [oi] became [ae], [oe]', () => {
     expect(sindarinRules['941153689'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['941153689'].mechanic('aθai').out).toBe('aθae');
     expect(sindarinRules['941153689'].mechanic('gaiar').out).toBe('gaear');
@@ -805,7 +818,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'mae', 'rond']);
   });
 
-  it('03800 - later [ei] became [ai] in final syllables', () => {
+  it('03900 - later [ei] became [ai] in final syllables', () => {
     expect(sindarinRules['1660291111'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['1660291111'].mechanic('bein').out).toBe('bain');
     expect(sindarinRules['1660291111'].mechanic('beleiθ').out).toBe('belaiθ');
@@ -821,7 +834,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'be', 'laiθ']);
   });
 
-  it('03900 - diphthongs [yi], [yu] became [ui]', () => {
+  it('04000 - diphthongs [yi], [yu] became [ui]', () => {
     // This rule has no attested direct examples, it is mostly concerned with explaining plural formation.
     expect(sindarinRules['3257758901'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['3257758901'].mechanic('yux').out).toBe('uix');
@@ -833,7 +846,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'uix', 'ara']);
   });
 
-  it('04000 - [œi] became [ui] or [y]', () => {
+  it('04100 - [œi] became [ui] or [y]', () => {
     expect(sindarinRules['1787434575'].mechanic('abc').out).toBe('abc');
     // There is only one example of this rule. It also is mostly concerned with explaining plural formation.
     expect(sindarinRules['1787434575'].mechanic('œrœin').out).toBe('œrjn');
@@ -845,7 +858,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'œr', 'jn']);
   });
 
-  it('04100 - [nr] became [ðr]', () => {
+  it('04200 - [nr] became [ðr]', () => {
     // Depends on 03600
     expect(sindarinRules['1105959911'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['1105959911'].mechanic('karanrass').out).toBe('karaðrass');
@@ -857,7 +870,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'karað', 'rass']);
   });
 
-  it('04200 - dissimilation of dental spirants', () => {
+  it('04300 - dissimilation of dental spirants', () => {
     expect(sindarinRules['2090293737'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['2090293737'].mechanic('θaeθ').out).toBe('θaes');
     expect(sindarinRules['2090293737'].mechanic('úθaeθ').out).toBe('úθaes');
@@ -872,19 +885,6 @@ describe('Sindarin rules', () => {
     const compound = sindarinRules['2090293737'].mechanic('abaúθaeθ', { morphemes: ['aba', 'úθ', 'aeθ'] });
     expect(compound.out).toEqual('abaúθaes');
     expect(compound.morphemes).toEqual(['aba', 'úθ', 'aes']);
-  });
-
-  it('04300 - [ls], [rs] became [lθ], [ss]', () => {
-    expect(sindarinRules['298324969'].mechanic('abc').out).toBe('abc');
-    expect(sindarinRules['298324969'].mechanic('falso').out).toBe('falθo');
-    expect(sindarinRules['298324969'].mechanic('olsa-').out).toBe('olθa-');
-    expect(sindarinRules['298324969'].mechanic('tars').out).toBe('tass');
-    expect(sindarinRules['298324969'].mechanic('perso').out).toBe('pesso');
-
-    // Morphemes: (non-existent compound for morpheme testing)
-    const compound = sindarinRules['298324969'].mechanic('abafalso', { morphemes: ['aba', 'fal', 'so'] });
-    expect(compound.out).toEqual('abafalθo');
-    expect(compound.morphemes).toEqual(['aba', 'fal', 'θo']);
   });
 
   it('04400 - final [mf], [nθ], [ŋx], [lθ] became [mp], [nt], [ŋk], [lt]', () => {

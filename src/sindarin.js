@@ -1178,8 +1178,24 @@ export const sindarinRules = {
       return { in: str, out: result, morphemes: newMorphemes };
     },
   },
-  '875184187': {
+  '298324969': {
     orderId: '03400',
+    pattern: '[ls|rs] > [lθ|ss]',
+    description: '[ls], [rs] became [lθ], [ss]',
+    url: 'https://eldamo.org/content/words/word-298324969.html',
+    mechanic: (str, options = {}) => {
+      if (str.includes('ls') || str.includes('rs')) {
+        const result = str.replace('ls', 'lθ').replace('rs', 'ss');
+        const morphemes = (result !== str && options.morphemes)
+          ? recalcMorphemes(result, options.morphemes, [])
+          : (options.morphemes || [str]);
+        return { in: str, out: result, morphemes };
+      }
+      return { in: str, out: str, morphemes: options.morphemes || [str] };
+    },
+  },
+  '875184187': {
+    orderId: '03500',
     pattern: '[Vh] > [Vø]',
     description: '[h] vanished after vowels',
     url: 'https://eldamo.org/content/words/word-875184187.html',
@@ -1238,7 +1254,7 @@ export const sindarinRules = {
     },
   },
   '1815401039': {
-    orderId: '03500',
+    orderId: '03600',
     pattern: '[-S{ĭŭ}|-uCu|-Sī] > [-Sø|-uCu|-Sĭ]',
     description: 'final [i], [u] generally vanished',
     url: 'https://eldamo.org/content/words/word-1815401039.html',
@@ -1293,7 +1309,7 @@ export const sindarinRules = {
     },
   },
   '2749565259': {
-    orderId: '03600',
+    orderId: '03700',
     pattern: '[C{ĭĕăŏŭ}+C] > [Cø+C]',
     description: 'short vowels vanished before morpheme boundaries',
     url: 'https://eldamo.org/content/words/word-2749565259.html',
@@ -1442,7 +1458,7 @@ export const sindarinRules = {
     },
   },
   '941153689': {
-    orderId: '03700',
+    orderId: '03800',
     pattern: '[ai|oi] > [ae|oe]',
     description: '[ai], [oi] became [ae], [oe]',
     url: 'https://eldamo.org/content/words/word-941153689.html',
@@ -1455,7 +1471,7 @@ export const sindarinRules = {
     },
   },
   '1660291111': {
-    orderId: '03800',
+    orderId: '03900',
     pattern: '[-eiC|-ei] > [-aiC|-ai]',
     description: 'later [ei] became [ai] in final syllables',
     url: 'https://eldamo.org/content/words/word-1660291111.html',
@@ -1485,7 +1501,7 @@ export const sindarinRules = {
     },
   },
   '3257758901': {
-    orderId: '03900',
+    orderId: '04000',
     pattern: '[y{iu}] > [ui]',
     description: 'diphthongs [yi], [yu] became [ui]',
     skip: true,
@@ -1500,7 +1516,7 @@ export const sindarinRules = {
     },
   },
   '1787434575': {
-    orderId: '04000',
+    orderId: '04100',
     pattern: '[œi] > [ui|y]',
     description: '[œi] became [ui] or [y]',
     skip: true,
@@ -1524,7 +1540,7 @@ export const sindarinRules = {
     },
   },
   '1105959911': {
-    orderId: '04100',
+    orderId: '04200',
     pattern: '[nr] > [ðr]',
     description: '[nr] became [ðr]',
     url: 'https://eldamo.org/content/words/word-1105959911.html',
@@ -1550,7 +1566,7 @@ export const sindarinRules = {
     },
   },
   '2090293737': {
-    orderId: '04200',
+    orderId: '04300',
     pattern: '[{θð}Sθ] > [{θð}Ss]',
     description: 'dissimilation of dental spirants',
     url: 'https://eldamo.org/content/words/word-2090293737.html',
@@ -1610,22 +1626,6 @@ export const sindarinRules = {
         ? recalcMorphemes(finalResult, options.morphemes, [])
         : (options.morphemes || [str]);
       return { in: str, out: finalResult, morphemes };
-    },
-  },
-  '298324969': {
-    orderId: '04300',
-    pattern: '[ls|rs] > [lθ|ss]',
-    description: '[ls], [rs] became [lθ], [ss]',
-    url: 'https://eldamo.org/content/words/word-298324969.html',
-    mechanic: (str, options = {}) => {
-      if (str.includes('ls') || str.includes('rs')) {
-        const result = str.replace('ls', 'lθ').replace('rs', 'ss');
-        const morphemes = (result !== str && options.morphemes)
-          ? recalcMorphemes(result, options.morphemes, [])
-          : (options.morphemes || [str]);
-        return { in: str, out: result, morphemes };
-      }
-      return { in: str, out: str, morphemes: options.morphemes || [str] };
     },
   },
   '1531741019': {
