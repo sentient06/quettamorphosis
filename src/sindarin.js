@@ -6,6 +6,7 @@ import {
   findAllOf,
   SyllableAnalyser,
   recalcMorphemes,
+  SINDARIN_PROFILE,
 } from './utils.js';
 import { sandhiRules, SANDHI_MASTER_RULE_ID } from './sandhi.js';
 
@@ -1286,6 +1287,19 @@ export const sindarinRules = {
       // Exception: diphtongs
       if (['a', 'e', 'u'].includes(str.nth(-2))) {
         return defaultReturn;
+      }
+
+      // Exception: monosyllables
+      const analyser = new SyllableAnalyser({ profile: SINDARIN_PROFILE });
+      const syllableData = analyser.analyse(str);
+      
+      if (syllableData.length === 1) {
+        // The onset has only consonants, and y (j) is here considered a vowel, so we ignore it.
+        const has_j = syllableData[0].onset.indexOf('j') > -1;
+        const has_y = syllableData[0].onset.indexOf('y') > -1;
+        if (!has_j && !has_y) {
+          return defaultReturn;
+        }
       }
 
       // Final short i or u after consonant vanishes
