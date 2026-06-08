@@ -721,6 +721,11 @@ describe('Sindarin rules', () => {
     // Diphtongs shouldn't be affected:
     expect(sindarinRules['1815401039'].mechanic('minui').out).toBe('minui');
 
+    // @todo: confirm the rule below:
+    // Monosyllables are (probably) not affected:
+    expect(sindarinRules['1815401039'].mechanic('jrxi').out).toBe('jrx');
+    expect(sindarinRules['1815401039'].mechanic('gli').out).toBe('gli');
+
     // Morphemes: 'elem' + 'berethi' (from ✶elen-barathī "star-queen" → S. Elbereth)
     // The final i at the end of 'berethi' vanishes: [-Sĭ] > [-Sø]
     const compound = sindarinRules['1815401039'].mechanic('elemberethi', { morphemes: ['elem', 'berethi'] });
