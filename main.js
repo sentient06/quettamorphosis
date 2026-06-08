@@ -1,23 +1,14 @@
-import { sindarinRules } from './src/sindarin.js';
-import { SANDHI_MASTER_RULE_ID, getSandhiRuleId, shouldSkipSandhi } from './src/sandhi.js';
+// =============================================================================
+// Pipeline detection: determine which language pipeline to use from the page URL
+// =============================================================================
+const isQuenya = /quenya/i.test(location.pathname);
+const logicModule = isQuenya
+  ? await import('./src/quenya-main-logic.js')
+  : await import('./src/main-logic.js');
+const storagePrefix = isQuenya ? 'quenya-' : '';
 
-// Sandhi rule range constants
-const FIRST_SANDHI_RULE_ID = getSandhiRuleId(116);
-const LAST_SANDHI_RULE_ID = getSandhiRuleId(170);
-import { oldSindarinRules } from './src/old-sindarin.js';
-import { ancientTelerinRules } from './src/ancient-telerin.js';
-import { primitiveElvishRules } from './src/primitive-elvish.js';
-import {
-  preProcessingRuleKeys,
-  interLanguageRuleKeys,
-  sindarinPostProcessingRuleKeys as postProcessingRuleKeys,
-} from './src/conversions.js';
-import {
+const {
   PIPELINE,
-  peRuleKeys,
-  atRuleKeys,
-  osRuleKeys,
-  sindarinRuleKeys,
   allRuleKeys,
   isConversionRule,
   getRulesObject,
@@ -26,8 +17,23 @@ import {
   getNextRule,
   formatTripped,
   formatSkipped,
-  isRuleEffectivelyEnabled as _isRuleEffectivelyEnabled,
-} from './src/main-logic.js';
+  isRuleEffectivelyEnabled: _isRuleEffectivelyEnabled,
+} = logicModule;
+
+import { SANDHI_MASTER_RULE_ID, getSandhiRuleId, shouldSkipSandhi } from './src/sandhi.js';
+
+// Sandhi rule range constants
+const FIRST_SANDHI_RULE_ID = getSandhiRuleId(116);
+const LAST_SANDHI_RULE_ID = getSandhiRuleId(170);
+import {
+  preProcessingRuleKeys,
+  interLanguageRuleKeys,
+} from './src/conversions.js';
+
+// Post-processing keys come from the logic module's pipeline
+// (last item in allRuleKeys that starts with 'post-')
+const postProcessingRuleKeys = allRuleKeys.filter(k => k.startsWith('post-'));
+
 import { setupDebugTools } from './src/debug.js';
 import {
   getInputFromUrl,
@@ -84,6 +90,8 @@ const $drawerOverlay = document.querySelector('.drawer-overlay');
 // Languages that are disabled by default (temporary for incomplete implementations)
 const LANGUAGES_DISABLED_BY_DEFAULT = [];
 
+// localStorage helpers — prefix keys so Sindarin and Quenya don't share state
+const storageKey = (key) => `${storagePrefix}${key}`;
 
 // Track morphemes for each rule (needed when toggling rules mid-chain)
 const ruleMorphemes = {};
@@ -91,10 +99,10 @@ const ruleMorphemes = {};
 let sandhiInputValue = null;
 let sandhiInputMorphemes = null;
 let anySandhiTripped = false;
-const ruleState = JSON.parse(localStorage.getItem('rules') || '{}');
-const languageState = JSON.parse(localStorage.getItem('languages') || '{}');
-const optionState = JSON.parse(localStorage.getItem('options') || '{}');
-const orderState = JSON.parse(localStorage.getItem('order') || '{}');
+const ruleState = JSON.parse(localStorage.getItem(storageKey('rules')) || '{}');
+const languageState = JSON.parse(localStorage.getItem(storageKey('languages')) || '{}');
+const optionState = JSON.parse(localStorage.getItem(storageKey('options')) || '{}');
+const orderState = JSON.parse(localStorage.getItem(storageKey('order')) || '{}');
 
 // Check for share mode: ?s parameter signals override mode
 // In share mode: enable all rules/languages first, then apply ?off= overrides
@@ -181,7 +189,7 @@ function getAllOrderedRuleKeys() {
 
 // Save order state to localStorage
 function saveOrderState() {
-  localStorage.setItem('order', JSON.stringify(orderState));
+  localStorage.setItem(storageKey('order'), JSON.stringify(orderState));
 }
 
 // Get options for a rule from DOM inputs
@@ -494,7 +502,7 @@ function updateRuleVisualState(ruleId) {
 // Toggle an entire language on/off
 function toggleLanguage(langId, isEnabled) {
   languageState[langId] = isEnabled;
-  localStorage.setItem('languages', JSON.stringify(languageState));
+  localStorage.setItem(storageKey('languages'), JSON.stringify(languageState));
 
   const $langWrapper = document.getElementById(`lang-${langId}`);
   if ($langWrapper) {
@@ -552,7 +560,7 @@ function toggleRule(ruleId, isEnabled) {
     // Normal rule - save state
     ruleState[ruleId] = isEnabled;
   }
-  localStorage.setItem('rules', JSON.stringify(ruleState));
+  localStorage.setItem(storageKey('rules'), JSON.stringify(ruleState));
 
   // Update visual state based on effective enabled (considers language too)
   updateRuleVisualState(ruleId);
@@ -747,7 +755,7 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
             } else {
               optionState[optionKey] = e.target.value;
             }
-            localStorage.setItem('options', JSON.stringify(optionState));
+            localStorage.setItem(storageKey('options'), JSON.stringify(optionState));
             rerunRule(ruleId);
           },
         },
@@ -1084,7 +1092,7 @@ function printResults() {
 $originalInput.addEventListener('input', (e) => {
   const inputValue = e.target.value;
 
-  localStorage.setItem('original-input', inputValue);
+  localStorage.setItem(storageKey('original-input'), inputValue);
   updateUrlWithInput(inputValue);
 
   if (inputValue === '') {
@@ -1194,17 +1202,17 @@ $shareUrlButton.addEventListener('click', async () => {
 
 // Handle reset order button (only resets rule order)
 $resetOrderButton.addEventListener('click', () => {
-  localStorage.removeItem('order');
+  localStorage.removeItem(storageKey('order'));
   location.reload();
 });
 
 // Handle reset button (resets everything)
 $resetButton.addEventListener('click', () => {
-  localStorage.removeItem('rules');
-  localStorage.removeItem('languages');
-  localStorage.removeItem('options');
-  localStorage.removeItem('order');
-  localStorage.removeItem('original-input');
+  localStorage.removeItem(storageKey('rules'));
+  localStorage.removeItem(storageKey('languages'));
+  localStorage.removeItem(storageKey('options'));
+  localStorage.removeItem(storageKey('order'));
+  localStorage.removeItem(storageKey('original-input'));
   location.reload();
 });
 
@@ -1344,7 +1352,7 @@ if (postProcessingRuleKeys.length > 0) {
 // Restore input from URL query string (or share mode) or storage
 // shareModeInput was captured before URL params were cleared
 const urlInput = shareModeInput || getInputFromUrl();
-const storedInput = urlInput || localStorage.getItem('original-input') || '';
+const storedInput = urlInput || localStorage.getItem(storageKey('original-input')) || '';
 if (storedInput) {
   $originalInput.value = storedInput;
   const $firstRuleInput = document.getElementById(`input-${firstRuleId}`);
@@ -1371,4 +1379,5 @@ setupDebugTools({
   isRuleEffectivelyEnabled,
   smoothScrollTo,
   getStickyHeight: () => $topWrapper.offsetHeight + 20,
+  logicModule,
 });

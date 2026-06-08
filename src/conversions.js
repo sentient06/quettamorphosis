@@ -78,10 +78,33 @@ export const sindarinPostProcessingRules = {
 };
 
 // =============================================================================
+// Quenya Post-processing Rules (after Quenya stage)
+// Convert single characters back to digraphs and apply Quenya-specific
+// orthographic conventions.
+// =============================================================================
+
+export const quenyaPostProcessingRules = {
+  'post-quenya-single-to-digraphs': {
+    orderId: 'POST-01',
+    pattern: 'single characters → digraphs',
+    description: 'Convert single characters back to digraphs for final output (Quenya)',
+    mechanic: (str) => {
+      let result = str;
+      result = singleToDigraphs(result);
+      result = result.replace('k', 'c');
+      // Quenya keeps macrons (no circumflex conversion)
+      result = result.toNormalScript();
+      return { in: str, out: result };
+    },
+  },
+};
+
+// =============================================================================
 // Exports for key arrays (similar to language rule files)
 // =============================================================================
 
 export const preProcessingRuleKeys = Object.keys(preProcessingRules);
 export const interLanguageRuleKeys = Object.keys(interLanguageRules);
 export const sindarinPostProcessingRuleKeys = Object.keys(sindarinPostProcessingRules);
+export const quenyaPostProcessingRuleKeys = Object.keys(quenyaPostProcessingRules);
 

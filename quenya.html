@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quettamorphosis — Quenya</title>
+  <link rel="stylesheet" href="main.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+</head>
+<body>
+  <h1>Quettamorphosis — Quenya</h1>
+  <div class="controls">
+    <button id="reset-order">Reset Order</button>
+    <button id="reset">Reset All</button>
+  </div>
+  <button id="toggle-results" class="mobile-only" title="Show results">☰</button>
+  <div class="drawer-overlay"></div>
+  <div class="side-wrapper">
+    <div class="results">
+      <div class="title">Results</div>
+      <hr>
+      <div class="smaller-title">Tripped rules</div>
+      <div id="results-tripped"></div>
+      <hr>
+      <div class="smaller-title">Skipped rules</div>
+      <div id="results-skipped"></div>
+    </div>
+  </div>
+  <div class="top-wrapper">
+    <div class="top-wrapper-style">
+      <div class="details-anchor">
+        <a href="#" id="scroll-top">Top</a> | <a href="" id="open-notes">Notes</a>
+      </div>
+      <div class="input-wrapper">
+        <div class="title">Input</div>
+        <div class="userInput">
+          <input type="text" id="input" placeholder="Enter text to transform" />
+          <button id="share-url" title="Copy shareable URL to clipboard">🔗</button>
+          <button id="toggle-helpers" title="Show special characters">⌨</button>
+          <div class="helpers hidden">
+            <button>θ</button>
+            <button>ð</button>
+            <button>ŋ</button>
+            <button>ɸ</button>
+            <button>r̥</button>
+            <button>l̥</button>
+            <button>ɣ</button>
+            <button>j̊</button>
+            <button>β</button>
+            <button>m̥</button>
+            <button>n̥</button>
+            <button>ṃ</button>
+            <button>ṇ</button>
+            <button>ŋ̣</button>
+            <button>ṣ</button>
+            <button>œ</button>
+            <button>ā</button>
+            <button>ē</button>
+            <button>ī</button>
+            <button>ō</button>
+            <button>ū</button>
+            <button>ȳ</button>
+            <button>ă</button>
+            <button>ĕ</button>
+            <button>ĭ</button>
+            <button>ŏ</button>
+            <button>ŭ</button>
+            <button>y̆</button>
+            <button>ǭ</button>
+            <button>ę̄</button>
+            <button>ā́</button>
+            <button>ƣ</button>
+            <button>ʍ</button>
+            <button>χ</button>
+            <button>ſ</button>
+            <button>ƥ</button>
+            <button>ꝁ</button>
+            <button>ŧ</button>
+            <button>ꜧ</button>
+            <button>ƕ</button>
+          </div>
+        </div>
+      </div>
+      <div class="result-wrapper">
+        <div class="title">Result</div>
+        <div class="output-wrapper">
+          <input type="text" id="output" placeholder="Result" readonly />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="notes" style="display: none;">
+    <div class="controls">
+      <a href="" id="close-notes">× close</a>
+    </div>
+    <h3 style="margin-top: 0;">How to use the input</h3>
+    <p>
+      Type a Primitive Elvish word using these conventions:
+    </p>
+    <ul style="margin-bottom: 1em;">
+      <li><strong>Long vowels:</strong> Use macrons (ā, ē, ī, ō, ū) or type a colon after the vowel (a: → ā)</li>
+      <li><strong>Morpheme boundaries:</strong> Use <code>+</code> to mark morpheme boundaries (e.g., <code>aran+θorn</code>)</li>
+      <li><strong>Digraph shortcuts:</strong> Type uppercase digraphs to auto-convert (e.g., <code>TH</code> → θ, <code>DH</code> → ð)</li>
+    </ul>
+
+    <h3>Uppercase shortcuts</h3>
+    <p>These UPPERCASE digraphs in the input are converted to phonetic symbols:</p>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>TH</code> → θ</li>
+        <li><code>DH</code> → ð</li>
+        <li><code>BH</code> → β</li>
+        <li><code>CH</code> → x</li>
+        <li><code>KH</code> → x</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>GH</code> → ɣ</li>
+        <li><code>PH</code> → ɸ</li>
+        <li><code>NG</code> → ŋ</li>
+        <li><code>GW</code> → ƣ</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>HW</code> → ʍ</li>
+        <li><code>SS</code> → ſ</li>
+      </ul>
+    </div>
+    <p style="margin-top: 0.5em;"><em>Lowercase digraphs (th, dh, etc.) are kept as-is.</em></p>
+
+    <h3>Syllabic consonants</h3>
+    <p>Use uppercase letter + underscore for syllabic consonants:</p>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>M_</code> → ṃ (syllabic m)</li>
+        <li><code>N_</code> → ṇ (syllabic n)</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li><code>S_</code> → ṣ (syllabic s)</li>
+        <li><code>NG_</code> → ŋ̣ (syllabic ng)</li>
+      </ul>
+    </div>
+
+    <h3>Why single characters?</h3>
+    <p>
+      This app uses single characters to represent digraphs and other complex phonemes for ease of processing.
+      Many phonetic symbols with diacritics (like <em>kʰ</em> or <em>r̥</em>) occupy multiple Unicode code points,
+      which makes string manipulation unreliable. The single-character substitutes below are <strong>not</strong>
+      meant to be IPA — they are simply practical placeholders that allow the rules to work correctly.
+    </p>
+    <p>
+      The main input is automatically converted to these characters, and the final output is converted back.
+      Rule displays use the single-character forms throughout.
+    </p>
+
+    <h3>Symbol reference</h3>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li>θ = th (voiceless)</li>
+        <li>ð = dh (voiced)</li>
+        <li>β = bh (fricative b)</li>
+        <li>x = ch (spirant)</li>
+        <li>ɣ = gh (voiced velar)</li>
+        <li>ɸ = ph (spirant)</li>
+        <li>ŋ = ng (velar nasal)</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li>ƣ = gw (labiovelar)</li>
+        <li>ʍ = hw (voiceless w)</li>
+        <li>ſ = ss (long s)</li>
+        <li>ꝁ = kʰ (aspirated k)</li>
+        <li>ƥ = pʰ (aspirated p)</li>
+        <li>ŧ = tʰ (aspirated t)</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li>ꜧ = xʲ (palatalised)</li>
+        <li>ƕ = xʷ (labialised)</li>
+        <li>ꝉ = l̥ (voiceless l)</li>
+        <li>ꞧ = r̥ (voiceless r)</li>
+        <li>ᵯ = m̥ (voiceless m)</li>
+        <li>ꞃ = n̥ (voiceless n)</li>
+      </ul>
+      <ul style="margin: 0; list-style: none; padding: 0;">
+        <li>ṃ = syllabic m</li>
+        <li>ṇ = syllabic n</li>
+        <li>ṣ = syllabic s</li>
+        <li>ŋ̣ = syllabic ng</li>
+      </ul>
+    </div>
+    <h3>Advanced use</h3>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <span>
+        If you are technically-minded, you can try using the console from the browser's inspector and run the following commands:
+      </span>
+      <pre style="margin: 0; list-style: none; padding: 0;">
+        debug(word) - splits the word in syllables and shows details of each
+        rules()     - rule manipulation, can be used to bulk-toggle, reset and find
+        rule(ref)   - meant to extract description and identifiers of a rule
+        goto(ref)   - scrolls interface to rule
+      </pre>
+    </div>
+  </div>
+  <div id="wrapper"></div>
+</body>
+<script type="module" src="/main.js"></script>
+</html>

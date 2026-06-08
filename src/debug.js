@@ -4,23 +4,11 @@
  */
 
 import { SyllableAnalyser, digraphsToSingle, singleToDigraphs, SINDARIN_PROFILE, OLD_SINDARIN_PROFILE, ANCIENT_TELERIN_PROFILE, PRIMITIVE_ELVISH_PROFILE, toBase36, fromBase36 } from './utils.js';
-import {
-  PIPELINE,
-  allRuleKeys,
-  isConversionRule,
-  getRulesObject,
-  getLanguage,
-} from './main-logic.js';
 
-// Language prefix mappings derived from pipeline
-// langPrefixMap: short lowercase prefix → language id (e.g. 'pe' → 'primitive-elvish')
-// langToPrefix: language id → uppercase prefix (e.g. 'primitive-elvish' → 'PE')
-const langPrefixMap = Object.fromEntries(
-  PIPELINE.map(s => [s.acronym.toLowerCase(), s.id])
-);
-const langToPrefix = Object.fromEntries(
-  PIPELINE.map(s => [s.id, s.acronym])
-);
+// Pipeline logic functions are injected via setupDebugTools deps
+// instead of importing from a specific module, so debug.js works with any pipeline.
+let PIPELINE, allRuleKeys, isConversionRule, getRulesObject, getLanguage;
+let langPrefixMap, langToPrefix;
 
 /**
  * Parse a rule reference into its actual ruleId.
@@ -165,7 +153,12 @@ function formatRuleDisplay(ruleId) {
  * @param {Function} deps.smoothScrollTo - Function to smooth scroll to a Y position
  * @param {Function} deps.getStickyHeight - Function to get the sticky header height offset
  */
-export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleState, isRuleEffectivelyEnabled, smoothScrollTo, getStickyHeight }) {
+export function setupDebugTools({ toggleRule, resetRule, resetAllRules, getRuleState, isRuleEffectivelyEnabled, smoothScrollTo, getStickyHeight, logicModule }) {
+  // Initialize pipeline logic from the injected module
+  ({ PIPELINE, allRuleKeys, isConversionRule, getRulesObject, getLanguage } = logicModule);
+  langPrefixMap = Object.fromEntries(PIPELINE.map(s => [s.acronym.toLowerCase(), s.id]));
+  langToPrefix = Object.fromEntries(PIPELINE.map(s => [s.id, s.acronym]));
+
   console.log('Commands: debug(word), rules(), rule(ref), goto(ref)');
 
   // Word debug tool
