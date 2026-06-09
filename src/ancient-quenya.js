@@ -13,6 +13,7 @@ export const ancientQuenyaRules = {
     orderId: '00100',
     pattern: '[ms] > [ns]',
     description: '[ms] became [ns]',
+    url: 'https://eldamo.org/content/words/word-1399041717.html',
     mechanic: (str, options = {}) => {
       if (str.includes('ms') === false) return { in: str, out: str, morphemes: options.morphemes };
 
@@ -27,6 +28,7 @@ export const ancientQuenyaRules = {
     orderId: '00200',
     pattern: '[ns] > [ss]',
     description: '[ns] became [ss]',
+    url: 'https://eldamo.org/content/words/word-2591378297.html',
     mechanic: (str, options = {}) => {
       if (str.includes('ns') === false) return { in: str, out: str, morphemes: options.morphemes };
 
@@ -41,6 +43,7 @@ export const ancientQuenyaRules = {
     orderId: '00300',
     pattern: '[V₁CV̆₁CV] > [V₁CCV]',
     description: 'second short vowel of same quality lost',
+    url: 'https://eldamo.org/content/words/word-3116715705.html',
     info: ['Part of the Quenya syncope'],
     /**
      * @todo Update this rule based on below points:
@@ -86,4 +89,156 @@ export const ancientQuenyaRules = {
       return { in: str, out: joinedResult, morphemes: updatedMorphemes };
     },
   },
+  '2232975397': {
+    orderId: '00400',
+    pattern: '[VjC|VwC] > [ViC|VuC]',
+    description: 'later [j], [w] became [i], [u] before consonants',
+    url: 'https://eldamo.org/content/words/word-2232975397.html',
+    mechanic: (str, options = {}) => {
+      // [VjC] > [ViC]
+      // [VwC] > [VuC]
+      const occurrences = findAllOf(['j', 'w'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'j': 'i',
+        'w': 'u',
+      };
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '367860887': {
+    orderId: '00500',
+    pattern: '[ls] > [ll]',
+    description: '[ls] became [ll] or [ld]',
+    url: 'https://eldamo.org/content/words/word-367860887.html',
+    info: ['There are very few attested words for this one.', 'This rule is disabled by default.'],
+    skip: true,
+    input: [
+      {
+        name: 'ld',
+        label: 'Use [ld]',
+        type: 'boolean',
+        default: false,
+        description: 'Use [ld] instead of [ll]',
+      },
+    ],
+    mechanic: (str, options = { ld: false }) => {
+      if (str.includes('ls') === false) return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = str.replaceAll('ls', options.ld ? 'ld' : 'll');
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '3192302915': {
+    orderId: '00600',
+    pattern: '[{ptk}{mnŋlr}|{pʰtʰkʰbdg}{mnŋ}|{tʰd}l] > [{mnŋlr}{ptk}|{mnŋ}{pʰtʰkʰbdg}|l{tʰd}]',
+    description: 'stops frequently underwent metathesis with nasals and liquids',
+    url: 'https://eldamo.org/content/words/word-3192302915.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['kl', 'ml', 'pn', 'tn', 'bm', 'pm', 'pn', 'kn', 'tr', 'dl'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+     
+      const replacements = {
+        'kl': 'lk',
+        'ml': 'lm',
+        'pn': 'np',
+        'tn': 'nt',
+        'bm': 'mb',
+        'pm': 'mp',
+        'kn': 'ŋk',
+        'tr': 'rt',
+        'dl': 'ld',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '1625553255': {
+    orderId: '00700',
+    pattern: '[nl|nr] > [ll|rr]',
+    description: '[nl], [nr] became [ll], [rr]',
+    url: 'https://eldamo.org/content/words/word-1625553255.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['nl', 'nr'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'nl': 'll',
+        'nr': 'rr',
+      };
+      let result = str;
+
+      // [nl] > [ll]
+      // [nr] > [rr]
+      // [anr] > [ār]
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar } = occurrences[i];
+        if (prevChar.removeMarks() === 'a' && matched === 'nr') {
+          result = result.substring(0, charIndex - 1) + 'ār' + result.substring(charIndex + 2);
+        } else {
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '1606156545': {
+    orderId: '00800',
+    pattern: '[sr] > [ss]',
+    description: '[sr] became [ss]',
+    url: 'https://eldamo.org/content/words/word-1606156545.html',
+    info: ['There are no examples of this rule.', 'This rule is disabled by default.'],
+    skip: true,
+    mechanic: (str, options = {}) => {
+      if (str.includes('sr') === false) return { in: str, out: str, morphemes: options.morphemes };
+      const result = str.replaceAll('sr', 'ss');
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '1550655669': {
+    orderId: '00900',
+    pattern: '[rl|lr] > [ll|ll]',
+    description: '[rl] and [lr] became [ll]',
+    url: 'https://eldamo.org/content/words/word-1550655669.html',
+    info: ['This rule also exists in Primitive Elvish.', 'This rule is disabled by default.'],
+    skip: true,
+    mechanic: (str, options = {}) => {
+      if (['rl', 'lr'].some(pattern => str.includes(pattern)) === false) return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = str.replaceAll('rl', 'll').replaceAll('lr', 'll');
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  }
 };

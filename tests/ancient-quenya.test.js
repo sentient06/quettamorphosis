@@ -10,8 +10,8 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1399041717'].mechanic('abc').out).toBe('abc');
     // This rule lacks examples.
     // Non-existent words:
-    expect(ancientQuenyaRules['1399041717'].mechanic(toSingle('amsa')).out).toBe(toSingle('ansa'));
-    expect(ancientQuenyaRules['1399041717'].mechanic(toSingle('amsamsa')).out).toBe(toSingle('ansansa'));
+    expect(ancientQuenyaRules['1399041717'].mechanic('amsa').out).toBe('ansa');
+    expect(ancientQuenyaRules['1399041717'].mechanic('amsamsa').out).toBe('ansansa');
 
     // Morphemes: amsoria = lofty (Gnomish example)
     const compound = ancientQuenyaRules['1399041717'].mechanic('amsoria', { morphemes: ['amso', 'ria'] });
@@ -23,32 +23,111 @@ describe('Ancient Quenya rules', () => {
     expect(compound2.out).toEqual('ansansa');
     expect(compound2.morphemes).toEqual(['ansa', 'nsa']);
   });
+
   it('00200 - [ns] > [ss]', () => {
     expect(ancientQuenyaRules['2591378297'].mechanic('abc').out).toBe('abc');
     // There are no real examples, but there's a couple of past tense ancient words that seem to fit:
-    expect(ancientQuenyaRules['2591378297'].mechanic(toSingle('hrinse')).out).toBe(toSingle('hriſe'));
+    expect(ancientQuenyaRules['2591378297'].mechanic('hrinse').out).toBe('hriſe');
   });
+
   it('00300 - [V₁CV̆₁CV] > [V₁CCV]', () => {
     expect(ancientQuenyaRules['3116715705'].mechanic('abc').out).toBe('abc');
 
     // Exception:
-    // expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('atatja')).out).toBe(toSingle('atatja')); // atatya
+    // expect(ancientQuenyaRules['3116715705'].mechanic('atatja').out).toBe('atatja'); // atatya
 
     // [aCaCV] > [aCCV]:
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('arata')).out).toBe(toSingle('arta'));
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('barane')).out).toBe(toSingle('barne'));
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('galadā')).out).toBe(toSingle('galdā'));
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('kalatārīgelle')).out).toBe(toSingle('kaltārīgelle'));
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('ƥarane')).out).toBe(toSingle('ƥarne'));
+    expect(ancientQuenyaRules['3116715705'].mechanic('arata').out).toBe('arta');
+    expect(ancientQuenyaRules['3116715705'].mechanic('barane').out).toBe('barne');
+    expect(ancientQuenyaRules['3116715705'].mechanic('galadā').out).toBe('galdā');
+    expect(ancientQuenyaRules['3116715705'].mechanic('kalatārīgelle').out).toBe('kaltārīgelle');
+    expect(ancientQuenyaRules['3116715705'].mechanic('ƥarane').out).toBe('ƥarne');
     // [eCeCV] > [eCCV]:
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('enekwe')).out).toBe(toSingle('eŋkwe'));
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('kwenedē')).out).toBe(toSingle('kwendē'));
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('mbelekōr')).out).toBe(toSingle('mbelkōr'));
+    expect(ancientQuenyaRules['3116715705'].mechanic('enekwe').out).toBe('eŋkwe');
+    expect(ancientQuenyaRules['3116715705'].mechanic('kwenedē').out).toBe('kwendē');
+    expect(ancientQuenyaRules['3116715705'].mechanic('mbelekōr').out).toBe('mbelkōr');
     // [iCiCV] > [iCCV]:
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('silimā')).out).toBe(toSingle('silmā'));
+    expect(ancientQuenyaRules['3116715705'].mechanic('silimā').out).toBe('silmā');
     // [oCoCV] > [oCCV]:
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('ŋgolodō')).out).toBe(toSingle('ŋgoldō'));
+    expect(ancientQuenyaRules['3116715705'].mechanic('ŋgolodō').out).toBe('ŋgoldō');
     // [uCuCV] > [uCCV]:
-    expect(ancientQuenyaRules['3116715705'].mechanic(toSingle('uruŧa')).out).toBe(toSingle('urŧa'));
+    expect(ancientQuenyaRules['3116715705'].mechanic('uruŧa').out).toBe('urŧa');
+  });
+
+  it('00400 - [VjC|VwC] > [ViC|VuC]', () => {
+    // [VjC] > [ViC]:
+    expect(ancientQuenyaRules['2232975397'].mechanic('ajna-').out).toBe('aina-');
+    expect(ancientQuenyaRules['2232975397'].mechanic('gajkā').out).toBe('gaikā');
+    // [VwC] > [VuC]:
+    expect(ancientQuenyaRules['2232975397'].mechanic('glawrē').out).toBe('glaurē');
+  });
+
+  it('00500 - [ls] > [ll]', () => {
+    expect(ancientQuenyaRules['367860887'].mechanic('abc').out).toBe('abc');
+    // Examples from middle AQ:
+    expect(ancientQuenyaRules['367860887'].mechanic('matilsa', { ld: true }).out).toBe('matilda');
+    expect(ancientQuenyaRules['367860887'].mechanic('telsā').out).toBe('tellā');
+    expect(ancientQuenyaRules['367860887'].mechanic('telse').out).toBe('telle');
+  });
+
+  it('00600 - [{ptk}{mnŋlr}|{pʰtʰkʰbdg}{mnŋ}|{tʰd}l] > [{mnŋlr}{ptk}|{mnŋ}{pʰtʰkʰbdg}|l{tʰd}]', () => {
+    expect(ancientQuenyaRules['3192302915'].mechanic('abc').out).toBe('abc');
+
+    // [kl] > [lk]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('akla').out).toBe('alka');
+    expect(ancientQuenyaRules['3192302915'].mechanic('aklar').out).toBe('alkar');
+
+    // [ml] > [lm]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('ꝁomlō').out).toBe('ꝁolmō');
+
+    // [pn] > [np]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('lepne').out).toBe('lenpe');
+
+    // [tn] > [nt]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('matnā').out).toBe('mantā');
+
+    // [bm] > [mb]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('ubmē').out).toBe('umbē');
+
+    // [pm] > [mp]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('gapma').out).toBe('gampa'); // Non-existent origin word (it is actually gapna)
+
+    // [kn] > [ŋk]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('ndaknā').out).toBe('ndaŋkā');
+
+    // [tr] > [rt]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('netre').out).toBe('nerte');
+    expect(ancientQuenyaRules['3192302915'].mechanic('satrā').out).toBe('sartā');
+    expect(ancientQuenyaRules['3192302915'].mechanic('satrō').out).toBe('sartō');
+    
+    // [dl] > [ld]:
+    expect(ancientQuenyaRules['3192302915'].mechanic('edlā').out).toBe('eldā');
+  });
+
+  it('00700 - [nl|nr] > [ll|rr]', () => {
+    expect(ancientQuenyaRules['1625553255'].mechanic('abc').out).toBe('abc');
+
+    // [nl] > [ll]:
+    // nelle = brook:
+    const compound = ancientQuenyaRules['1625553255'].mechanic('nenle', { morphemes: ['nen', 'le'] });
+    expect(compound.out).toEqual('nelle');
+    expect(compound.morphemes).toEqual(['nel', 'le']);
+
+    // [nr] > [rr]:
+    expect(ancientQuenyaRules['1625553255'].mechanic('enrā').out).toBe('errā'); // Non-existent word
+
+    // [anr] > [ār]:
+    expect(ancientQuenyaRules['1625553255'].mechanic('manrā').out).toBe('mārā');
+  });
+
+  it('00800 - [sr] > [ss]', () => {
+    expect(ancientQuenyaRules['1606156545'].mechanic('abc').out).toBe('abc');
+    expect(ancientQuenyaRules['1606156545'].mechanic('asre').out).toBe('asse'); // Non-existent word
+  });
+
+  it('00900 - [rl|lr] > [ll|ll]', () => {
+    expect(ancientQuenyaRules['1550655669'].mechanic('abc').out).toBe('abc');
+    expect(ancientQuenyaRules['1550655669'].mechanic('orlā').out).toBe('ollā');
+    expect(ancientQuenyaRules['1550655669'].mechanic('stalrā').out).toBe('stallā'); // Ilkorin word
   });
 });
