@@ -1694,9 +1694,10 @@ export const sindarinRules = {
           removedIndices.unshift(charIndex);
           continue;
         }
-        if (nextChar === 'f') {
-          result = result.substring(0, charIndex) + 'ff' + result.substring(charIndex + 2);
-        }
+        // There are no attested words for this one:
+        // if (nextChar === 'f') {
+        //   result = result.substring(0, charIndex) + 'ff' + result.substring(charIndex + 2);
+        // }
       }
 
       const morphemes = (result !== str && options.morphemes)
