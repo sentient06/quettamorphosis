@@ -928,7 +928,8 @@ describe('Sindarin rules', () => {
     // [ŋx{lr}] > [øx{lr}]:
     expect(sindarinRules['1856165973'].mechanic('taŋxl').out).toBe('taxl');
     // [nf] > [ff]:
-    expect(sindarinRules['1856165973'].mechanic('tanfa').out).toBe('taffa'); // Non-existent word
+    // There are no examples for this rule.
+    // expect(sindarinRules['1856165973'].mechanic('tanfa').out).toBe('taffa'); // Non-existent word
     // Loop issue fix:
     expect(sindarinRules['1856165973'].mechanic('clen').out).toBe('clen'); // From calenā
     // -nx is not a three-consonant cluster and not medial:

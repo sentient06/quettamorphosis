@@ -863,6 +863,8 @@ export const sindarinRules = {
     pattern: '[-Cw] > [-uC]', // Originally this is [-xw] > [-ux]
     description: 'final [w] sometimes intruded into preceding syllables',
     url: 'https://eldamo.org/content/words/word-4211011237.html',
+    skip: true,
+    info: ['Disabled by default because it\'s a bit rare.'],
     mechanic: (str, options = {}) => {
       const regularisedStr = str.toNormalScript().removeMarks();
       if (regularisedStr.endsWith('w')) {
@@ -1692,9 +1694,10 @@ export const sindarinRules = {
           removedIndices.unshift(charIndex);
           continue;
         }
-        if (nextChar === 'f') {
-          result = result.substring(0, charIndex) + 'ff' + result.substring(charIndex + 2);
-        }
+        // There are no attested words for this one:
+        // if (nextChar === 'f') {
+        //   result = result.substring(0, charIndex) + 'ff' + result.substring(charIndex + 2);
+        // }
       }
 
       const morphemes = (result !== str && options.morphemes)
