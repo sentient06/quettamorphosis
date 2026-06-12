@@ -130,4 +130,49 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1550655669'].mechanic('orlā').out).toBe('ollā');
     expect(ancientQuenyaRules['1550655669'].mechanic('stalrā').out).toBe('stallā'); // Ilkorin word
   });
+
+  it('01000 - [V₁Cḷ|CCr] > [V₁CV₁l|CCar]', () => {
+    expect(ancientQuenyaRules['825670671'].mechanic('abc').out).toBe('abc');
+    
+    // L after stops (p, t, k) 
+    // vowel copies preceding vowel quality:
+    expect(ancientQuenyaRules['825670671'].mechanic('makla').out).toBe('makala');
+    expect(ancientQuenyaRules['825670671'].mechanic('mikla').out).toBe('mikila'); // Non-existent word
+    expect(ancientQuenyaRules['825670671'].mechanic('mukla').out).toBe('mukula'); // Non-existent word
+
+    // R in clusters of 3 consonants
+    // always ar:
+    expect(ancientQuenyaRules['825670671'].mechanic('ꝗentrō').out).toBe('ꝗentarō');
+    
+    // L after aspirates (ph/f, th/þ, kh/h)
+    // same rule as stops:
+    expect(ancientQuenyaRules['825670671'].mechanic('baꝁla').out).toBe('baꝁala'); // Non-existent word
+    expect(ancientQuenyaRules['825670671'].mechanic('bafla').out).toBe('bafala'); // Non-existent word
+    
+    // L after m
+    // OP1 - vowel copies preceding quality:
+    expect(ancientQuenyaRules['825670671'].mechanic('amla').out).toBe('amala');
+    expect(ancientQuenyaRules['825670671'].mechanic('imla').out).toBe('imila');
+
+    // OP2 - always u regardless: (this is more recent)
+    expect(ancientQuenyaRules['825670671'].mechanic('amla', { mlu: true }).out).toBe('amula'); // Not attested
+    expect(ancientQuenyaRules['825670671'].mechanic('imla', { mlu: true }).out).toBe('imula');
+
+    // R after m
+    // always ar:
+    expect(ancientQuenyaRules['825670671'].mechanic('amra').out).toBe('amara'); // Non-existent word
+
+    // E and O:
+    expect(ancientQuenyaRules['825670671'].mechanic('eml', { eoToIU: false }).out).toBe('emel'); // Non-existent word
+    expect(ancientQuenyaRules['825670671'].mechanic('oml', { eoToIU: false }).out).toBe('omol'); // Non-existent word
+    expect(ancientQuenyaRules['825670671'].mechanic('eml').out).toBe('emil'); // Non-existent word
+    expect(ancientQuenyaRules['825670671'].mechanic('oml').out).toBe('omul'); // Non-existent word
+    expect(ancientQuenyaRules['825670671'].mechanic('eml', { mlu: true }).out).toBe('emul'); // Non-existent word
+
+    // General words:
+    expect(ancientQuenyaRules['825670671'].mechanic('kantrō').out).toBe('kantarō');
+    expect(ancientQuenyaRules['825670671'].mechanic('rantlā').out).toBe('rantalā');
+    expect(ancientQuenyaRules['825670671'].mechanic('taŋkl').out).toBe('taŋkal');
+    expect(ancientQuenyaRules['825670671'].mechanic('taŋklā').out).toBe('taŋkalā');
+  });
 });

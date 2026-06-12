@@ -8,6 +8,11 @@ import {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+const voicelessStops = ['p', 't', 'k'];
+const aspirates = ['ƥ', 'ŧ', 'ꝁ', 'f'];
+const nasals = ['m', 'n', 'ŋ'];
+const liquids = ['l', 'r'];
+
 export const ancientQuenyaRules = {
   '1399041717': {
     orderId: '00100',
@@ -240,5 +245,98 @@ export const ancientQuenyaRules = {
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },
-  }
+  },
+  '825670671': {
+    orderId: '01000',
+    pattern: '[V₁Cḷ|CCr] > [V₁CV₁l|CCar]',
+    description: '[r], [l] often became syllabic in clusters',
+    url: 'https://eldamo.org/content/words/word-825670671.html',
+    input: [
+      {
+        name: 'mlu',
+        label: 'ml > mul',
+        type: 'boolean',
+        default: false,
+        description: 'ml > mul (imula instead of imila, etc.)',
+      },
+      {
+        name: 'eoToIU',
+        label: '[{eo}Cl] > [{eo}C{iu}l]',
+        type: 'boolean',
+        default: true,
+        description: 'e develops to il, o develops to ul',
+      }
+    ],
+    mechanic: (str, options = { mlu: false, eoToIU: true }) => {
+      const occurrences = findAllOf(['l', 'r'], str);
+      const defaultReturn = { in: str, out: str, morphemes: options.morphemes };
+      if (occurrences.length === 0) return defaultReturn;
+
+      let result = str;
+
+      const newVowel = {
+        'a': 'a',
+        'i': 'i',
+        'u': 'u',
+        'e': options.eoToIU ? 'i' : 'e',
+        'o': options.eoToIU ? 'u' : 'o',
+      };
+
+      const getPreviousVowel = (index) => {
+        let previousVowel = '';
+        for (let j = index - 1; j >= 0; j--) {
+          if (result.nth(j).isVowel()) {
+            previousVowel = newVowel[result.nth(j).removeMarks()];
+            break;
+          }
+        }
+        return previousVowel;
+      };
+
+      let morphemes = options.morphemes || [str];
+
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar, lastChar } = occurrences[i];
+
+        // Must occur medially or finally:
+        if (charIndex === 0) continue;
+
+        let previousVowel = '';
+
+        // If it's an L:
+        if (matched === 'l') {
+          // Voiceless stops or aspirates + l:
+          if (voicelessStops.includes(prevChar) || aspirates.includes(prevChar)) {
+            // Get the previous vowel:
+            previousVowel = getPreviousVowel(charIndex);
+          } else
+          if (nasals.includes(prevChar)) {
+            // m > u (imlu instead of imla):
+            previousVowel = options.mlu ? 'u' : getPreviousVowel(charIndex);
+          }
+        }
+
+        // If it's an R:
+        if (matched === 'r') {
+          // Cluster of 3 consonants:
+          if (prevChar.isConsonant() && result.nth(charIndex - 2).isConsonant()) {
+            previousVowel = 'a';
+          }
+          if (prevChar === 'm') {
+            previousVowel = 'a';
+          }
+        }
+
+        if (previousVowel) {
+          result = result.substring(0, charIndex) + previousVowel + matched + result.substring(charIndex + 1);
+          
+          morphemes = (result !== str && morphemes)
+            ? recalcMorphemes(result, morphemes, [], [charIndex])
+            : (morphemes || [str]);
+        }
+      }
+
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
