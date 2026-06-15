@@ -221,6 +221,10 @@ describe('Sandhi rules (05800)', () => {
       .toMatchObject({ out: 'endor', morphemes: ['e', 'ndor'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('enmbar', { morphemes: ['en', 'mbar'] }))
       .toMatchObject({ out: 'embar', morphemes: ['e', 'mbar'] });
+
+    // New word test:
+    expect(sindarinRules[getSandhiRuleId(129)].mechanic('kennan', { morphemes: ['ken', 'nan'] }))
+      .toMatchObject({ out: 'kennan', morphemes: ['ken', 'nan'] });
   });
 
   it('Rule 130: initial x became h', () => {

@@ -575,10 +575,15 @@ export const sandhiRules = {
         const charBeforeBoundary = result.nth(boundaryIdx - 1 - removedIndices.length);
         const charTwoBeforeBoundary = result.nth(boundaryIdx - 2 - removedIndices.length);
         const charAtBoundary = result.nth(boundaryIdx - removedIndices.length);
+        const firstCharAtFollowingMorpheme = result.nth(boundaryIdx);
 
         // Skip if this is a double consonant at the boundary (will be handled by double consonant logic)
-        const isDoubleConsonant = charBeforeBoundary === charTwoBeforeBoundary &&
-                                  charBeforeBoundary && charBeforeBoundary.isConsonant();
+        const isDoubleConsonant = (
+          charBeforeBoundary === charTwoBeforeBoundary && charBeforeBoundary.isConsonant()
+        ) || (
+          // This should cover "n+n", "m+m", etc.
+          charBeforeBoundary === firstCharAtFollowingMorpheme
+        );
 
         // Only apply if the char before boundary is a NASAL
         if (nasals.includes(charBeforeBoundary) &&
