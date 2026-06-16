@@ -209,7 +209,7 @@ export const sindarinRules = {
         const penultimateSyllable = syllableData.last(2).syllable;
         const penultimateSyllableNucleus = syllableData.last(2).nucleus;
         if (penultimateSyllableNucleus.length === 2) return { in: str, out: str, morphemes: options.morphemes || [str] }; // Diphtong
-        const { charIndex, found, matched } = findFirstOf(['u', 'i', 'ĭ', 'ŭ'], penultimateSyllable);
+        const { charIndex, found, matched, nextChar } = findFirstOf(['u', 'i', 'ĭ', 'ŭ'], penultimateSyllable);
         const replacements = {
           'i': 'e',
           'u': 'o',
@@ -217,10 +217,12 @@ export const sindarinRules = {
           'ŭ': 'o',
         };
         if (found) {
-          const xMark = matched.getMark();
-          const replacee = penultimateSyllable.nth(charIndex, matched.length);
-          const replacer = replacements[matched].addMark(xMark);
-          resultArray[syllableData.length - 2] = penultimateSyllable.replace(replacee, replacer);
+          if (nextChar || lastSyllable.nth(0) !== 'a') {
+            const xMark = matched.getMark();
+            const replacee = penultimateSyllable.nth(charIndex, matched.length);
+            const replacer = replacements[matched].addMark(xMark);
+            resultArray[syllableData.length - 2] = penultimateSyllable.replace(replacee, replacer);
+          }
         }
         const result = resultArray.join('');
         const morphemes = (result !== str && options.morphemes)
