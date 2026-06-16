@@ -675,17 +675,30 @@ export const primitiveElvishRules = {
     pattern: '[wŏ́] > [wa]',
     description: 'stressed [wŏ] became [wa]',
     url: 'https://eldamo.org/content/words/word-1475928117.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'waToWo',
+        label: '[wa] > [wo]',
+        type: 'boolean',
+        default: false,
+        description: 'Transform [wa] > [wo]',
+      },
+    ],
+    mechanic: (str, options = { waToWo: false }) => {
       // glawarkhadmā́matron
       // glawarxadmámatron
       // glaw-ar-xad-má-mat-ron
-      const occurrences = findAllOf(['wŏ́', 'wa', 'wo', 'wó'], str);
+      const { waToWo } = options;
+      const wa = waToWo ? ['wa'] : [];
+      const occurrences = findAllOf(['wŏ́', 'wo', 'wó', ...wa], str);
       if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
         'wo': 'wa',
-        'wa': 'wo',
       };
+      if (waToWo) {
+        replacements.wa = 'wo';
+      }
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
 

@@ -358,7 +358,7 @@ describe('Primitive Elvish rules', () => {
 
   it('00025 - stressed [wŏ] became [wa]', () => {
     expect(primitiveElvishRules['1475928117'].mechanic('abc').out).toBe('abc');
-    expect(primitiveElvishRules['1475928117'].mechanic('ŋwalōŧ').out).toBe('ŋwolōŧ');
+    expect(primitiveElvishRules['1475928117'].mechanic('ŋwalōŧ', { waToWo: true }).out).toBe('ŋwolōŧ');
     expect(primitiveElvishRules['1475928117'].mechanic('gwo-').out).toBe('gwa-');
     expect(primitiveElvishRules['1475928117'].mechanic('-woite').out).toBe('-waite');
 
