@@ -1750,7 +1750,11 @@ export const sindarinRules = {
           newMorphemes.push(morpheme);
           continue;
         }
-        newMorphemes.push(morpheme.substring(0, morpheme.length - 1));
+        if (['f', 'θ', 'x', 's', 'm', 'n', 'ŋ', 'l'].includes(morphemes[i + 1].nth(0))) {
+          newMorphemes.push(morpheme.substring(0, morpheme.length - 1));
+        } else {
+          newMorphemes.push(morpheme);
+        }
       }
 
       const result = newMorphemes.join('');

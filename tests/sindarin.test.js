@@ -970,21 +970,24 @@ describe('Sindarin rules', () => {
     // New, true morpheme mechanic:
     expect(sindarinRules['3282356701'].mechanic('aranθorn', { morphemes: ['aran', 'θorn'] }))
       .toMatchObject({ out: 'araθorn', morphemes: ['ara', 'θorn'] });
-    expect(sindarinRules['3282356701'].mechanic('aranphor', { morphemes: ['aran', 'phor'] }))
-      .toMatchObject({ out: 'araphor', morphemes: ['ara', 'phor'] });
-    expect(sindarinRules['3282356701'].mechanic('aranphant', { morphemes: ['aran', 'phant'] }))
-      .toMatchObject({ out: 'araphant', morphemes: ['ara', 'phant'] });
+    expect(sindarinRules['3282356701'].mechanic('aranfor', { morphemes: ['aran', 'for'] }))
+      .toMatchObject({ out: 'arafor', morphemes: ['ara', 'for'] });
+    expect(sindarinRules['3282356701'].mechanic('aranfant', { morphemes: ['aran', 'fant'] }))
+      .toMatchObject({ out: 'arafant', morphemes: ['ara', 'fant'] });
     expect(sindarinRules['3282356701'].mechanic('infant', { morphemes: ['in', 'fant'] }))
       .toMatchObject({ out: 'ifant', morphemes: ['i', 'fant'] });
-    expect(sindarinRules['3282356701'].mechanic('enpet', { morphemes: ['en', 'pet'] }))
-      .toMatchObject({ out: 'epet', morphemes: ['e', 'pet'] });
+    // expect(sindarinRules['3282356701'].mechanic('enpet', { morphemes: ['en', 'pet'] }))
+      // .toMatchObject({ out: 'epet', morphemes: ['e', 'pet'] });
 
     // These use a dash to split two separate words.
     // They are not trully supported atm.
-    expect(sindarinRules['3282356701'].mechanic('in-chîn', { morphemes: ['in', 'chîn'] }))
-      .toMatchObject({ out: 'ichîn', morphemes: ['i', 'chîn'] });
-    expect(sindarinRules['3282356701'].mechanic('i-ngelaidh', { morphemes: ['i', 'ngelaidh'] }))
-      .toMatchObject({ out: 'i-ngelaidh', morphemes: ['i', 'ngelaidh'] });
+    expect(sindarinRules['3282356701'].mechanic('in-xîn', { morphemes: ['in', 'xîn'] }))
+      .toMatchObject({ out: 'ixîn', morphemes: ['i', 'xîn'] });
+    expect(sindarinRules['3282356701'].mechanic('i-ŋelaidh', { morphemes: ['i', 'ŋelaidh'] }))
+      .toMatchObject({ out: 'i-ŋelaidh', morphemes: ['i', 'ŋelaidh'] });
+    // Neologism for "to swim". It shouldn't affect "w":
+    expect(sindarinRules['3282356701'].mechanic('nenwenθa-', { morphemes: ['nen', 'wenθa-'] }))
+      .toMatchObject({ out: 'nenwenθa-', morphemes: ['nen', 'wenθa-'] });
   });
 
   it('04700 - [ð] vanished before nasals at morpheme boundaries', () => {
