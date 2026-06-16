@@ -565,11 +565,13 @@ export const sandhiRules = {
         morphemeBoundaries.push(pos);
       }
       morphemeBoundaries.pop(); // Remove the last one (end of string)
-
+/*
       // Handle NASAL at morpheme boundary followed by another consonant
       // This is nasal assimilation/simplification at morpheme boundaries
       // Process from end to preserve indices
+
       const nasals = ['m', 'n', 'ŋ'];
+
       for (let i = morphemeBoundaries.length - 1; i >= 0; i--) {
         const boundaryIdx = morphemeBoundaries[i];
         const charBeforeBoundary = result.nth(boundaryIdx - 1 - removedIndices.length);
@@ -584,18 +586,18 @@ export const sandhiRules = {
           // This should cover "n+n", "m+m", etc.
           charBeforeBoundary === firstCharAtFollowingMorpheme
         );
-
         // Only apply if the char before boundary is a NASAL
         if (nasals.includes(charBeforeBoundary) &&
             charAtBoundary && charAtBoundary.isConsonant() &&
             !isDoubleConsonant) {
+
           // Remove the nasal before the boundary
           const actualIdx = boundaryIdx - 1 - removedIndices.length;
           result = result.substring(0, actualIdx) + result.substring(actualIdx + 1);
           removedIndices.unshift(boundaryIdx - 1);
         }
       }
-
+*/
       // Find double consonants (after boundary processing)
       const occurrences = [];
       let match;
