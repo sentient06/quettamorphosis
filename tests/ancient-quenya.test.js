@@ -175,4 +175,10 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['825670671'].mechanic('taŋkl').out).toBe('taŋkal');
     expect(ancientQuenyaRules['825670671'].mechanic('taŋklā').out).toBe('taŋkalā');
   });
+
+  it('01100 - [{ptkpʰtʰkʰ}r] > [{ptkpʰtʰkʰ}s]', () => {
+    expect(ancientQuenyaRules['1071202939'].mechanic('abc').out).toBe('abc');
+    expect(ancientQuenyaRules['1071202939'].mechanic('mikrā').out).toBe('miksā');
+    expect(ancientQuenyaRules['1071202939'].mechanic('nekra').out).toBe('neksa');
+  });
 });

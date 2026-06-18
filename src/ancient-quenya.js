@@ -339,4 +339,28 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1071202939': {
+    orderId: '01100',
+    pattern: '[{ptkpʰtʰkʰ}r] > [{ptkpʰtʰkʰ}s]',
+    description: '[r] became [s] after voiceless stops and aspirates',
+    url: 'https://eldamo.org/content/words/word-1071202939.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['r'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+      const voicelessStopsAndAspirates = ['p', 't', 'k', 'ƥ', 'ŧ', 'ꝁ'];
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar } = occurrences[i];
+        if (voicelessStopsAndAspirates.includes(prevChar)) {
+          result = result.substring(0, charIndex) + 's' + result.substring(charIndex + 1);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
