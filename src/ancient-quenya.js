@@ -4,6 +4,7 @@ import {
   findAllOf,
   SyllableAnalyser,
   ANCIENT_QUENYA_PROFILE,
+  findFirstOf,
 } from './utils.js';
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -267,7 +268,8 @@ export const ancientQuenyaRules = {
         description: 'e develops to il, o develops to ul',
       }
     ],
-    mechanic: (str, options = { mlu: false, eoToIU: true }) => {
+    mechanic: (str, options = {}) => {
+      const { mlu = false, eoToIU = true } = options;
       const occurrences = findAllOf(['l', 'r'], str);
       const defaultReturn = { in: str, out: str, morphemes: options.morphemes };
       if (occurrences.length === 0) return defaultReturn;
@@ -278,8 +280,8 @@ export const ancientQuenyaRules = {
         'a': 'a',
         'i': 'i',
         'u': 'u',
-        'e': options.eoToIU ? 'i' : 'e',
-        'o': options.eoToIU ? 'u' : 'o',
+        'e': eoToIU ? 'i' : 'e',
+        'o': eoToIU ? 'u' : 'o',
       };
 
       const getPreviousVowel = (index) => {
@@ -312,7 +314,7 @@ export const ancientQuenyaRules = {
           } else
           if (nasals.includes(prevChar)) {
             // m > u (imlu instead of imla):
-            previousVowel = options.mlu ? 'u' : getPreviousVowel(charIndex);
+            previousVowel = mlu ? 'u' : getPreviousVowel(charIndex);
           }
         }
 
@@ -363,4 +365,50 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '2885687903': {
+    orderId: '01200',
+    pattern: '[dVXn-] > [nVXn-]',
+    description: 'initial [d] assimilated to following nasal',
+    url: 'https://eldamo.org/content/words/word-2885687903.html',
+    info: ['This rule was abandoned in the 1960s, but was used for many previous words.', 'This rule is disabled by default.'],
+    skip: true,
+    input: [
+      {
+        name: 'morphemeSensitive',
+        label: 'Sensitive to morphemes',
+        type: 'boolean',
+        default: true,
+        description: 'Ignore when a morpheme starts with nasal',
+      }
+    ],
+    mechanic: (str, options = { morphemeSensitive: true }) => {
+      const { morphemeSensitive = true } = options;
+
+      const defaultReturn = { in: str, out: str, morphemes: options.morphemes };
+      if (str.nth(0) !== 'd') return defaultReturn;
+
+      const firstNasal = findFirstOf(['n'], str);
+      if (firstNasal.found === false) return defaultReturn;
+
+      if (morphemeSensitive) {
+        const { morphemes } = options;
+        if (morphemes.length > 1) {
+          if (morphemes[1].nth(0) === 'n') {
+            return defaultReturn;
+          }
+        }
+      }
+      
+      const { charIndex } = firstNasal;
+      const result = 'n' + str.substring(1);
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return {
+        in: str,
+        out: result,
+        morphemes,
+      };
+    },
+  }
 };

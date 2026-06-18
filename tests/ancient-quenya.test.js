@@ -181,4 +181,24 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1071202939'].mechanic('mikrā').out).toBe('miksā');
     expect(ancientQuenyaRules['1071202939'].mechanic('nekra').out).toBe('neksa');
   });
+
+  it('01200 - [dVXn-] > [nVXn-]', () => {
+    expect(ancientQuenyaRules['2885687903'].mechanic('abc').out).toBe('abc');
+    expect(ancientQuenyaRules['2885687903'].mechanic('donda', { morphemeSensitive: false }).out).toBe('nonda');
+    expect(ancientQuenyaRules['2885687903'].mechanic('denda', { morphemeSensitive: false }).out).toBe('nenda');
+    expect(ancientQuenyaRules['2885687903'].mechanic('dorna', { morphemeSensitive: false }).out).toBe('norna');
+    expect(ancientQuenyaRules['2885687903'].mechanic('dorno', { morphemeSensitive: false }).out).toBe('norno');
+    
+    // Counterexamples:
+
+    // lanta-
+    const compoundA = ancientQuenyaRules['2885687903'].mechanic('danta', { morphemes: ['da', 'n', 'ta'] });
+    expect(compoundA.out).toEqual('danta');
+    expect(compoundA.morphemes).toEqual(['da', 'n', 'ta']);
+
+    // luine
+    const compoundB = ancientQuenyaRules['2885687903'].mechanic('duinē', { morphemes: ['dui', 'nē'] });
+    expect(compoundB.out).toEqual('duinē');
+    expect(compoundB.morphemes).toEqual(['dui', 'nē']);
+  });
 });
