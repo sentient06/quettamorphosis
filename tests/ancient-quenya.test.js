@@ -215,4 +215,18 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1625077395'].mechanic('negdē').out).toBe('nektē');
     expect(ancientQuenyaRules['1625077395'].mechanic('snagdē').out).toBe('snaktē');
   });
+
+  it('01500 - [z{bdg}] > [s{ptk}]', () => {
+    expect(ancientQuenyaRules['3279729471'].mechanic('abc').out).toBe('abc');
+
+    expect(ancientQuenyaRules['3279729471'].mechanic('buzbō').out).toBe('buspō');
+    expect(ancientQuenyaRules['3279729471'].mechanic('ezdē').out).toBe('estē');
+    expect(ancientQuenyaRules['3279729471'].mechanic('mbazdā').out).toBe('mbastā');
+    expect(ancientQuenyaRules['3279729471'].mechanic('mizdē').out).toBe('mistē');
+    expect(ancientQuenyaRules['3279729471'].mechanic('nizdo').out).toBe('nisto');
+    expect(ancientQuenyaRules['3279729471'].mechanic('rezdā').out).toBe('restā');
+    expect(ancientQuenyaRules['3279729471'].mechanic('mazgō').out).toBe('maskō');
+    expect(ancientQuenyaRules['3279729471'].mechanic('nazga').out).toBe('naska');
+    expect(ancientQuenyaRules['3279729471'].mechanic('nazgwē').out).toBe('naskwē');
+  });
 });
