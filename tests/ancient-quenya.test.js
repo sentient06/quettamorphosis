@@ -201,4 +201,9 @@ describe('Ancient Quenya rules', () => {
     expect(compoundB.out).toEqual('duinē');
     expect(compoundB.morphemes).toEqual(['dui', 'nē']);
   });
+
+  it('01300 - [ɣ-] > [h-]', () => {
+    expect(ancientQuenyaRules['3316553555'].mechanic('abc').out).toBe('abc');
+    expect(ancientQuenyaRules['3316553555'].mechanic('ɣalda').out).toBe('halda');
+  });
 });

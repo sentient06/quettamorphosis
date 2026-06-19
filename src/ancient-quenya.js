@@ -410,5 +410,20 @@ export const ancientQuenyaRules = {
         morphemes,
       };
     },
-  }
+  },
+  '3316553555': {
+    orderId: '01300',
+    pattern: '[ɣ-] > [h-]',
+    description: 'initial [ɣ] became [h]',
+    url: 'https://eldamo.org/content/words/word-3316553555.html',
+    info: ['This transformation was likely abandoned in the 1960s and there\'s very little evidence of it.'],
+    mechanic: (str, options = {}) => {
+      if (str.nth(0) !== 'ɣ') return { in: str, out: str, morphemes: options.morphemes };
+      const result = 'h' + str.substring(1);
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
