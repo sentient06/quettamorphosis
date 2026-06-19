@@ -488,5 +488,40 @@ export const ancientQuenyaRules = {
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },
-  }
+  },
+  '3418086257': {
+    orderId: '01600',
+    pattern: '[{ptk}{nm}|{ptk}ʰ{nm}] > [{ptk}{tw}|{ptk}ʰ{tw}]',
+    description: '[n], [m] became [t], [w] after voiceless stops and aspirates',
+    url: 'https://eldamo.org/content/words/word-3418086257.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['m', 'n'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const voicelessStopsAndAspirates = ['p', 't', 'k', 'ƥ', 'ŧ', 'ꝁ'];
+      const replacements = {
+        'm': 'w',
+        'n': 't',
+        'ƥ': 'p',
+        'ŧ': 't',
+        'ꝁ': 'k',
+      };
+      let result = str;
+
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar } = occurrences[i];
+        if (voicelessStopsAndAspirates.includes(prevChar)) {
+          if (aspirates.includes(prevChar)) {
+            result = result.substring(0, charIndex - 1) + replacements[prevChar] + result.substring(charIndex);
+          }
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

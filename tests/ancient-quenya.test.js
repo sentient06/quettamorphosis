@@ -229,4 +229,24 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['3279729471'].mechanic('nazga').out).toBe('naska');
     expect(ancientQuenyaRules['3279729471'].mechanic('nazgwē').out).toBe('naskwē');
   });
+
+  it('01600 - [{ptk}{nm}|{ptk}ʰ{nm}] > [{ptk}{tw}|{ptk}ʰ{tw}]', () => {
+    expect(ancientQuenyaRules['3418086257'].mechanic('abc').out).toBe('abc');
+
+    // Extant examples:
+    expect(ancientQuenyaRules['3418086257'].mechanic('lukma').out).toBe('lukwa'); // [km] > [kw]
+    expect(ancientQuenyaRules['3418086257'].mechanic('paknā').out).toBe('paktā'); // [kn] > [kt]
+    expect(ancientQuenyaRules['3418086257'].mechanic('napma').out).toBe('napwa'); // [pm] > [pw]
+    expect(ancientQuenyaRules['3418086257'].mechanic('matnā').out).toBe('mattā'); // [tn] > [tt]
+    expect(ancientQuenyaRules['3418086257'].mechanic('paŧnā').out).toBe('pattā'); // [tʰn] > [tt]
+
+    // Non-existent words:
+    expect(ancientQuenyaRules['3418086257'].mechanic('bapna').out).toBe('bapta'); // [pn] > [pt]
+    expect(ancientQuenyaRules['3418086257'].mechanic('batma').out).toBe('batwa'); // [tm] > [tw]
+    expect(ancientQuenyaRules['3418086257'].mechanic('baƥna').out).toBe('bapta'); // [pʰn] > [pt]
+    expect(ancientQuenyaRules['3418086257'].mechanic('baꝁna').out).toBe('bakta'); // [kʰn] > [kt]
+    expect(ancientQuenyaRules['3418086257'].mechanic('baƥma').out).toBe('bapwa'); // [pʰm] > [pw]
+    expect(ancientQuenyaRules['3418086257'].mechanic('baŧma').out).toBe('batwa'); // [tʰm] > [tw]
+    expect(ancientQuenyaRules['3418086257'].mechanic('baꝁma').out).toBe('bakwa'); // [kʰm] > [kw]
+  });
 });
