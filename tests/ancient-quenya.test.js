@@ -206,4 +206,13 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['3316553555'].mechanic('abc').out).toBe('abc');
     expect(ancientQuenyaRules['3316553555'].mechanic('ɣalda').out).toBe('halda');
   });
+
+  it('01400 - [{bdg}{bdg}] > [{ptk}{ptk}]', () => {
+    expect(ancientQuenyaRules['1625077395'].mechanic('abc').out).toBe('abc');
+    expect(ancientQuenyaRules['1625077395'].mechanic('lubbo').out).toBe('luppo');
+    expect(ancientQuenyaRules['1625077395'].mechanic('labdē').out).toBe('laptē');
+    expect(ancientQuenyaRules['1625077395'].mechanic('ꝁagdā').out).toBe('ꝁaktā');
+    expect(ancientQuenyaRules['1625077395'].mechanic('negdē').out).toBe('nektē');
+    expect(ancientQuenyaRules['1625077395'].mechanic('snagdē').out).toBe('snaktē');
+  });
 });

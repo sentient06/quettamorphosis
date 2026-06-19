@@ -426,4 +426,41 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1625077395': {
+    orderId: '01400',
+    pattern: '[{bdg}{bdg}] > [{ptk}{ptk}]',
+    description: 'combinations of voiced stops were unvoiced',
+    url: 'https://eldamo.org/content/words/word-1625077395.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['d', 'b', 'g'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const combos = [];
+      for (let i = 0; i < occurrences.length; i++) {
+        const { charIndex, matched, nextChar } = occurrences[i];
+        if (['b', 'd', 'g'].includes(nextChar)) {
+          combos.push(charIndex);
+        }
+      }
+
+      const replacements = {
+        'b': 'p',
+        'd': 't',
+        'g': 'k',
+      };
+      let result = str;
+
+      for (let i = 0; i < combos.length; i++) {
+        const charIndex = combos[i];
+        const char1 = replacements[result.nth(charIndex)];
+        const char2 = replacements[result.nth(charIndex + 1)];
+        result = result.substring(0, charIndex) + char1 + char2 + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
