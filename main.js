@@ -44,7 +44,7 @@ import {
   encodeQueryString,
   encodeDisabledParam,
 } from './src/query-string.js';
-import { toBase36 } from './src/utils.js';
+import { toBase36, singleToPhonetic } from './src/utils.js';
 
 // =============================================================================
 // Pipeline-derived helpers
@@ -76,6 +76,7 @@ const $resetButton = document.getElementById('reset');
 const $resetOrderButton = document.getElementById('reset-order');
 const $resultsTripped = document.getElementById('results-tripped');
 const $resultsSkipped = document.getElementById('results-skipped');
+const $copyChainButton = document.getElementById('copy-chain');
 const $notes = document.getElementById('notes');
 const $openNotes = document.getElementById('open-notes');
 const $closeNotes = document.getElementById('close-notes');
@@ -1083,6 +1084,59 @@ function printResults() {
   // Update sticky header height since results may have changed the top-wrapper size
   document.documentElement.style.setProperty('--sticky-h', $topWrapper.offsetHeight + 'px');
 }
+
+/**
+ * Build a markdown evolution chain from the tripped results.
+ * Format: input [>](url) step1 [>](url) step2 ... finalResult
+ */
+function buildEvolutionChain() {
+  const steps = [];
+
+  PIPELINE.forEach(stage => {
+    const resultsObj = stageResults[stage.id];
+    // Sort tripped rules by orderId
+    const trippedIds = Object.keys(resultsObj).sort((a, b) => {
+      return stage.rules[a].orderId.localeCompare(stage.rules[b].orderId);
+    });
+
+    for (const ruleId of trippedIds) {
+      const result = resultsObj[ruleId];
+      const rule = stage.rules[ruleId];
+      steps.push({
+        input: singleToPhonetic(result.in),
+        output: singleToPhonetic(result.out),
+        url: rule.url || null,
+      });
+    }
+  });
+
+  if (steps.length === 0) return '';
+
+  // Build the chain: input [>](url) output [>](url) output ...
+  const parts = [steps[0].input];
+  for (const step of steps) {
+    const arrow = step.url ? `[>](${step.url})` : '>';
+    parts.push(arrow);
+    parts.push(step.output);
+  }
+
+  return parts.join(' ');
+}
+
+// Handle copy chain button
+$copyChainButton.addEventListener('click', async () => {
+  const chain = buildEvolutionChain();
+  if (!chain) return;
+
+  try {
+    await navigator.clipboard.writeText(chain);
+    const original = $copyChainButton.textContent;
+    $copyChainButton.textContent = '✓';
+    setTimeout(() => { $copyChainButton.textContent = original; }, 2000);
+  } catch (err) {
+    console.error('Failed to copy chain:', err);
+  }
+});
 
 // =============================================================================
 // Event Handlers

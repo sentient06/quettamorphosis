@@ -72,6 +72,16 @@ div.smaller-title {
   font-weight: bold;
 }
 
+div.smaller-title button {
+  font-size: 0.7rem;
+  padding: 1px 4px;
+  cursor: pointer;
+  vertical-align: middle;
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
 div + div.title,
 div + div.smaller-title {
   margin-top: 10px;

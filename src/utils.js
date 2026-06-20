@@ -405,6 +405,49 @@ export function singleToDigraphs(str) {
   return result;
 }
 
+// Map for converting internal encoding shortcuts to phonetic symbols.
+// Only includes chars that are NOT themselves phonetic — leaves θ, ð, ŋ, ɸ, x, ɣ, β, ʍ etc. as-is.
+const SINGLE_TO_PHONETIC_MAP = {
+  'ꝁ': 'kʰ',   // aspirated voiceless stop
+  'ƥ': 'pʰ',   // aspirated voiceless stop
+  'ŧ': 'tʰ',   // aspirated voiceless stop
+  'ſ': 'ss',
+  'ƣ': 'gw',
+  'ꜧ': 'xʲ',
+  'ƕ': 'xʷ',
+  'λ': 'lh',
+  'ꝛ': 'rh',
+  'ꞧ': 'rh',
+  'ŋk': 'ŋk',  // preserve as-is (just expand for consistency)
+  // Voiceless sonorants
+  'j̊': 'j̊',
+  'w̥': 'w̥',
+  'm̥': 'm̥',
+  'n̥': 'n̥',
+  'l̥': 'l̥',
+  'r̥': 'r̥',
+  // Syllabic consonants
+  'ṃ': 'm̩',
+  'ṇ': 'n̩',
+  'ṣ': 's̩',
+  'ŋ̣': 'ŋ̩',
+};
+
+/**
+ * Converts internal encoding shortcuts to phonetic symbols,
+ * preserving IPA characters like θ, ð, ŋ, ɸ, x, ɣ, β, ʍ as-is.
+ * @param {string} str - The string to convert
+ * @returns {string} String with encoding shortcuts replaced by phonetic forms
+ */
+export function singleToPhonetic(str) {
+  let result = str;
+  for (const [single, phonetic] of Object.entries(SINGLE_TO_PHONETIC_MAP)) {
+    const regex = new RegExp(single, 'g');
+    result = result.replace(regex, phonetic);
+  }
+  return result;
+}
+
 // Singleton instance of SyllableAnalyser for the global syllabify function
 let _syllableAnalyser = null;
 function getSyllableAnalyser() {
