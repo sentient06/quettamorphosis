@@ -70,6 +70,9 @@ export const sindarinPostProcessingRules = {
       if (result.nth(-1) === 'v') {
         result = result.substring(0, result.length - 1) + 'f';
       }
+      if (result.nth(-1) === 'u') {
+        result = result.substring(0, result.length - 1) + 'w';
+      }
       // Replace macrons with circumflexes: NFD decompose → swap combining marks → NFC recompose
       result = result.normalize('NFD').replace(/\u0304/g, '\u0302').normalize('NFC');
       result = result.toNormalScript();
