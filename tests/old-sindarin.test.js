@@ -99,7 +99,10 @@ describe('Old Sindarin rules', () => {
     // [ŋgj] > [ŋg]:
     expect(oldSindarinRules['345959193'].mechanic('ŋgjabab').out).toBe('ŋgabab'); // Non-existent word
     // Replace all occurrences:
-    expect(oldSindarinRules['345959193'].mechanic('kjawathānekjāwen').out).toBe('kawathānekāwen'); // Non-existent word
+    // expect(oldSindarinRules['345959193'].mechanic('kjawathānekjāwen').out).toBe('kawathānekāwen'); // Non-existent word
+    // Change shouldn't occur in the middle of words:
+    expect(oldSindarinRules['345959193'].mechanic('tokjā').out).toBe('tokjā');
+
     // Morphemes: kjelepē + ornā = Celeborn
     const compound = oldSindarinRules['345959193'].mechanic('kjelepornā', { morphemes: ['kjelep', 'ornā'] });
     expect(compound.out).toEqual('kelepornā');

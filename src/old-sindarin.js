@@ -153,6 +153,13 @@ export const oldSindarinRules = {
         let res = _res;
         for (let i = occ.length - 1; i >= 0; i--) {
           const { charIndex, matched } = occ[i];
+          // We can accept a vowel at the start of the word, but no more than that.
+          // The pattern is at the start of the word:
+          if (charIndex > 0) {
+            if (str.nth(0).isConsonant()) {
+              continue;
+            }
+          }
           res = res.substring(0, charIndex) + replacements[matched] + res.substring(charIndex + matched.length);
           removedIndices.unshift(charIndex);
         }
