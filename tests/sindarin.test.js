@@ -703,6 +703,9 @@ describe('Sindarin rules', () => {
     const compound = sindarinRules['875184187'].mechanic('tindūmihelð', { morphemes: ['tindūmi', 'helð'] });
     expect(compound.out).toEqual('tindūmielð');
     expect(compound.morphemes).toEqual(['tindūmi', 'elð']);
+
+    // N. caw "low":
+    expect(sindarinRules['875184187'].mechanic('kauh').out).toBe('kau');
   });
 
   it('03600 - final [i], [u] generally vanished', () => {

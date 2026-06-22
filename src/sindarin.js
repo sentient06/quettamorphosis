@@ -1218,7 +1218,8 @@ export const sindarinRules = {
         if (charIndex === 0) continue;
 
         // Diphtong:
-        if (prevChar.isVowel() && anteriorChar.isVowel()) continue;
+        // Revise this if a test case is found.
+        // if (prevChar.isVowel() && anteriorChar.isVowel()) continue;
 
         // Last character:
         if (lastChar && prevChar.isVowel()) {
