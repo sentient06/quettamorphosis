@@ -773,6 +773,7 @@ export const sindarinRules = {
     orderId: '02400',
     pattern: '[-S{ĕăŏ}] > [-Sø]',
     description: 'short final vowels vanished',
+    info: ['It is suggested to skip this rule if you need to form derived verbs.'],
     url: 'https://eldamo.org/content/words/word-813787869.html',
     /**
      * This rule doesn't apply to morpheme boundaries.
