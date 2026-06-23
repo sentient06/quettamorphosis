@@ -244,6 +244,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['539122737'].mechanic('gwaɣme').out).toBe('gwaime');
     expect(sindarinRules['539122737'].mechanic('oɣma').out).toBe('oima');
     expect(sindarinRules['539122737'].mechanic('loɣna').out).toBe('loina');
+    // Don't change final [ɣ]:
+    expect(sindarinRules['539122737'].mechanic('roɣ').out).toBe('roɣ');
 
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = sindarinRules['539122737'].mechanic('abamaɣlana', { morphemes: ['aba', 'maɣ', 'lana'] });

@@ -487,21 +487,22 @@ export const sindarinRules = {
     description: '[ɣ] vocalized before [l], [r], [m], [n]',
     url: 'https://eldamo.org/content/words/word-539122737.html',
     mechanic: (str, options = {}) => {
-      if (str.includes('ɣ')) {
-        let result = str;
-        const indices = str.findAllChars('ɣ');
-        const vcPattern = breakIntoVowelsAndConsonants(str);
-        for (const index of indices) {
-          if (vcPattern.charAt(index - 1) === 'V' && 'lrmn'.includes(str.charAt(index + 1))) {
-            result = str.replaceAt(index, 'i');
-          }
+      const occurrences = findAllOf(['ɣ'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar, lastChar } = occurrences[i];
+        if (lastChar) continue;
+        if (prevChar.isVowel() && 'lrmn'.includes(nextChar)) {
+          result = result.replaceAt(charIndex, 'i');
         }
-        const morphemes = (result !== str && options.morphemes)
-          ? recalcMorphemes(result, options.morphemes, [])
-          : (options.morphemes || [str]);
-        return { in: str, out: result, morphemes };
       }
-      return { in: str, out: str, morphemes: options.morphemes || [str] };
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };      
     },
   },
   '4002924749': {
