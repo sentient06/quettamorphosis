@@ -1167,8 +1167,11 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['567222053'].mechanic('naegro').out).toBe('negro');
     expect(sindarinRules['567222053'].mechanic('athaelas').out).toBe('athelas');
 
-    // Monosyllables are not affected:
-    expect(sindarinRules['567222053'].mechanic('laug').out).toBe('laug');
+    // Stressed monosyllables are not affected:
+    expect(sindarinRules['567222053'].mechanic('ƣáun').out).toBe('ƣáun'); // Non-existent word
+
+    // Unstressed monosyllables are affected (most are):
+    expect(sindarinRules['567222053'].mechanic('daun', { transformUnstressedMonosyllables: true }).out).toBe('don'); // Non-existent word
 
     // Morphemes:
     // Nifraed is a listed word, so it always works:

@@ -2101,7 +2101,16 @@ export const sindarinRules = {
     pattern: '[ˌau|ˌae] > [o|e]',
     description: '[au], [ae] became [o], [e] in polysyllables',
     url: 'https://eldamo.org/content/words/word-567222053.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'transformUnstressedMonosyllables',
+        label: 'Transform monosyllables that are not stressed',
+        type: 'boolean',
+        default: false,
+        description: 'Transform monosyllables that are not stressed'
+      },
+    ],
+    mechanic: (str, { transformUnstressedMonosyllables = false, morphemes } = {}) => {
       // Rules for au/aw reduction in polysyllables:
       //
       // 1. If unstressed: au → o (short)
@@ -2118,32 +2127,42 @@ export const sindarinRules = {
 
       // 'jau-vaug
 
-      let morphemes = options.morphemes || [str];
+      let newMorphemes = morphemes || [str];
 
       const AE_TO_E_WORDS = ['nifraed', 'naegro', 'athaelas', 'aθaelas'];
       const lowerStr = str.toLowerCase();
       for (const word of AE_TO_E_WORDS) {
         if (lowerStr === word) {
           const aeIndex = str.indexOf('ae');
-          morphemes = (options.morphemes)
-            ? recalcMorphemes(str.replace('ae', 'e'), options.morphemes, [aeIndex + 1])
+          newMorphemes = (morphemes)
+            ? recalcMorphemes(str.replace('ae', 'e'), morphemes, [aeIndex + 1])
             : [str.replace('ae', 'e')];
-          return { in: str, out: str.replace(/ae/gi, 'e'), morphemes };
+          return { in: str, out: str.replace(/ae/gi, 'e'), morphemes: newMorphemes };
         }
       }
 
-      const { found } = findFirstOf(['aw', 'au'], str);
-      if (!found) return { in: str, out: str, morphemes };
-
+      const { found, matched } = findFirstOf(['aw', 'au'], str);
+      if (!found) return { in: str, out: str, morphemes: newMorphemes };
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
 
-      if (syllableData.length === 1) return { in: str, out: str, morphemes };
+      if (syllableData.length === 1) {
+        if (transformUnstressedMonosyllables === false) return { in: str, out: str, morphemes: newMorphemes };
+        const theOneSyllable = syllableData[0];
+        if (theOneSyllable.stressed === false) {
+          const result = str.replace(matched, 'o');
+          newMorphemes = (result !== str && morphemes)
+            ? recalcMorphemes(result, morphemes, [])
+            : (morphemes || [str]);
+          return { in: str, out: result, morphemes: newMorphemes };
+        }
+        return { in: str, out: str, morphemes: newMorphemes };
+      }
 
       // Build morpheme boundary info: cumulative positions where morphemes end
       const morphemeBoundaries = [];
       let cumulative = 0;
-      for (const m of morphemes) {
+      for (const m of newMorphemes) {
         cumulative += m.length;
         morphemeBoundaries.push(cumulative);
       }
@@ -2297,13 +2316,13 @@ export const sindarinRules = {
       const fullStrResult = result.join('');
       // If nothing changed, return original to preserve case
       if (fullStrResult.toLowerCase() === str.toLowerCase()) {
-        return { in: str, out: str, morphemes: options.morphemes };
+        return { in: str, out: str, morphemes };
       }
-      morphemes = options.morphemes
-        ? recalcMorphemes(fullStrResult, options.morphemes, removedIndices)
-        : (options.morphemes || [str]);
+      newMorphemes = morphemes
+        ? recalcMorphemes(fullStrResult, morphemes, removedIndices)
+        : (morphemes || [str]);
 
-      return { in: str, out: fullStrResult, morphemes };
+      return { in: str, out: fullStrResult, morphemes: newMorphemes };
     },
   },
   '226282629': {
