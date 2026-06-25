@@ -503,7 +503,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['te', 'ga', 'leba']);
   });
 
-  it.only('02900 - short vowels generally lengthened in monosyllables', () => {
+  it('02900 - short vowels generally lengthened in monosyllables', () => {
     expect(sindarinRules['1053424933'].mechanic('abc').out).toBe('abc');
     // Lengthening occurs in monosyllables:
     expect(sindarinRules['1053424933'].mechanic('penθrondo').out).toBe('penθrondo');
@@ -816,6 +816,10 @@ describe('Sindarin rules', () => {
       .toMatchObject({ out: 'turgaun', morphemes: ['tur', 'gaun'] });
     expect(sindarinRules['2749565259'].mechanic('turugond', { morphemes: ['turu', 'gond'] }))
       .toMatchObject({ out: 'turgond', morphemes: ['tur', 'gond'] });
+
+    // Don't apply when there is a diphtong:
+    expect(sindarinRules['2749565259'].mechanic('gairafen', { morphemes: ['gai', 'raf', 'en'] }))
+      .toMatchObject({ out: 'gairafen', morphemes: ['gai', 'raf', 'en'] });
   });
 
   it('03800 - [ai], [oi] became [ae], [oe]', () => {

@@ -1364,6 +1364,8 @@ export const sindarinRules = {
         if (!lastChar.isVowel()) return false;
         const mark = lastChar.getMark();
         if (['¯', '´', '^'].includes(mark)) return false;
+        const previousChar = m.nth(-2);
+        if (previousChar.isVowel()) return false;
         return true;
       });
       if (hasShortVowel === false) return { in: str, out: str, morphemes };
