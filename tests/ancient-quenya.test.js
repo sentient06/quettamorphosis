@@ -259,4 +259,29 @@ describe('Ancient Quenya rules', () => {
     // [ŋkʰ] > [kkʰ]:
     expect(ancientQuenyaRules['3474357431'].mechanic('baŋꝁe').out).toBe('bakꝁe'); // Non-existent word
   });
+
+  it('01800 - [{ptk}{ptk}ʰ] > [{ptk}{ptk}]', () => {
+    expect(ancientQuenyaRules['2190887743'].mechanic('abc').out).toBe('abc');
+
+    // [ppʰ] > [pp]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('rapƥe').out).toBe('rappe');
+    // [ptʰ] > [pt]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('bapŧe').out).toBe('bapte'); // Non-existent word
+    // [pkʰ] > [pk]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('bapꝁe').out).toBe('bapke'); // Non-existent word
+    // [tpʰ] > [tp]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('batƥe').out).toBe('batpe'); // Non-existent word
+    // [ttʰ] > [tt]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('netŧe').out).toBe('nette');
+    expect(ancientQuenyaRules['2190887743'].mechanic('patŧe').out).toBe('patte');
+    // [tkʰ] > [tk]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('rutꝁā').out).toBe('rutkā');
+    // [ktʰ] > [kt]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('nakŧa-').out).toBe('nakta-');
+    expect(ancientQuenyaRules['2190887743'].mechanic('okŧa').out).toBe('okta');
+    // [kpʰ] > [kp]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('bakƥe').out).toBe('bakpe'); // Non-existent word
+    // [kkʰ] > [kk]:
+    expect(ancientQuenyaRules['2190887743'].mechanic('nakꝁa').out).toBe('nakka');
+  });
 });
