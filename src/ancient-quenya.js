@@ -611,4 +611,19 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '785281061': {
+    orderId: '02000',
+    pattern: '[ṣ-] > [is-]',
+    description: 'syllabic initial [s] became [is]',
+    url: 'https://eldamo.org/content/words/word-785281061.html',
+    mechanic: (str, options = {}) => {
+      if (str.nth(0) !== 'ṣ') return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = 'is' + str.substring(1);
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

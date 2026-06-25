@@ -301,4 +301,11 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['3262991621'].mechanic('ꝁabar').out).toBe('xabar');
     expect(ancientQuenyaRules['3262991621'].mechanic('nāꝁa').out).toBe('nāxa');
   });
+
+  it('02000 - [ṣ-] > [is-]', () => {
+    expect(ancientQuenyaRules['785281061'].mechanic('abc').out).toBe('abc');
+
+    expect(ancientQuenyaRules['785281061'].mechanic('ṣkal').out).toBe('iskal');
+    expect(ancientQuenyaRules['785281061'].mechanic('ṣpin').out).toBe('ispin');
+  });
 });
