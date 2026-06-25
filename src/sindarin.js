@@ -998,16 +998,16 @@ export const sindarinRules = {
     mechanic(str, options = {}) {
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
+      const defaultReturn = { in: str, out: str, morphemes: options.morphemes || [str] };
 
       if (syllableData.length === 1) {
         const { nucleus } = syllableData[0];
-        if (nucleus.length === 2) return { in: str, out: str, morphemes: options.morphemes || [str] };
+        if (nucleus.length === 2) return defaultReturn;
       }
 
       const vcPattern = breakIntoVowelsAndConsonants(str);
-      if (!/^C{0,2}V{1,2}C{0,2}$/.test(vcPattern)) return { in: str, out: str, morphemes: options.morphemes || [str] };
+      if (!/^C{0,2}V{1,2}C{0,2}$/.test(vcPattern)) return defaultReturn;
 
-      const lastChar = str.nth(-1);
       const lengthen = (s, pos) => {
         const vowel = s.nth(pos);
         const hasMark = vowel.getMark();
@@ -1026,6 +1026,7 @@ export const sindarinRules = {
         return { in: str, out: result, morphemes };
       };
 
+      const lastChar = str.nth(-1);
       if (lastChar.isVowel()) {
         const result = this.vowelEndingExceptions.has(str) ? lengthen(str, -1) : str;
         return returnWithMorphemes(result);
@@ -1037,13 +1038,17 @@ export const sindarinRules = {
       }
 
       if ('bdðfvglnrɣ'.includes(lastChar)) {
-        if (this.voicedExceptions.has(str)) return { in: str, out: str, morphemes: options.morphemes || [str] };
+        if (this.voicedExceptions.has(str)) return defaultReturn;
+        
+        const antepenultimate = str.nth(-3);
+        if (antepenultimate.isVowel()) return defaultReturn;
+        
         const penultimate = str.nth(-2);
         const result = penultimate.isVowel() ? lengthen(str, -2) : str;
         return returnWithMorphemes(result);
       }
 
-      return { in: str, out: str, morphemes: options.morphemes || [str] };
+      return defaultReturn;
     },
   },
   '916418731': {

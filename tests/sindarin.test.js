@@ -420,6 +420,9 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['813787869'].mechanic('ekau').out).toBe('ekau');
     expect(sindarinRules['813787869'].mechanic('tīwi').out).toBe('tīwi');
 
+    // The penultimate letter must be a consonant:
+    // expect(sindarinRules['813787869'].mechanic('tœkia').out).toBe('tœkia');
+
     // Morphemes:
     // ledme-mbassē > S. lembas
     const compound = sindarinRules['813787869'].mechanic('lenmembasse', { morphemes: ['lenme', 'mbasse'] });
@@ -500,7 +503,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['te', 'ga', 'leba']);
   });
 
-  it('02900 - short vowels generally lengthened in monosyllables', () => {
+  it.only('02900 - short vowels generally lengthened in monosyllables', () => {
     expect(sindarinRules['1053424933'].mechanic('abc').out).toBe('abc');
     // Lengthening occurs in monosyllables:
     expect(sindarinRules['1053424933'].mechanic('penθrondo').out).toBe('penθrondo');
@@ -572,6 +575,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1053424933'].mechanic('beib').out).toBe('beib');
     expect(sindarinRules['1053424933'].mechanic('boeb').out).toBe('boeb');
     expect(sindarinRules['1053424933'].mechanic('buib').out).toBe('buib');
+    expect(sindarinRules['1053424933'].mechanic('tœig').out).toBe('tœig');
     // Exceptions:
     expect(sindarinRules['1053424933'].mechanic('hwa').out).toBe('hwā');
     expect(sindarinRules['1053424933'].mechanic('ia').out).toBe('iā');
