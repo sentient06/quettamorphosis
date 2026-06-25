@@ -524,4 +524,31 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '3474357431': {
+    orderId: '01700',
+    pattern: '[mpʰ|ntʰ|ŋkʰ] > [ppʰ|ttʰ|kkʰ]',
+    description: 'nasals became voiceless stops before aspirates',
+    url: 'https://eldamo.org/content/words/word-3474357431.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['mƥ', 'nŧ', 'ŋꝁ'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'mƥ': 'pƥ', // [mpʰ] > [ppʰ]
+        'nŧ': 'tŧ', // [ntʰ] > [ttʰ]
+        'ŋꝁ': 'kꝁ', // [ŋkʰ] > [kkʰ]
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  }
 };

@@ -249,4 +249,14 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['3418086257'].mechanic('baŧma').out).toBe('batwa'); // [tʰm] > [tw]
     expect(ancientQuenyaRules['3418086257'].mechanic('baꝁma').out).toBe('bakwa'); // [kʰm] > [kw]
   });
+
+  it('01700 - [mpʰ|ntʰ|ŋkʰ] > [ppʰ|ttʰ|kkʰ]', () => {
+    expect(ancientQuenyaRules['3474357431'].mechanic('abc').out).toBe('abc');
+    // [mpʰ] > [ppʰ]:
+    expect(ancientQuenyaRules['3474357431'].mechanic('ramƥe').out).toBe('rapƥe');
+    // [ntʰ] > [ttʰ]:
+    expect(ancientQuenyaRules['3474357431'].mechanic('panŧe').out).toBe('patŧe');
+    // [ŋkʰ] > [kkʰ]:
+    expect(ancientQuenyaRules['3474357431'].mechanic('baŋꝁe').out).toBe('bakꝁe'); // Non-existent word
+  });
 });
