@@ -41,20 +41,15 @@ export const sindarinRules = {
     description: 'initial nasals vanished before stops',
     url: 'https://eldamo.org/content/words/word-3057844573.html',
     mechanic: (str, options = {}) => {
-      const morphemes = options.morphemes || [str];
-      const initialNasal = morphemes.some((m) => {
-        const takeTwo = m.substring(0, 2);
-        return takeTwo === 'mb' || takeTwo === 'nd' || takeTwo === 'ŋg';
-      });
+      const takeTwo = str.nth(0, 2);
+      const initialNasal = ['mb', 'nd', 'ŋg'].includes(takeTwo);
+      
       if (initialNasal === false) return { in: str, out: str, morphemes: options.morphemes };
-
-      const newMorphemes = morphemes.map((m) => {
-        const takeTwo = m.substring(0, 2);
-        if (takeTwo === 'mb') return 'b' + m.substring(2);
-        if (takeTwo === 'nd') return 'd' + m.substring(2);
-        if (takeTwo === 'ŋg') return 'g' + m.substring(2);
-        return m;
-      });
+      
+      const newMorphemes = options.morphemes || [str];
+      if (takeTwo === 'mb') newMorphemes[0] = 'b' + newMorphemes[0].substring(2);
+      if (takeTwo === 'nd') newMorphemes[0] = 'd' + newMorphemes[0].substring(2);
+      if (takeTwo === 'ŋg') newMorphemes[0] = 'g' + newMorphemes[0].substring(2);
 
       return { in: str, out: newMorphemes.join(''), morphemes: newMorphemes };
     },

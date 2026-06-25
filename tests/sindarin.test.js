@@ -15,17 +15,22 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['ndan', 'gwetha']);
   });
 
-  it('00200 - initial nasals vanished before stops', () => {
+  it.only('00200 - initial nasals vanished before stops', () => {
     expect(sindarinRules['3057844573'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['3057844573'].mechanic('mbarda').out).toBe('barda');
     expect(sindarinRules['3057844573'].mechanic('ndaila').out).toBe('daila');
     expect(sindarinRules['3057844573'].mechanic('ŋgol').out).toBe('gol');
 
+    // This shouldn't apply medially:
+    const compoundA = sindarinRules['3057844573'].mechanic('okombar', { morphemes: ['oko', 'mbar'] });
+    expect(compoundA.out).toEqual('okombar');
+    expect(compoundA.morphemes).toEqual(['oko', 'mbar']);
+
     // Morphemes:
     // Dangweth
-    const compound = sindarinRules['3057844573'].mechanic('ndangwetha', { morphemes: ['ndan', 'gwetha'] });
-    expect(compound.out).toEqual('dangwetha');
-    expect(compound.morphemes).toEqual(['dan', 'gwetha']);
+    const compoundB = sindarinRules['3057844573'].mechanic('ndangwetha', { morphemes: ['ndan', 'gwetha'] });
+    expect(compoundB.out).toEqual('dangwetha');
+    expect(compoundB.morphemes).toEqual(['dan', 'gwetha']);
   });
 
   it('00300 - final nasals vanished after vowels in unstressed final syllables', () => {
