@@ -284,4 +284,21 @@ describe('Ancient Quenya rules', () => {
     // [kkʰ] > [kk]:
     expect(ancientQuenyaRules['2190887743'].mechanic('nakꝁa').out).toBe('nakka');
   });
+
+  it('01900 - [{ptk}ʰ] > [{ɸθx}]', () => {
+    expect(ancientQuenyaRules['3262991621'].mechanic('abc').out).toBe('abc');
+
+    expect(ancientQuenyaRules['3262991621'].mechanic('ƥirja').out).toBe('ɸirja');
+    expect(ancientQuenyaRules['3262991621'].mechanic('arƥō').out).toBe('arɸō');
+    expect(ancientQuenyaRules['3262991621'].mechanic('raƥe').out).toBe('raɸe');
+
+    expect(ancientQuenyaRules['3262991621'].mechanic('ŧaura').out).toBe('θaura');
+    expect(ancientQuenyaRules['3262991621'].mechanic('aŧa-').out).toBe('aθa-');
+    expect(ancientQuenyaRules['3262991621'].mechanic('rūŧe').out).toBe('rūθe');
+    expect(ancientQuenyaRules['3262991621'].mechanic('ŋwolōŧ').out).toBe('ŋwolōθ');
+
+    expect(ancientQuenyaRules['3262991621'].mechanic('ꝁ-').out).toBe('x-');
+    expect(ancientQuenyaRules['3262991621'].mechanic('ꝁabar').out).toBe('xabar');
+    expect(ancientQuenyaRules['3262991621'].mechanic('nāꝁa').out).toBe('nāxa');
+  });
 });
