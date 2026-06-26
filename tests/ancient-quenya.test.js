@@ -318,4 +318,22 @@ describe('Ancient Quenya rules', () => {
     // st- > θ-:
     expect(ancientQuenyaRules['1605344503'].mechanic('steglō').out).toBe('θeglō');
   });
+
+  it('02200 - [sm-|sn-|sr-|sl-|sj-|sw-] > [m̥-|n̥-|r̥-|l̥-|j̊-|w̥-]', () => {
+    expect(ancientQuenyaRules['1556924193'].mechanic('abc').out).toBe('abc');
+
+    // [sm-] > [m̥-]:
+    // (The only example is from Middle Ancient Quenya)
+    expect(ancientQuenyaRules['1556924193'].mechanic('smaldā').out).toBe('ᵯaldā');
+    // sn- > n̥-:
+    expect(ancientQuenyaRules['1556924193'].mechanic('snaktē').out).toBe('ꞃaktē');
+    // sr- > r̥-:
+    expect(ancientQuenyaRules['1556924193'].mechanic('srābā').out).toBe('ꞧābā');
+    // sl- > l̥-:
+    expect(ancientQuenyaRules['1556924193'].mechanic('slōna').out).toBe('λōna');
+    // sj- > j̊-:
+    expect(ancientQuenyaRules['1556924193'].mechanic('sjandā').out).toBe('ʝandā');
+    // sw- > w̥-:
+    expect(ancientQuenyaRules['1556924193'].mechanic('swaswa').out).toBe('ẘaswa');
+  });
 });

@@ -632,7 +632,7 @@ export const ancientQuenyaRules = {
     description: 'initial [s] plus voiceless stops became voiceless spirants',
     url: 'https://eldamo.org/content/words/word-1605344503.html',
     mechanic: (str, options = {}) => {
-      const firstTwoChars = str.substring(0, 2);
+      const firstTwoChars = str.nth(0, 2);
       const replacements = {
         'sp': 'ɸ',
         'st': 'θ',
@@ -640,6 +640,35 @@ export const ancientQuenyaRules = {
       };
       if (replacements[firstTwoChars]) {
         const result = replacements[firstTwoChars] + str.substring(2);
+        const morphemes = (result !== str && options.morphemes)
+          ? recalcMorphemes(result, options.morphemes, [])
+          : (options.morphemes || [str]);
+        return { in: str, out: result, morphemes };
+      }
+      return { in: str, out: str, morphemes: options.morphemes };
+    },
+  },
+  '1556924193': {
+    orderId: '02200',
+    pattern: '[sm-|sn-|sr-|sl-|sj-|sw-] > [m̥-|n̥-|r̥-|l̥-|j̊-|w̥-]',
+    description: 'initial [s] unvoiced following continuant',
+    url: 'https://eldamo.org/content/words/word-1556924193.html',
+    mechanic: (str, options = {}) => {
+      const firstChar = str.nth(0);
+      if (firstChar !== 's') return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'sm': 'ᵯ',
+        'sn': 'ꞃ',
+        'sr': 'ꞧ',
+        'sl': 'λ',
+        'sj': 'ʝ',
+        'sw': 'ẘ',
+      };
+
+      const takeTwo = str.nth(0, 2);
+      if (replacements[takeTwo]) {
+        const result = replacements[takeTwo] + str.substring(2);
         const morphemes = (result !== str && options.morphemes)
           ? recalcMorphemes(result, options.morphemes, [])
           : (options.morphemes || [str]);
