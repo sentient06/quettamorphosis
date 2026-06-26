@@ -325,31 +325,43 @@ const SORTED_DIGRAPHS = Object.keys(DIGRAPH_MAP).sort((a, b) => b.length - a.len
 // Reverse map for converting single chars back to digraphs
 // Note: 'x' maps back to 'ch' (not 'kh'), 'ʍ' maps back to 'hw' (not 'wh')
 const SINGLE_TO_DIGRAPH_MAP = {
+  // Fricatives / spirants (phonetic = single char)
   'β': 'bh',   // voiced bilabial fricative
   'ð': 'dh',
+  'θ': 'th',
+  'ɸ': 'ph',
+  'x': 'ch',
+  'ɣ': 'gh',
+  // Aspirated voiceless stops (encoding shortcuts)
+  'ꝁ': 'kʰ',
+  'ƥ': 'pʰ',
+  'ŧ': 'tʰ',
+  // Labialized / palatalized (encoding shortcuts)
   'ƣ': 'gw',
-  'x': 'ch',   // spirant
-  'ꝁ': 'kʰ',   // aspirated voiceless stop
-  'λ': 'lh',
+  'ƕ': 'xʷ',
+  'ꜧ': 'xʲ',
+  'ꭓ': 'chw',  // labialized velar fricative
+  // Nasals
   'ŋk': 'nc',
   'ŋ': 'ng',
-  'ɸ': 'ph',   // spirant
-  'ƥ': 'pʰ',   // aspirated voiceless stop
-  'ꝛ': 'rh',
+  'ꞥ': 'nth',  // nasal + spirant cluster
+  // Other
+  'ʍ': 'wh',
   'ſ': 'ss',
-  'θ': 'th',   // spirant
-  'ŧ': 'tʰ',   // aspirated voiceless stop
-  'ʍ': 'wh',   // alternate spelling of 'hw'
-  'ɣ': 'gh',
-  'ꜧ': 'xʲ',
-  'ƕ': 'xʷ',
-  'j̊': 'jh',
-  'w̥': 'wh',
-  'm̥': 'mh',
-  'n̥': 'nh',
-  'l̥': 'lh',
-  'r̥': 'rh',
-  'ꞧ': 'rh',
+  // Voiceless sonorants
+  'λ': 'lh',   // voiceless l
+  'ꝛ': 'rh',   // voiceless r
+  'ꞧ': 'rh',   // voiceless r (alternate)
+  'ʝ': 'hy',   // voiceless j (palatal)
+  'ẘ': 'wh',   // voiceless w
+  'm̥': 'mh',   // voiceless m (multi-codepoint, no single char available)
+  'n̥': 'nh',   // voiceless n (multi-codepoint, no single char available)
+  // Quenya palatalized / labialized consonants
+  'ȶ': 'ty',   // palatalized t
+  'ȡ': 'dy',   // palatalized d
+  'ȵ': 'ny',   // palatalized n
+  'ꝗ': 'qu',   // labialized k
+  'ɴ': 'nw',   // labialized ng
   // Syllabic consonants (reverse of SYLLABIC_MAP)
   'ṃ': 'm̩',   // syllabic m → display form
   'ṇ': 'n̩',   // syllabic n → display form
@@ -408,24 +420,34 @@ export function singleToDigraphs(str) {
 // Map for converting internal encoding shortcuts to phonetic symbols.
 // Only includes chars that are NOT themselves phonetic — leaves θ, ð, ŋ, ɸ, x, ɣ, β, ʍ etc. as-is.
 const SINGLE_TO_PHONETIC_MAP = {
-  'ꝁ': 'kʰ',   // aspirated voiceless stop
-  'ƥ': 'pʰ',   // aspirated voiceless stop
-  'ŧ': 'tʰ',   // aspirated voiceless stop
-  'ſ': 'ss',
+  // Aspirated voiceless stops
+  'ꝁ': 'kʰ',
+  'ƥ': 'pʰ',
+  'ŧ': 'tʰ',
+  // Labialized / palatalized (encoding shortcuts)
   'ƣ': 'gw',
-  'ꜧ': 'xʲ',
   'ƕ': 'xʷ',
-  'λ': 'lh',
-  'ꝛ': 'rh',
-  'ꞧ': 'rh',
-  'ŋk': 'ŋk',  // preserve as-is (just expand for consistency)
+  'ꜧ': 'xʲ',
+  'ꭓ': 'xw',   // labialized velar fricative
+  // Nasals
+  'ŋk': 'ŋk',  // preserve as-is
+  'ꞥ': 'nθ',   // nasal + spirant cluster
+  // Other
+  'ſ': 'ss',
   // Voiceless sonorants
-  'j̊': 'j̊',
-  'w̥': 'w̥',
-  'm̥': 'm̥',
-  'n̥': 'n̥',
-  'l̥': 'l̥',
-  'r̥': 'r̥',
+  'λ': 'l̥',    // voiceless l
+  'ꝛ': 'r̥',    // voiceless r
+  'ꞧ': 'r̥',    // voiceless r (alternate)
+  'ʝ': 'j̊',    // voiceless j (palatal)
+  'ẘ': 'w̥',    // voiceless w
+  'm̥': 'm̥',   // voiceless m (multi-codepoint, no single char available)
+  'n̥': 'n̥',   // voiceless n (multi-codepoint, no single char available)
+  // Quenya palatalized / labialized consonants
+  'ȶ': 'tʲ',   // palatalized t
+  'ȡ': 'dʲ',   // palatalized d
+  'ȵ': 'nʲ',   // palatalized n
+  'ꝗ': 'kʷ',   // labialized k
+  'ɴ': 'ŋʷ',   // labialized ng
   // Syllabic consonants
   'ṃ': 'm̩',
   'ṇ': 'n̩',
