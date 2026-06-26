@@ -677,4 +677,30 @@ export const ancientQuenyaRules = {
       return { in: str, out: str, morphemes: options.morphemes };
     },
   },
+  '2963647241': {
+    orderId: '02300',
+    pattern: '[xj|xw] > [j̊|w̥]',
+    description: '[x] unvoiced following [j], [w]',
+    url: 'https://eldamo.org/content/words/word-2963647241.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['xj', 'xw'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'xj': 'ʝ',
+        'xw': 'ẘ',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

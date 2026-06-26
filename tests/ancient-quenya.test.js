@@ -336,4 +336,13 @@ describe('Ancient Quenya rules', () => {
     // sw- > w̥-:
     expect(ancientQuenyaRules['1556924193'].mechanic('swaswa').out).toBe('ẘaswa');
   });
+
+  it('02300 - [xj|xw] > [j̊|w̥]', () => {
+    expect(ancientQuenyaRules['2963647241'].mechanic('abc').out).toBe('abc');
+    // xj > j̊:
+    expect(ancientQuenyaRules['2963647241'].mechanic('xjana').out).toBe('ʝana');
+    // xw > w̥:
+    // (The only example is from Middle Ancient Quenya)
+    expect(ancientQuenyaRules['2963647241'].mechanic('xwarin').out).toBe('ẘarin');
+  });
 });
