@@ -308,4 +308,14 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['785281061'].mechanic('ṣkal').out).toBe('iskal');
     expect(ancientQuenyaRules['785281061'].mechanic('ṣpin').out).toBe('ispin');
   });
+
+  it('02100 - [sp-|st-|sk-] > [ɸ-|θ-|x-]', () => {
+    expect(ancientQuenyaRules['1605344503'].mechanic('abc').out).toBe('abc');
+    // sk- > x-:
+    expect(ancientQuenyaRules['1605344503'].mechanic('skalā').out).toBe('xalā');
+    // sp- > ɸ-:
+    expect(ancientQuenyaRules['1605344503'].mechanic('spinde').out).toBe('ɸinde');
+    // st- > θ-:
+    expect(ancientQuenyaRules['1605344503'].mechanic('steglō').out).toBe('θeglō');
+  });
 });

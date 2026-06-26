@@ -626,4 +626,26 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1605344503': {
+    orderId: '02100',
+    pattern: '[sp-|st-|sk-] > [ɸ-|θ-|x-]',
+    description: 'initial [s] plus voiceless stops became voiceless spirants',
+    url: 'https://eldamo.org/content/words/word-1605344503.html',
+    mechanic: (str, options = {}) => {
+      const firstTwoChars = str.substring(0, 2);
+      const replacements = {
+        'sp': 'ɸ',
+        'st': 'θ',
+        'sk': 'x',
+      };
+      if (replacements[firstTwoChars]) {
+        const result = replacements[firstTwoChars] + str.substring(2);
+        const morphemes = (result !== str && options.morphemes)
+          ? recalcMorphemes(result, options.morphemes, [])
+          : (options.morphemes || [str]);
+        return { in: str, out: result, morphemes };
+      }
+      return { in: str, out: str, morphemes: options.morphemes };
+    },
+  },
 };
