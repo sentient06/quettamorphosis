@@ -67,6 +67,12 @@ describe('Ancient Telerin rules', () => {
     const compound = ancientTelerinRules['171120983'].mechanic('minikwē', { morphemes: ['mini', 'kwē'] });
     expect(compound.out).toEqual('minipē');
     expect(compound.morphemes).toEqual(['mini', 'pē']);
+
+    // Deal only with the nasals, leave vowels alone:
+    const compoundA = ancientTelerinRules['171120983'].mechanic('ŋƣarja', { morphemes: ['ŋƣar', 'ja'] }); // Non-existent word
+    expect(compoundA.out).toEqual('ṃbarja');
+    expect(compoundA.morphemes).toEqual(['ṃbar', 'ja']);
+
   });
 
   it('00300 - [j] was lost after initial dentals', () => {

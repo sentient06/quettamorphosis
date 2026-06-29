@@ -145,9 +145,12 @@ export const ancientTelerinRules = {
         if (matched === 'ŋw' && charIndex > 0) continue;
 
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
-        removedIndices.push(charIndex);
+        if (matched.length > replacements[matched].length) {
+          removedIndices.push(charIndex);
+        }
 
         // No idea how the ṃ happens, but I'm assuming it occurs when it's followed by a consonant.
+        // OS. amphala n. "death agony" -> ŋkwala > ṃpala
         if (result.nth(0) === 'm' && result.nth(1).isConsonant()) {
           result = 'ṃ' + result.substring(1);
         }
