@@ -345,4 +345,23 @@ describe('Ancient Quenya rules', () => {
     // (The only example is from Middle Ancient Quenya)
     expect(ancientQuenyaRules['2963647241'].mechanic('xwarin').out).toBe('ẘarin');
   });
+
+  it('02400 - [{bdg}{mnŋ}] > [{mnŋ}{mnŋ}]', () => {
+    expect(ancientQuenyaRules['2830908887'].mechanic('abc').out).toBe('abc');
+
+    // bn > mn:
+    expect(ancientQuenyaRules['2830908887'].mechanic('kjabne').out).toBe('kjamne');
+    expect(ancientQuenyaRules['2830908887'].mechanic('xabnā').out).toBe('xamnā');
+    // dm > nm:
+    expect(ancientQuenyaRules['2830908887'].mechanic('jodma').out).toBe('jonma');
+    expect(ancientQuenyaRules['2830908887'].mechanic('nadmā').out).toBe('nanmā');
+    // dn > nn:
+    expect(ancientQuenyaRules['2830908887'].mechanic('ʝadnā').out).toBe('ʝannā');
+    expect(ancientQuenyaRules['2830908887'].mechanic('ladna').out).toBe('lanna');
+    // gm > ŋm:
+    expect(ancientQuenyaRules['2830908887'].mechanic('tegma').out).toBe('teŋma');
+    expect(ancientQuenyaRules['2830908887'].mechanic('wagmē').out).toBe('waŋmē');
+    // gn > ŋn:
+    expect(ancientQuenyaRules['2830908887'].mechanic('rigna').out).toBe('riŋna');
+  });
 });

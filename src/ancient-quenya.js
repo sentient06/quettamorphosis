@@ -703,4 +703,33 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '2830908887': {
+    orderId: '02400',
+    pattern: '[{bdg}{mnŋ}] > [{mnŋ}{mnŋ}]',
+    description: 'voiced stops became nasals before nasals',
+    url: 'https://eldamo.org/content/words/word-2830908887.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['m', 'n', 'ŋ'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'b': 'm',
+        'd': 'n',
+        'g': 'ŋ',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar } = occurrences[i];
+        if (['b', 'd', 'g'].includes(prevChar)) {
+          result = result.substring(0, charIndex - 1) + replacements[prevChar] + result.substring(charIndex);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
