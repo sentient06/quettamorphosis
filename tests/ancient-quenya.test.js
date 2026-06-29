@@ -364,4 +364,19 @@ describe('Ancient Quenya rules', () => {
     // gn > ŋn:
     expect(ancientQuenyaRules['2830908887'].mechanic('rigna').out).toBe('riŋna');
   });
+
+  it.only('02500 - [ṃb-|ṇd-|ŋ̣g-|ŋ̣gw-|ŋ̣gj-] > [umb-|and-|iŋg-|uŋgw-|iŋgj-]', () => {
+    expect(ancientQuenyaRules['4294735057'].mechanic('abc').out).toBe('abc');
+
+    // ŋ̣g- > iŋg-:
+    expect(ancientQuenyaRules['4294735057'].mechanic('ŋ̣gōlē').out).toBe('iŋgōlē');
+    // ŋ̣gj- > iŋgj-:
+    expect(ancientQuenyaRules['4294735057'].mechanic('ŋ̣gjel').out).toBe('iŋgjel');
+    // ṃb- > umb-:
+    expect(ancientQuenyaRules['4294735057'].mechanic('ṃbart').out).toBe('umbart');
+    // ṇd- > and-:
+    expect(ancientQuenyaRules['4294735057'].mechanic('ṇdūnē').out).toBe('andūnē');
+    // [ŋ̣gw-] > [uŋgw-]:
+    expect(ancientQuenyaRules['4294735057'].mechanic('ŋ̣ƣale').out).toBe('uŋƣale');
+  });
 });

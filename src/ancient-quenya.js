@@ -732,4 +732,35 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '4294735057': {
+    orderId: '02500',
+    pattern: '[ṃb-|ṇd-|ŋ̣g-|ŋ̣gw-|ŋ̣gj-] > [umb-|and-|iŋg-|uŋgw-|iŋgj-]',
+    description: 'syllabic nasals developed a preceding vowel of similar quality',
+    url: 'https://eldamo.org/content/words/word-4294735057.html',
+    mechanic: (str, options = {}) => {
+      const defaultReturn = { in: str, out: str, morphemes: options.morphemes };
+
+      const occurrences = findAllOf(['ṃb', 'ṇd', 'ŋ̣g', 'ŋ̣ƣ', 'ŋ̣gj'], str);
+      if (occurrences.length === 0) return defaultReturn;
+
+      const match = occurrences.find((o) => o.charIndex === 0);
+      if (!match) return defaultReturn;
+
+      const replacements = {
+        'ṃb': 'umb',
+        'ṇd': 'and',
+        'ŋ̣g': 'iŋg',
+        'ŋ̣ƣ': 'uŋƣ',
+        'ŋ̣gj': 'iŋgj',
+      };
+
+      const { matched } = match;
+      const result = replacements[matched] + str.substring(matched.length);
+      
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
