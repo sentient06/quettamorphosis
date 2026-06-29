@@ -859,7 +859,7 @@ export const sindarinRules = {
   },
   '4211011237': {
     orderId: '02600',
-    pattern: '[-Cw] > [-uC]', // Originally this is [-xw] > [-ux]
+    pattern: '[-{ae}Cw] > [-{ae}uC]', // Pattern has been updated from Eldamo's [-xw] > [-ux].
     description: 'final [w] sometimes intruded into preceding syllables',
     url: 'https://eldamo.org/content/words/word-4211011237.html',
     skip: true,
