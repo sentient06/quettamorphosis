@@ -819,4 +819,37 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1141570065': {
+    orderId: '02900',
+    pattern: '[{bdg}|{mnŋ}{bdg}] > [{βðɣ}|{mnŋ}{bdg}]',
+    description: 'voiced stops became spirants except after nasals',
+    url: 'https://eldamo.org/content/words/word-1141570065.html',
+    dependsOn: [{ rule: '3192302915', param: 'changedStop' }],
+    // This dependency needs confirmation from Paul.
+    mechanic: (str, { changedStop = false, morphemes } = {}) => {
+      const defaultReturn = { in: str, out: str, morphemes: morphemes || [str] };
+      if (changedStop) return defaultReturn;
+
+      const occurrences = findAllOf(['b', 'd', 'g', 'ƣ'], str);
+      if (occurrences.length === 0) return defaultReturn;
+      
+      const replacements = {
+        'b': 'β',
+        'd': 'ð',
+        'g': 'ɣ',
+        'ƣ': 'ɣw',
+      };
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar } = occurrences[i];
+        if (['m', 'n', 'ŋ'].includes(prevChar)) continue;
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+      }
+
+      const newMorphemes = (result !== str && morphemes)
+        ? recalcMorphemes(result, morphemes, [])
+        : (morphemes || [str]);
+      return { in: str, out: result, morphemes: newMorphemes };
+    },
+  },
 };

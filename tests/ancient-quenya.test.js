@@ -409,4 +409,34 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['3325625207'].mechanic('domba').out).toBe('lomba');
     expect(ancientQuenyaRules['3325625207'].mechanic('duime').out).toBe('luime');
   });
+
+  it('02900 - [{bdg}|{mnŋ}{bdg}] > [{βðɣ}|{mnŋ}{bdg}]', () => {
+    expect(ancientQuenyaRules['1141570065'].mechanic('xyz').out).toBe('xyz');
+    
+    // b > β:
+    expect(ancientQuenyaRules['1141570065'].mechanic('aubie').out).toBe('auβie');
+    expect(ancientQuenyaRules['1141570065'].mechanic('aban').out).toBe('aβan');
+    expect(ancientQuenyaRules['1141570065'].mechanic('sībe').out).toBe('sīβe');
+    expect(ancientQuenyaRules['1141570065'].mechanic('xabar').out).toBe('xaβar');
+    // Except after nasals:
+    expect(ancientQuenyaRules['1141570065'].mechanic('umbē').out).toBe('umbē');
+    
+    // d > ð:
+    expect(ancientQuenyaRules['1141570065'].mechanic('kazād').out).toBe('kazāð');
+    expect(ancientQuenyaRules['1141570065'].mechanic('māxanaskad').out).toBe('māxanaskað');
+    expect(ancientQuenyaRules['1141570065'].mechanic('xauda').out).toBe('xauða');
+    // Except after nasals:
+    expect(ancientQuenyaRules['1141570065'].mechanic('andūnē').out).toBe('andūnē');
+    
+    // g > ɣ:
+    expect(ancientQuenyaRules['1141570065'].mechanic('gaikā').out).toBe('ɣaikā');
+    expect(ancientQuenyaRules['1141570065'].mechanic('galalme').out).toBe('ɣalalme');
+    expect(ancientQuenyaRules['1141570065'].mechanic('ƣirne').out).toBe('ɣwirne');
+    expect(ancientQuenyaRules['1141570065'].mechanic('kaltārīgelle').out).toBe('kaltārīɣelle');
+    expect(ancientQuenyaRules['1141570065'].mechanic('ndaƣē').out).toBe('ndaɣwē');
+    expect(ancientQuenyaRules['1141570065'].mechanic('telgūmā').out).toBe('telɣūmā');
+    expect(ancientQuenyaRules['1141570065'].mechanic('ɸelgā').out).toBe('ɸelɣā');
+    // Except after nasals:
+    expect(ancientQuenyaRules['1141570065'].mechanic('ŋgoldō').out).toBe('ŋgolðō');
+  });
 });
