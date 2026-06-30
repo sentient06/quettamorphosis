@@ -881,4 +881,26 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes: newMorphemes };
     },
   },
+  '1987898661': {
+    orderId: '03100',
+    pattern: '[ɣ{rl}V₁-] > [V₁{rl}V₁-]',
+    description: 'initial [ɣ] before [l], [r] sometimes became a vowel',
+    url: 'https://eldamo.org/content/words/word-1987898661.html',
+    info: ['This rule a rare development and shows mostly on archaic forms.', 'This rule is disabled by default.'],
+    skip: true,
+    mechanic: (str, options = {}) => {
+      const firstChar = str.nth(0);
+      const secondChar = str.nth(1);
+      const thirdChar = str.nth(2);
+
+      if (firstChar !== 'ɣ' || !['r', 'l'].includes(secondChar) || !thirdChar.isVowel())
+        return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = thirdChar + str.substring(1);
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [0])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

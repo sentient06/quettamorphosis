@@ -455,4 +455,13 @@ describe('Ancient Quenya rules', () => {
     // ŋkj > ntj:
     expect(ancientQuenyaRules['3703720537'].mechanic('iŋkja').out).toBe('intja'); // Middle AQ example
   });
+
+  it('03100 - [ɣ{rl}V₁-] > [V₁{rl}V₁-]', () => {
+    expect(ancientQuenyaRules['1987898661'].mechanic('abc').out).toBe('abc');
+
+    // ɣla- > ala-:
+    expect(ancientQuenyaRules['1987898661'].mechanic('ɣlaurē').out).toBe('alaurē');
+    // ɣra- > ara-:
+    expect(ancientQuenyaRules['1987898661'].mechanic('ɣrauko').out).toBe('arauko');
+  });
 });
