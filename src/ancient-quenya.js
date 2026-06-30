@@ -802,4 +802,20 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '3325625207': {
+    orderId: '02800',
+    pattern: '[d-] > [l-]',
+    description: 'initial [d] became [l]; [d-] > [l-]',
+    url: 'https://eldamo.org/content/words/word-3325625207.html',
+    mechanic: (str, options = {}) => {
+      const firstChar = str.nth(0);
+      if (firstChar !== 'd') return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = 'l' + str.substring(1);
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [0])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
