@@ -235,6 +235,17 @@ export const primitiveElvishRules = {
     orderId: '00007',
     pattern: '[-l] > [-r]',
     description: 'final [l] became [r]',
+    info: ['Ignore for verbs. This change applies to absolute final l, whereas the final consonant of a verb stem is never actually word final'],
+    // This l > r wouldn't happen here.
+    // This *l > r* wouldn't happen here.
+    // This change occurred very early in CE and applies to absolute final *l*,
+    // whereas the final consonant of a verb stem is never actually word final
+    // (until we get to Sindarin present forms after final vowel loss much much later).
+    // As a general rule there are only a handful of PE developments that are relevant
+    // to Sindarin word formation and you can simply ignore most of them because the
+    // CE forms we usually use for word formation mostly already underwent those changes.
+    // -
+    // Re. https://discord.com/channels/397489292185960468/402163478191931403/1521501699510898790
     url: 'https://eldamo.org/content/words/word-3385004377.html',
     mechanic: (str, options = {}) => {
       if (!str.endsWith('l')) return { in: str, out: str, morphemes: options.morphemes };

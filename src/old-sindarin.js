@@ -319,6 +319,8 @@ export const oldSindarinRules = {
     orderId: '01200',
     pattern: '[tʰn] > [ttʰ]',
     description: '[tʰn] became [ttʰ]',
+    info: ['There is only one example of this rule.', 'This rule is skipped by default.'],
+    skip: true,
     url: 'https://eldamo.org/content/words/word-1757900715.html',
     mechanic: (str, options = {}) => {
       // ŧ = tʰ (single char form)
