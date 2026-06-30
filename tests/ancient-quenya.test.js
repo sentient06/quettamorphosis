@@ -365,7 +365,7 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['2830908887'].mechanic('rigna').out).toBe('riŋna');
   });
 
-  it.only('02500 - [ṃb-|ṇd-|ŋ̣g-|ŋ̣gw-|ŋ̣gj-] > [umb-|and-|iŋg-|uŋgw-|iŋgj-]', () => {
+  it('02500 - [ṃb-|ṇd-|ŋ̣g-|ŋ̣gw-|ŋ̣gj-] > [umb-|and-|iŋg-|uŋgw-|iŋgj-]', () => {
     expect(ancientQuenyaRules['4294735057'].mechanic('abc').out).toBe('abc');
 
     // ŋ̣g- > iŋg-:
@@ -378,5 +378,14 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['4294735057'].mechanic('ṇdūnē').out).toBe('andūnē');
     // [ŋ̣gw-] > [uŋgw-]:
     expect(ancientQuenyaRules['4294735057'].mechanic('ŋ̣ƣale').out).toBe('uŋƣale');
+  });
+
+  it('02600 - [dr-|dl-] > [r-|l-]', () => {
+    expect(ancientQuenyaRules['3688462237'].mechanic('abc').out).toBe('abc');
+
+    // MQ: ráka (wolf):
+    expect(ancientQuenyaRules['3688462237'].mechanic('drāk').out).toBe('rāk');
+    // Non-existent word:
+    expect(ancientQuenyaRules['3688462237'].mechanic('dlasse').out).toBe('lasse');
   });
 });

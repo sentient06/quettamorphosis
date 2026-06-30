@@ -763,4 +763,21 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '3688462237': {
+    orderId: '02600',
+    pattern: '[dr-|dl-] > [r-|l-]',
+    description: 'initial [dr-], [dl-] became [r-], [l-]',
+    url: 'https://eldamo.org/content/words/word-3688462237.html',
+    mechanic: (str, options = {}) => {
+      const firstChars = str.nth(0, 2);
+      if (['dr', 'dl'].includes(firstChars)) {
+        const result = str.substring(1);
+        const morphemes = (result !== str && options.morphemes)
+          ? recalcMorphemes(result, options.morphemes, [0])
+          : (options.morphemes || [str]);
+        return { in: str, out: result, morphemes };
+      }
+      return { in: str, out: str, morphemes: options.morphemes };
+    },
+  },
 };
