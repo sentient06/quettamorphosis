@@ -60,6 +60,7 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['2232975397'].mechanic('gajkā').out).toBe('gaikā');
     // [VwC] > [VuC]:
     expect(ancientQuenyaRules['2232975397'].mechanic('glawrē').out).toBe('glaurē');
+    expect(ancientQuenyaRules['2232975397'].mechanic('wāwā').out).toBe('wāuā');
   });
 
   it('00500 - [ls] > [ll]', () => {

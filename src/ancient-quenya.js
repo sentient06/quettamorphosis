@@ -112,7 +112,8 @@ export const ancientQuenyaRules = {
       };
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, matched } = occurrences[i];
+        const { charIndex, matched, prevChar } = occurrences[i];
+        if (prevChar.isVowel() === false) continue;
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
       }
 
