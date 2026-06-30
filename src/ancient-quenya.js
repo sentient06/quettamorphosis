@@ -852,4 +852,33 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes: newMorphemes };
     },
   },
+  '3703720537': {
+    orderId: '03000',
+    pattern: '[{kgŋ}j|ŋkj|{rlŋ}gj] > [{tdn}j|ntj|{rln}dj]',
+    description: 'velars were dentalized before [j]',
+    url: 'https://eldamo.org/content/words/word-3703720537.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['kj', 'ŋgj', 'ŋj', 'gj', 'ŋkj'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'kj': 'tj',
+        'ŋgj': 'ndj',
+        'ŋj': 'nj',
+        'gj': 'dj',
+        'ŋkj': 'ntj',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
+      }
+
+      const newMorphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes: newMorphemes };
+    },
+  },
 };

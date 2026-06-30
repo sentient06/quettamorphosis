@@ -439,4 +439,20 @@ describe('Ancient Quenya rules', () => {
     // Except after nasals:
     expect(ancientQuenyaRules['1141570065'].mechanic('ŋgoldō').out).toBe('ŋgolðō');
   });
+
+  it('03000 - [{kgŋ}j|ŋkj|{rlŋ}gj] > [{tdn}j|ntj|{rln}dj]', () => {
+    expect(ancientQuenyaRules['3703720537'].mechanic('abc').out).toBe('abc');
+
+    // kj > tj:
+    expect(ancientQuenyaRules['3703720537'].mechanic('kjamne').out).toBe('tjamne');
+    // ŋgj > ndj:
+    expect(ancientQuenyaRules['3703720537'].mechanic('iŋgjel').out).toBe('indjel');
+    // ŋj > nj:
+    expect(ancientQuenyaRules['3703720537'].mechanic('laŋja').out).toBe('lanja');
+
+    // gj > dj:
+    expect(ancientQuenyaRules['3703720537'].mechanic('agjel').out).toBe('adjel'); // Non-existent word
+    // ŋkj > ntj:
+    expect(ancientQuenyaRules['3703720537'].mechanic('iŋkja').out).toBe('intja'); // Middle AQ example
+  });
 });
