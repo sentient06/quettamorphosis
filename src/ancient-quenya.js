@@ -780,4 +780,26 @@ export const ancientQuenyaRules = {
       return { in: str, out: str, morphemes: options.morphemes };
     },
   },
+  '1574644731': {
+    orderId: '02700',
+    pattern: '[dj] > [lj]',
+    description: 'initial [dj] became [lj]',
+    info: ['Occurs initially and medially'],
+    url: 'https://eldamo.org/content/words/word-1574644731.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['dj'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, lastChar } = occurrences[i];
+        if (lastChar) continue;
+        result = result.substring(0, charIndex) + 'lj' + result.substring(charIndex + 2);
+      }
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

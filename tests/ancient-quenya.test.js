@@ -388,4 +388,14 @@ describe('Ancient Quenya rules', () => {
     // Non-existent word:
     expect(ancientQuenyaRules['3688462237'].mechanic('dlasse').out).toBe('lasse');
   });
+
+  it('02700 - [dj] > [lj]', () => {
+    expect(ancientQuenyaRules['1574644731'].mechanic('abc').out).toBe('abc');
+    
+    expect(ancientQuenyaRules['1574644731'].mechanic('kwenedjā').out).toBe('kweneljā');
+    expect(ancientQuenyaRules['1574644731'].mechanic('djela').out).toBe('ljela');
+
+    // Don't do it at the end:
+    expect(ancientQuenyaRules['1574644731'].mechanic('babadj').out).toBe('babadj'); // Non-existent word
+  });
 });
