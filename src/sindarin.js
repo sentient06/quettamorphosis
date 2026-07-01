@@ -546,26 +546,27 @@ export const sindarinRules = {
       const occurrences = findAllOf(['ꜧ'], str);
       if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
-      const morphemes = options.morphemes || [str];
-      const morphemesWithXj = morphemes.some(m => m.indexOf('ꜧ') > 0);
-      if (morphemesWithXj === false) return { in: str, out: str, morphemes: options.morphemes };
-
-      const updatedMorphemes = morphemes.map((m) => {
-        const charIndex = m.indexOf('ꜧ');
-        if (charIndex === -1) return m;
-
-        let result = m;
+      let result = str;
+      const addedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar } = occurrences[i];
         if (charIndex > 0) {
-          result = result.replaceAt(charIndex, 'ix', 1);
+          if (prevChar === 'i') {
+            result = result.replaceAt(charIndex - 1, 'ī', 1);
+            result = result.replaceAt(charIndex, 'x', 1);
+            addedIndices.unshift(charIndex);
+            continue;
+          }
+          result = result.substring(0, charIndex) + 'ix' + result.substring(charIndex + 1);
+          addedIndices.unshift(charIndex + 1);
         }
-        if (result.indexOf('ii') !== -1) {
-          result = result.replace('ii', 'ī');
-        }
+      }
 
-        return result;
-      });
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [], addedIndices)
+        : (options.morphemes || [str]);
 
-      return { in: str, out: updatedMorphemes.join(''), morphemes: updatedMorphemes };
+      return { in: str, out: result, morphemes };
     },
   },
   '659168127': {
