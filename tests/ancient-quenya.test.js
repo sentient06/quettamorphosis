@@ -528,4 +528,14 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1408301067'].mechanic('barkjba').out).toBe('barkiba');
     expect(ancientQuenyaRules['1408301067'].mechanic('bandwba').out).toBe('banduba');
   });
+
+  it('03300 - [ę̄|ǭ] > [ē|ō]', () => {
+    expect(ancientQuenyaRules['1363608031'].mechanic('abc').out).toBe('abc');
+
+    // Not many examples:
+    expect(ancientQuenyaRules['1363608031'].mechanic('mę̄la').out).toBe('mēla');
+    expect(ancientQuenyaRules['1363608031'].mechanic('arǭmē').out).toBe('arōmē');
+    // Middle AQ:
+    expect(ancientQuenyaRules['1363608031'].mechanic('mǭre').out).toBe('mōre');
+  });
 });

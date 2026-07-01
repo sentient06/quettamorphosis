@@ -949,4 +949,20 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes: newMorphemes };
     },
   },
+  '1363608031': {
+    orderId: '03300',
+    pattern: '[ę̄|ǭ] > [ē|ō]',
+    description: '[ę̄], [ǭ] became [ē], [ō]',
+    url: 'https://eldamo.org/content/words/word-1363608031.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['ę̄', 'ǭ'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = str.replace('ę̄', 'ē').replace('ǭ', 'ō');
+      const newMorphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes: newMorphemes };
+    },
+  },
 };
