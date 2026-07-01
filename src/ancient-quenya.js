@@ -903,4 +903,50 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1408301067': {
+    orderId: '03200',
+    pattern: '[CC{jw}|C{td}j|C{kg}w] > [CC{iu}|C{td}j|C{kg}w]',
+    description: '[j], [w] often became [i], [u] after consonant groups',
+    url: 'https://eldamo.org/content/words/word-1408301067.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['j', 'w'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'j': 'i',
+        'w': 'u',
+      };
+
+      const protoClusters = ['lh', 'rh', 'λ', 'ꞧ'];
+
+      const allowedClusters = {
+        'j': ['ht', 'st', 'nt', 'nd', 'lt', 'rt', 'ld', 'rd', 'lth', 'rth', 'lθ', 'rθ'],
+        'w': ['sk', 'ŋk', 'ŋg', 'lk', 'rk'],
+      }
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar } = occurrences[i];
+        const prevChar2 = str.nth(charIndex - 2);
+        const prevChar3 = str.nth(charIndex - 3);
+
+        // Matching single point λ and ꞧ:
+        if (protoClusters.includes(prevChar)) continue;
+        // Matching double point lh and rh:
+        if (protoClusters.includes(prevChar2 + prevChar)) continue;
+        // Matching allowed clusters with 2 characters:
+        if (allowedClusters[matched].includes(prevChar2 + prevChar)) continue;
+        // Matching allowed clusters with 3 characters:
+        if (allowedClusters[matched].includes(prevChar3 + prevChar2 + prevChar)) continue;
+
+        // If we got this far, it means the character mutates:
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+      }
+
+      const newMorphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes: newMorphemes };
+    },
+  },
 };

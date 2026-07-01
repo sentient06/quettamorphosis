@@ -464,4 +464,68 @@ describe('Ancient Quenya rules', () => {
     // ɣra- > ara-:
     expect(ancientQuenyaRules['1987898661'].mechanic('ɣrauko').out).toBe('arauko');
   });
+
+  it('03200 - [CC{jw}|C{td}j|C{kg}w] > [CC{iu}|C{td}j|C{kg}w]', () => {
+    expect(ancientQuenyaRules['1408301067'].mechanic('abc').out).toBe('abc');
+
+    // Only one example, and it's from Early AQ:
+    expect(ancientQuenyaRules['1408301067'].mechanic('kaltwa').out).toBe('kaltua');
+
+    // All non-existent words:
+
+    // Allowed clusters:
+    // hty:
+    expect(ancientQuenyaRules['1408301067'].mechanic('bahtjba').out).toBe('bahtjba');
+    // sty:
+    expect(ancientQuenyaRules['1408301067'].mechanic('bastjba').out).toBe('bastjba');
+    // nty:
+    expect(ancientQuenyaRules['1408301067'].mechanic('bantjba').out).toBe('bantjba');
+    // ndy:
+    expect(ancientQuenyaRules['1408301067'].mechanic('bandjba').out).toBe('bandjba');
+    // lty:
+    expect(ancientQuenyaRules['1408301067'].mechanic('baltjba').out).toBe('baltjba');
+    // rty:
+    expect(ancientQuenyaRules['1408301067'].mechanic('bartjba').out).toBe('bartjba');
+
+    // skw:
+    expect(ancientQuenyaRules['1408301067'].mechanic('baskwba').out).toBe('baskwba');
+    // ñkw:
+    expect(ancientQuenyaRules['1408301067'].mechanic('baŋkwba').out).toBe('baŋkwba');
+    // ñgw:
+    expect(ancientQuenyaRules['1408301067'].mechanic('baŋgwba').out).toBe('baŋgwba');
+    // lkw:
+    expect(ancientQuenyaRules['1408301067'].mechanic('balkwba').out).toBe('balkwba');
+    // rkw:
+    expect(ancientQuenyaRules['1408301067'].mechanic('barkwba').out).toBe('barkwba');
+
+    // ldy:
+    expect(ancientQuenyaRules['1408301067'].mechanic('baldjba').out).toBe('baldjba');
+    // rdy:
+    expect(ancientQuenyaRules['1408301067'].mechanic('bardjba').out).toBe('bardjba');
+
+    // Rare clusters, but still allowed:
+    // lthy:
+    expect(ancientQuenyaRules['1408301067'].mechanic('balθjba').out).toBe('balθjba');
+    // rthy:
+    expect(ancientQuenyaRules['1408301067'].mechanic('barθjba').out).toBe('barθjba');
+    // lhy:
+    expect(ancientQuenyaRules['1408301067'].mechanic('balhjba').out).toBe('balhjba');
+    expect(ancientQuenyaRules['1408301067'].mechanic('baλjba').out).toBe('baλjba'); // Not sure lh represents voiceless l or not
+    // rhy:
+    expect(ancientQuenyaRules['1408301067'].mechanic('barhjba').out).toBe('barhjba');
+    expect(ancientQuenyaRules['1408301067'].mechanic('baꞧjba').out).toBe('baꞧjba'); // Not sure rh represents voiceless r or not
+    // lhw:
+    expect(ancientQuenyaRules['1408301067'].mechanic('balhwba').out).toBe('balhwba');
+    expect(ancientQuenyaRules['1408301067'].mechanic('baλwba').out).toBe('baλwba'); // Not sure lh represents voiceless l or not
+    // rhw:
+    expect(ancientQuenyaRules['1408301067'].mechanic('barhwba').out).toBe('barhwba');
+    expect(ancientQuenyaRules['1408301067'].mechanic('baꞧwba').out).toBe('baꞧwba'); // Not sure rh represents voiceless r or not
+
+    // Unallowed cluster examples:
+    expect(ancientQuenyaRules['1408301067'].mechanic('balɸjba').out).toBe('balɸiba');
+    expect(ancientQuenyaRules['1408301067'].mechanic('bambjba').out).toBe('bambiba');
+    expect(ancientQuenyaRules['1408301067'].mechanic('badkwba').out).toBe('badkuba');
+    expect(ancientQuenyaRules['1408301067'].mechanic('barkjba').out).toBe('barkiba');
+    expect(ancientQuenyaRules['1408301067'].mechanic('bandwba').out).toBe('banduba');
+  });
 });
