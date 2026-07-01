@@ -15,7 +15,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['ndan', 'gwetha']);
   });
 
-  it.only('00200 - initial nasals vanished before stops', () => {
+  it('00200 - initial nasals vanished before stops', () => {
     expect(sindarinRules['3057844573'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['3057844573'].mechanic('mbarda').out).toBe('barda');
     expect(sindarinRules['3057844573'].mechanic('ndaila').out).toBe('daila');

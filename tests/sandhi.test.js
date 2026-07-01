@@ -148,7 +148,7 @@ describe('Sandhi rules (05800)', () => {
       // .toMatchObject({ out: 'aranrūθ', morphemes: ['aran', 'rūθ'] });
   });
 
-  it.only('Rule 129: a long or double consonant became short when preceding another consonant', () => {
+  it('Rule 129: a long or double consonant became short when preceding another consonant', () => {
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('ellroxxxīr', { morphemes: ['ellroxx', 'xīr'] }))
       .toMatchObject({ out: 'elroxxīr', morphemes: ['elrox', 'xīr'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('hallbarad', { morphemes: ['hall', 'barad'] }))
