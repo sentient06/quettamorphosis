@@ -576,6 +576,7 @@ export const ancientQuenyaRules = {
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched, prevChar } = occurrences[i];
+        if (!prevChar) continue;
         result = result.substring(0, charIndex - 1) + replacements[prevChar + matched] + result.substring(charIndex + 1);
       }
 
@@ -1004,6 +1005,30 @@ export const ancientQuenyaRules = {
         ? recalcMorphemes(joinedResult, options.morphemes, [])
         : (options.morphemes || [str]);
       return { in: str, out: joinedResult, morphemes: updatedMorphemes };
+    },
+  },
+  '2619518313': {
+    orderId: '03500',
+    pattern: '[{rl}ɣ{ae}] > [{rl}j{ae}]',
+    description: '[ɣ] became [j] between liquids and [e], [a]',
+    url: 'https://eldamo.org/content/words/word-2619518313.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['ɣ'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        console.log(prevChar, nextChar);
+        if (['r', 'l'].includes(prevChar) && ['a', 'e'].includes(nextChar.removeMarks())) {
+          result = result.substring(0, charIndex) + 'j' + result.substring(charIndex + 1);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
     },
   },
 };

@@ -284,6 +284,9 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['2190887743'].mechanic('bakƥe').out).toBe('bakpe'); // Non-existent word
     // [kkʰ] > [kk]:
     expect(ancientQuenyaRules['2190887743'].mechanic('nakꝁa').out).toBe('nakka');
+
+    // Bug fixes...
+    expect(ancientQuenyaRules['2190887743'].mechanic('ƥelgā').out).toBe('ƥelgā');
   });
 
   it('01900 - [{ptk}ʰ] > [{ɸθx}]', () => {
@@ -540,12 +543,25 @@ describe('Ancient Quenya rules', () => {
   });
 
   it('03400 - unstressed medial long vowels shortened', () => {
-    // expect(ancientQuenyaRules['1293037291'].mechanic('abc').out).toBe('abc');
+    expect(ancientQuenyaRules['1293037291'].mechanic('abc').out).toBe('abc');
 
     expect(ancientQuenyaRules['1293037291'].mechanic('arātā').out).toBe('aratā');
     expect(ancientQuenyaRules['1293037291'].mechanic('arōmē').out).toBe('aromē');
     expect(ancientQuenyaRules['1293037291'].mechanic('aθāja').out).toBe('aθaja');
     expect(ancientQuenyaRules['1293037291'].mechanic('taŋkātā').out).toBe('taŋkatā');
     expect(ancientQuenyaRules['1293037291'].mechanic('telɣūmā').out).toBe('telɣumā');
+  });
+
+  it('03500 - [{rl}ɣ{ae}] > [{rl}j{ae}]', () => {
+    expect(ancientQuenyaRules['2619518313'].mechanic('abc').out).toBe('abc');
+
+    // lɣa > lja:
+    expect(ancientQuenyaRules['2619518313'].mechanic('ɸelɣā').out).toBe('ɸeljā'); // Only real example
+    // rɣa > rja:
+    expect(ancientQuenyaRules['2619518313'].mechanic('arɣa').out).toBe('arja'); // Non-existent word
+    // lɣe > lje:
+    expect(ancientQuenyaRules['2619518313'].mechanic('alɣe').out).toBe('alje'); // Non-existent word
+    // rɣe > rje:
+    expect(ancientQuenyaRules['2619518313'].mechanic('arɣe').out).toBe('arje'); // Non-existent word
   });
 });
