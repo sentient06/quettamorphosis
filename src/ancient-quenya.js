@@ -1019,8 +1019,30 @@ export const ancientQuenyaRules = {
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, prevChar, nextChar } = occurrences[i];
-        console.log(prevChar, nextChar);
         if (['r', 'l'].includes(prevChar) && ['a', 'e'].includes(nextChar.removeMarks())) {
+          result = result.substring(0, charIndex) + 'j' + result.substring(charIndex + 1);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '1700576467': {
+    orderId: '03600',
+    pattern: '[{ie}ɣV] > [{ie}jV]',
+    description: '[ɣ] became [j] between [i], [e] and a vowel',
+    url: 'https://eldamo.org/content/words/word-1700576467.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['ɣ'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        if (['e', 'i'].includes(prevChar) && nextChar.isVowel()) {
           result = result.substring(0, charIndex) + 'j' + result.substring(charIndex + 1);
         }
       }

@@ -564,4 +564,14 @@ describe('Ancient Quenya rules', () => {
     // rɣe > rje:
     expect(ancientQuenyaRules['2619518313'].mechanic('arɣe').out).toBe('arje'); // Non-existent word
   });
+
+  it('03600 - [{ie}ɣV] > [{ie}jV]', () => {
+    expect(ancientQuenyaRules['1700576467'].mechanic('abc').out).toBe('abc');
+
+    // eɣV > ejV:
+    expect(ancientQuenyaRules['1700576467'].mechanic('teɣē').out).toBe('tejē'); // Only real example
+
+    // iɣV > ijV:
+    expect(ancientQuenyaRules['1700576467'].mechanic('tiɣē').out).toBe('tijē'); // Non-existent word
+  });
 });
