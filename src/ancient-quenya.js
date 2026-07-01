@@ -1053,4 +1053,30 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1657301905': {
+    orderId: '03700', // This is also 03600 on Eldamo
+    pattern: '[jei|wou] > [jē|wō]',
+    description: '[jei], [wou] became [jē], [wō]',
+    url: 'https://eldamo.org/content/words/word-1657301905.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['jei', 'wou'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'jei': 'jē',
+        'wou': 'wō',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 3);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  }
 };

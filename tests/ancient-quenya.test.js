@@ -574,4 +574,16 @@ describe('Ancient Quenya rules', () => {
     // iɣV > ijV:
     expect(ancientQuenyaRules['1700576467'].mechanic('tiɣē').out).toBe('tijē'); // Non-existent word
   });
+
+  it('03700 - [jei|wou] > [jē|wō]', () => {
+    expect(ancientQuenyaRules['1657301905'].mechanic('abc').out).toBe('abc');
+
+    // jei > jē:
+    expect(ancientQuenyaRules['1657301905'].mechanic('jeite').out).toBe('jēte');
+    expect(ancientQuenyaRules['1657301905'].mechanic('skejeite').out).toBe('skejēte'); // ksejēte?
+
+    // wou > wō:
+    expect(ancientQuenyaRules['1657301905'].mechanic('woura').out).toBe('wōra'); // Non-existent word
+    expect(ancientQuenyaRules['1657301905'].mechanic('swoura').out).toBe('swōra'); // Non-existent word
+  });
 });
