@@ -965,4 +965,45 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes: newMorphemes };
     },
   },
+  '1293037291': {
+    orderId: '03400',
+    pattern: '[V́CV̄] > [V́CV̆]',
+    description: 'unstressed medial long vowels shortened',
+    url: 'https://eldamo.org/content/words/word-1293037291.html',
+    mechanic: (str, options = {}) => {
+      const analyser = new SyllableAnalyser({ profile: ANCIENT_QUENYA_PROFILE });
+      const syllableData = analyser.analyse(str);
+
+      // Monosyllables:
+      if (syllableData.length === 1) return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = [];
+      for (let i = 0; i < syllableData.length; i++) {
+        const { syllable, stressed } = syllableData[i];
+        // Only medial syllables:
+        if (i === 0 || i === syllableData.length - 1) {
+          result.push(syllable);
+          continue;
+        }
+        // Only unstressed syllables:
+        if (stressed) {
+          result.push(syllable);
+          continue;
+        }
+        const sVowel = syllableData[i].nucleus;
+        const sVowelMark = sVowel.getMark();
+        if (sVowelMark === '¯') {
+          result.push(syllable.replace(sVowel, sVowel.removeMarks()));
+        } else {
+          result.push(syllable);
+        }
+      }
+
+      const joinedResult = result.join('');
+      const updatedMorphemes = (joinedResult !== str && options.morphemes)
+        ? recalcMorphemes(joinedResult, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: joinedResult, morphemes: updatedMorphemes };
+    },
+  },
 };

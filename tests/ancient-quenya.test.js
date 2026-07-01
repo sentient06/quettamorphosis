@@ -538,4 +538,14 @@ describe('Ancient Quenya rules', () => {
     // Middle AQ:
     expect(ancientQuenyaRules['1363608031'].mechanic('mǭre').out).toBe('mōre');
   });
+
+  it('03400 - unstressed medial long vowels shortened', () => {
+    // expect(ancientQuenyaRules['1293037291'].mechanic('abc').out).toBe('abc');
+
+    expect(ancientQuenyaRules['1293037291'].mechanic('arātā').out).toBe('aratā');
+    expect(ancientQuenyaRules['1293037291'].mechanic('arōmē').out).toBe('aromē');
+    expect(ancientQuenyaRules['1293037291'].mechanic('aθāja').out).toBe('aθaja');
+    expect(ancientQuenyaRules['1293037291'].mechanic('taŋkātā').out).toBe('taŋkatā');
+    expect(ancientQuenyaRules['1293037291'].mechanic('telɣūmā').out).toBe('telɣumā');
+  });
 });

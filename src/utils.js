@@ -734,6 +734,7 @@ export const OLD_SINDARIN_PROFILE = {
 
 export const ANCIENT_QUENYA_PROFILE = {
   ...QUENYA_PROFILE,
+  stressRule: 'initial',  // Pre-accent-shift: stress always on first syllable
 };
 
 export const ANCIENT_TELERIN_PROFILE = {
@@ -766,6 +767,8 @@ export class SyllableAnalyser {
   longVowelMarks = ['¯', '´', '^'];
   // Marks that indicate stress (empty = use positional rules)
   stressMarks = [];
+  // Stress assignment rule: 'penultimate' (default) or 'initial' (archaic, pre-accent-shift)
+  stressRule = 'penultimate';
   legalConsonants = SINDARIN_PROFILE.consonants;
   legalDigraphs = SINDARIN_PROFILE.digraphs;
   digraphMap = SINDARIN_PROFILE.digraphMap;
@@ -801,6 +804,7 @@ export class SyllableAnalyser {
       if (p.alternateSpelling) this.alternateSpelling = p.alternateSpelling;
       if (p.longVowelMarks) this.longVowelMarks = p.longVowelMarks;
       if (p.stressMarks) this.stressMarks = p.stressMarks;
+      if (p.stressRule) this.stressRule = p.stressRule;
     }
   }
 
@@ -1263,6 +1267,14 @@ export class SyllableAnalyser {
     }
 
     const count = result.length;
+
+    // Archaic stress: always on the first syllable (pre-accent-shift)
+    if (this.stressRule === 'initial') {
+      if (count >= 1) {
+        result[0].stressed = true;
+      }
+      return;
+    }
 
     if (count === 1) {
       // Monosyllables: typically unstressed (depends on context)
