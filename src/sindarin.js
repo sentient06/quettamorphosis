@@ -1370,12 +1370,19 @@ export const sindarinRules = {
       for (let i = 0; i < morphemes.length; i++) {
         const morpheme = morphemes[i];
         const lastChar = morpheme.nth(-1);
+        const previousChar = morpheme.nth(-2);
         // Skip last morpheme:
         if (i === morphemes.length - 1) {
           newMorphemes.push(morpheme);
           continue;
         }
+        // Skip morpheme if it doesn't end with a vowel:
         if (!lastChar.isVowel()) {
+          newMorphemes.push(morpheme);
+          continue;
+        }
+        // Skip morpheme if the previous character is also a vowel:
+        if (previousChar.isVowel()) {
           newMorphemes.push(morpheme);
           continue;
         }

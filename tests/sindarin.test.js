@@ -825,6 +825,9 @@ describe('Sindarin rules', () => {
     // Don't apply when there is a diphtong:
     expect(sindarinRules['2749565259'].mechanic('gairafen', { morphemes: ['gai', 'raf', 'en'] }))
       .toMatchObject({ out: 'gairafen', morphemes: ['gai', 'raf', 'en'] });
+    
+    expect(sindarinRules['2749565259'].mechanic('haime', { morphemes: ['hai', 'me'] }))
+      .toMatchObject({ out: 'haime', morphemes: ['hai', 'me'] });
   });
 
   it('03800 - [ai], [oi] became [ae], [oe]', () => {
