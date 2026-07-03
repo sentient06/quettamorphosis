@@ -265,6 +265,7 @@ export const oldSindarinRules = {
     pattern: '[ṛ] > [aṛ]',
     description: 'syllabic [r] became [ar]',
     info: ['This rule is not on Eldamo and it\'s experimental.', 'This rule is disabled by default.'],
+    experimental: true,
     skip: true,
     mechanic: (str, options = {}) => {
       // Normalise to NFD so syllabic nasals are consistently 2 chars (base + combining dot)

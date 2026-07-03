@@ -1105,7 +1105,7 @@ function buildEvolutionChain() {
       steps.push({
         input: singleToPhonetic(result.in),
         output: singleToPhonetic(result.out),
-        url: rule.url || null,
+        url: rule.experimental ? null : rule.url || null,
       });
     }
   });
