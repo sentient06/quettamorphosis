@@ -162,6 +162,16 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3000000001'].mechanic('mṛðmā').out).toBe('marðmā');
   });
 
+  it('00902 - syllabic [l] became [{iua}l]', () => {
+    expect(oldSindarinRules['3000000002'].mechanic('abc').out).toBe('abc');
+    expect(oldSindarinRules['3000000002'].mechanic('ḷbā').out).toBe('albā');
+    expect(oldSindarinRules['3000000002'].mechanic('mḷðmā').out).toBe('malðmā');
+    expect(oldSindarinRules['3000000002'].mechanic('imḷðmā').out).toBe('imilðmā');
+    expect(oldSindarinRules['3000000002'].mechanic('emḷðmā').out).toBe('emilðmā');
+    expect(oldSindarinRules['3000000002'].mechanic('umḷðmā').out).toBe('umulðmā');
+    expect(oldSindarinRules['3000000002'].mechanic('omḷðmā').out).toBe('omulðmā');
+  });
+
   it('01000 - voiceless stops were voiced before nasals', () => {
     expect(oldSindarinRules['3463937975'].mechanic('abc').out).toBe('abc');
     // Sindarin examples:

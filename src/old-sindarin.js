@@ -275,7 +275,6 @@ export const oldSindarinRules = {
       str = str.normaliseToMany();
       const morphemes = options.morphemes?.map(m => m.normaliseToMany());
 
-      const firstChars = str.nth(0, 2);
       const replacements = {
         'r\u0323': 'ar', // ṛ in NFD
       };
@@ -294,6 +293,53 @@ export const oldSindarinRules = {
         ? recalcMorphemes(result, morphemes, removedIndices).map(m => m.normaliseToOne())
         : [result.normaliseToOne()];
       return { in: originalStr, out: result.normaliseToOne(), morphemes: updatedMorphemes };
+    },
+  },
+  '3000000002': {
+    orderId: '00902',
+    pattern: '[{ie}ḷ|{uo}ḷ|xḷ] > [il|ul|al]',
+    description: 'syllabic [ḷ] became [{iua}l]',
+    info: ['This rule is not on Eldamo and it\'s experimental.', 'There\'s no evidence of ḷ being used in the latest PE.', 'This rule is disabled by default.'],
+    // PE 19 p. 62
+    experimental: true,
+    skip: true,
+    mechanic: (str, options = {}) => {
+      const originalStr = str.normaliseToMany();
+
+      const occurrences = findAllOf(['l\u0323'], originalStr);
+
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const getPreviousVowel = (_str, _idx) => {
+        for (let j = _idx - 1; j >= 0; j--) {
+          if (_str.nth(j).isVowel()) {
+            return _str.nth(j);
+          }
+        }
+        return null;
+      };
+
+      let result = originalStr;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, matched } = occurrences[i];
+        const previousVowel = charIndex > 0 ? getPreviousVowel(result, charIndex) : null;
+        let replacement = 'al';
+        if (previousVowel) {
+          if (['i', 'e'].includes(previousVowel)) {
+            replacement = 'il';
+          } else
+          if (['u', 'o'].includes(previousVowel)) {
+            replacement = 'ul';
+          }
+        }
+        result = result.substring(0, charIndex) + replacement + result.substring(charIndex + 2);
+      }
+      
+      result = result.normaliseToOne();
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: originalStr, out: result, morphemes };
     },
   },
   '3463937975': {
