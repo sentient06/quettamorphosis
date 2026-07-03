@@ -260,6 +260,35 @@ export const oldSindarinRules = {
       return { in: originalStr, out: originalStr, morphemes: options.morphemes || [originalStr] };
     },
   },
+  'experimental1': {
+    orderId: '00901',
+    pattern: '[ṛ] > [aṛ]',
+    description: 'syllabic [r] became [ar]',
+    info: ['This rule is not on Eldamo and it\'s experimental.', 'This rule is disabled by default.'],
+    skip: true,
+    mechanic: (str, options = {}) => {
+      // Normalise to NFD so syllabic nasals are consistently 2 chars (base + combining dot)
+      // ṃ (NFC U+1E43) → m + ̣ (NFD), ṇ (NFC U+1E47) → n + ̣ (NFD), ŋ̣ already 2 chars
+      const originalStr = str;
+      str = str.normaliseToMany();
+      const morphemes = options.morphemes?.map(m => m.normaliseToMany());
+
+      const firstChars = str.nth(0, 2);
+      const replacements = {
+        'r\u0323': 'ar', // ṛ in NFD
+      };
+
+      if (replacements[firstChars]) {
+        const result = replacements[firstChars] + str.substring(2);
+        // Same-length replacement (2 chars → 2 chars), so use empty removedIndices
+        const updatedMorphemes = morphemes
+          ? recalcMorphemes(result, morphemes, []).map(m => m.normaliseToOne())
+          : [result.normaliseToOne()];
+        return { in: originalStr, out: result.normaliseToOne(), morphemes: updatedMorphemes };
+      }
+      return { in: originalStr, out: originalStr, morphemes: options.morphemes || [originalStr] };
+    },
+  },
   '3463937975': {
     orderId: '01000',
     pattern: '[{ptk}{mn}] > [{bdg}{mnŋ}]',

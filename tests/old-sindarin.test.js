@@ -156,6 +156,11 @@ describe('Old Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['ambar', 'ondō']);
   });
 
+  it('00901 - syllabic [r] became [ar]', () => {
+    expect(oldSindarinRules['experimental1'].mechanic('abc').out).toBe('abc');
+    expect(oldSindarinRules['experimental1'].mechanic('ṛbā').out).toBe('arbā');
+  });
+
   it('01000 - voiceless stops were voiced before nasals', () => {
     expect(oldSindarinRules['3463937975'].mechanic('abc').out).toBe('abc');
     // Sindarin examples:
