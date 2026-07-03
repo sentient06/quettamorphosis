@@ -157,8 +157,9 @@ describe('Old Sindarin rules', () => {
   });
 
   it('00901 - syllabic [r] became [ar]', () => {
-    expect(oldSindarinRules['experimental1'].mechanic('abc').out).toBe('abc');
-    expect(oldSindarinRules['experimental1'].mechanic('ṛbā').out).toBe('arbā');
+    expect(oldSindarinRules['3000000001'].mechanic('abc').out).toBe('abc');
+    expect(oldSindarinRules['3000000001'].mechanic('ṛbā').out).toBe('arbā');
+    expect(oldSindarinRules['3000000001'].mechanic('mṛðmā').out).toBe('marðmā');
   });
 
   it('01000 - voiceless stops were voiced before nasals', () => {
@@ -255,7 +256,7 @@ describe('Old Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['te', 'ꜧaƕā']);
   });
 
-  it.only('01600 - long final vowels were shortened', () => {
+  it('01600 - long final vowels were shortened', () => {
     expect(oldSindarinRules['2753394075'].mechanic('abc').out).toBe('abc');
     expect(oldSindarinRules['2753394075'].mechanic('aklaripā').out).toBe('aklaripa');
     expect(oldSindarinRules['2753394075'].mechanic('glossōjā').out).toBe('glossōja');

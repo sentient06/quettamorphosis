@@ -260,7 +260,7 @@ export const oldSindarinRules = {
       return { in: originalStr, out: originalStr, morphemes: options.morphemes || [originalStr] };
     },
   },
-  'experimental1': {
+  '3000000001': {
     orderId: '00901',
     pattern: '[ṛ] > [aṛ]',
     description: 'syllabic [r] became [ar]',
@@ -278,15 +278,20 @@ export const oldSindarinRules = {
         'r\u0323': 'ar', // ṛ in NFD
       };
 
-      if (replacements[firstChars]) {
-        const result = replacements[firstChars] + str.substring(2);
-        // Same-length replacement (2 chars → 2 chars), so use empty removedIndices
-        const updatedMorphemes = morphemes
-          ? recalcMorphemes(result, morphemes, []).map(m => m.normaliseToOne())
-          : [result.normaliseToOne()];
-        return { in: originalStr, out: result.normaliseToOne(), morphemes: updatedMorphemes };
+      const occurrences = findAllOf(['r\u0323'], str);
+
+      let result = str;
+      const removedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + 'ar' + result.substring(charIndex + 2);
+        // removedIndices.unshift(charIndex + 1);
       }
-      return { in: originalStr, out: originalStr, morphemes: options.morphemes || [originalStr] };
+
+      const updatedMorphemes = morphemes
+        ? recalcMorphemes(result, morphemes, removedIndices).map(m => m.normaliseToOne())
+        : [result.normaliseToOne()];
+      return { in: originalStr, out: result.normaliseToOne(), morphemes: updatedMorphemes };
     },
   },
   '3463937975': {
