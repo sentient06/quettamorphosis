@@ -415,14 +415,15 @@ export const oldSindarinRules = {
     description: 'long final vowels were shortened',
     url: 'https://eldamo.org/content/words/word-2753394075.html',
     mechanic: (str, options = {}) => {
+      const morphemes = options.morphemes || [str];
       const lastChar = str.nth(-1);
       const mark = lastChar.getMark();
       if (['¯', '´', '^'].includes(mark)) {
         const result = str.substring(0, str.length - 1) + lastChar.removeMarks();
-        const morphemes = options.morphemes
-          ? recalcMorphemes(result, options.morphemes, [])
-          : [str];
-        return { in: str, out: result, morphemes };
+        const newMorphemes = (result !== str && morphemes)
+          ? recalcMorphemes(result, morphemes, [str.length - 1], [str.length - 1])
+          : (morphemes || [str]);
+        return { in: str, out: result, morphemes: newMorphemes };
       }
       return { in: str, out: str, morphemes: options.morphemes };
     },

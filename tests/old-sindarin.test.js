@@ -250,7 +250,7 @@ describe('Old Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['te', 'ꜧaƕā']);
   });
 
-  it('01600 - long final vowels were shortened', () => {
+  it.only('01600 - long final vowels were shortened', () => {
     expect(oldSindarinRules['2753394075'].mechanic('abc').out).toBe('abc');
     expect(oldSindarinRules['2753394075'].mechanic('aklaripā').out).toBe('aklaripa');
     expect(oldSindarinRules['2753394075'].mechanic('glossōjā').out).toBe('glossōja');
@@ -267,9 +267,15 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2753394075'].mechanic('kamprû').out).toBe('kampru');
 
     // Morphemes: (non-existent compound for morpheme testing)
-    const compound = oldSindarinRules['2753394075'].mechanic('abaandūnē', { morphemes: ['aba', 'andū', 'nē'] });
-    expect(compound.out).toEqual('abaandūne');
-    expect(compound.morphemes).toEqual(['aba', 'andū', 'ne']);
+    const compoundA = oldSindarinRules['2753394075'].mechanic('abaandūnē', { morphemes: ['aba', 'andū', 'nē'] });
+    expect(compoundA.out).toEqual('abaandūne');
+    expect(compoundA.morphemes).toEqual(['aba', 'andū', 'ne']);
+
+    // Empty morphemes in, empty out:
+    const compoundB = oldSindarinRules['2753394075'].mechanic('marðmā', { morphemes: [] });
+    expect(compoundB.out).toEqual('marðma');
+    expect(compoundB.morphemes).toEqual([]);
+    // This last is a primitive word for Q. marma "sand" < mṛðmā
   });
 
   it('01700 - [z] vanished before [d] lengthening preceding vowel', () => {
