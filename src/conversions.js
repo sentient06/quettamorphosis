@@ -77,7 +77,9 @@ export const sindarinPostProcessingRules = {
       }
       if (result.nth(-1) === 'w') {
         if (result.nth(-2).isConsonant()) {
-          result = result.substring(0, result.length - 1) + 'u';
+          if (['g', 'k'].includes(result.nth(-2)) === false) {
+            result = result.substring(0, result.length - 1) + 'u';
+          }
         }
       }
       // Replace macrons with circumflexes: NFD decompose → swap combining marks → NFC recompose

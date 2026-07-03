@@ -265,6 +265,7 @@ export const oldSindarinRules = {
     pattern: '[ṛ] > [aṛ]',
     description: 'syllabic [r] became [ar]',
     info: ['This rule is not on Eldamo and it\'s experimental.', 'This rule is disabled by default.'],
+    // PE 19 p. 62
     experimental: true,
     skip: true,
     mechanic: (str, options = {}) => {
