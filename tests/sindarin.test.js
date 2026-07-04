@@ -115,6 +115,9 @@ describe('Sindarin rules', () => {
     // Don't apply if final [a] is neighbouring the vowel:
     expect(sindarinRules['1593810649'].mechanic('oria').out).toBe('oria'); // eria- "to rise" (neologism)
 
+    // Don't apply if u is part of a diphthong:
+    expect(sindarinRules['1593810649'].mechanic('tiuka').out).toBe('tiuka');
+
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = sindarinRules['1593810649'].mechanic('abaninda', { morphemes: ['aba', 'nin', 'da'] });
     expect(compound.out).toEqual('abanenda');
