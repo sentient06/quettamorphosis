@@ -204,15 +204,19 @@ export const sindarinRules = {
         const penultimateSyllable = syllableData.last(2).syllable;
         const penultimateSyllableNucleus = syllableData.last(2).nucleus;
         if (penultimateSyllableNucleus.length === 2) return { in: str, out: str, morphemes: options.morphemes || [str] }; // Diphtong
-        const { charIndex, found, matched, nextChar, prevChar } = findFirstOf(['u', 'i', 'ĭ', 'ŭ'], penultimateSyllable);
+        const { charIndex, found, matched, nextChar, prevChar, lastChar } = findFirstOf(['u', 'i', 'ĭ', 'ŭ'], penultimateSyllable);
         const replacements = {
           'i': 'e',
           'u': 'o',
           'ĭ': 'e',
           'ŭ': 'o',
         };
-        const prevCharIsVowel = charIndex > 0 ? prevChar.isVowel() : (syllableData?.last(3)?.syllable?.nth(-1)?.isVowel() || false);
-        if (found && prevCharIsVowel === false) {
+        const prevCharIsVowel = charIndex > 0 ? prevChar.isVowel(false, true) : (syllableData?.last(3)?.syllable?.nth(-1)?.isVowel(false, true) || false);
+        const nextCharIsVowel = nextChar ?
+        nextChar.isVowel(false, true) :
+        (syllableData?.last()?.syllable?.nth(0)?.isVowel(false, true) || false);
+        
+        if (found && prevCharIsVowel === false && nextCharIsVowel === false) {
           if (nextChar || lastSyllable.nth(0) !== 'a') {
             const xMark = matched.getMark();
             const replacee = penultimateSyllable.nth(charIndex, matched.length);

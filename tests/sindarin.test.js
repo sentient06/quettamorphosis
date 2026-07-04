@@ -117,6 +117,7 @@ describe('Sindarin rules', () => {
 
     // Don't apply if u is part of a diphthong:
     expect(sindarinRules['1593810649'].mechanic('tiuka').out).toBe('tiuka');
+    expect(sindarinRules['1593810649'].mechanic('tiwka').out).toBe('tiwka');
 
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = sindarinRules['1593810649'].mechanic('abaninda', { morphemes: ['aba', 'nin', 'da'] });
