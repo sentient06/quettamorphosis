@@ -555,7 +555,6 @@ describe('Sindarin rules', () => {
     // Cases where lengthening did not occur before [n]:
     expect(sindarinRules['1053424933'].mechanic('glan').out).toBe('glan');
     expect(sindarinRules['1053424933'].mechanic('fen').out).toBe('fen');
-    expect(sindarinRules['1053424933'].mechanic('hen').out).toBe('hen');
     expect(sindarinRules['1053424933'].mechanic('men').out).toBe('men');
     expect(sindarinRules['1053424933'].mechanic('nen').out).toBe('nen');
     expect(sindarinRules['1053424933'].mechanic('min').out).toBe('min');
@@ -601,7 +600,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1053424933'].mechanic('no').out).toBe('nō');
     // Lengthening did (mostly) occur before voiced consonants: b, d, dh, f [v], g, l, n, r:
     expect(sindarinRules['1053424933'].mechanic('ban').out).toBe('bān');
-    expect(sindarinRules['1053424933'].mechanic('hen').out).toBe('hen');
+    expect(sindarinRules['1053424933'].mechanic('hen').out).toBe('hēn');
     expect(sindarinRules['1053424933'].mechanic('mav').out).toBe('māv');
     expect(sindarinRules['1053424933'].mechanic('gweɣ').out).toBe('gwēɣ');
     expect(sindarinRules['1053424933'].mechanic('fin').out).toBe('fīn');

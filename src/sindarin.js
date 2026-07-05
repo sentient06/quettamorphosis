@@ -994,7 +994,7 @@ export const sindarinRules = {
     unvoicedExceptions: new Set(['hiθ', 'niθ', 'iaθ']),
     voicedExceptions: new Set([
       'bar', 'cef', 'cor', 'del', 'dol', 'el', 'er', 'far', 'fen', 'for', 'gil', 'glad', 'glan', 'gor',
-      'hen', 'ial', 'ion', 'lad', 'men', 'min', 'nad', 'nen', 'pad', 'peg', 'plad', 'sad', 'tad', 'tin', 'tol',
+      'ial', 'ion', 'lad', 'men', 'min', 'nad', 'nen', 'pad', 'peg', 'plad', 'sad', 'tad', 'tin', 'tol',
     ]),
     mechanic(str, options = {}) {
       const analyser = new SyllableAnalyser();
