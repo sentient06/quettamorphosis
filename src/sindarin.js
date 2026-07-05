@@ -1611,6 +1611,18 @@ export const sindarinRules = {
       const results = findAllOf(['θ', 'ð'], str);
       if (results.length < 2) return { in: str, out: str, morphemes: options.morphemes || [str] };
 
+      // Collapse adjacent geminates (θθ, ðð) into a single logical occurrence:
+      const collapsed = [];
+      for (let i = 0; i < results.length; i++) {
+        const r = results[i];
+        const prev = results[i - 1];
+        if (prev && r.charIndex === prev.charIndex + 1 && r.matched === prev.matched) {
+          continue; // skip second half of geminate
+        }
+        collapsed.push(r);
+      }
+      if (collapsed.length < 2) return { in: str, out: str, morphemes: options.morphemes || [str] };
+
       const analyser = new SyllableAnalyser();
       const syllables = analyser.syllabify(str);
 

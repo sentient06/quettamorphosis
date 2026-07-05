@@ -913,6 +913,8 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2090293737'].mechanic('eðelloθθ').out).toBe('eðellos');
     // It also shouldn't trigger when there's only one θ:
     expect(sindarinRules['2090293737'].mechanic('belaiθ').out).toBe('belaiθ');
+    // Shouldn't trigger for sequential spirants:
+    expect(sindarinRules['2090293737'].mechanic('tiθθen').out).toBe('tiθθen');
 
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = sindarinRules['2090293737'].mechanic('abaúθaeθ', { morphemes: ['aba', 'úθ', 'aeθ'] });
