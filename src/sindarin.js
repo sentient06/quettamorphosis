@@ -2060,9 +2060,18 @@ export const sindarinRules = {
     pattern: '[ī|ū] > [ĭ|ŭ]',
     description: '[ī], [ū] often shortened in polysyllables',
     url: 'https://eldamo.org/content/words/word-302560565.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'ignoreStress',
+        label: 'Ignore stress',
+        type: 'boolean',
+        default: false,
+        description: 'Ignore stress when applying the rule',
+      },
+    ],
+    mechanic: (str, { ignoreStress = false, morphemes } = {}) => {
       const { found } = findFirstOf(['ī', 'ū'], str);
-      if (!found) return { in: str, out: str, morphemes: options.morphemes || [str] };
+      if (!found) return { in: str, out: str, morphemes: morphemes || [str] };
 
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
@@ -2071,7 +2080,7 @@ export const sindarinRules = {
         const resultArr = [];
         for (let i = 0; i < syllableData.length; i++) {
           const { syllable, stressed } = syllableData[i];
-          if (stressed === false) {
+          if (stressed === false || ignoreStress) {
             const { matched } = findFirstOf(['ī', 'ū'], syllable);
             if (matched) {
               resultArr.push(syllable.replace(matched, matched.removeVowelMarks()));
@@ -2083,12 +2092,12 @@ export const sindarinRules = {
           }
         }
         const result = resultArr.join('');
-        const morphemes = (result !== str && options.morphemes)
-          ? recalcMorphemes(result, options.morphemes, [])
-          : (options.morphemes || [str]);
-        return { in: str, out: result, morphemes };
+        const newMorphemes = (result !== str && morphemes)
+          ? recalcMorphemes(result, morphemes, [])
+          : (morphemes || [str]);
+        return { in: str, out: result, newMorphemes };
       }
-      return { in: str, out: str, morphemes: options.morphemes || [str] };
+      return { in: str, out: str, morphemes: morphemes || [str] };
     },
   },
   '671129175': {
