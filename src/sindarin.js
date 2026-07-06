@@ -2095,7 +2095,8 @@ export const sindarinRules = {
         const newMorphemes = (result !== str && morphemes)
           ? recalcMorphemes(result, morphemes, [])
           : (morphemes || [str]);
-        return { in: str, out: result, newMorphemes };
+
+        return { in: str, out: result, morphemes: newMorphemes };
       }
       return { in: str, out: str, morphemes: morphemes || [str] };
     },

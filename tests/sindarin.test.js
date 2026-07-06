@@ -1111,7 +1111,7 @@ describe('Sindarin rules', () => {
     expect(compound.morphemes).toEqual(['aba', 'hiθ', 'lūm']);
   });
 
-  it.only('05200 - [ī], [ū] often shortened in polysyllables', () => {
+  it('05200 - [ī], [ū] often shortened in polysyllables', () => {
     expect(sindarinRules['302560565'].mechanic('abc').out).toBe('abc');
     // Final syllable shortening:
     expect(sindarinRules['302560565'].mechanic('ithīl').out).toBe('ithil');
@@ -1141,7 +1141,10 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['302560565'].mechanic('hūil', { ignoreStress: true }).out).toBe('huil');
 
     // Morphemes: (non-existent compound for morpheme testing)
-    const compound = sindarinRules['302560565'].mechanic('abaithīl', { morphemes: ['aba', 'i', 'thīl'] });
+    const compound = sindarinRules['302560565'].mechanic('abaithīl', {
+      morphemes: ['aba', 'i', 'thīl'],
+    });
+    console.log(compound);
     expect(compound.out).toEqual('abaithil');
     expect(compound.morphemes).toEqual(['aba', 'i', 'thil']);
   });
