@@ -2001,8 +2001,15 @@ export const sindarinRules = {
         'lθ': 'll',
       };
       let result = str;
+      // We need to find out whether the first char of the match is in a different morpheme in relation to the second char.
+      // Here we get the index of the start of each morpheme, by adding the length of the previous morphemes:
+      const morphemeBoundaries = options.morphemes?.reduce((a, c) => [...a, a.reduce((_a, _c) => _a + _c, 0) + c.length], [0]) || [0];
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched } = occurrences[i];
+        // If the first char of the match is 1 short of a morpheme boundary, skip it, because it's at the boundary precisely:
+        if (morphemeBoundaries.includes(charIndex + 1)) {
+          continue;
+        }
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
       const morphemes = (result !== str && options.morphemes)
