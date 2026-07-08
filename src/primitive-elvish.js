@@ -524,18 +524,60 @@ export const primitiveElvishRules = {
     description: 'nasals assimilated to following stops and aspirates',
     url: 'https://eldamo.org/content/words/word-2143444883.html',
     mechanic: (str, options = {}) => {
-      const occurrences = findAllOf(['np', 'nb', 'ŋp', 'mt', 'md', 'ŋt', 'mk', 'nk'], str);
+      const findPatterns = [
+        'np',
+        'nƥ',
+        'nb',
+        'ŋp',
+        'ŋƥ',
+        'ŋb',
+        'mt',
+        'mŧ',
+        'md',
+        'ŋt',
+        'ŋŧ',
+        'ŋd',
+        'mk',
+        'mꝁ',
+        'mg',
+        'nk',
+        'nꝁ',
+        'ng',
+      ];
+
+      const occurrences = findAllOf(findPatterns, str);
+      // const occurrences = findAllOf(['np', 'nb', 'ŋp', 'mt', 'md', 'ŋt', 'mk', 'nk'], str);
       if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       const replacements = {
+        // Updated list:
         'np': 'mp',
+        'nƥ': 'mƥ',
         'nb': 'mb',
         'ŋp': 'mp',
+        'ŋƥ': 'mƥ',
+        'ŋb': 'mb',
         'mt': 'nt',
+        'mŧ': 'nŧ',
         'md': 'nd',
         'ŋt': 'nt',
+        'ŋŧ': 'nŧ',
+        'ŋd': 'nd',
         'mk': 'ŋk',
+        'mꝁ': 'ŋꝁ',
+        'mg': 'ŋg',
         'nk': 'ŋk',
+        'nꝁ': 'ŋꝁ',
+        'ng': 'ŋg',
+        // Old list:
+        // 'np': 'mp',
+        // 'nb': 'mb',
+        // 'ŋp': 'mp',
+        // 'mt': 'nt',
+        // 'md': 'nd',
+        // 'ŋt': 'nt',
+        // 'mk': 'ŋk',
+        // 'nk': 'ŋk',
       };
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {

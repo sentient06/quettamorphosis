@@ -258,6 +258,26 @@ describe('Primitive Elvish rules', () => {
     expect(primitiveElvishRules['2143444883'].mechanic('lumka').out).toBe('luŋka');
     // [nk] > [ŋk]:
     expect(primitiveElvishRules['2143444883'].mechanic('minkwē').out).toBe('miŋkwē');
+    // [nƥ] > [mƥ]:
+    expect(primitiveElvishRules['2143444883'].mechanic('anƥa').out).toBe('amƥa'); // Non-existent word
+    // [ŋƥ] > [mƥ]:
+    expect(primitiveElvishRules['2143444883'].mechanic('aŋƥa').out).toBe('amƥa'); // Non-existent word
+    // [ŋb] > [mb]:
+    expect(primitiveElvishRules['2143444883'].mechanic('aŋba').out).toBe('amba'); // Non-existent word
+    // [mŧ] > [nŧ]:
+    expect(primitiveElvishRules['2143444883'].mechanic('amŧa').out).toBe('anŧa'); // Non-existent word
+    // [ŋŧ] > [nŧ]:
+    expect(primitiveElvishRules['2143444883'].mechanic('aŋŧa').out).toBe('anŧa'); // Non-existent word
+    // [ŋd] > [nd]:
+    expect(primitiveElvishRules['2143444883'].mechanic('aŋda').out).toBe('anda'); // Non-existent word
+    // [mꝁ] > [ŋꝁ]:
+    expect(primitiveElvishRules['2143444883'].mechanic('amꝁa').out).toBe('aŋꝁa'); // Non-existent word
+    // [mg] > [ŋg]:
+    expect(primitiveElvishRules['2143444883'].mechanic('amga').out).toBe('aŋga'); // Non-existent word
+    // [nꝁ] > [ŋꝁ]:
+    expect(primitiveElvishRules['2143444883'].mechanic('anꝁa').out).toBe('aŋꝁa'); // Non-existent word
+    // [ng] > [ŋg]:
+    expect(primitiveElvishRules['2143444883'].mechanic('anga').out).toBe('aŋga'); // Non-existent word
 
     // Morphemes: (non-existent word)
     const compound = primitiveElvishRules['2143444883'].mechanic('lenpeamtā', { morphemes: ['lenpe', 'amtā'] });
