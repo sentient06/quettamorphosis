@@ -188,6 +188,9 @@ describe('Primitive Elvish rules', () => {
     expect(primitiveElvishRules['4126101193'].mechanic('abnba').out).toBe('abna');
     expect(primitiveElvishRules['4126101193'].mechanic('abŋda').out).toBe('abŋa');
 
+    // Semi-vowels don't trigger the rule:
+    expect(primitiveElvishRules['4126101193'].mechanic('ojndorē').out).toBe('ojndorē');
+
     // Morphemes: (non-existent word)
     const compound = primitiveElvishRules['4126101193'].mechanic('abmbandorē', { morphemes: ['abmba', 'ndorē'] });
     expect(compound.out).toEqual('abmandorē');

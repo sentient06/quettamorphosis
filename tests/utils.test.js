@@ -25,6 +25,20 @@ describe('String extended functions', () => {
     expect('B'.isConsonant()).toBe(true);
     expect('p'.isConsonant()).toBe(true);
     expect('P'.isConsonant()).toBe(true);
+    // Semi-vowels as vowels:
+    expect('w'.isConsonant()).toBe(true);
+    expect('W'.isConsonant()).toBe(true);
+    expect('y'.isConsonant()).toBe(false);
+    expect('Y'.isConsonant()).toBe(false);
+    expect('j'.isConsonant(false, true, true)).toBe(false);
+    expect('J'.isConsonant(false, true, true)).toBe(false);
+    // Semi-vowels as consonants:
+    expect('w'.isConsonant()).toBe(true);
+    expect('W'.isConsonant()).toBe(true);
+    expect('y'.isConsonant(true, false)).toBe(true);
+    expect('Y'.isConsonant(true, false)).toBe(true);
+    expect('j'.isConsonant(true, false, true)).toBe(true);
+    expect('J'.isConsonant(true, false, true)).toBe(true);
   });
 
   it('isMark should identify combining marks', () => {

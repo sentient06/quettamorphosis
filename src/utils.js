@@ -20,11 +20,15 @@ Object.defineProperty(String.prototype, 'normaliseToMany', {
 });
 
 Object.defineProperty(String.prototype, 'isVowel', {
-  value(includeY = true, includeW = false) {
+  value(includeY = true, includeW = false, useJforY = false) {
     if (this.length === 0) return false;
     let vowels = 'aeiouœ';
     if (includeY) {
-      vowels += 'y';
+      if (useJforY) {
+        vowels += 'j';
+      } else {
+        vowels += 'y';
+      }
     }
     if (includeW) {
       vowels += 'w';
@@ -34,9 +38,9 @@ Object.defineProperty(String.prototype, 'isVowel', {
 });
 
 Object.defineProperty(String.prototype, 'isConsonant', {
-  value() {
+  value(includeY = false, includeW = true, useJforY = false) {
     if (this.length === 0) return false;
-    return !this.isVowel();
+    return !this.isVowel(!includeY, !includeW, useJforY);
   }
 });
 

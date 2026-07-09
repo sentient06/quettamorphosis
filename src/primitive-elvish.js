@@ -418,7 +418,7 @@ export const primitiveElvishRules = {
       // Process from end to start so indices remain valid
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, prevChar, nextChar } = occurrences[i];
-        if (['b', 'd', 'g'].includes(nextChar) && prevChar.isConsonant()) {
+        if (['b', 'd', 'g'].includes(nextChar) && prevChar.isConsonant(false, false, true)) {
           result = result.substring(0, charIndex + 1) + result.substring(charIndex + 2);
           removedIndices.push(charIndex);
         }
