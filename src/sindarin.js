@@ -640,13 +640,13 @@ export const sindarinRules = {
         if (/u[mnŋ]/.test(str)) return { in: str, out: str, morphemes: options.morphemes || [str] };
 
         // But if there are more nuclei and they are not u, modify it:
-        if (allNuclei.length > uAmount) {
+        // if (allNuclei.length > uAmount) {
           const result = str.replaceAll('u', 'o');
           const morphemes = (result !== str && options.morphemes)
             ? recalcMorphemes(result, options.morphemes, [])
             : (options.morphemes || [str]);
           return { in: str, out: result, morphemes };
-        }
+        // }
       }
 
       // Multiple u.

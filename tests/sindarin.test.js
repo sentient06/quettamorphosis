@@ -341,6 +341,7 @@ describe('Sindarin rules', () => {
 
     // [ŭ] > [o]:
     expect(sindarinRules['2740073851'].mechanic('uroθa').out).toBe('oroθa');
+    expect(sindarinRules['2740073851'].mechanic('suk').out).toBe('sok');
 
     // Morphemes: (non-existent compound for morpheme testing)
     // 'taluroθa' - has single 'u' not followed by uwv or nasals
