@@ -630,7 +630,7 @@ export const sindarinRules = {
 
       // There should be at least one syllable with a [u] as nucleus:
       if (uAmount === 0) return { in: str, out: str, morphemes: options.morphemes || [str] };
-
+console.log({ str, syllableData, allNuclei, uAmount });
       // If there is 1 u nucleus:
       if (uAmount === 1) {
         // If u followed by a consonant...
@@ -638,6 +638,9 @@ export const sindarinRules = {
         if (/u[^u][uwv]/.test(str)) return { in: str, out: str, morphemes: options.morphemes || [str] }; // buð·vo
         // If it's followed by mnŋ, it is preserved:
         if (/u[mnŋ]/.test(str)) return { in: str, out: str, morphemes: options.morphemes || [str] };
+
+        // If u is preceded by a vowel, it is preserved:
+        if (/[aeiou]u/.test(str)) return { in: str, out: str, morphemes: options.morphemes || [str] };
 
         // But if there are more nuclei and they are not u, modify it:
         // if (allNuclei.length > uAmount) {

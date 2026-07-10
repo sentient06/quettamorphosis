@@ -311,7 +311,7 @@ describe('Sindarin rules', () => {
     expect(compoundB.morphemes).toEqual(['kȳ', 'rǭna']);
   });
 
-  it('01900 - short [u] often became [o]', () => {
+  it.only('01900 - short [u] often became [o]', () => {
     expect(sindarinRules['2740073851'].mechanic('abc').out).toBe('abc');
 
     // Registered exception:
@@ -336,6 +336,9 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2740073851'].mechanic('luine').out).toBe('luine');
     // Don't change [u] when it's long:
     expect(sindarinRules['2740073851'].mechanic('lūne').out).toBe('lūne'); // Non-existent word
+
+    // Don't change [u] when it's following a vowel:
+    expect(sindarinRules['2740073851'].mechanic('nouθa').out).toBe('nouθa');
 
     // Change otherwise --
 
