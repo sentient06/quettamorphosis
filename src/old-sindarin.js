@@ -450,6 +450,8 @@ export const oldSindarinRules = {
     pattern: '[-tʰ] > [-t]',
     description: 'final [tʰ] became [t]',
     url: 'https://eldamo.org/content/words/word-300026073.html',
+    info: ['This rule has a single example: KHOTH > khōth > khōt > N. hûd "assembly".', 'This rule is skipped by default.'],
+    skip: true,
     mechanic: (str, options = {}) => {
       // ŧ = tʰ (single char form)
       if (str.endsWith('ŧ')) {
