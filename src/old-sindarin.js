@@ -583,6 +583,8 @@ export const oldSindarinRules = {
         'w': 'ƕ',
         'l': 'ꝉ',
         'r': 'ꞧ',
+        'm': 'm',
+        'n': 'n',
       };
       if (options.includeNasals) {
         replacements['m'] = 'ᵯ';
