@@ -564,7 +564,16 @@ export const oldSindarinRules = {
     pattern: '[s{jwmnrl}-] > [{j̊w̥m̥n̥l̥r̥}-]',
     description: 'initial [s] unvoiced following consonants',
     url: 'https://eldamo.org/content/words/word-3923357111.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'includeNasals',
+        label: 'unvoice nasals',
+        type: 'boolean',
+        default: false,
+        description: 'Include [m] and [n] in the rule, as they might just become simple nasals in Sindarin.',
+      }
+    ],
+    mechanic: (str, options = { includeNasals: false }) => {
       const firstChar = str.nth(0);
       if (firstChar !== 's') return { in: str, out: str, morphemes: options.morphemes };
 
@@ -572,11 +581,13 @@ export const oldSindarinRules = {
       const replacements = {
         'j': 'j̊',
         'w': 'ƕ',
-        'm': 'ᵯ',
-        'n': 'ꞃ',
         'l': 'ꝉ',
         'r': 'ꞧ',
       };
+      if (options.includeNasals) {
+        replacements['m'] = 'ᵯ';
+        replacements['n'] = 'ꞃ';
+      }
       const validNext = Object.keys(replacements);
 
       if (validNext.includes(secondChar)) {
