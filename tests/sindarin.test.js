@@ -311,7 +311,7 @@ describe('Sindarin rules', () => {
     expect(compoundB.morphemes).toEqual(['kȳ', 'rǭna']);
   });
 
-  it.only('01900 - short [u] often became [o]', () => {
+  it('01900 - short [u] often became [o]', () => {
     expect(sindarinRules['2740073851'].mechanic('abc').out).toBe('abc');
 
     // Registered exception:
@@ -1204,6 +1204,9 @@ describe('Sindarin rules', () => {
 
     // Unstressed monosyllables are affected (most are):
     expect(sindarinRules['567222053'].mechanic('daun', { transformUnstressedMonosyllables: true }).out).toBe('don'); // Non-existent word
+
+    // Meant to replace multiple occurrences:
+    expect(sindarinRules['567222053'].mechanic('imaelaust', { forceAeToE: true, morphemes: ['i', 'mae', 'laust'] }).out).toBe('imelost'); // Neologism
 
     // Morphemes:
     // Nifraed is a listed word, so it always works:

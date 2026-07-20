@@ -2156,8 +2156,15 @@ console.log({ str, syllableData, allNuclei, uAmount });
         default: false,
         description: 'Transform monosyllables that are not stressed'
       },
+      {
+        name: 'forceAeToE',
+        label: 'Force [ae] > [e]',
+        type: 'boolean',
+        default: false,
+        description: 'Force [ae] > [e]. Otherwise, follow word list.',
+      }
     ],
-    mechanic: (str, { transformUnstressedMonosyllables = false, morphemes } = {}) => {
+    mechanic: (str, { transformUnstressedMonosyllables = false, forceAeToE = false, morphemes } = {}) => {
       // Rules for au/aw reduction in polysyllables:
       //
       // 1. If unstressed: au → o (short)
@@ -2175,29 +2182,42 @@ console.log({ str, syllableData, allNuclei, uAmount });
       // 'jau-vaug
 
       let newMorphemes = morphemes || [str];
+      const targets = ['aw', 'au'];
 
-      const AE_TO_E_WORDS = ['nifraed', 'naegro', 'athaelas', 'aθaelas'];
-      const lowerStr = str.toLowerCase();
-      for (const word of AE_TO_E_WORDS) {
-        if (lowerStr === word) {
-          const aeIndex = str.indexOf('ae');
-          newMorphemes = (morphemes)
-            ? recalcMorphemes(str.replace('ae', 'e'), morphemes, [aeIndex + 1])
-            : [str.replace('ae', 'e')];
-          return { in: str, out: str.replace(/ae/gi, 'e'), morphemes: newMorphemes };
+      if (forceAeToE) {
+        targets.push('ae');
+      } else {
+        const AE_TO_E_WORDS = ['nifraed', 'naegro', 'athaelas', 'aθaelas'];
+        const lowerStr = str.toLowerCase();
+        for (const word of AE_TO_E_WORDS) {
+          if (lowerStr === word) {
+            const aeIndex = str.indexOf('ae');
+            newMorphemes = (morphemes)
+              ? recalcMorphemes(str.replace('ae', 'e'), morphemes, [aeIndex + 1])
+              : [str.replace('ae', 'e')];
+            return { in: str, out: str.replace(/ae/gi, 'e'), morphemes: newMorphemes };
+          }
         }
       }
 
-      const { found, matched } = findFirstOf(['aw', 'au'], str);
-      if (!found) return { in: str, out: str, morphemes: newMorphemes };
+      const occurrences = findAllOf(targets, str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: newMorphemes };
+
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
+
+      const replacements = {
+        'aw': 'o',
+        'au': 'o',
+        'ae': 'e',
+      };
 
       if (syllableData.length === 1) {
         if (transformUnstressedMonosyllables === false) return { in: str, out: str, morphemes: newMorphemes };
         const theOneSyllable = syllableData[0];
         if (theOneSyllable.stressed === false) {
-          const result = str.replace(matched, 'o');
+          const { matched } = occurrences[0];
+          const result = str.replace(matched, replacements[matched]);
           newMorphemes = (result !== str && morphemes)
             ? recalcMorphemes(result, morphemes, [])
             : (morphemes || [str]);
@@ -2230,50 +2250,50 @@ console.log({ str, syllableData, allNuclei, uAmount });
         return false;
       };
 
-      // Check what follows the au in a syllable
-      // This includes: consonants after 'au' in current syllable + onset of next syllable
+      // Check what follows the au/ae in a syllable
+      // This includes: consonants after 'au'/'ae' in current syllable + onset of next syllable
       // BUT respects morpheme boundaries - don't count consonants from the next morpheme
       // Returns { consonants, atMorphemeBoundary } - atMorphemeBoundary indicates if consonants end at a boundary
-      const getFollowingConsonants = (syllableIndex, syllableStartPos) => {
+      const getFollowingConsonants = (syllableIndex, syllableStartPos, matched) => {
         const syl = syllableData[syllableIndex].syllable;
-        const auIndex = syl.toLowerCase().indexOf('au');
-        if (auIndex === -1) return { consonants: '', atMorphemeBoundary: false };
+        const targetIndex = syl.toLowerCase().indexOf(matched);
+        if (targetIndex === -1) return { consonants: '', atMorphemeBoundary: false };
 
-        // Position of 'au' in the full string
-        const auPosInStr = syllableStartPos + auIndex;
-        // Position right after 'au'
-        const afterAuPos = auPosInStr + 2;
+        // Position of target in the full string
+        const targetPosInStr = syllableStartPos + targetIndex;
+        // Position right after target
+        const afterTargetPos = targetPosInStr + matched.length;
 
-        // Find which morpheme boundary comes after the 'au'
-        let morphemeBoundaryAfterAu = str.length; // default: end of string
+        // Find which morpheme boundary comes after the target
+        let morphemeBoundaryAfterTarget = str.length; // default: end of string
         for (const boundary of morphemeBoundaries) {
-          if (boundary > auPosInStr && boundary < str.length) {
-            morphemeBoundaryAfterAu = boundary;
+          if (boundary > targetPosInStr && boundary < str.length) {
+            morphemeBoundaryAfterTarget = boundary;
             break;
           }
         }
 
-        // Consonants after 'au' within current syllable (coda)
-        const codaAfterAu = syl.slice(auIndex + 2);
+        // Consonants after target within current syllable (coda)
+        const codaAfterTarget = syl.slice(targetIndex + matched.length);
 
         // Check if the coda extends beyond the morpheme boundary
         const codaEndPos = syllableStartPos + syl.length;
-        if (codaEndPos > morphemeBoundaryAfterAu) {
+        if (codaEndPos > morphemeBoundaryAfterTarget) {
           // The coda crosses a morpheme boundary, only count up to the boundary
-          const charsToKeep = morphemeBoundaryAfterAu - afterAuPos;
-          return { consonants: codaAfterAu.slice(0, Math.max(0, charsToKeep)), atMorphemeBoundary: true };
+          const charsToKeep = morphemeBoundaryAfterTarget - afterTargetPos;
+          return { consonants: codaAfterTarget.slice(0, Math.max(0, charsToKeep)), atMorphemeBoundary: true };
         }
 
         // If this is the last syllable, just return the coda
         if (syllableIndex >= syllableData.length - 1) {
-          return { consonants: codaAfterAu, atMorphemeBoundary: false };
+          return { consonants: codaAfterTarget, atMorphemeBoundary: false };
         }
 
         // Check if next syllable is in a different morpheme
         const nextSylStartPos = syllableStartPos + syl.length;
-        if (nextSylStartPos >= morphemeBoundaryAfterAu) {
+        if (nextSylStartPos >= morphemeBoundaryAfterTarget) {
           // Next syllable is in a different morpheme, don't include its onset
-          return { consonants: codaAfterAu, atMorphemeBoundary: true };
+          return { consonants: codaAfterTarget, atMorphemeBoundary: true };
         }
 
         // Get the onset of the next syllable (same morpheme)
@@ -2287,7 +2307,7 @@ console.log({ str, syllableData, allNuclei, uAmount });
         }
 
         // Combine coda + next onset
-        return { consonants: codaAfterAu + nextOnset, atMorphemeBoundary: false };
+        return { consonants: codaAfterTarget + nextOnset, atMorphemeBoundary: false };
       };
 
       const result = [];
@@ -2297,7 +2317,7 @@ console.log({ str, syllableData, allNuclei, uAmount });
 
       for (let i = 0; i < syllableData.length; i++) {
         const { syllable, stressed } = syllableData[i];
-        const { charIndex, matched } = findFirstOf(['aw', 'au'], syllable);
+        const { charIndex, matched } = findFirstOf(targets, syllable);
 
         if (!matched) {
           result.push(syllable);
@@ -2307,16 +2327,19 @@ console.log({ str, syllableData, allNuclei, uAmount });
         }
 
         const inhibited = hasOtherOU(i);
-        const { consonants: followingConsonants, atMorphemeBoundary } = getFollowingConsonants(i, syllableStartPos);
+        const { consonants: followingConsonants, atMorphemeBoundary } = getFollowingConsonants(i, syllableStartPos, matched);
         const followedBySingleConsonant = followingConsonants.length === 1;
         const followedByCluster = followingConsonants.length >= 2;
+        const replacement = replacements[matched];
+        const longReplacement = matched === 'ae' ? 'ē' : 'ó'; // ae → ē, au/aw → ó
+
         if (stressed === false) {
-          // Unstressed: au → o, unless inhibited
+          // Unstressed: au → o / ae → e, unless inhibited
           if (inhibited) {
-            result.push(syllable); // Retain au
+            result.push(syllable); // Retain diphthong
             currentLength += syllable.length;
           } else {
-            result.push(syllable.replace(matched, 'o'));
+            result.push(syllable.replace(matched, replacement));
             removedIndices.push(currentLength + charIndex);
             currentLength += charIndex;
           }
@@ -2328,15 +2351,15 @@ console.log({ str, syllableData, allNuclei, uAmount });
             currentLength += syllable.length;
           } else if (followedBySingleConsonant) {
             // Followed by single consonant:
-            // - If followed by 'r' (not at morpheme boundary): au → ō (long o) - e.g., Glauredhel, Rathlauriel
-            // - If followed by 'r' at morpheme boundary: au → o (short o) - e.g., glaurxaðm → glorxaðm
-            // - Otherwise: au → o (short o) - e.g., r̥auvan, θauniel
+            // - If followed by 'r' (not at morpheme boundary): au → ō / ae → ē (long) - e.g., Glauredhel, Rathlauriel
+            // - If followed by 'r' at morpheme boundary: au → o / ae → e (short) - e.g., glaurxaðm → glorxaðm
+            // - Otherwise: au → o / ae → e (short) - e.g., r̥auvan, θauniel
             if (followingConsonants === 'r' && !atMorphemeBoundary) {
-              result.push(syllable.replace(matched, 'ó'));
+              result.push(syllable.replace(matched, longReplacement));
               removedIndices.push(currentLength + charIndex);
               currentLength += charIndex;
             } else {
-              result.push(syllable.replace(matched, 'o'));
+              result.push(syllable.replace(matched, replacement));
               removedIndices.push(currentLength + charIndex);
               currentLength += charIndex;
             }
@@ -2345,12 +2368,12 @@ console.log({ str, syllableData, allNuclei, uAmount });
              * However, at morpheme boundaries the lengthening effect doesn't apply.
              */
           } else {
-            // No following consonants (end of word or before vowel): au → o
+            // No following consonants (end of word or before vowel): au → o / ae → e
             if (inhibited) {
               result.push(syllable);
               currentLength += syllable.length;
             } else {
-              result.push(syllable.replace(matched, 'o'));
+              result.push(syllable.replace(matched, replacement));
               removedIndices.push(currentLength + charIndex);
               currentLength += charIndex;
             }
