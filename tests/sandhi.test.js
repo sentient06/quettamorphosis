@@ -31,7 +31,7 @@ describe('Sandhi rules (05800)', () => {
   });
 
   it('Rule 120: long voiceless liquids became short and voiced after any consonant or vowel', () => {
-    expect(sindarinRules[getSandhiRuleId(120)].mechanic('limmꝉꝉūg').out).toBe('limmlūg');
+    expect(sindarinRules[getSandhiRuleId(120)].mechanic('limmλλūg').out).toBe('limmlūg');
     expect(sindarinRules[getSandhiRuleId(120)].mechanic('ammꞧꞧūn').out).toBe('ammrūn');
     expect(sindarinRules[getSandhiRuleId(120)].mechanic('anꞧꞧīw').out).toBe('anrīw');
     expect(sindarinRules[getSandhiRuleId(120)].mechanic('enꞧꞧūn').out).toBe('enrūn');
@@ -201,8 +201,8 @@ describe('Sandhi rules (05800)', () => {
       .toMatchObject({ out: 'gosθīr', morphemes: ['gos', 'θīr'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('ɸalaſꞧimb', { morphemes: ['ɸalaſ', 'ꞧimb'] }))
       .toMatchObject({ out: 'ɸalasꞧimb', morphemes: ['ɸalas', 'ꞧimb'] });
-    expect(sindarinRules[getSandhiRuleId(129)].mechanic('noſꝉīr', { morphemes: ['noſ', 'ꝉīr'] }))
-      .toMatchObject({ out: 'nosꝉīr', morphemes: ['nos', 'ꝉīr'] });
+    expect(sindarinRules[getSandhiRuleId(129)].mechanic('noſλīr', { morphemes: ['noſ', 'λīr'] }))
+      .toMatchObject({ out: 'nosλīr', morphemes: ['nos', 'λīr'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('roxxxīr', { morphemes: ['roxx', 'xīr'] }))
       .toMatchObject({ out: 'roxxīr', morphemes: ['rox', 'xīr'] });
     expect(sindarinRules[getSandhiRuleId(129)].mechanic('emmbar', { morphemes: ['em', 'mbar'] }))
@@ -414,12 +414,12 @@ describe('Sandhi rules (05800)', () => {
   it('Rule 144: s became θ before liquids l and r', () => {
     expect(sindarinRules[getSandhiRuleId(144)].mechanic('ɸalasꞧimb', { morphemes: ['ɸalas', 'ꞧimb'] }))
       .toMatchObject({ out: 'ɸalaθꞧimb', morphemes: ['ɸalaθ', 'ꞧimb'] });
-    expect(sindarinRules[getSandhiRuleId(144)].mechanic('nosꝉir', { morphemes: ['nos', 'ꝉir'] }))
-      .toMatchObject({ out: 'noθꝉir', morphemes: ['noθ', 'ꝉir'] });
+    expect(sindarinRules[getSandhiRuleId(144)].mechanic('nosλir', { morphemes: ['nos', 'λir'] }))
+      .toMatchObject({ out: 'noθλir', morphemes: ['noθ', 'λir'] });
     expect(sindarinRules[getSandhiRuleId(144)].mechanic('osꞧond', { morphemes: ['os', 'ꞧond'] }))
       .toMatchObject({ out: 'oθꞧond', morphemes: ['oθ', 'ꞧond'] });
-    expect(sindarinRules[getSandhiRuleId(144)].mechanic('losꝉand', { morphemes: ['los', 'ꝉand'] }))
-      .toMatchObject({ out: 'loθꝉand', morphemes: ['loθ', 'ꝉand'] });
+    expect(sindarinRules[getSandhiRuleId(144)].mechanic('losλand', { morphemes: ['los', 'λand'] }))
+      .toMatchObject({ out: 'loθλand', morphemes: ['loθ', 'λand'] });
     expect(sindarinRules[getSandhiRuleId(144)].mechanic('ɸalasꞧen', { morphemes: ['ɸalas', 'ꞧen'] }))
       .toMatchObject({ out: 'ɸalaθꞧen', morphemes: ['ɸalaθ', 'ꞧen'] });
     expect(sindarinRules[getSandhiRuleId(144)].mechanic('lasꞧa', { morphemes: ['las', 'ꞧa'] }))

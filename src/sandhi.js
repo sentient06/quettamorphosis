@@ -224,7 +224,7 @@ export const sandhiRules = {
     isSandhi: true,
     mechanic: (str, options = {}) => {
       const morphemes = options.morphemes || [str];
-      const occurrences = findAllOf(['ꞧꞧ', 'ꝉꝉ'], str);
+      const occurrences = findAllOf(['ꞧꞧ', 'λλ'], str);
 
       if (occurrences.length === 0) {
         return { in: str, out: str, morphemes };
@@ -232,7 +232,7 @@ export const sandhiRules = {
 
       const replacements = {
         'ꞧꞧ': 'r',
-        'ꝉꝉ': 'l',
+        'λλ': 'l',
       };
 
       let result = str;
@@ -803,7 +803,7 @@ export const sandhiRules = {
         return { in: str, out: str, morphemes };
       }
 
-      const voiceless = ['p', 't', 'k', 'f', 's', 'θ', 'h', 'x', 'ƕ', 'ꝉ', 'ꞧ'];
+      const voiceless = ['p', 't', 'k', 'f', 's', 'θ', 'h', 'x', 'ƕ', 'λ', 'ꞧ'];
       let result = str;
 
       for (let i = occurrences.length - 1; i >= 0; i--) {
@@ -1163,7 +1163,7 @@ export const sandhiRules = {
       const spirants = ['f', 's', 'θ', 'h', 'x', 'v', 'ð', 'ɣ'];  // 142-2
       const semivowels = ['j', 'w'];  // 142-3
       const nasals = ['m', 'n', 'ŋ'];  // 142-5
-      const liquids = ['l', 'r', 'ꞧ', 'ꝉ'];  // exception for 142-5
+      const liquids = ['l', 'r', 'ꞧ', 'λ'];  // exception for 142-5
 
       let result = str;
       const removedIndices = [];
@@ -1247,7 +1247,7 @@ export const sandhiRules = {
   // ---------------------------------------------------------------------------
   // Rule 144: s became θ before liquids l and r
   // [s{lr}] > [θ{lr}]
-  // Includes voiceless liquids ꞧ (rh) and ꝉ (lh)
+  // Includes voiceless liquids ꞧ (rh) and λ (lh)
   // ---------------------------------------------------------------------------
   [getSandhiRuleId(144)]: {
     orderId: getOrderId(144),
@@ -1262,8 +1262,8 @@ export const sandhiRules = {
         return { in: str, out: str, morphemes };
       }
 
-      // Include voiceless liquids ꞧ (rh) and ꝉ (lh)
-      const liquids = ['l', 'r', 'ꝉ', 'ꞧ'];
+      // Include voiceless liquids ꞧ (rh) and λ (lh)
+      const liquids = ['l', 'r', 'λ', 'ꞧ'];
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, nextChar } = occurrences[i];
