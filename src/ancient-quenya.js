@@ -1150,5 +1150,19 @@ export const ancientQuenyaRules = {
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },
-  }
+  },
+  '1011702125': {
+    orderId: '03900',
+    pattern: '[ln] > [ld]',
+    description: '[ln] became [ld]',
+    url: 'https://eldamo.org/content/words/word-1011702125.html',
+    mechanic: (str, options = {}) => {
+      if (str.includes('ln') === false) return { in: str, out: str, morphemes: options.morphemes };
+      const result = str.replaceAll('ln', 'ld');
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

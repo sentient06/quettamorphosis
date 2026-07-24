@@ -631,4 +631,14 @@ describe('Ancient Quenya rules', () => {
     // [awu] > [au]:
     expect(ancientQuenyaRules['3978101829'].mechanic('tjawuβā').out).toBe('tjauβā');
   });
+
+  it('03900 - [ln] > [ld]', () => {
+    expect(ancientQuenyaRules['1011702125'].mechanic('abc').out).toBe('abc');
+    
+    expect(ancientQuenyaRules['1011702125'].mechanic('elnā').out).toBe('eldā');
+    expect(ancientQuenyaRules['1011702125'].mechanic('ɣwalna').out).toBe('ɣwalda');
+    expect(ancientQuenyaRules['1011702125'].mechanic('melnā').out).toBe('meldā');
+    expect(ancientQuenyaRules['1011702125'].mechanic('palnā').out).toBe('paldā');
+    expect(ancientQuenyaRules['1011702125'].mechanic('telna').out).toBe('telda');
+  });
 });
