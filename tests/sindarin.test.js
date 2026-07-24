@@ -1151,7 +1151,6 @@ describe('Sindarin rules', () => {
     const compound = sindarinRules['302560565'].mechanic('abaithīl', {
       morphemes: ['aba', 'i', 'thīl'],
     });
-    console.log(compound);
     expect(compound.out).toEqual('abaithil');
     expect(compound.morphemes).toEqual(['aba', 'i', 'thil']);
   });

@@ -586,4 +586,49 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1657301905'].mechanic('woura').out).toBe('wōra'); // Non-existent word
     expect(ancientQuenyaRules['1657301905'].mechanic('swoura').out).toBe('swōra'); // Non-existent word
   });
+
+  it('03800 - [V̆{jw}V] > [VV]', () => {
+    expect(ancientQuenyaRules['3978101829'].mechanic('abc').out).toBe('abc');
+    // [aja] > [ea]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('aθajā').out).toBe('aθea');
+    expect(ancientQuenyaRules['3978101829'].mechanic('casraja').out).toBe('casrea');
+    expect(ancientQuenyaRules['3978101829'].mechanic('ajar').out).toBe('ear');
+    expect(ancientQuenyaRules['3978101829'].mechanic('ɣajar').out).toBe('ɣear');
+    expect(ancientQuenyaRules['3978101829'].mechanic('ɸajanāro').out).toBe('ɸeanāro');
+    // [aje] > [ie]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('orōrjaje').out).toBe('orōrjie');
+    expect(ancientQuenyaRules['3978101829'].mechanic('-waje').out).toBe('-wie');
+    // [ajo] > [eo]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('bajob').out).toBe('beob'); // Non-existent word
+    // [eja] > [ia]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('peja').out).toBe('pia');
+    // [eje] > [ie]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('ksejēte').out).toBe('ksiēte');
+    expect(ancientQuenyaRules['3978101829'].mechanic('reje').out).toBe('rie');
+    expect(ancientQuenyaRules['3978101829'].mechanic('tejē').out).toBe('tie');
+    // [ija] > [ia]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('bijab').out).toBe('biab'); // Non-existent word
+    // [ije] > [ie]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('bijeb').out).toBe('bieb'); // Non-existent word
+    // [oja] > [oia]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('oja').out).toBe('oia');
+    expect(ancientQuenyaRules['3978101829'].mechanic('ojale').out).toBe('oiale');
+    expect(ancientQuenyaRules['3978101829'].mechanic('otsōjā').out).toBe('otsoia');
+    // [awa] > [oa]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('ɣrawa').out).toBe('ɣroa');
+    expect(ancientQuenyaRules['3978101829'].mechanic('kawa').out).toBe('koa');
+    expect(ancientQuenyaRules['3978101829'].mechanic('kawake').out).toBe('koake');
+    expect(ancientQuenyaRules['3978101829'].mechanic('awāð').out).toBe('oað');
+    expect(ancientQuenyaRules['3978101829'].mechanic('ꞧawā').out).toBe('ꞧoa');
+    expect(ancientQuenyaRules['3978101829'].mechanic('tjawā').out).toBe('tjoa');
+    expect(ancientQuenyaRules['3978101829'].mechanic('ɸawalōke').out).toBe('ɸoalōke');
+    // [awi] > [oi]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('tawinā').out).toBe('toinā');
+    // [ewo] > [eo]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('ewo').out).toBe('eo');
+    // [owo] > [uo]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('owō').out).toBe('uo');
+    // [awu] > [au]:
+    expect(ancientQuenyaRules['3978101829'].mechanic('tjawuβā').out).toBe('tjauβā');
+  });
 });

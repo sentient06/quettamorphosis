@@ -630,7 +630,6 @@ export const sindarinRules = {
 
       // There should be at least one syllable with a [u] as nucleus:
       if (uAmount === 0) return { in: str, out: str, morphemes: options.morphemes || [str] };
-console.log({ str, syllableData, allNuclei, uAmount });
       // If there is 1 u nucleus:
       if (uAmount === 1) {
         // If u followed by a consonant...

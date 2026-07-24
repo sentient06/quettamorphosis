@@ -1078,5 +1078,77 @@ export const ancientQuenyaRules = {
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },
+  },
+  '3978101829': {
+    orderId: '03800',
+    pattern: '[V̆{jw}V] > [VV]',
+    description: '[j], [w] often reduced between vowels',
+    url: 'https://eldamo.org/content/words/word-3978101829.html',
+    mechanic: (str, options = {}) => {
+      const replacements = {
+        'aja': 'ea',
+        'ajā': 'ea',
+        'aje': 'ie',
+        'ajo': 'eo',
+        'eja': 'ia',
+        'ejē': 'iē',  // but 'ie' if unstressed (see below)
+        'eje': 'ie',
+        'ija': 'ia',
+        'ije': 'ie',
+        'ōjā': 'oia',
+        'oja': 'oia',
+        'awā': 'oa',
+        'awa': 'oa',
+        'awi': 'oi',
+        'ewo': 'eo',
+        'owō': 'uo',
+        'owo': 'uo',
+        'awu': 'au',
+      };
+      const occurrences = findAllOf(Object.keys(replacements), str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      // Build syllable data to check stress for patterns with long output vowels
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(str);
+
+      // Build cumulative positions for syllable boundaries
+      const syllableBoundaries = [];
+      let cumulative = 0;
+      for (const syl of syllableData) {
+        cumulative += syl.syllable.length;
+        syllableBoundaries.push({ end: cumulative, stressed: syl.stressed });
+      }
+
+      // Find which syllable contains a given character index
+      const getSyllableStress = (charIndex) => {
+        for (const boundary of syllableBoundaries) {
+          if (charIndex < boundary.end) {
+            return boundary.stressed;
+          }
+        }
+        return false;
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        let replacement = replacements[matched];
+
+        // Special case: ejē → ie (not iē) when the ē syllable is unstressed
+        // Per PE19/62: "unstressed ay, aw etc. < āy, āw" behave like short vowels
+        // Check stress at the position of the long vowel (ē), not the start of the pattern
+        if (matched === 'ejē' && !getSyllableStress(charIndex + 2)) {
+          replacement = 'ie';
+        }
+
+        result = result.substring(0, charIndex) + replacement + result.substring(charIndex + matched.length);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
   }
 };
