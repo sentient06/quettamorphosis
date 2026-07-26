@@ -1233,9 +1233,16 @@ export const ancientQuenyaRules = {
     url: 'https://eldamo.org/content/words/word-1073157723.html',
     mechanic: (str, options = {}) => {
       if (str.startsWith('ŋ') === false) return { in: str, out: str, morphemes: options.morphemes };
-      const result = str.slice(1);
+      const second = str.nth(1);
+      let result = str;
+      const removedIndices = [];
+      if (second === 'w' || second.isVowel()) {
+        result = result.slice(1);
+        removedIndices.push(0);
+      }
+      
       const morphemes = (result !== str && options.morphemes)
-        ? recalcMorphemes(result, options.morphemes, [0])
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },
