@@ -1204,5 +1204,26 @@ export const ancientQuenyaRules = {
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },
+  },
+  '3475705035': {
+    orderId: '04100',
+    pattern: '[mw] > [nw]',
+    description: '[mw] became [nw]',
+    url: 'https://eldamo.org/content/words/word-3475705035.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['mw'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + 'nw' + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
   }
 };

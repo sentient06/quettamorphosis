@@ -648,4 +648,10 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['17019465'].mechanic('ulɣwndō').out).toBe('ulwndō');
     expect(ancientQuenyaRules['17019465'].mechanic('ulɣwndō', { changeWtoU: true }).out).toBe('ulundō');
   });
+
+  it('04100 - [mw] > [nw]', () => {
+    expect(ancientQuenyaRules['3475705035'].mechanic('abc').out).toBe('abc');
+
+    expect(ancientQuenyaRules['3475705035'].mechanic('samwē').out).toBe('sanwē');
+  });
 });
