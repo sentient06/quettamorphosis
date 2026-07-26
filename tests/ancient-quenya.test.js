@@ -654,4 +654,11 @@ describe('Ancient Quenya rules', () => {
 
     expect(ancientQuenyaRules['3475705035'].mechanic('samwē').out).toBe('sanwē');
   });
+
+  it('04200 - [ŋV-|ŋw-] > [øV-|w-]', () => {
+    expect(ancientQuenyaRules['1073157723'].mechanic('abc').out).toBe('abc');
+
+    expect(ancientQuenyaRules['1073157723'].mechanic('ŋar').out).toBe('ar');
+    expect(ancientQuenyaRules['1073157723'].mechanic('ŋwolōθ').out).toBe('wolōθ');
+  });
 });

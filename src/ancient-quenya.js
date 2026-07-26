@@ -1225,5 +1225,19 @@ export const ancientQuenyaRules = {
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },
-  }
+  },
+  '1073157723': {
+    orderId: '04200',
+    pattern: '[ŋV-|ŋw-] > [øV-|w-]',
+    description: 'initial [ŋ] vanished',
+    url: 'https://eldamo.org/content/words/word-1073157723.html',
+    mechanic: (str, options = {}) => {
+      if (str.startsWith('ŋ') === false) return { in: str, out: str, morphemes: options.morphemes };
+      const result = str.slice(1);
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [0])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
