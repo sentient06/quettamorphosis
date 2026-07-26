@@ -1294,6 +1294,33 @@ export const ancientQuenyaRules = {
       }
 
       const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [1])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '127393503': {
+    orderId: '04500',
+    pattern: '[Vs{Vmnrljw}] > [Vz{Vmnrljw}]',
+    description: 'medial [s] often became [z]',
+    url: 'https://eldamo.org/content/words/word-127393503.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['s'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar, lastChar } = occurrences[i];
+        if (charIndex === 0) continue;
+        if (lastChar) continue;
+        const validPrev = prevChar.isVowel();
+        const validNext = nextChar.isVowel() || ['m', 'n', 'r', 'l', 'j', 'w'].includes(nextChar);
+        if (validPrev && validNext) {
+          result = result.substring(0, charIndex) + 'z' + result.substring(charIndex + 1);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
         ? recalcMorphemes(result, options.morphemes, [])
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };

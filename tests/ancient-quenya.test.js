@@ -700,4 +700,38 @@ describe('Ancient Quenya rules', () => {
     // Only initials:
     expect(ancientQuenyaRules['2123493145'].mechanic('aŋgwar').out).toBe('aŋgwar'); // Non-existent word
   });
+
+  it('04500 - [Vs{Vmnrljw}] > [Vz{Vmnrljw}]', () => {
+    expect(ancientQuenyaRules['127393503'].mechanic('abc').out).toBe('abc');
+
+    // VsV > VzV:
+    expect(ancientQuenyaRules['127393503'].mechanic('asa').out).toBe('aza');
+    expect(ancientQuenyaRules['127393503'].mechanic('āse').out).toBe('āze');
+    expect(ancientQuenyaRules['127393503'].mechanic('kasā').out).toBe('kazā');
+    expect(ancientQuenyaRules['127393503'].mechanic('nisīte').out).toBe('nizīte');
+    expect(ancientQuenyaRules['127393503'].mechanic('θauson').out).toBe('θauzon');
+    expect(ancientQuenyaRules['127393503'].mechanic('θauson').out).toBe('θauzon');
+    // sr > zr:
+    expect(ancientQuenyaRules['127393503'].mechanic('asra').out).toBe('azra');
+    expect(ancientQuenyaRules['127393503'].mechanic('misroanwe').out).toBe('mizroanwe');
+    // sl > zl:
+    expect(ancientQuenyaRules['127393503'].mechanic('nisle').out).toBe('nizle');
+    // sm > zm:
+    expect(ancientQuenyaRules['127393503'].mechanic('asma').out).toBe('azma');
+    expect(ancientQuenyaRules['127393503'].mechanic('lasmo').out).toBe('lazmo');
+    // sn > zn:
+    expect(ancientQuenyaRules['127393503'].mechanic('asna').out).toBe('azna'); // Non-existent word
+    // sj > zj:
+    expect(ancientQuenyaRules['127393503'].mechanic('θosja').out).toBe('θozja');
+    expect(ancientQuenyaRules['127393503'].mechanic('wisja').out).toBe('wizja');
+    // sw > zw:
+    expect(ancientQuenyaRules['127393503'].mechanic('ẘaswa').out).toBe('ẘazwa');
+
+    // Negatives:
+    // Don't change initial s:
+    expect(ancientQuenyaRules['127393503'].mechanic('sababa').out).toBe('sababa'); // Non-existent word
+    expect(ancientQuenyaRules['127393503'].mechanic('sjbaba').out).toBe('sjbaba'); // Non-existent word
+    // Don't change final sC:
+    expect(ancientQuenyaRules['127393503'].mechanic('ababas').out).toBe('ababas'); // Non-existent word
+  });
 });
