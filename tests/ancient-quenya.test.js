@@ -661,4 +661,24 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1073157723'].mechanic('ŋar').out).toBe('ar');
     expect(ancientQuenyaRules['1073157723'].mechanic('ŋwolōθ').out).toBe('wolōθ');
   });
+
+  it('04300 - [VβC|VɣC|Vɣj|Vɣw] > [VuC|V̄øC|Vij|Vuw]', () => {
+    expect(ancientQuenyaRules['1104502097'].mechanic('abc').out).toBe('abc');
+
+    // Vɣj > Vij:
+    expect(ancientQuenyaRules['1104502097'].mechanic('maɣjā').out).toBe('maijā');
+    // Vɣw > Vuw:
+    expect(ancientQuenyaRules['1104502097'].mechanic('ndaɣwē').out).toBe('ndauwē');
+    // aɣC > āC:
+    expect(ancientQuenyaRules['1104502097'].mechanic('maɣle').out).toBe('māle');
+    // eɣC > ēC:
+    expect(ancientQuenyaRules['1104502097'].mechanic('θeɣlō').out).toBe('θēlō');
+    // oβC > ōC:
+    expect(ancientQuenyaRules['1104502097'].mechanic('soɣlā').out).toBe('sōlā');
+    // uɣC > ūC:
+    expect(ancientQuenyaRules['1104502097'].mechanic('uɣra').out).toBe('ūra');
+    // VβC > VuC:
+    expect(ancientQuenyaRules['1104502097'].mechanic('baβba').out).toBe('bauba'); // Non-existent word
+    expect(ancientQuenyaRules['1104502097'].mechanic('beβbo').out).toBe('beubo'); // Non-existent word
+  });
 });
