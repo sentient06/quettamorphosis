@@ -1277,4 +1277,26 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '2123493145': {
+    orderId: '04400',
+    pattern: '[mb-|nd-|ŋg-] > [m-|n-|ŋ-]',
+    description: 'initial nasals plus stops reduced to nasals',
+    url: 'https://eldamo.org/content/words/word-2123493145.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['mb', 'nd', 'ŋg'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        if (charIndex > 0) continue;
+        result = matched[0] + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

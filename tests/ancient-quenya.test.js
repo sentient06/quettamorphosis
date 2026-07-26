@@ -681,4 +681,23 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1104502097'].mechanic('baβba').out).toBe('bauba'); // Non-existent word
     expect(ancientQuenyaRules['1104502097'].mechanic('beβbo').out).toBe('beubo'); // Non-existent word
   });
+
+  it('04400 - [mb-|nd-|ŋg-] > [m-|n-|ŋ-]', () => {
+    expect(ancientQuenyaRules['2123493145'].mechanic('abc').out).toBe('abc');
+
+    // mb- > m-:
+    expect(ancientQuenyaRules['2123493145'].mechanic('mbāmā').out).toBe('māmā');
+    expect(ancientQuenyaRules['2123493145'].mechanic('mbar').out).toBe('mar');
+    // nd- > n-:
+    expect(ancientQuenyaRules['2123493145'].mechanic('ndakin').out).toBe('nakin');
+    expect(ancientQuenyaRules['2123493145'].mechanic('ndōrē').out).toBe('nōrē');
+    // ŋg- > ŋ-:
+    expect(ancientQuenyaRules['2123493145'].mechanic('ŋgaira').out).toBe('ŋaira');
+    expect(ancientQuenyaRules['2123493145'].mechanic('ŋgolodo').out).toBe('ŋolodo');
+    expect(ancientQuenyaRules['2123493145'].mechanic('ŋgyar').out).toBe('ŋyar');
+    expect(ancientQuenyaRules['2123493145'].mechanic('ŋgwar').out).toBe('ŋwar');
+
+    // Only initials:
+    expect(ancientQuenyaRules['2123493145'].mechanic('aŋgwar').out).toBe('aŋgwar'); // Non-existent word
+  });
 });
