@@ -734,4 +734,15 @@ describe('Ancient Quenya rules', () => {
     // Don't change final sC:
     expect(ancientQuenyaRules['127393503'].mechanic('ababas').out).toBe('ababas'); // Non-existent word
   });
+
+  it('04600 - [{zð}r|{zð}l] > [rr|ll]', () => {
+    expect(ancientQuenyaRules['1472480589'].mechanic('abc').out).toBe('abc');
+    
+    expect(ancientQuenyaRules['1472480589'].mechanic('nizle').out).toBe('nille');
+    expect(ancientQuenyaRules['1472480589'].mechanic('cazrea').out).toBe('carrea');
+    expect(ancientQuenyaRules['1472480589'].mechanic('mizroanwe').out).toBe('mirroanwe');
+    // Non-existent words:
+    expect(ancientQuenyaRules['1472480589'].mechanic('niðle').out).toBe('nille');
+    expect(ancientQuenyaRules['1472480589'].mechanic('caðrea').out).toBe('carrea');
+  });
 });

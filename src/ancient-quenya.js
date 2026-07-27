@@ -1333,4 +1333,31 @@ export const ancientQuenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1472480589': {
+    orderId: '04600',
+    pattern: '[{zð}r|{zð}l] > [rr|ll]',
+    description: '[z] and [ð] assimilated to following [r], [l]',
+    url: 'https://eldamo.org/content/words/word-1472480589.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['zr', 'zl', 'ðr', 'ðl'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      const replacements = {
+        'zr': 'rr',
+        'zl': 'll',
+        'ðr': 'rr',
+        'ðl': 'll',
+      };
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
