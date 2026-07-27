@@ -23,13 +23,17 @@ export const quenyaRules = {
         'nm': 'nw',
         'ŋm': 'ŋgw',
       };
+      const addedIndices = [];
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched } = occurrences[i];
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+if (replacements[matched].length > matched.length) {
+          addedIndices.push(charIndex + 1);
+        }
       }
 
       const morphemes = (result !== str && options.morphemes)
-        ? recalcMorphemes(result, options.morphemes, [])
+        ? recalcMorphemes(result, options.morphemes, [], addedIndices)
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },

@@ -14,6 +14,13 @@ describe('Quenya rules', () => {
     expect(quenyaRules['1197128543'].mechanic('teŋmā').out).toBe('teŋgwā');
     expect(quenyaRules['1197128543'].mechanic('waŋme').out).toBe('waŋgwe');
     
-    expect(quenyaRules['1197128543'].mechanic('nanmen').out).toBe('nanwen');
+    const compound = quenyaRules['1197128543'].mechanic('nanmen', { morphemes: ['nan', 'men'] });
+    expect(compound.out).toEqual('nanwen');
+    expect(compound.morphemes).toEqual(['nan', 'wen']);
+
+    const compound2 = quenyaRules['1197128543'].mechanic('waŋme', { morphemes: ['waŋ', 'me'] });
+    expect(compound2.out).toEqual('waŋgwe');
+    expect(compound2.morphemes).toEqual(['waŋ', 'gwe']);
+  });
   });
 });
