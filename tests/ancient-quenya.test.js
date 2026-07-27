@@ -745,4 +745,11 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1472480589'].mechanic('niðle').out).toBe('nille');
     expect(ancientQuenyaRules['1472480589'].mechanic('caðrea').out).toBe('carrea');
   });
+
+  it('04700 - [zm|zn] > [mm|nn]', () => {
+    expect(ancientQuenyaRules['10156157'].mechanic('abc').out).toBe('abc');
+    
+    expect(ancientQuenyaRules['10156157'].mechanic('lazmo').out).toBe('lammo');
+    expect(ancientQuenyaRules['10156157'].mechanic('βeznō').out).toBe('βennō');
+  });
 });
