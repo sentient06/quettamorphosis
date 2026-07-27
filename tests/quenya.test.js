@@ -22,5 +22,18 @@ describe('Quenya rules', () => {
     expect(compound2.out).toEqual('waŋgwe');
     expect(compound2.morphemes).toEqual(['waŋ', 'gwe']);
   });
+
+  it('00200 - [{iu}ŋn] > [V̄øn]', () => {
+    expect(quenyaRules['2035963219'].mechanic('abc').out).toBe('abc');
+    
+    expect(quenyaRules['2035963219'].mechanic('teŋmā', { includeE: true, includeM: true }).out).toBe('tēmā');
+    expect(quenyaRules['2035963219'].mechanic('riŋna').out).toBe('rīna');
+    // Middle Quenya:
+    expect(quenyaRules['2035963219'].mechanic('luŋne').out).toBe('lūne'); // Middle Quenya
+    expect(quenyaRules['2035963219'].mechanic('θuŋnā').out).toBe('θūnā'); // Middle Quenya
+    // Other examples:
+    expect(quenyaRules['2035963219'].mechanic('raŋne', { includeA: true }).out).toBe('rāne'); // Middle Quenya
+    expect(quenyaRules['2035963219'].mechanic('toŋnā', { includeO: true }).out).toBe('tōnā'); // Non-existent word
+
   });
 });
