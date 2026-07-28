@@ -108,4 +108,26 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '447633467': {
+    orderId: '00300',
+    pattern: '[-{nŋlr}ŋ-] > [-{nŋlr}g-]',
+    description: 'medial [ŋ] after a [n], [ŋ], [l], [r] became [g]',
+    url: 'https://eldamo.org/content/words/word-447633467.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['ŋ'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+      const validPrevious = ['n', 'ŋ', 'l', 'r'];
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar } = occurrences[i];
+        if (validPrevious.includes(prevChar)) {
+          result = result.substring(0, charIndex) + 'g' + result.substring(charIndex + 1);
+        }
+      }
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

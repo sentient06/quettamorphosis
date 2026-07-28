@@ -34,6 +34,16 @@ describe('Quenya rules', () => {
     // Other examples:
     expect(quenyaRules['2035963219'].mechanic('raŋne', { includeA: true }).out).toBe('rāne'); // Middle Quenya
     expect(quenyaRules['2035963219'].mechanic('toŋnā', { includeO: true }).out).toBe('tōnā'); // Non-existent word
+  });
 
+  it('00300 - [-{nŋlr}ŋ-] > [-{nŋlr}g-]', () => {
+    expect(quenyaRules['447633467'].mechanic('abc').out).toBe('abc');
+
+    expect(quenyaRules['447633467'].mechanic('morŋoθ').out).toBe('morgoθ');
+    // All non-existent words:
+    expect(quenyaRules['447633467'].mechanic('banŋba').out).toBe('bangba');
+    expect(quenyaRules['447633467'].mechanic('baŋŋba').out).toBe('baŋgba');
+    expect(quenyaRules['447633467'].mechanic('balŋba').out).toBe('balgba');
+    expect(quenyaRules['447633467'].mechanic('barŋba').out).toBe('bargba');
   });
 });
