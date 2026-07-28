@@ -76,4 +76,13 @@ describe('Quenya rules', () => {
     expect(quenyaRules['1167483479'].mechanic('orōrjie').out).toBe('orōrie');
     expect(quenyaRules['1167483479'].mechanic('awuva').out).toBe('auva');
   });
+
+  it('00600 - [V̄jV] > [VijV]', () => {
+    expect(quenyaRules['3458631869'].mechanic('abc').out).toBe('abc');
+
+    expect(quenyaRules['3458631869'].mechanic('ājan').out).toBe('aijan');
+    expect(quenyaRules['3458631869'].mechanic('lājā').out).toBe('laijā');
+    expect(quenyaRules['3458631869'].mechanic('mājar').out).toBe('maijar');
+    expect(quenyaRules['3458631869'].mechanic('mōja').out).toBe('moija');
+  });
 });

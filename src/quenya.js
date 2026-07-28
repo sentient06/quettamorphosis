@@ -193,4 +193,33 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '3458631869': {
+    orderId: '00600',
+    pattern: '[V̄jV] > [VijV]',
+    description: 'intervocalic [j] diphthongized after long vowel',
+    url: 'https://eldamo.org/content/words/word-3458631869.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['j'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      const addedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        if (prevChar.isVowel() && nextChar.isVowel()) {
+          const longVowel = prevChar.getMark() === '¯';
+          if (longVowel) {
+            const prevVowel = prevChar.removeMarks();
+            result = result.substring(0, charIndex - 1) + prevVowel + 'i' + result.substring(charIndex);
+            addedIndices.push(charIndex);
+          }
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [], addedIndices)
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
