@@ -46,4 +46,27 @@ describe('Quenya rules', () => {
     expect(quenyaRules['447633467'].mechanic('balŋba').out).toBe('balgba');
     expect(quenyaRules['447633467'].mechanic('barŋba').out).toBe('bargba');
   });
+
+  it('00400 - [ei|ou] > [ī|ū]', () => {
+    expect(quenyaRules['2315722009'].mechanic('abc').out).toBe('abc');
+
+    // ei > ī
+    // ou > ū
+    // but
+    // ei > ē after y
+    // ou > ō after w
+    
+    expect(quenyaRules['2315722009'].mechanic('keneite').out).toBe('kenīte');
+    expect(quenyaRules['2315722009'].mechanic('laſeinen').out).toBe('laſīnen');
+    expect(quenyaRules['2315722009'].mechanic('meinā').out).toBe('mīnā');
+    expect(quenyaRules['2315722009'].mechanic('lou').out).toBe('lū');
+    expect(quenyaRules['2315722009'].mechanic('loun').out).toBe('lūn');
+    
+    // No examples of the ones below. All words are non-existent.
+    expect(quenyaRules['2315722009'].mechanic('bjeiba').out).toBe('bjēba');
+    expect(quenyaRules['2315722009'].mechanic('bwouba').out).toBe('bwōba');
+    // Regular change when j and w are not immediately before the diphthong:
+    expect(quenyaRules['2315722009'].mechanic('bjbeiba').out).toBe('bjbība');
+    expect(quenyaRules['2315722009'].mechanic('bwbouba').out).toBe('bwbūba');
+  });
 });

@@ -130,4 +130,44 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '2315722009': {
+    orderId: '00400',
+    pattern: '[ei|ou] > [ī|ū]',
+    description: '[ei], [ou] generally became [ī], [ū]',
+    url: 'https://eldamo.org/content/words/word-2315722009.html',
+    mechanic: (str, options = {}) => {
+      // ei > ī
+      // ou > ū
+      // but
+      // ei > ē after y
+      // ou > ō after w
+      const occurrences = findAllOf(['ei', 'ou'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const replacements = {
+        'ei': 'ī',
+        'ou': 'ū',
+      };
+
+      let result = str;
+      const removedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar } = occurrences[i];
+        if (prevChar === 'j' && matched === 'ei') {
+          result = result.substring(0, charIndex) + 'ē' + result.substring(charIndex + 2);
+        } else
+        if (prevChar === 'w' && matched === 'ou') {
+          result = result.substring(0, charIndex) + 'ō' + result.substring(charIndex + 2);
+        } else {
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+        }
+        removedIndices.push(charIndex + 1);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
