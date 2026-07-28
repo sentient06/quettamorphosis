@@ -170,4 +170,27 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1167483479': {
+    orderId: '00500',
+    pattern: '[ji|wu] > [i|u]',
+    description: '[ji], [wu] became [i], [u]',
+    url: 'https://eldamo.org/content/words/word-1167483479.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['ji', 'wu'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      const removedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + matched[1] + result.substring(charIndex + 2);
+        removedIndices.push(charIndex + 1);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

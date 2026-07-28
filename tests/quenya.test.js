@@ -69,4 +69,11 @@ describe('Quenya rules', () => {
     expect(quenyaRules['2315722009'].mechanic('bjbeiba').out).toBe('bjbība');
     expect(quenyaRules['2315722009'].mechanic('bwbouba').out).toBe('bwbūba');
   });
+
+  it('00500 - [ji|wu] > [i|u]', () => {
+    expect(quenyaRules['1167483479'].mechanic('abc').out).toBe('abc');
+
+    expect(quenyaRules['1167483479'].mechanic('orōrjie').out).toBe('orōrie');
+    expect(quenyaRules['1167483479'].mechanic('awuva').out).toBe('auva');
+  });
 });
