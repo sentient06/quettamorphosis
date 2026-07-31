@@ -222,4 +222,34 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '3516399115': {
+    orderId: '00700',
+    pattern: '[{rl}{ɸθxð}] > [{rl}{ptkd}]',
+    description: 'spirants became stops after [r], [l]',
+    url: 'https://eldamo.org/content/words/word-3516399115.html',
+    mechanic: (str, options = {}) => {
+      const replacements = {
+        'lx': 'lk',
+        'lð': 'ld',
+        'lβ': 'lb',
+        'rx': 'rk',
+        'rɸ': 'rp',
+        'rθ': 'rt',
+      };
+      const occurrences = findAllOf(Object.keys(replacements), str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+
+    },
+  },
 };

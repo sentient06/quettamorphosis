@@ -85,4 +85,22 @@ describe('Quenya rules', () => {
     expect(quenyaRules['3458631869'].mechanic('mājar').out).toBe('maijar');
     expect(quenyaRules['3458631869'].mechanic('mōja').out).toBe('moija');
   });
+
+  it('00700 - [{rl}{ɸθxð}] > [{rl}{ptkd}]', () => {
+    expect(quenyaRules['3516399115'].mechanic('abc').out).toBe('abc');
+    // lx > lk:
+    expect(quenyaRules['3516399115'].mechanic('tulxast').out).toBe('tulkast');
+    // lð > ld:
+    expect(quenyaRules['3516399115'].mechanic('ɣalðā').out).toBe('ɣaldā');
+    // lð > ld:
+    expect(quenyaRules['3516399115'].mechanic('-lðe').out).toBe('-lde');
+    // lβ > lb:
+    expect(quenyaRules['3516399115'].mechanic('olβā').out).toBe('olbā');
+    // rx > rk:
+    expect(quenyaRules['3516399115'].mechanic('tarxildī').out).toBe('tarkildī');
+    // rɸ > rp:
+    expect(quenyaRules['3516399115'].mechanic('arɸō').out).toBe('arpō');
+    // rθ > rt:
+    expect(quenyaRules['3516399115'].mechanic('cerθa').out).toBe('certa');
+  });
 });
