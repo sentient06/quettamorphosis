@@ -278,4 +278,40 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1082322649': {
+    orderId: '00900',
+    pattern: '[wo-] > [o-]',
+    description: '[wo] became [o]',
+    url: 'https://eldamo.org/content/words/word-1082322649.html',
+    info: ['The exact conditions under which this change occurred are unclear.', 'This rule is disabled by default.'],
+    skip: true,
+    input: [
+      {
+        name: 'replaceAll',
+        label: 'Replace [wo] in any position',
+        type: 'boolean',
+        default: false,
+        description: 'Replace [wo] in any position, not just initially.',
+      },
+    ],
+    mechanic: (str, options = { replaceAll: false }) => {
+      const occurrences = findAllOf(['wo'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      const removedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        if (options.replaceAll || charIndex === 0) {
+          result = result.substring(0, charIndex) + 'o' + result.substring(charIndex + 2);
+          removedIndices.push(charIndex);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

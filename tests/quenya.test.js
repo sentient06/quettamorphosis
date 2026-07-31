@@ -118,4 +118,17 @@ describe('Quenya rules', () => {
     // The only example:
     expect(quenyaRules['545708645'].mechanic('inðil').out).toBe('indil');
   });
+
+  it('00900 - [wo-] > [o-]', () => {
+    expect(quenyaRules['1082322649'].mechanic('abc').out).toBe('abc');
+    
+    // Only real example that matters:
+    expect(quenyaRules['1082322649'].mechanic('wo-').out).toBe('o-');
+
+    // All of these are non-existent words:
+    expect(quenyaRules['1082322649'].mechanic('wolme').out).toBe('olme');
+    expect(quenyaRules['1082322649'].mechanic('wome').out).toBe('ome');
+    expect(quenyaRules['1082322649'].mechanic('bawome').out).toBe('bawome');
+    expect(quenyaRules['1082322649'].mechanic('bawome', { replaceAll: true }).out).toBe('baome');
+  });
 });
