@@ -249,7 +249,33 @@ export const quenyaRules = {
         ? recalcMorphemes(result, options.morphemes, [])
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
+    },
+  },
+  '545708645': {
+    orderId: '00800',
+    pattern: '[mɸ|nθ|ŋx|nð] > [mp|nt|ŋk|nd]',
+    description: 'spirants became stops after nasals',
+    url: 'https://eldamo.org/content/words/word-545708645.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['mɸ', 'nθ', 'ŋx', 'nð'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+      const replacements = {
+        'mɸ': 'mp',
+        'nθ': 'nt',
+        'ŋx': 'ŋk',
+        'nð': 'nd',
+      };
 
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
     },
   },
 };

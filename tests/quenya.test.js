@@ -103,4 +103,19 @@ describe('Quenya rules', () => {
     // rθ > rt:
     expect(quenyaRules['3516399115'].mechanic('cerθa').out).toBe('certa');
   });
+
+  it('00800 - [mɸ|nθ|ŋx|nð] > [mp|nt|ŋk|nd]', () => {
+    expect(quenyaRules['545708645'].mechanic('abc').out).toBe('abc');
+
+    // [mɸ] > [mp]:
+    expect(quenyaRules['545708645'].mechanic('bamɸaba').out).toBe('bampaba'); // Non-existent word
+    // [nθ] > [nt]:
+    expect(quenyaRules['545708645'].mechanic('banθaba').out).toBe('bantaba'); // Non-existent word
+    // [ŋx] > [ŋk]:
+    expect(quenyaRules['545708645'].mechanic('baŋxaba').out).toBe('baŋkaba'); // Non-existent word
+
+    // [nð] > [nd]:
+    // The only example:
+    expect(quenyaRules['545708645'].mechanic('inðil').out).toBe('indil');
+  });
 });
