@@ -131,4 +131,25 @@ describe('Quenya rules', () => {
     expect(quenyaRules['1082322649'].mechanic('bawome').out).toBe('bawome');
     expect(quenyaRules['1082322649'].mechanic('bawome', { replaceAll: true }).out).toBe('baome');
   });
+
+  it('01000 - [w-|VwV|aiw] > [β-|VβV|aiw]', () => {
+    expect(quenyaRules['3625908403'].mechanic('abc').out).toBe('abc');
+    
+    // VwV > VβV:
+    expect(quenyaRules['3625908403'].mechanic('atjāwiē').out).toBe('atjāβiē');
+    expect(quenyaRules['3625908403'].mechanic('kēwā').out).toBe('kēβā');
+    expect(quenyaRules['3625908403'].mechanic('miruwōre').out).toBe('miruβōre');
+    expect(quenyaRules['3625908403'].mechanic('tāwa').out).toBe('tāβa');
+    expect(quenyaRules['3625908403'].mechanic('tāwa').out).toBe('tāβa');
+    // w- > β-:
+    expect(quenyaRules['3625908403'].mechanic('wā').out).toBe('βā');
+    expect(quenyaRules['3625908403'].mechanic('waile').out).toBe('βaile');
+    expect(quenyaRules['3625908403'].mechanic('waŋgwē').out).toBe('βaŋgwē');
+    expect(quenyaRules['3625908403'].mechanic('wanjar').out).toBe('βanjar');
+    expect(quenyaRules['3625908403'].mechanic('weɣō').out).toBe('βeɣō');
+    expect(quenyaRules['3625908403'].mechanic('wīne').out).toBe('βīne');
+    // aiw > aiw:
+    expect(quenyaRules['3625908403'].mechanic('waiwai').out).toBe('βaiwai');
+    expect(quenyaRules['3625908403'].mechanic('raiwe').out).toBe('raiwe');
+  });
 });

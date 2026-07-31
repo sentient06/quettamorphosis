@@ -314,4 +314,32 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '3625908403': {
+    orderId: '01000',
+    pattern: '[w-|VwV|aiw] > [β-|VβV|aiw]',
+    description: '[w] became [β] initially and between vowels',
+    url: 'https://eldamo.org/content/words/word-3625908403.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['w'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        if (prevChar.isVowel() && nextChar.isVowel()) {
+          const anterior = result.nth(charIndex - 2);
+          if (anterior === 'a' && prevChar === 'i') continue;
+          result = result.substring(0, charIndex) + 'β' + result.substring(charIndex + 1);
+        } else
+        if (charIndex === 0) {
+          result = 'β' + result.substring(1);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  }
 };
