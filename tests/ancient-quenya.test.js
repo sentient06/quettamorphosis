@@ -287,6 +287,7 @@ describe('Ancient Quenya rules', () => {
 
     // Bug fixes...
     expect(ancientQuenyaRules['2190887743'].mechanic('ƥelgā').out).toBe('ƥelgā');
+    expect(ancientQuenyaRules['2190887743'].mechanic('paŧ').out).toBe('paŧ');
   });
 
   it('01900 - [{ptk}ʰ] > [{ɸθx}]', () => {

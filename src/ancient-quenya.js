@@ -558,9 +558,6 @@ export const ancientQuenyaRules = {
     description: 'aspirates became voiceless stops after voiceless stops',
     url: 'https://eldamo.org/content/words/word-2190887743.html',
     mechanic: (str, options = {}) => {
-      const occurrences = findAllOf(['ƥ', 'ŧ', 'ꝁ'], str);
-      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
-
       const replacements = {
         'pƥ': 'pp', // [ppʰ] > [pp]
         'pŧ': 'pt', // [ptʰ] > [pt]
@@ -573,11 +570,13 @@ export const ancientQuenyaRules = {
         'kꝁ': 'kk', // [kkʰ] > [kk]
       };
 
+      const occurrences = findAllOf(Object.keys(replacements), str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, matched, prevChar } = occurrences[i];
-        if (!prevChar) continue;
-        result = result.substring(0, charIndex - 1) + replacements[prevChar + matched] + result.substring(charIndex + 1);
+        const { charIndex, matched } = occurrences[i];
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
 
       const morphemes = (result !== str && options.morphemes)
