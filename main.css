@@ -430,6 +430,15 @@ div + div.smaller-title {
   margin-left: var(--indent);
 }
 
+.rule .rule-dependencies {
+  font-size: 0.7rem;
+  color: #444;
+  margin: 4px var(--indent);
+  border: 1px solid #ccc;
+  padding: 4px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
 .rule.rule-collapsed .rule-description,
 .rule.rule-collapsed .rule-info,
 .rule.rule-collapsed .rule-options,
@@ -669,5 +678,33 @@ div + div.smaller-title {
     bottom: 20px;
     right: 20px;
     z-index: 100;
+  }
+}
+
+/* =============================================================================
+   Dependency rule links
+   ============================================================================= */
+
+.dep-rule-link {
+  color: #0066cc;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dep-rule-link:hover {
+  color: #004499;
+}
+
+/* Highlight effect when scrolling to a rule */
+.rule.rule-highlighted {
+  animation: highlight-pulse 2s ease-out;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 4px rgba(255, 200, 0, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 200, 0, 0);
   }
 }

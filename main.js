@@ -799,6 +799,7 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     rule.dependsOn.forEach((dependency) => {
       // Create a checkbox for each dependency param that can be overridden
       const checkboxId = `dep-${ruleId}-${dependency.param}`;
+      const depRuleB36 = toBase36(dependency.rule);
       draw('input', $dependencies, {
         type: 'checkbox',
         id: checkboxId,
@@ -809,10 +810,26 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
           callback: () => rerunRule(ruleId),
         },
       });
-      draw('label', $dependencies, {
+      // Create label with clickable rule link
+      const $label = draw('label', $dependencies, {
         for: checkboxId,
-        innerHtml: `${dependency.param} (from ${dependency.rule})`,
+        innerHtml: `${dependency.param} (from <a href="#rule-${depRuleB36}" class="dep-rule-link">${depRuleB36}</a>)`,
       });
+      // Prevent checkbox toggle when clicking the link, and scroll to the rule
+      const $link = $label.querySelector('.dep-rule-link');
+      if ($link) {
+        $link.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const $targetRule = document.getElementById(`rule-${depRuleB36}`);
+          if ($targetRule) {
+            $targetRule.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Briefly highlight the target rule
+            $targetRule.classList.add('rule-highlighted');
+            setTimeout(() => $targetRule.classList.remove('rule-highlighted'), 2000);
+          }
+        });
+      }
     });
   }
 
