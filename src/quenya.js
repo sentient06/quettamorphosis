@@ -443,4 +443,29 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1771463731': {
+    orderId: '01400',
+    pattern: '[Vβu] > [Vu]',
+    description: '[β] vanished before [u] after vowels',
+    url: 'https://eldamo.org/content/words/word-1771463731.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['β'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      const removedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        if (prevChar.isVowel() && nextChar === 'u') {
+          result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+          removedIndices.push(charIndex);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
