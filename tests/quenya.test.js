@@ -171,4 +171,16 @@ describe('Quenya rules', () => {
     expect(quenyaRules['1833409085'].mechanic('-weɣ', { gBecameSpirantal: true }).out).toBe('-we');
     expect(quenyaRules['1833409085'].mechanic('βeɣo', { gBecameSpirantal: true }).out).toBe('βeo');
   });
+
+  it('01200 - [ae|ao|ā{ĕŏ}] > [ē|ō|ā]', () => {
+    expect(quenyaRules['1132141441'].mechanic('abc').out).toBe('abc');
+
+    expect(quenyaRules['1132141441'].mechanic('taorme').out).toBe('tōrme');
+
+    // Non-existent words:
+    expect(quenyaRules['1132141441'].mechanic('baeba').out).toBe('bēba');
+    expect(quenyaRules['1132141441'].mechanic('baoba').out).toBe('bōba');
+    expect(quenyaRules['1132141441'].mechanic('bāeba').out).toBe('bāba');
+    expect(quenyaRules['1132141441'].mechanic('bāoba').out).toBe('bāba');
+  });
 });

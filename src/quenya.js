@@ -356,7 +356,6 @@ export const quenyaRules = {
       const removedIndices = [];
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, prevChar, nextChar } = occurrences[i];
-        console.log({ str, charIndex, prevChar, nextChar });
         if (prevChar.isVowel() && nextChar.isVowel()) {
           const prevLong = prevChar.getMark() === '¯';
           const nextLong = nextChar.getMark() === '¯';
@@ -380,6 +379,41 @@ export const quenyaRules = {
         }
         result = result.substring(0, charIndex) + result.substring(charIndex + 1);
         removedIndices.push(charIndex);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '1132141441': {
+    orderId: '01200',
+    pattern: '[ae|ao|ā{ĕŏ}] > [ē|ō|ā]',
+    description: '[ae], [ao] generally became [ē], [ō]',
+    url: 'https://eldamo.org/content/words/word-1132141441.html',
+    mechanic: (str, options = {}) => {
+      const _str = str.normaliseToOne();
+      const occurrences = findAllOf(['a', 'ā'], _str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      const removedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar, nextChar } = occurrences[i];
+        if (nextChar.isVowel() === false) continue;
+        const vowel = nextChar.removeMarks();
+        if (['e', 'o'].includes(vowel)) {
+          const charLong = matched.getMark() === '¯';
+          const nextLong = nextChar.getMark() === '¯';
+          if (nextLong) continue;
+          if (charLong) {
+            result = result.substring(0, charIndex) + 'ā' + result.substring(charIndex + 2);
+          } else {
+            result = result.substring(0, charIndex) + nextChar.addMark('¯') + result.substring(charIndex + 2);
+          }
+          removedIndices.push(charIndex);
+        }
       }
 
       const morphemes = (result !== str && options.morphemes)
