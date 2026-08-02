@@ -152,4 +152,23 @@ describe('Quenya rules', () => {
     expect(quenyaRules['3625908403'].mechanic('waiwai').out).toBe('βaiwai');
     expect(quenyaRules['3625908403'].mechanic('raiwe').out).toBe('raiwe');
   });
+
+  it('01100 - [ɣ] > [ø]', () => {
+    expect(quenyaRules['1833409085'].mechanic('abc').out).toBe('abc');
+
+    expect(quenyaRules['1833409085'].mechanic('ɣaikā', { gBecameSpirantal: true }).out).toBe('aikā');
+    expect(quenyaRules['1833409085'].mechanic('ɣaira', { gBecameSpirantal: true }).out).toBe('aira');
+    expect(quenyaRules['1833409085'].mechanic('ɣalalme', { gBecameSpirantal: true }).out).toBe('alalme');
+    expect(quenyaRules['1833409085'].mechanic('ɣaldā', { gBecameSpirantal: true }).out).toBe('aldā');
+    expect(quenyaRules['1833409085'].mechanic('ɣaldarembinā', { gBecameSpirantal: true }).out).toBe('aldarembinā');
+    expect(quenyaRules['1833409085'].mechanic('ɣaltarīɣelle', { gBecameSpirantal: true }).out).toBe('altarīelle');
+    expect(quenyaRules['1833409085'].mechanic('aɣwalda', { gBecameSpirantal: true }).out).toBe('awalda');
+    expect(quenyaRules['1833409085'].mechanic('kaltārīɣelle', { gBecameSpirantal: true }).out).toBe('kaltārīelle');
+    expect(quenyaRules['1833409085'].mechanic('λoɣa', { gBecameSpirantal: true }).out).toBe('λoa');
+    expect(quenyaRules['1833409085'].mechanic('ŋaltārīɣel', { gBecameSpirantal: true }).out).toBe('ŋaltārīel');
+    expect(quenyaRules['1833409085'].mechanic('rīɣā', { gBecameSpirantal: true }).out).toBe('rīā');
+    expect(quenyaRules['1833409085'].mechanic('uɣi', { gBecameSpirantal: true }).out).toBe('ui');
+    expect(quenyaRules['1833409085'].mechanic('-weɣ', { gBecameSpirantal: true }).out).toBe('-we');
+    expect(quenyaRules['1833409085'].mechanic('βeɣo', { gBecameSpirantal: true }).out).toBe('βeo');
+  });
 });

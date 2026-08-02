@@ -341,5 +341,51 @@ export const quenyaRules = {
         : (options.morphemes || [str]);
       return { in: str, out: result, morphemes };
     },
-  }
+  },
+  '1833409085': {
+    orderId: '01100',
+    pattern: '[ɣ] > [ø]',
+    description: '[ɣ] from [g] vanished',
+    url: 'https://eldamo.org/content/words/word-1833409085.html',
+    dependsOn: [{ rule: '1141570065', param: 'gBecameSpirantal' }],
+    mechanic: (str, options = { gBecameSpirantal: false }) => {
+      const occurrences = findAllOf(['ɣ'], str);
+      if (options.gBecameSpirantal === false || occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str.normaliseToOne();
+      const removedIndices = [];
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        console.log({ str, charIndex, prevChar, nextChar });
+        if (prevChar.isVowel() && nextChar.isVowel()) {
+          const prevLong = prevChar.getMark() === '¯';
+          const nextLong = nextChar.getMark() === '¯';
+
+          // Combined vowels:
+          if (!prevLong && !nextLong && prevChar === nextChar) {
+            result = result.substring(0, charIndex - 1) + prevChar.addMark('¯') + result.substring(charIndex + 1);
+            removedIndices.push(charIndex, charIndex + 1);
+            continue;
+          }
+
+          // Diphthongs:
+          const { diphthongs } = QUENYA_PROFILE;
+          const combo = prevChar.removeMarks() + nextChar.removeMarks();
+
+          if (diphthongs.includes(combo)) {
+            result = result.substring(0, charIndex - 1) + combo + result.substring(charIndex + 2);
+            removedIndices.push(charIndex, charIndex + 1);
+            continue;
+          }
+        }
+        result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+        removedIndices.push(charIndex);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, removedIndices)
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
