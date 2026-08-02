@@ -4,6 +4,8 @@ import {
   encodeQueryString,
   parseDisabledParam,
   encodeDisabledParam,
+  encodeRuleInputs,
+  parseRuleInputs,
 } from "../src/query-string.js";
 import { toBase36, fromBase36 } from "../src/utils.js";
 
@@ -337,6 +339,139 @@ describe('Disabled rules query string', () => {
 
       expect(parsed.disabledRules).toEqual(disabledRules);
       expect(parsed.disabledLanguages).toEqual(disabledLanguages);
+    });
+  });
+
+  describe('Rule inputs encoding/decoding', () => {
+    // Mock rule objects with input definitions
+    const mockRules = {
+      '876455981': {
+        input: [
+          { name: 'monosyllables', type: 'boolean', default: false },
+        ],
+      },
+      '567222053': {
+        input: [
+          { name: 'transformUnstressedMonosyllables', type: 'boolean', default: false },
+          { name: 'forceAeToE', type: 'boolean', default: false },
+        ],
+      },
+      '123456789': {
+        input: [
+          { name: 'boundaryChar', type: 'string', default: '-' },
+          { name: 'guess', type: 'boolean', default: true },
+        ],
+      },
+    };
+
+    it('should encode boolean inputs as 1/0', () => {
+      const ruleInputs = {
+        '876455981': { monosyllables: true },
+      };
+      const encoded = encodeRuleInputs(ruleInputs, mockRules);
+      // Rule ID 876455981 in Base-36
+      const ruleB36 = toBase36(876455981);
+      expect(encoded).toBe(`${ruleB36}:monosyllables=1`);
+    });
+
+    it('should only encode non-default values', () => {
+      const ruleInputs = {
+        '876455981': { monosyllables: false }, // same as default
+      };
+      const encoded = encodeRuleInputs(ruleInputs, mockRules);
+      expect(encoded).toBe('');
+    });
+
+    it('should encode multiple inputs for same rule', () => {
+      const ruleInputs = {
+        '567222053': { transformUnstressedMonosyllables: true, forceAeToE: true },
+      };
+      const encoded = encodeRuleInputs(ruleInputs, mockRules);
+      const ruleB36 = toBase36(567222053);
+      expect(encoded).toContain(`${ruleB36}:`);
+      expect(encoded).toContain('transformUnstressedMonosyllables=1');
+      expect(encoded).toContain('forceAeToE=1');
+    });
+
+    it('should encode multiple rules separated by semicolon', () => {
+      const ruleInputs = {
+        '876455981': { monosyllables: true },
+        '567222053': { forceAeToE: true },
+      };
+      const encoded = encodeRuleInputs(ruleInputs, mockRules);
+      expect(encoded).toContain(';');
+    });
+
+    it('should encode string inputs with URL encoding', () => {
+      const ruleInputs = {
+        '123456789': { boundaryChar: '+' },
+      };
+      const encoded = encodeRuleInputs(ruleInputs, mockRules);
+      const ruleB36 = toBase36(123456789);
+      expect(encoded).toBe(`${ruleB36}:boundaryChar=%2B`);
+    });
+
+    it('should parse boolean inputs', () => {
+      const ruleB36 = toBase36(876455981);
+      const param = `${ruleB36}:monosyllables=1`;
+      const parsed = parseRuleInputs(param, mockRules);
+      expect(parsed['876455981']).toEqual({ monosyllables: true });
+    });
+
+    it('should parse multiple inputs for same rule', () => {
+      const ruleB36 = toBase36(567222053);
+      const param = `${ruleB36}:transformUnstressedMonosyllables=1,forceAeToE=0`;
+      const parsed = parseRuleInputs(param, mockRules);
+      expect(parsed['567222053']).toEqual({
+        transformUnstressedMonosyllables: true,
+        forceAeToE: false,
+      });
+    });
+
+    it('should parse multiple rules', () => {
+      const rule1B36 = toBase36(876455981);
+      const rule2B36 = toBase36(567222053);
+      const param = `${rule1B36}:monosyllables=1;${rule2B36}:forceAeToE=1`;
+      const parsed = parseRuleInputs(param, mockRules);
+      expect(parsed['876455981']).toEqual({ monosyllables: true });
+      expect(parsed['567222053']).toEqual({ forceAeToE: true });
+    });
+
+    it('should parse URL-encoded string inputs', () => {
+      const ruleB36 = toBase36(123456789);
+      const param = `${ruleB36}:boundaryChar=%2B`;
+      const parsed = parseRuleInputs(param, mockRules);
+      expect(parsed['123456789']).toEqual({ boundaryChar: '+' });
+    });
+
+    it('should handle empty parameter', () => {
+      expect(parseRuleInputs(null, mockRules)).toEqual({});
+      expect(parseRuleInputs('', mockRules)).toEqual({});
+    });
+
+    it('should ignore unknown rules', () => {
+      const unknownB36 = toBase36(999999999);
+      const param = `${unknownB36}:foo=1`;
+      const parsed = parseRuleInputs(param, mockRules);
+      expect(parsed).toEqual({});
+    });
+
+    it('should ignore unknown inputs', () => {
+      const ruleB36 = toBase36(876455981);
+      const param = `${ruleB36}:unknownInput=1`;
+      const parsed = parseRuleInputs(param, mockRules);
+      expect(parsed).toEqual({});
+    });
+
+    it('should round-trip encode/decode', () => {
+      const ruleInputs = {
+        '876455981': { monosyllables: true },
+        '567222053': { transformUnstressedMonosyllables: true, forceAeToE: true },
+        '123456789': { boundaryChar: '+', guess: false },
+      };
+      const encoded = encodeRuleInputs(ruleInputs, mockRules);
+      const parsed = parseRuleInputs(encoded, mockRules);
+      expect(parsed).toEqual(ruleInputs);
     });
   });
 });

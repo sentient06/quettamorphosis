@@ -371,12 +371,129 @@ export function isShareMode() {
 /**
  * Remove all share-related parameters from the URL.
  * Called after share mode overrides have been applied.
- * Clears ?s, ?i, and ?off to avoid URL pollution.
+ * Clears ?s, ?i, ?off, and ?ri to avoid URL pollution.
  */
 export function removeShareModeFromUrl() {
   const url = new URL(window.location.href);
   url.searchParams.delete('s');
   url.searchParams.delete('i');
   url.searchParams.delete('off');
+  url.searchParams.delete('ri');
   window.history.replaceState({}, '', url);
+}
+
+// =============================================================================
+// Rule Inputs Query String Support
+// =============================================================================
+
+/**
+ * Encode rule inputs to a URL parameter value.
+ * Only encodes non-default values to keep URLs short.
+ * Format: RULEID_B36:inputName=value,inputName2=value2;RULEID2_B36:inputName=value
+ *
+ * @param {Object} ruleInputs - Map of ruleId -> { inputName: value, ... }
+ * @param {Object} allRules - Map of ruleId -> rule object (to check defaults)
+ * @returns {string} Encoded parameter value
+ */
+export function encodeRuleInputs(ruleInputs, allRules) {
+  const parts = [];
+
+  for (const [ruleId, inputs] of Object.entries(ruleInputs)) {
+    const rule = allRules[ruleId];
+    if (!rule || !rule.input) continue;
+
+    const nonDefaultInputs = [];
+    for (const inputDef of rule.input) {
+      const currentValue = inputs[inputDef.name];
+      const defaultValue = inputDef.default;
+
+      // Only include if different from default
+      if (currentValue !== undefined && currentValue !== defaultValue) {
+        // Encode value: booleans as 1/0, strings as-is
+        const encodedValue = typeof currentValue === 'boolean'
+          ? (currentValue ? '1' : '0')
+          : encodeURIComponent(String(currentValue));
+        nonDefaultInputs.push(`${inputDef.name}=${encodedValue}`);
+      }
+    }
+
+    if (nonDefaultInputs.length > 0) {
+      const ruleB36 = toBase36(parseInt(ruleId, 10));
+      parts.push(`${ruleB36}:${nonDefaultInputs.join(',')}`);
+    }
+  }
+
+  return parts.join(';');
+}
+
+/**
+ * Parse rule inputs from URL parameter.
+ * @param {string|null} riParam - The raw ?ri= parameter value
+ * @param {Object} allRules - Map of ruleId -> rule object (to validate and get types)
+ * @returns {Object} Map of ruleId -> { inputName: value, ... }
+ */
+export function parseRuleInputs(riParam, allRules) {
+  const result = {};
+
+  if (!riParam) return result;
+
+  // Split by semicolon to get per-rule entries
+  const ruleEntries = riParam.split(';').filter(Boolean);
+
+  for (const entry of ruleEntries) {
+    const colonIndex = entry.indexOf(':');
+    if (colonIndex === -1) continue;
+
+    const ruleB36 = entry.substring(0, colonIndex);
+    const inputsStr = entry.substring(colonIndex + 1);
+
+    // Convert Base-36 rule ID to decimal
+    const ruleId = fromBase36(ruleB36);
+    const rule = allRules[ruleId];
+    if (!rule || !rule.input) continue;
+
+    // Build a map of input name -> input definition for type info
+    const inputDefMap = {};
+    for (const inputDef of rule.input) {
+      inputDefMap[inputDef.name] = inputDef;
+    }
+
+    // Parse individual inputs
+    const inputs = {};
+    const inputPairs = inputsStr.split(',').filter(Boolean);
+    for (const pair of inputPairs) {
+      const eqIndex = pair.indexOf('=');
+      if (eqIndex === -1) continue;
+
+      const name = pair.substring(0, eqIndex);
+      const rawValue = pair.substring(eqIndex + 1);
+
+      const inputDef = inputDefMap[name];
+      if (!inputDef) continue;
+
+      // Decode value based on type
+      if (inputDef.type === 'boolean') {
+        inputs[name] = rawValue === '1';
+      } else {
+        inputs[name] = decodeURIComponent(rawValue);
+      }
+    }
+
+    if (Object.keys(inputs).length > 0) {
+      result[ruleId] = inputs;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Get rule inputs from URL.
+ * @param {Object} allRules - Map of ruleId -> rule object
+ * @returns {Object} Map of ruleId -> { inputName: value, ... }
+ */
+export function getRuleInputsFromUrl(allRules) {
+  const params = new URLSearchParams(window.location.search);
+  const riParam = params.get('ri');
+  return parseRuleInputs(riParam, allRules);
 }

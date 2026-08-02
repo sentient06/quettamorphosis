@@ -43,6 +43,8 @@ import {
   getDisabledFromUrl,
   encodeQueryString,
   encodeDisabledParam,
+  encodeRuleInputs,
+  getRuleInputsFromUrl,
 } from './src/query-string.js';
 import { toBase36, singleToPhonetic } from './src/utils.js';
 
@@ -105,13 +107,23 @@ const languageState = JSON.parse(localStorage.getItem(storageKey('languages')) |
 const optionState = JSON.parse(localStorage.getItem(storageKey('options')) || '{}');
 const orderState = JSON.parse(localStorage.getItem(storageKey('order')) || '{}');
 
+// Build a flat map of all rules for rule input parsing
+const allRulesMap = {};
+for (const stage of PIPELINE) {
+  Object.assign(allRulesMap, stage.rules);
+}
+
 // Check for share mode: ?s parameter signals override mode
 // In share mode: enable all rules/languages first, then apply ?off= overrides
 // Capture the input BEFORE removing params (since removeShareModeFromUrl clears ?i)
 let shareModeInput = null;
+let shareModeRuleInputs = null;
 if (isShareMode()) {
   // Save input from URL before we clear the params
   shareModeInput = getInputFromUrl();
+
+  // Parse ?ri= parameter for rule inputs before clearing
+  shareModeRuleInputs = getRuleInputsFromUrl(allRulesMap);
 
   // Clear all rule overrides (all rules default to enabled)
   Object.keys(ruleState).forEach(key => delete ruleState[key]);
@@ -135,7 +147,7 @@ if (isShareMode()) {
     languageState[langId] = false;
   });
 
-  // Remove all share params from URL (?s, ?i, ?off)
+  // Remove all share params from URL (?s, ?i, ?off, ?ri)
   removeShareModeFromUrl();
 }
 
@@ -1217,6 +1229,26 @@ $shareUrlButton.addEventListener('click', async () => {
     }
   });
 
+  // Collect current rule input values (non-default only)
+  const ruleInputs = {};
+  allRuleIds.forEach(ruleId => {
+    const rulesObj = getRulesObject(ruleId);
+    const rule = rulesObj ? rulesObj[ruleId] : null;
+    if (rule && rule.input) {
+      const inputs = {};
+      rule.input.forEach(inputDef => {
+        const $input = document.getElementById(`input-${ruleId}-${inputDef.name}`);
+        if ($input) {
+          const value = inputDef.type === 'boolean' ? $input.checked : $input.value;
+          inputs[inputDef.name] = value;
+        }
+      });
+      if (Object.keys(inputs).length > 0) {
+        ruleInputs[ruleId] = inputs;
+      }
+    }
+  });
+
   // Build the URL
   const url = new URL(window.location.href);
   url.search = ''; // Clear existing params
@@ -1234,6 +1266,12 @@ $shareUrlButton.addEventListener('click', async () => {
   const offParam = encodeDisabledParam(disabledRules, disabledLanguages, allRuleIds);
   if (offParam) {
     url.searchParams.set('off', offParam);
+  }
+
+  // Add rule inputs if any differ from defaults
+  const riParam = encodeRuleInputs(ruleInputs, allRulesMap);
+  if (riParam) {
+    url.searchParams.set('ri', riParam);
   }
 
   // Copy to clipboard
@@ -1401,6 +1439,22 @@ if (postProcessingRuleKeys.length > 0) {
     const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
     drawRule(ruleId, nextRuleId, $postWrapper);
   });
+}
+
+// Apply rule inputs from share mode URL (must happen after rules are drawn)
+if (shareModeRuleInputs) {
+  for (const [ruleId, inputs] of Object.entries(shareModeRuleInputs)) {
+    for (const [inputName, value] of Object.entries(inputs)) {
+      const $input = document.getElementById(`input-${ruleId}-${inputName}`);
+      if ($input) {
+        if ($input.type === 'checkbox') {
+          $input.checked = value;
+        } else {
+          $input.value = value;
+        }
+      }
+    }
+  }
 }
 
 // Restore input from URL query string (or share mode) or storage
