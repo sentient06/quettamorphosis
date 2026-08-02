@@ -59,7 +59,16 @@ export const sindarinRules = {
     pattern: '[-V{mn}] > [-Vø]',
     description: 'final nasals vanished after vowels in unstressed final syllables',
     url: 'https://eldamo.org/content/words/word-876455981.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'monosyllables',
+        label: 'Apply to monosyllables',
+        type: 'boolean',
+        default: false,
+        description: 'Apply this rule to monosyllables',
+      },
+    ],
+    mechanic: (str, options = { monosyllables: false }) => {
       const morphemes = options.morphemes || [str];
 
       // Process each morpheme individually
@@ -76,7 +85,7 @@ export const sindarinRules = {
         const syllableData = analyser.analyse(m);
 
         // Monosyllables: final syllable is stressed, preserve nasal
-        if (syllableData.length < 2) return m;
+        if (syllableData.length < 2 && options.monosyllables === false) return m;
 
         // Polysyllables: check if final syllable is unstressed
         const finalSyllable = syllableData.at(-1);

@@ -40,6 +40,7 @@ describe('Sindarin rules', () => {
     // Polysyllables with unstressed final syllable lose the nasal
     expect(sindarinRules['876455981'].mechanic('elen').out).toBe('ele');
     expect(sindarinRules['876455981'].mechanic('boron').out).toBe('boro');
+    expect(sindarinRules['876455981'].mechanic('xin', { monosyllables: true }).out).toBe('xi');
 
     // Morphemes:
     // Elwing
