@@ -422,4 +422,25 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '1102872571': {
+    orderId: '01300',
+    pattern: '[ɸu] > [hu]',
+    description: '[ɸu] became [hu]',
+    url: 'https://eldamo.org/content/words/word-1102872571.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['ɸu'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + 'hu' + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

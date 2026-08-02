@@ -183,4 +183,10 @@ describe('Quenya rules', () => {
     expect(quenyaRules['1132141441'].mechanic('bāeba').out).toBe('bāba');
     expect(quenyaRules['1132141441'].mechanic('bāoba').out).toBe('bāba');
   });
+
+  it('01300 - [ɸu] > [hu]', () => {
+    expect(quenyaRules['1102872571'].mechanic('abc').out).toBe('abc');
+    // Only one example:
+    expect(quenyaRules['1102872571'].mechanic('ɸuinē').out).toBe('huinē');
+  });
 });
