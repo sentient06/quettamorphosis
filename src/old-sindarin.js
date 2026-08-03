@@ -4,6 +4,7 @@ import {
   digraphsToSingle,
   findAllOf,
   SyllableAnalyser,
+  morphemeAtIndex,
 } from './utils.js';
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -866,10 +867,11 @@ export const oldSindarinRules = {
   '1942848653': {
     orderId: '02700',
     pattern: '[ei|ou] > [ī|ū]',
-    description: '[ei], [ou] became [ī], [ū]',
+    description: 'Diphthongs [ei], [ou] became [ī], [ū]',
     url: 'https://eldamo.org/content/words/word-1942848653.html',
     mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ei', 'ou'], str);
+      const morphemes = options.morphemes || [str];
       if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 
       let result = str;
@@ -880,6 +882,9 @@ export const oldSindarinRules = {
       const removedIndices = [];
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { matched, charIndex, nextChar } = occurrences[i];
+        const morpheme = morphemeAtIndex(morphemes, charIndex);
+        if (!morpheme) continue;
+        if (morpheme.includes(matched) === false) continue;
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
         removedIndices.unshift(charIndex + 1);
         if (nextChar) {
@@ -892,10 +897,10 @@ export const oldSindarinRules = {
         }
       }
 
-      const morphemes = (result !== str && options.morphemes)
+      const newMorphemes = (result !== str && options.morphemes)
         ? recalcMorphemes(result, options.morphemes, removedIndices)
         : (options.morphemes || [str]);
-      return { in: str, out: result, morphemes };
+      return { in: str, out: result, morphemes: newMorphemes };
     },
   },
   '2010669085': {

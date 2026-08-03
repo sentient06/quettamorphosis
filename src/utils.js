@@ -654,6 +654,17 @@ export function recalcMorphemes(result, originalMorphemes, removedIndices, added
   });
 }
 
+export function morphemeAtIndex(morphemes = [], index) {
+  let pos = 0;
+  for (const m of morphemes) {
+    if (index >= pos && index < pos + m.length) {
+      return m;
+    }
+    pos += m.length;
+  }
+  return null;
+}
+
 // =============================================================================
 // Base-36 ID Utilities
 // =============================================================================

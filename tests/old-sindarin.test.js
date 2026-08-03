@@ -531,6 +531,8 @@ describe('Old Sindarin rules', () => {
     // [ou] > [ū]:
     expect(oldSindarinRules['1942848653'].mechanic('θouo').out).toBe('θūo');
     expect(oldSindarinRules['1942848653'].mechanic('θouson').out).toBe('θūson');
+    // If the combo is not a diphtong, don't change it:
+    expect(oldSindarinRules['1942848653'].mechanic('wobeia', { morphemes: ['wo', 'be', 'ia'] }).out).toBe('wobeia');
 
     // Morphemes:
     // jab + negdē (PE) --> fruit juice
