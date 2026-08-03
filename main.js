@@ -41,8 +41,10 @@ import {
   isShareMode,
   removeShareModeFromUrl,
   getDisabledFromUrl,
+  getEnabledFromUrl,
   encodeQueryString,
   encodeDisabledParam,
+  encodeEnabledParam,
   encodeRuleInputs,
   getRuleInputsFromUrl,
 } from './src/query-string.js';
@@ -114,7 +116,7 @@ for (const stage of PIPELINE) {
 }
 
 // Check for share mode: ?s parameter signals override mode
-// In share mode: enable all rules/languages first, then apply ?off= overrides
+// In share mode: enable all rules/languages first, then apply ?off= and ?on= overrides
 // Capture the input BEFORE removing params (since removeShareModeFromUrl clears ?i)
 let shareModeInput = null;
 let shareModeRuleInputs = null;
@@ -137,9 +139,17 @@ if (isShareMode()) {
   // Parse ?off= parameter and apply disabled state
   const { disabledRules, disabledLanguages } = getDisabledFromUrl(allRuleIds);
 
+  // Parse ?on= parameter for rules with skip:true that should be enabled
+  const enabledRules = getEnabledFromUrl(allRuleIds);
+
   // Disable specified rules
   disabledRules.forEach(ruleId => {
     ruleState[ruleId] = false;
+  });
+
+  // Enable specified rules (overrides skip:true default)
+  enabledRules.forEach(ruleId => {
+    ruleState[ruleId] = true;
   });
 
   // Disable specified languages
@@ -147,7 +157,7 @@ if (isShareMode()) {
     languageState[langId] = false;
   });
 
-  // Remove all share params from URL (?s, ?i, ?off, ?ri)
+  // Remove all share params from URL (?s, ?i, ?off, ?on, ?ri)
   removeShareModeFromUrl();
 }
 
@@ -1218,8 +1228,9 @@ $helpers.addEventListener('click', (e) => {
 $shareUrlButton.addEventListener('click', async () => {
   const input = $originalInput.value;
 
-  // Build disabled rules set (rules that are explicitly disabled)
+  // Build disabled/enabled rules sets
   const disabledRules = new Set();
+  const enabledRules = new Set(); // Rules with skip:true that user explicitly enabled
   const disabledLanguages = new Set();
 
   // Check language states
@@ -1239,10 +1250,15 @@ $shareUrlButton.addEventListener('click', async () => {
     const isDefaultEnabled = !rule.skip;
     const currentState = ruleState[ruleId];
 
-    // Rule is disabled if: explicitly set to false, or default-skipped and no override
+    // Determine current enabled state
     const isEnabled = currentState !== undefined ? currentState : isDefaultEnabled;
+
     if (!isEnabled) {
+      // Rule is disabled
       disabledRules.add(ruleId);
+    } else if (rule.skip && currentState === true) {
+      // Rule has skip:true but user explicitly enabled it
+      enabledRules.add(ruleId);
     }
   });
 
@@ -1283,6 +1299,12 @@ $shareUrlButton.addEventListener('click', async () => {
   const offParam = encodeDisabledParam(disabledRules, disabledLanguages, allRuleIds);
   if (offParam) {
     url.searchParams.set('off', offParam);
+  }
+
+  // Add enabled rules (skip:true rules that user enabled) if any
+  const onParam = encodeEnabledParam(enabledRules);
+  if (onParam) {
+    url.searchParams.set('on', onParam);
   }
 
   // Add rule inputs if any differ from defaults

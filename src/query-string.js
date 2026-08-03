@@ -339,6 +339,59 @@ export function getDisabledFromUrl(allRuleIds) {
 }
 
 /**
+ * Encode enabled rules (rules with skip:true that user explicitly enabled) to URL parameter.
+ * @param {Set<string>} enabledRules - Set of enabled rule IDs (decimal)
+ * @returns {string} Encoded parameter value
+ */
+export function encodeEnabledParam(enabledRules) {
+  if (enabledRules.size === 0) return '';
+
+  // Sort enabled rules numerically
+  const sortedEnabled = [...enabledRules]
+    .map(id => parseInt(id, 10))
+    .sort((a, b) => a - b);
+
+  // Convert to Base-36
+  return sortedEnabled.map(ruleNum => toBase36(ruleNum)).join(',');
+}
+
+/**
+ * Parse enabled rules from URL parameter.
+ * @param {string|null} onParam - The raw ?on= parameter value
+ * @param {string[]} allRuleIds - Array of all valid rule IDs (decimal strings)
+ * @returns {Set<string>} Set of enabled rule IDs
+ */
+export function parseEnabledParam(onParam, allRuleIds) {
+  const enabledRules = new Set();
+
+  if (!onParam) return enabledRules;
+
+  // Split by comma to get individual entries
+  const entries = onParam.split(',').map(e => e.trim().toUpperCase()).filter(Boolean);
+
+  for (const entry of entries) {
+    // Single Base-36 ID
+    const decimalId = fromBase36(entry);
+    if (allRuleIds.includes(decimalId)) {
+      enabledRules.add(decimalId);
+    }
+  }
+
+  return enabledRules;
+}
+
+/**
+ * Get enabled rules from URL.
+ * @param {string[]} allRuleIds - Array of all valid rule IDs
+ * @returns {Set<string>} Set of enabled rule IDs
+ */
+export function getEnabledFromUrl(allRuleIds) {
+  const params = new URLSearchParams(window.location.search);
+  const onParam = params.get('on');
+  return parseEnabledParam(onParam, allRuleIds);
+}
+
+/**
  * Update the URL with disabled rules/languages.
  * @param {Set<string>} disabledRules - Set of disabled rule IDs (decimal)
  * @param {Set<string>} disabledLanguages - Set of disabled language IDs
@@ -371,13 +424,14 @@ export function isShareMode() {
 /**
  * Remove all share-related parameters from the URL.
  * Called after share mode overrides have been applied.
- * Clears ?s, ?i, ?off, and ?ri to avoid URL pollution.
+ * Clears ?s, ?i, ?off, ?on, and ?ri to avoid URL pollution.
  */
 export function removeShareModeFromUrl() {
   const url = new URL(window.location.href);
   url.searchParams.delete('s');
   url.searchParams.delete('i');
   url.searchParams.delete('off');
+  url.searchParams.delete('on');
   url.searchParams.delete('ri');
   window.history.replaceState({}, '', url);
 }

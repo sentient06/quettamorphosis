@@ -4,6 +4,8 @@ import {
   encodeQueryString,
   parseDisabledParam,
   encodeDisabledParam,
+  encodeEnabledParam,
+  parseEnabledParam,
   encodeRuleInputs,
   parseRuleInputs,
 } from "../src/query-string.js";
@@ -339,6 +341,58 @@ describe('Disabled rules query string', () => {
 
       expect(parsed.disabledRules).toEqual(disabledRules);
       expect(parsed.disabledLanguages).toEqual(disabledLanguages);
+    });
+  });
+
+  describe('Enabled rules (skip:true override) encoding/decoding', () => {
+    it('should encode single enabled rule to Base-36', () => {
+      const enabledRules = new Set(['876455981']);
+      const encoded = encodeEnabledParam(enabledRules);
+      expect(encoded).toBe(toBase36(876455981));
+    });
+
+    it('should encode multiple enabled rules', () => {
+      const enabledRules = new Set(['70600889', '171120983']);
+      const encoded = encodeEnabledParam(enabledRules);
+      // Should be sorted numerically and comma-separated
+      expect(encoded).toBe(`${toBase36(70600889)},${toBase36(171120983)}`);
+    });
+
+    it('should return empty string for empty set', () => {
+      const enabledRules = new Set();
+      const encoded = encodeEnabledParam(enabledRules);
+      expect(encoded).toBe('');
+    });
+
+    it('should parse single enabled rule', () => {
+      const ruleB36 = toBase36(876455981);
+      const parsed = parseEnabledParam(ruleB36, ['876455981', '567222053']);
+      expect(parsed).toEqual(new Set(['876455981']));
+    });
+
+    it('should parse multiple enabled rules', () => {
+      const param = `${toBase36(70600889)},${toBase36(171120983)}`;
+      const parsed = parseEnabledParam(param, ['70600889', '171120983', '999']);
+      expect(parsed).toEqual(new Set(['70600889', '171120983']));
+    });
+
+    it('should ignore unknown rule IDs', () => {
+      const unknownB36 = toBase36(999999999);
+      const parsed = parseEnabledParam(unknownB36, ['876455981']);
+      expect(parsed).toEqual(new Set());
+    });
+
+    it('should handle null/empty parameter', () => {
+      expect(parseEnabledParam(null, ['876455981'])).toEqual(new Set());
+      expect(parseEnabledParam('', ['876455981'])).toEqual(new Set());
+    });
+
+    it('should round-trip encode/decode', () => {
+      const enabledRules = new Set(['70600889', '171120983']);
+      const allRuleIds = ['70600889', '171120983', '876455981'];
+      const encoded = encodeEnabledParam(enabledRules);
+      const parsed = parseEnabledParam(encoded, allRuleIds);
+      expect(parsed).toEqual(enabledRules);
     });
   });
 
