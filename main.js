@@ -47,6 +47,8 @@ import {
   encodeEnabledParam,
   encodeRuleInputs,
   getRuleInputsFromUrl,
+  encodeMorphemeBoundaries,
+  getMorphemeBoundariesFromUrl,
 } from './src/query-string.js';
 import { toBase36, singleToPhonetic } from './src/utils.js';
 
@@ -100,6 +102,14 @@ const storageKey = (key) => `${storagePrefix}${key}`;
 
 // Track morphemes for each rule (needed when toggling rules mid-chain)
 const ruleMorphemes = {};
+// Track morpheme boundary states: ruleId -> Set<mergedBoundaryIndex>
+// Merged boundaries mean adjacent morphemes are combined when passed to next rule
+// Load from localStorage (stored as arrays, convert to Sets)
+const storedBoundaries = JSON.parse(localStorage.getItem(storageKey('morpheme-boundaries')) || '{}');
+const morphemeBoundaryState = {};
+for (const [ruleId, indices] of Object.entries(storedBoundaries)) {
+  morphemeBoundaryState[ruleId] = new Set(indices);
+}
 // Track sandhi execution state for master rule aggregation
 let sandhiInputValue = null;
 let sandhiInputMorphemes = null;
@@ -142,6 +152,10 @@ if (isShareMode()) {
   // Parse ?on= parameter for rules with skip:true that should be enabled
   const enabledRules = getEnabledFromUrl(allRuleIds);
 
+  // Parse ?mb= parameter for morpheme boundary states
+  const boundaryStates = getMorphemeBoundariesFromUrl(allRuleIds);
+  Object.assign(morphemeBoundaryState, boundaryStates);
+
   // Disable specified rules
   disabledRules.forEach(ruleId => {
     ruleState[ruleId] = false;
@@ -157,7 +171,7 @@ if (isShareMode()) {
     languageState[langId] = false;
   });
 
-  // Remove all share params from URL (?s, ?i, ?off, ?on, ?ri)
+  // Remove all share params from URL (?s, ?i, ?off, ?on, ?ri, ?mb)
   removeShareModeFromUrl();
 }
 
@@ -388,11 +402,14 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
       }
     }
 
-    // Update output field
-    const $output = document.getElementById(`output-${ruleId}`);
-    if ($output) {
-      $output.value = output;
+    // Update output field with morpheme-aware rendering
+    // Clear any stale boundary state if morpheme count changed
+    if (morphemeBoundaryState[ruleId] && currentMorphemes) {
+      const maxBoundary = currentMorphemes.length - 2;
+      const staleBoundaries = [...morphemeBoundaryState[ruleId]].filter(i => i > maxBoundary);
+      staleBoundaries.forEach(i => morphemeBoundaryState[ruleId].delete(i));
     }
+    renderMorphemeOutput(ruleId, currentMorphemes, nextRuleInChain);
 
     // Track sandhi rule execution for master rule aggregation
     if (rule.isSandhi) {
@@ -602,7 +619,7 @@ function toggleRule(ruleId, isEnabled) {
   const nextRuleId = getNextRule(ruleId);
 
   const outputValue = previousRuleId
-    ? document.getElementById(`output-${previousRuleId}`).value
+    ? getOutputValue(previousRuleId)
     : $originalInput.value;
 
   // Get morphemes from the previous rule (if any)
@@ -857,13 +874,188 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   });
 
   draw('label', $inputWrapper, { for: `output-${ruleId}`, innerHtml: 'Out:' });
+  // Output input field (copyable)
   draw('input', $inputWrapper, {
     type: 'text',
     id: `output-${ruleId}`,
     placeholder: 'Output',
     readonly: 'readonly',
   });
+  // Morpheme boundary display (to the right of output)
+  draw('span', $inputWrapper, {
+    className: 'morpheme-output',
+    id: `morphemes-${ruleId}`,
+  });
 
+}
+
+/**
+ * Get the output value from a rule's output field.
+ * @param {string} ruleId - The rule ID
+ * @returns {string} The output value
+ */
+function getOutputValue(ruleId) {
+  const $output = document.getElementById(`output-${ruleId}`);
+  return $output ? $output.value : '';
+}
+
+/**
+ * Render morphemes with clickable boundaries into an output container.
+ * Also updates the output input field with the plain text value.
+ * @param {string} ruleId - The rule ID
+ * @param {string[]} morphemes - Array of morpheme strings
+ * @param {string|null} nextRuleId - ID of the next rule in the chain (for re-running)
+ */
+function renderMorphemeOutput(ruleId, morphemes, nextRuleId) {
+  const $output = document.getElementById(`output-${ruleId}`);
+  const $morphemes = document.getElementById(`morphemes-${ruleId}`);
+
+  // Update the output input field with plain text
+  const outputText = morphemes ? morphemes.join('') : '';
+  if ($output) {
+    $output.value = outputText;
+  }
+
+  // If no morphemes container or single/no morpheme, hide the morpheme display
+  if (!$morphemes) return;
+  $morphemes.innerHTML = '';
+
+  if (!morphemes || morphemes.length <= 1) {
+    // Hide morpheme display for single morpheme (no boundaries to show)
+    $morphemes.style.display = 'none';
+    return;
+  }
+
+  // Show morpheme display
+  $morphemes.style.display = '';
+
+  // Get or initialize boundary state for this rule
+  if (!morphemeBoundaryState[ruleId]) {
+    morphemeBoundaryState[ruleId] = new Set();
+  }
+  const mergedBoundaries = morphemeBoundaryState[ruleId];
+
+  // Render each morpheme with boundaries between them
+  for (let i = 0; i < morphemes.length; i++) {
+    // Add morpheme text
+    const $segment = document.createElement('span');
+    $segment.className = 'morpheme-segment';
+    $segment.textContent = morphemes[i];
+    $morphemes.appendChild($segment);
+
+    // Add boundary button (except after last morpheme)
+    if (i < morphemes.length - 1) {
+      const $boundary = document.createElement('span');
+      $boundary.className = 'morpheme-boundary';
+      const isMerged = mergedBoundaries.has(i);
+      if (isMerged) {
+        $boundary.classList.add('merged');
+        $boundary.textContent = '·';
+        $boundary.title = 'Click to split morphemes';
+      } else {
+        $boundary.textContent = '+';
+        $boundary.title = 'Click to merge morphemes';
+      }
+
+      // Click handler to toggle boundary
+      const boundaryIndex = i;
+      $boundary.addEventListener('click', () => {
+        toggleMorphemeBoundary(ruleId, boundaryIndex, nextRuleId);
+      });
+
+      $morphemes.appendChild($boundary);
+    }
+  }
+}
+
+/**
+ * Save morpheme boundary state to localStorage.
+ * Converts Sets to arrays for JSON serialization.
+ */
+function saveMorphemeBoundaryState() {
+  const toStore = {};
+  for (const [ruleId, indices] of Object.entries(morphemeBoundaryState)) {
+    if (indices.size > 0) {
+      toStore[ruleId] = [...indices];
+    }
+  }
+  localStorage.setItem(storageKey('morpheme-boundaries'), JSON.stringify(toStore));
+}
+
+/**
+ * Toggle a morpheme boundary between split (+) and merged (·).
+ * When toggled, re-run the pipeline from this rule with updated morphemes.
+ * @param {string} ruleId - The rule ID
+ * @param {number} boundaryIndex - Index of the boundary to toggle
+ * @param {string|null} nextRuleId - ID of the next rule in the chain
+ */
+function toggleMorphemeBoundary(ruleId, boundaryIndex, nextRuleId) {
+  // Initialize if needed
+  if (!morphemeBoundaryState[ruleId]) {
+    morphemeBoundaryState[ruleId] = new Set();
+  }
+
+  const mergedBoundaries = morphemeBoundaryState[ruleId];
+
+  // Toggle the boundary
+  if (mergedBoundaries.has(boundaryIndex)) {
+    mergedBoundaries.delete(boundaryIndex);
+  } else {
+    mergedBoundaries.add(boundaryIndex);
+  }
+
+  // Clean up empty sets
+  if (mergedBoundaries.size === 0) {
+    delete morphemeBoundaryState[ruleId];
+  }
+
+  // Persist to localStorage
+  saveMorphemeBoundaryState();
+
+  // Get current morphemes for this rule
+  const currentMorphemes = ruleMorphemes[ruleId];
+  if (!currentMorphemes || currentMorphemes.length <= 1) return;
+
+  // Apply merges to get effective morphemes for next rule
+  const effectiveMorphemes = applyMorphemeMerges(currentMorphemes, mergedBoundaries);
+
+  // Re-render this rule's output with updated boundary states
+  renderMorphemeOutput(ruleId, currentMorphemes, nextRuleId);
+
+  // Run the next rule with merged morphemes
+  if (nextRuleId) {
+    const outputValue = getOutputValue(ruleId);
+    runRule(nextRuleId, outputValue, getNextRule(nextRuleId), effectiveMorphemes);
+  }
+}
+
+/**
+ * Apply merged boundaries to get effective morphemes.
+ * @param {string[]} morphemes - Original morphemes
+ * @param {Set<number>} mergedBoundaries - Set of merged boundary indices
+ * @returns {string[]} - Effective morphemes after merging
+ */
+function applyMorphemeMerges(morphemes, mergedBoundaries) {
+  if (!morphemes || morphemes.length <= 1 || mergedBoundaries.size === 0) {
+    return morphemes;
+  }
+
+  const result = [];
+  let current = morphemes[0];
+
+  for (let i = 1; i < morphemes.length; i++) {
+    if (mergedBoundaries.has(i - 1)) {
+      // Merge with previous
+      current += morphemes[i];
+    } else {
+      // Start new morpheme
+      result.push(current);
+      current = morphemes[i];
+    }
+  }
+  result.push(current);
+
+  return result;
 }
 
 // Get language acronym for logging
@@ -985,9 +1177,14 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     $depCheckbox.checked = isTripped;
   });
 
-  // Update output field
-  const $output = document.getElementById(`output-${ruleId}`);
-  $output.value = output;
+  // Update output field with morpheme-aware rendering
+  // Clear any stale boundary state if morpheme count changed
+  if (morphemeBoundaryState[ruleId] && outputMorphemes) {
+    const maxBoundary = outputMorphemes.length - 2;
+    const staleBoundaries = [...morphemeBoundaryState[ruleId]].filter(i => i > maxBoundary);
+    staleBoundaries.forEach(i => morphemeBoundaryState[ruleId].delete(i));
+  }
+  renderMorphemeOutput(ruleId, outputMorphemes, nextRuleId);
 
   // Track sandhi rule execution for master rule aggregation
   if (rule.isSandhi) {
@@ -1014,9 +1211,15 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     return;
   }
 
+  // Apply any merged boundaries before passing to next rule
+  const mergedBoundaries = morphemeBoundaryState[ruleId];
+  const effectiveMorphemes = mergedBoundaries && mergedBoundaries.size > 0
+    ? applyMorphemeMerges(outputMorphemes, mergedBoundaries)
+    : outputMorphemes;
+
   const $nextInput = document.getElementById(`input-${nextRuleId}`);
   $nextInput.value = output;
-  runRule(nextRuleId, output, getNextRule(nextRuleId), outputMorphemes);
+  runRule(nextRuleId, output, getNextRule(nextRuleId), effectiveMorphemes);
 }
 
 /**
@@ -1033,9 +1236,10 @@ function updateSandhiMasterRule(inputValue, outputValue, inputMorphemes, outputM
   if ($masterInput) {
     $masterInput.value = inputValue || '';
   }
-  if ($masterOutput) {
-    $masterOutput.value = outputValue || '';
-  }
+  // Master rule output uses morpheme rendering too
+  // Get next rule after master for click handling
+  const nextRuleId = getNextRule(masterRuleId);
+  renderMorphemeOutput(masterRuleId, outputMorphemes, nextRuleId);
 
   // Update visual state
   if ($masterRule) {
@@ -1068,8 +1272,18 @@ function updateSandhiMasterRule(inputValue, outputValue, inputMorphemes, outputM
 function resetRule(ruleId) {
   const $input = document.getElementById(`input-${ruleId}`);
   const $output = document.getElementById(`output-${ruleId}`);
+  const $morphemes = document.getElementById(`morphemes-${ruleId}`);
   $input.value = "";
-  $output.value = "";
+  if ($output) {
+    $output.value = "";
+  }
+  if ($morphemes) {
+    $morphemes.innerHTML = '';
+    $morphemes.style.display = 'none';
+  }
+
+  // Clear morpheme boundary state for this rule
+  delete morphemeBoundaryState[ruleId];
 
   // Clear tripped visual state
   const $rule = document.getElementById(`rule-${toBase36(ruleId)}`);
@@ -1086,6 +1300,8 @@ function resetAllRules() {
   allRuleKeys.forEach((k) => {
     resetRule(k);
   });
+  // Persist cleared boundary state
+  saveMorphemeBoundaryState();
 }
 
 function softResetPage() {
@@ -1311,6 +1527,12 @@ $shareUrlButton.addEventListener('click', async () => {
   const riParam = encodeRuleInputs(ruleInputs, allRulesMap);
   if (riParam) {
     url.searchParams.set('ri', riParam);
+  }
+
+  // Add morpheme boundary states if any are merged
+  const mbParam = encodeMorphemeBoundaries(morphemeBoundaryState);
+  if (mbParam) {
+    url.searchParams.set('mb', mbParam);
   }
 
   // Copy to clipboard

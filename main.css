@@ -708,3 +708,43 @@ div + div.smaller-title {
     box-shadow: 0 0 0 0 rgba(255, 200, 0, 0);
   }
 }
+
+/* Morpheme boundary display (to the right of output field) */
+.morpheme-output {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 2px 6px;
+  margin-left: 8px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.morpheme-segment {
+  display: inline;
+}
+
+.morpheme-boundary {
+  cursor: pointer;
+  padding: 0 4px;
+  color: #666;
+  font-weight: bold;
+  user-select: none;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.morpheme-boundary:hover {
+  color: #c00;
+  transform: scale(1.2);
+}
+
+.morpheme-boundary.merged {
+  color: #aaa;
+  font-size: 0.9em;
+}
+
+.morpheme-boundary.merged:hover {
+  color: #080;
+}

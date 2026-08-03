@@ -8,6 +8,8 @@ import {
   parseEnabledParam,
   encodeRuleInputs,
   parseRuleInputs,
+  encodeMorphemeBoundaries,
+  parseMorphemeBoundaries,
 } from "../src/query-string.js";
 import { toBase36, fromBase36 } from "../src/utils.js";
 
@@ -526,6 +528,88 @@ describe('Disabled rules query string', () => {
       const encoded = encodeRuleInputs(ruleInputs, mockRules);
       const parsed = parseRuleInputs(encoded, mockRules);
       expect(parsed).toEqual(ruleInputs);
+    });
+  });
+
+  describe('Morpheme boundaries encoding/decoding', () => {
+    const sampleRuleIds = ['70600889', '171120983', '876455981'];
+
+    it('should encode single rule with one merged boundary', () => {
+      const state = { '876455981': new Set([0]) };
+      const encoded = encodeMorphemeBoundaries(state);
+      expect(encoded).toBe(`${toBase36(876455981)}:0`);
+    });
+
+    it('should encode single rule with multiple merged boundaries', () => {
+      const state = { '876455981': new Set([0, 2, 5]) };
+      const encoded = encodeMorphemeBoundaries(state);
+      expect(encoded).toBe(`${toBase36(876455981)}:0,2,5`);
+    });
+
+    it('should encode multiple rules', () => {
+      const state = {
+        '70600889': new Set([1]),
+        '171120983': new Set([0, 3]),
+      };
+      const encoded = encodeMorphemeBoundaries(state);
+      // Should include both rules separated by semicolon
+      expect(encoded).toContain(`${toBase36(70600889)}:1`);
+      expect(encoded).toContain(`${toBase36(171120983)}:0,3`);
+      expect(encoded.split(';').length).toBe(2);
+    });
+
+    it('should return empty string for empty state', () => {
+      const state = {};
+      const encoded = encodeMorphemeBoundaries(state);
+      expect(encoded).toBe('');
+    });
+
+    it('should return empty string for rules with empty sets', () => {
+      const state = { '876455981': new Set() };
+      const encoded = encodeMorphemeBoundaries(state);
+      expect(encoded).toBe('');
+    });
+
+    it('should parse single rule with one merged boundary', () => {
+      const param = `${toBase36(876455981)}:0`;
+      const parsed = parseMorphemeBoundaries(param, sampleRuleIds);
+      expect(parsed['876455981']).toEqual(new Set([0]));
+    });
+
+    it('should parse single rule with multiple merged boundaries', () => {
+      const param = `${toBase36(876455981)}:0,2,5`;
+      const parsed = parseMorphemeBoundaries(param, sampleRuleIds);
+      expect(parsed['876455981']).toEqual(new Set([0, 2, 5]));
+    });
+
+    it('should parse multiple rules', () => {
+      const param = `${toBase36(70600889)}:1;${toBase36(171120983)}:0,3`;
+      const parsed = parseMorphemeBoundaries(param, sampleRuleIds);
+      expect(parsed['70600889']).toEqual(new Set([1]));
+      expect(parsed['171120983']).toEqual(new Set([0, 3]));
+    });
+
+    it('should ignore unknown rule IDs', () => {
+      const unknownRuleB36 = toBase36(999999999);
+      const param = `${unknownRuleB36}:0`;
+      const parsed = parseMorphemeBoundaries(param, sampleRuleIds);
+      expect(Object.keys(parsed).length).toBe(0);
+    });
+
+    it('should handle null/empty parameter', () => {
+      expect(parseMorphemeBoundaries(null, sampleRuleIds)).toEqual({});
+      expect(parseMorphemeBoundaries('', sampleRuleIds)).toEqual({});
+    });
+
+    it('should round-trip encode/decode', () => {
+      const state = {
+        '70600889': new Set([1, 3]),
+        '876455981': new Set([0]),
+      };
+      const encoded = encodeMorphemeBoundaries(state);
+      const parsed = parseMorphemeBoundaries(encoded, sampleRuleIds);
+      expect(parsed['70600889']).toEqual(new Set([1, 3]));
+      expect(parsed['876455981']).toEqual(new Set([0]));
     });
   });
 });

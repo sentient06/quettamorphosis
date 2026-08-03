@@ -424,7 +424,7 @@ export function isShareMode() {
 /**
  * Remove all share-related parameters from the URL.
  * Called after share mode overrides have been applied.
- * Clears ?s, ?i, ?off, ?on, and ?ri to avoid URL pollution.
+ * Clears ?s, ?i, ?off, ?on, ?ri, and ?mb to avoid URL pollution.
  */
 export function removeShareModeFromUrl() {
   const url = new URL(window.location.href);
@@ -433,6 +433,7 @@ export function removeShareModeFromUrl() {
   url.searchParams.delete('off');
   url.searchParams.delete('on');
   url.searchParams.delete('ri');
+  url.searchParams.delete('mb');
   window.history.replaceState({}, '', url);
 }
 
@@ -550,4 +551,84 @@ export function getRuleInputsFromUrl(allRules) {
   const params = new URLSearchParams(window.location.search);
   const riParam = params.get('ri');
   return parseRuleInputs(riParam, allRules);
+}
+
+// =============================================================================
+// Morpheme Boundaries Query String Support
+// =============================================================================
+
+/**
+ * Encode morpheme boundary states to a URL parameter value.
+ * Only encodes merged boundaries (non-default state).
+ * Format: RULEID_B36:0,2;RULEID2_B36:1
+ *
+ * @param {Object} boundaryState - Map of ruleId -> Set<mergedBoundaryIndex>
+ * @returns {string} Encoded parameter value
+ */
+export function encodeMorphemeBoundaries(boundaryState) {
+  const parts = [];
+
+  for (const [ruleId, mergedIndices] of Object.entries(boundaryState)) {
+    if (mergedIndices.size === 0) continue;
+
+    const ruleB36 = toBase36(parseInt(ruleId, 10));
+    const indices = [...mergedIndices].sort((a, b) => a - b).join(',');
+    parts.push(`${ruleB36}:${indices}`);
+  }
+
+  return parts.join(';');
+}
+
+/**
+ * Parse morpheme boundary states from URL parameter.
+ * @param {string|null} mbParam - The raw ?mb= parameter value
+ * @param {string[]} allRuleIds - Array of all valid rule IDs (decimal strings)
+ * @returns {Object} Map of ruleId -> Set<mergedBoundaryIndex>
+ */
+export function parseMorphemeBoundaries(mbParam, allRuleIds) {
+  const result = {};
+
+  if (!mbParam) return result;
+
+  // Split by semicolon to get per-rule entries
+  const ruleEntries = mbParam.split(';').filter(Boolean);
+
+  for (const entry of ruleEntries) {
+    const colonIndex = entry.indexOf(':');
+    if (colonIndex === -1) continue;
+
+    const ruleB36 = entry.substring(0, colonIndex);
+    const indicesStr = entry.substring(colonIndex + 1);
+
+    // Convert Base-36 rule ID to decimal
+    const ruleId = fromBase36(ruleB36);
+    if (!allRuleIds.includes(ruleId)) continue;
+
+    // Parse indices
+    const indices = new Set();
+    const indexParts = indicesStr.split(',').filter(Boolean);
+    for (const idx of indexParts) {
+      const num = parseInt(idx, 10);
+      if (!isNaN(num) && num >= 0) {
+        indices.add(num);
+      }
+    }
+
+    if (indices.size > 0) {
+      result[ruleId] = indices;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Get morpheme boundary states from URL.
+ * @param {string[]} allRuleIds - Array of all valid rule IDs
+ * @returns {Object} Map of ruleId -> Set<mergedBoundaryIndex>
+ */
+export function getMorphemeBoundariesFromUrl(allRuleIds) {
+  const params = new URLSearchParams(window.location.search);
+  const mbParam = params.get('mb');
+  return parseMorphemeBoundaries(mbParam, allRuleIds);
 }
