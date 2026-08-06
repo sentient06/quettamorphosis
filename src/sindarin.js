@@ -788,36 +788,51 @@ export const sindarinRules = {
     description: 'short final vowels vanished',
     info: ['It is suggested to skip this rule if you need to form derived verbs.'],
     url: 'https://eldamo.org/content/words/word-813787869.html',
+    input: [
+      {
+        name: 'applyToMorphemes',
+        label: 'Perform on each morpheme',
+        type: 'boolean',
+        default: true,
+        description: 'Perform this rule on each morpheme instead of the whole word',
+      },
+    ],
     /**
      * This rule doesn't apply to morpheme boundaries.
      * Only the real final vowel disappears.
-     * 
+     *
      * @param {*} str - The input string
      * @param {*} options - The options object
      * @returns {Object} - The result object
      */
-    mechanic: (str, options = {}) => {
-      const unmarkedStr = str.removeMarks();
-      const lastChar = unmarkedStr.nth(-1);
-      if (['e', 'a', 'o'].includes(lastChar) === false)
-        return { in: str, out: str, morphemes: options.morphemes };
-      
-      const xMark = str.nth(-1).getMark();
-      if (['¯', '´', '^'].includes(xMark)) {
-        return { in: str, out: str, morphemes: options.morphemes };
-      }
+    mechanic: (str, options = { applyToMorphemes: true }) => {
+      // Default applyToMorphemes to false (only apply to word-final position)
+      // const applyToMorphemes = options.applyToMorphemes === true;
 
-      const secondLastChar = unmarkedStr.nth(-2);
-      if (secondLastChar.isVowel()) {
-        if (secondLastChar !== 'i' && lastChar !== 'u') {
-          return { in: str, out: str, morphemes: options.morphemes };
+      const applyRule = (_str) => {
+        const unmarkedStr = _str.removeMarks();
+        const lastChar = unmarkedStr.nth(-1);
+        if (['e', 'a', 'o'].includes(lastChar)) {
+          const xMark = _str.nth(-1).getMark();
+          if (['¯', '´', '^'].includes(xMark) === false) {
+            return _str.slice(0, -1);
+          }
         }
+        return _str;
+      };
+
+      if (options.applyToMorphemes && options.morphemes?.length > 1) {
+        // Apply rule to each morpheme's final vowel (treating each as word-final)
+        const newMorphemes = options.morphemes.map(applyRule);
+        const result = newMorphemes.join('');
+        return { in: str, out: result, morphemes: newMorphemes };
       }
 
-      const morphemes = options.morphemes
-        ? recalcMorphemes(str, options.morphemes, [str.length - 1])
+      const result = applyRule(str);
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [str.length - 1])
         : (options.morphemes || [str]);
-      return { in: str, out: str.slice(0, -1), morphemes };
+      return { in: str, out: result, morphemes };
     },
   },
   '2399289739': {

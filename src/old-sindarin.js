@@ -522,17 +522,18 @@ export const oldSindarinRules = {
       };
 
       let result = str;
+      let newMorphemes = morphemes;
 
       if (options.applyToMorphemes) {
-        const newMorphemes = morphemes.map(applyRule);
+        newMorphemes = morphemes.map(applyRule);
         result = newMorphemes.join('');
       } else {
         result = applyRule(str);
+        newMorphemes = (result !== str && morphemes)
+          ? recalcMorphemes(result, morphemes, [str.length - 1], [str.length - 1])
+          : (morphemes || [str]);
       }
-
-      const newMorphemes = (result !== str && morphemes)
-        ? recalcMorphemes(result, morphemes, [str.length - 1], [str.length - 1])
-        : (morphemes || [str]);
+      
       return { in: str, out: result, morphemes: newMorphemes };
     },
   },
