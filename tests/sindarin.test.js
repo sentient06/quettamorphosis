@@ -433,6 +433,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['813787869'].mechanic('-weɣo').out).toBe('-weɣ');
     expect(sindarinRules['813787869'].mechanic('ekau').out).toBe('ekau');
     expect(sindarinRules['813787869'].mechanic('tīwi').out).toBe('tīwi');
+    expect(sindarinRules['813787869'].mechanic('roxxombar', { morphemes: ['roxxo', 'mbar'], applyToMorphemes: true }).out).toBe('roxxmbar');
 
     // The penultimate letter must be a consonant:
     // expect(sindarinRules['813787869'].mechanic('tœkia').out).toBe('tœkia');

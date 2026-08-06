@@ -82,7 +82,6 @@ describe('Word Evolution', () => {
       const result = evolveWord('kjele+kormo', {
         ruleOptions: {
           'S 06500': { northSindarin: true },
-          'S 02400': { applyToMorphemes: false },
         },
       });
       // With North Sindarin, the m should be preserved

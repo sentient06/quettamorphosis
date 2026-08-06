@@ -793,7 +793,7 @@ export const sindarinRules = {
         name: 'applyToMorphemes',
         label: 'Perform on each morpheme',
         type: 'boolean',
-        default: true,
+        default: false,
         description: 'Perform this rule on each morpheme instead of the whole word',
       },
     ],
@@ -805,7 +805,7 @@ export const sindarinRules = {
      * @param {*} options - The options object
      * @returns {Object} - The result object
      */
-    mechanic: (str, options = { applyToMorphemes: true }) => {
+    mechanic: (str, options = { applyToMorphemes: false }) => {
       // Default applyToMorphemes to false (only apply to word-final position)
       // const applyToMorphemes = options.applyToMorphemes === true;
 
