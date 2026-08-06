@@ -292,6 +292,11 @@ describe('Old Sindarin rules', () => {
     expect(compoundB.out).toEqual('marðma');
     expect(compoundB.morphemes).toEqual([]);
     // This last is a primitive word for Q. marma "sand" < mṛðmā
+
+    // Apply rule to morphemes:
+    const compoundC = oldSindarinRules['2753394075'].mechanic('rokkōmbar', { morphemes: ['rokkō', 'mbar'], applyToMorphemes: true });
+    expect(compoundC.out).toEqual('rokkombar');
+    expect(compoundC.morphemes).toEqual(['rokko', 'mbar']);
   });
 
   it('01700 - [z] vanished before [d] lengthening preceding vowel', () => {

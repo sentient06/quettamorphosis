@@ -499,18 +499,41 @@ export const oldSindarinRules = {
     pattern: '[-SV̄] > [-SV̆]',
     description: 'long final vowels were shortened',
     url: 'https://eldamo.org/content/words/word-2753394075.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'applyToMorphemes',
+        label: 'Perform on each morpheme',
+        type: 'boolean',
+        default: true,
+        description: 'Perform this rule on each morpheme instead of the whole word',
+      },
+    ],
+    mechanic: (str, options = { applyToMorphemes: true }) => {
       const morphemes = options.morphemes || [str];
-      const lastChar = str.nth(-1);
-      const mark = lastChar.getMark();
-      if (['¯', '´', '^'].includes(mark)) {
-        const result = str.substring(0, str.length - 1) + lastChar.removeMarks();
-        const newMorphemes = (result !== str && morphemes)
-          ? recalcMorphemes(result, morphemes, [str.length - 1], [str.length - 1])
-          : (morphemes || [str]);
-        return { in: str, out: result, morphemes: newMorphemes };
+
+      const applyRule = (_str) => {
+        const lastChar = _str.nth(-1);
+        const mark = lastChar.getMark();
+        if (['¯', '´', '^'].includes(mark)) {
+          const result = _str.substring(0, _str.length - 1) + lastChar.removeMarks();
+          return result;
+        }
+        return _str;
+      };
+
+      let result = str;
+
+      if (options.applyToMorphemes) {
+        const newMorphemes = morphemes.map(applyRule);
+        result = newMorphemes.join('');
+      } else {
+        result = applyRule(str);
       }
-      return { in: str, out: str, morphemes: options.morphemes };
+
+      const newMorphemes = (result !== str && morphemes)
+        ? recalcMorphemes(result, morphemes, [str.length - 1], [str.length - 1])
+        : (morphemes || [str]);
+      return { in: str, out: result, morphemes: newMorphemes };
     },
   },
   '1249932447': {
@@ -868,6 +891,8 @@ export const oldSindarinRules = {
     orderId: '02700',
     pattern: '[ei|ou] > [ī|ū]',
     description: 'Diphthongs [ei], [ou] became [ī], [ū]',
+    // We may need to add logic to prevent this rule from tripping "before other vowels":
+    // https://discord.com/channels/397489292185960468/1523951516434698315/1533782597258186875
     url: 'https://eldamo.org/content/words/word-1942848653.html',
     mechanic: (str, options = {}) => {
       const occurrences = findAllOf(['ei', 'ou'], str);
