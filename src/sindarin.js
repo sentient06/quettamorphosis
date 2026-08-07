@@ -26,13 +26,13 @@ export const sindarinRules = {
       if (morphemes.length > 1) {
         const updatedMorphemes = morphemes.map((m) => {
           if (m.nth(0) === 'w') {
-            return 'gw' + m.substring(1);
+            return 'ƣ' + m.substring(1);
           }
           return m;
         });
         return { in: str, out: updatedMorphemes.join(''), morphemes: updatedMorphemes };
       }
-      return { in: str, out: `g${str}`, morphemes: [`g${str}`] };
+      return { in: str, out: `ƣ${str.substring(1)}`, morphemes: [`ƣ${str.substring(1)}`] };
     },
   },
   '3057844573': {

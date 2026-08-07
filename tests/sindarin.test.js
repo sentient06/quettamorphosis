@@ -4,15 +4,15 @@ import { sindarinRules } from "../src/sindarin.js";
 describe('Sindarin rules', () => {
   it('00100 - initial [w] became [gw]', () => {
     expect(sindarinRules['2002760597'].mechanic('abc').out).toBe('abc');
-    expect(sindarinRules['2002760597'].mechanic('wagme').out).toBe('gwagme');
-    expect(sindarinRules['2002760597'].mechanic('waiwe').out).toBe('gwaiwe');
-    expect(sindarinRules['2002760597'].mechanic('wanwa').out).toBe('gwanwa');
+    expect(sindarinRules['2002760597'].mechanic('wagme').out).toBe('ƣagme');
+    expect(sindarinRules['2002760597'].mechanic('waiwe').out).toBe('ƣaiwe');
+    expect(sindarinRules['2002760597'].mechanic('wanwa').out).toBe('ƣanwa');
 
     // Morphemes:
     // Dangweth
     const compound = sindarinRules['2002760597'].mechanic('ndanwetha', { morphemes: ['ndan', 'wetha'] });
-    expect(compound.out).toEqual('ndangwetha');
-    expect(compound.morphemes).toEqual(['ndan', 'gwetha']);
+    expect(compound.out).toEqual('ndanƣetha');
+    expect(compound.morphemes).toEqual(['ndan', 'ƣetha']);
   });
 
   it('00200 - initial nasals vanished before stops', () => {
