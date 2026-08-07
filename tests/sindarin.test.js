@@ -1277,6 +1277,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['868023175'].mechanic('lond').out).toBe('lond');
     expect(sindarinRules['868023175'].mechanic('rond').out).toBe('rond');
     // Ask about the case of elmbereth!
+    expect(sindarinRules['868023175'].mechanic('andond').out).toBe('annonn');
 
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = sindarinRules['868023175'].mechanic('abaambara', { morphemes: ['aba', 'am', 'bara'] });

@@ -2456,33 +2456,33 @@ export const sindarinRules = {
     description: '[mb], [nd] became [mm], [nn]',
     url: 'https://eldamo.org/content/words/word-868023175.html',
     mechanic: (str, options = {}) => {
-      // Handles only a single replacement per word.
-      // May need reviewing.
-
-      const { found, matched, charIndex, nextChar } = findFirstOf(['mb', 'nd'], str);
-      if (!found) return { in: str, out: str, morphemes: options.morphemes || [str] };
+      const occurrences = findAllOf(['mb', 'nd'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes || [str] };
 
       const analyser = new SyllableAnalyser();
       const syllableData = analyser.analyse(str);
-
-      if (matched === 'nd') {
-        // Monosyllable:
-        if (syllableData.length === 1) {
-          const { weight } = syllableData[0];
-          if (weight === 'heavy') {
-            return { in: str, out: str, morphemes: options.morphemes || [str] };
-          }
-          if (charIndex === str.length - 2) return { in: str, out: str, morphemes: options.morphemes || [str] };
-        }
-
-        // Multiple syllables:
-        if (nextChar === 'r') return { in: str, out: str, morphemes: options.morphemes || [str] };
-      }
+      const monosyllable = syllableData.length === 1;
+      
       const replacements = {
         'mb': 'mm',
         'nd': 'nn',
       }
-      const result = str.replace(matched, replacements[matched]);
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, nextChar } = occurrences[i];
+        if (matched === 'nd') {
+          // Monosyllable:
+          if (monosyllable) {
+            if (syllableData[0].weight === 'heavy') continue;
+            if (charIndex === str.length - 2) continue;
+          }
+          // Multiple syllables:
+          if (nextChar === 'r') continue;
+        }
+        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+      }
+
       const morphemes = (result !== str && options.morphemes)
         ? recalcMorphemes(result, options.morphemes, [])
         : (options.morphemes || [str]);
