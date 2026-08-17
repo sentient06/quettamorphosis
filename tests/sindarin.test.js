@@ -1515,6 +1515,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['2476983755'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['2476983755'].mechanic('l̥ou').out).toBe('l̥aw');
     expect(sindarinRules['2476983755'].mechanic('lou').out).toBe('law');
+    expect(sindarinRules['2476983755'].mechanic('now').out).toBe('naw');
     expect(sindarinRules['2476983755'].mechanic('orou', { useFinalU: true }).out).toBe('orau');
 
     // Morphemes: (non-existent compound for morpheme testing)

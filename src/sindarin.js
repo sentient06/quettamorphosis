@@ -2842,8 +2842,8 @@ export const sindarinRules = {
       },
     ],
     mechanic: (str, { useFinalU = false, morphemes } = {}) => {
-      if (str.includes('ou')) {
-        let result = str.replace('ou', 'au');
+      if (str.includes('ou') || str.includes('ow')) {
+        let result = str.replaceAll('ou', 'au').replaceAll('ow', 'au');
         if (useFinalU === false) {
           if (result.nth(-2, 2) === 'au') {
             result = result.substring(0, result.length - 2) + 'aw';
