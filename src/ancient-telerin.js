@@ -94,7 +94,10 @@ export const ancientTelerinRules = {
         const finalResult = joinedResult
           .replace(/[\u0301]/g, '\u0304')  // acute → macron
           .normaliseToOne();
-        return { in: str, out: finalResult, morphemes };
+        const updatedMorphemes = (finalResult !== str && morphemes)
+          ? recalcMorphemes(finalResult, morphemes, removedIndices)
+          : (morphemes || [str]);
+        return { in: str, out: finalResult, morphemes: updatedMorphemes };
       }
 
       const updatedMorphemes = (joinedResult !== str && morphemes)

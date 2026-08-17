@@ -35,6 +35,10 @@ describe('Ancient Telerin rules', () => {
     const compound = ancientTelerinRules['3648128347'].mechanic('kiríſiaikrimbē', { morphemes: ['kiríſi', 'aik', 'rimbē'] });
     expect(compound.out).toEqual('kriſiaikrimbē');
     expect(compound.morphemes).toEqual(['kriſi', 'aik', 'rimbē']);
+
+    const compoundB = ancientTelerinRules['3648128347'].mechanic('kiríst', { morphemes: ['kiríst'] });
+    expect(compoundB.out).toEqual('krist');
+    expect(compoundB.morphemes).toEqual(['krist']);
   });
 
   it('00200 - labialized velars became labials', () => {
