@@ -2017,9 +2017,19 @@ export const sindarinRules = {
     pattern: '[-{mf|nθ|ŋx|lθ}-] > [-{mm|nn|ŋg|l̥l̥}-]',
     description: 'medial [mf], [nθ], [ŋx], [lθ] became [mm], [nn], [ŋg], [ll]',
     url: 'https://eldamo.org/content/words/word-2996915415.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'preventLongNasals',
+        label: 'Prevent long nasals',
+        type: 'boolean',
+        default: false,
+        description: 'Prevent long nasals (e.g., nθŋ → nŋ, not nnŋ)',
+      },
+    ],
+    mechanic: (str, { preventLongNasals = false, morphemes } = {}) => {
+      console.log(str, preventLongNasals);
       const occurrences = findAllOf(['mf', 'nθ', 'ŋx', 'lθ'], str);
-      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes || [str] };
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: morphemes || [str] };
 
       const replacements = {
         'mf': 'mm',
@@ -2027,22 +2037,33 @@ export const sindarinRules = {
         'ŋx': 'ŋg',
         'lθ': 'll',
       };
+      const nasals = ['m', 'n', 'ŋ'];
       let result = str;
+      const removedIndices = [];
+      const addedIndices = [];
       // We need to find out whether the first char of the match is in a different morpheme in relation to the second char.
       // Here we get the index of the start of each morpheme, by adding the length of the previous morphemes:
-      const morphemeBoundaries = options.morphemes?.reduce((a, c) => [...a, a.reduce((_a, _c) => _a + _c, 0) + c.length], [0]) || [0];
+      const morphemeBoundaries = morphemes?.reduce((a, c) => [...a, a.reduce((_a, _c) => _a + _c, 0) + c.length], [0]) || [0];
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, matched } = occurrences[i];
+        const { charIndex, matched, nextChar } = occurrences[i];
         // If the first char of the match is 1 short of a morpheme boundary, skip it, because it's at the boundary precisely:
         if (morphemeBoundaries.includes(charIndex + 1)) {
           continue;
         }
-        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+
+        if (preventLongNasals && nasals.includes(nextChar)) {
+          // When followed by a nasal, use single replacement to avoid triple nasals (e.g., nθŋ → nŋ, not nnŋ)
+          const singleReplacement = replacements[matched].charAt(0);
+          result = result.substring(0, charIndex) + singleReplacement + result.substring(charIndex + 2);
+          removedIndices.unshift(charIndex + 1);
+        } else {
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
+        }
       }
-      const morphemes = (result !== str && options.morphemes)
-        ? recalcMorphemes(result, options.morphemes, [])
-        : (options.morphemes || [str]);
-      return { in: str, out: result, morphemes };
+      const newMorphemes = (result !== str && morphemes)
+        ? recalcMorphemes(result, morphemes, removedIndices)
+        : (morphemes || [str]);
+      return { in: str, out: result, morphemes: newMorphemes };
     }
   },
   '725943271': {

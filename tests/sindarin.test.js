@@ -1081,10 +1081,15 @@ describe('Sindarin rules', () => {
     // Resistance at morpheme boundaries:
     expect(sindarinRules['2996915415'].mechanic('golθa', { morphemes: ['gol', 'θa'] }).out).toBe('golθa');
 
+    // Prevent long nasals:
+    const compoundA = sindarinRules['2996915415'].mechanic('anθŋgor', { morphemes: ['anθ', 'ŋgor'], preventLongNasals: true });
+    expect(compoundA.out).toEqual('anŋgor');
+    expect(compoundA.morphemes).toEqual(['an', 'ŋgor']);
+
     // Morphemes: (non-existent compound for morpheme testing)
-    const compound = sindarinRules['2996915415'].mechanic('abamanθen', { morphemes: ['aba', 'manθen'] });
-    expect(compound.out).toEqual('abamannen');
-    expect(compound.morphemes).toEqual(['aba', 'mannen']);
+    const compoundB = sindarinRules['2996915415'].mechanic('abamanθen', { morphemes: ['aba', 'manθen'] });
+    expect(compoundB.out).toEqual('abamannen');
+    expect(compoundB.morphemes).toEqual(['aba', 'mannen']);
   });
 
   it('05000 - voiceless nasals were voiced', () => {
