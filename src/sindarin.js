@@ -199,6 +199,7 @@ export const sindarinRules = {
     orderId: '00800',
     pattern: '[-{ĭŭ}{C|CC}a] > [-{eo}{C|CC}a]',
     description: 'short [i], [u] became [e], [o] preceding final [a]',
+    info: ['This rule might not apply to verb stems terminating in [a] because that\'s not considered final.'],
     url: 'https://eldamo.org/content/words/word-1593810649.html',
     mechanic: (str, options = {}) => {
       const analyser = new SyllableAnalyser();
