@@ -748,3 +748,11 @@ div + div.smaller-title {
 .morpheme-boundary.merged:hover {
   color: #080;
 }
+
+/* Indicator when rule has removed morpheme boundaries */
+.morpheme-boundary-removed {
+  color: #999;
+  font-size: 0.85em;
+  font-style: italic;
+  margin-right: 4px;
+}

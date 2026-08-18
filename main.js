@@ -102,6 +102,8 @@ const storageKey = (key) => `${storagePrefix}${key}`;
 
 // Track morphemes for each rule (needed when toggling rules mid-chain)
 const ruleMorphemes = {};
+// Track input morphemes for each rule (to detect rule-removed boundaries)
+const ruleInputMorphemes = {};
 // Track morpheme boundary states: ruleId -> Set<mergedBoundaryIndex>
 // Merged boundaries mean adjacent morphemes are combined when passed to next rule
 // Load from localStorage (stored as arrays, convert to Sets)
@@ -369,6 +371,7 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
     const options = getOptions(ruleId, rule);
 
     // Pass morphemes to rule via options (if available)
+    const inputMorphemes = currentMorphemes; // Save for visual comparison
     if (currentMorphemes) {
       options.morphemes = currentMorphemes;
     }
@@ -409,7 +412,7 @@ function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = n
       const staleBoundaries = [...morphemeBoundaryState[ruleId]].filter(i => i > maxBoundary);
       staleBoundaries.forEach(i => morphemeBoundaryState[ruleId].delete(i));
     }
-    renderMorphemeOutput(ruleId, currentMorphemes, nextRuleInChain);
+    renderMorphemeOutput(ruleId, currentMorphemes, nextRuleInChain, inputMorphemes);
 
     // Track sandhi rule execution for master rule aggregation
     if (rule.isSandhi) {
@@ -902,11 +905,13 @@ function getOutputValue(ruleId) {
 /**
  * Render morphemes with clickable boundaries into an output container.
  * Also updates the output input field with the plain text value.
+ * Shows visual cues when morpheme boundaries were removed by the rule transformation.
  * @param {string} ruleId - The rule ID
- * @param {string[]} morphemes - Array of morpheme strings
+ * @param {string[]} morphemes - Array of morpheme strings (output morphemes)
  * @param {string|null} nextRuleId - ID of the next rule in the chain (for re-running)
+ * @param {string[]|null} inputMorphemes - Array of input morphemes (to detect rule-removed boundaries)
  */
-function renderMorphemeOutput(ruleId, morphemes, nextRuleId) {
+function renderMorphemeOutput(ruleId, morphemes, nextRuleId, inputMorphemes = null) {
   const $output = document.getElementById(`output-${ruleId}`);
   const $morphemes = document.getElementById(`morphemes-${ruleId}`);
 
@@ -920,9 +925,24 @@ function renderMorphemeOutput(ruleId, morphemes, nextRuleId) {
   if (!$morphemes) return;
   $morphemes.innerHTML = '';
 
+  // Check if the rule reduced the number of morphemes (removed boundaries)
+  const inputCount = inputMorphemes ? inputMorphemes.length : 0;
+  const outputCount = morphemes ? morphemes.length : 0;
+  const boundariesRemoved = inputCount > outputCount;
+
   if (!morphemes || morphemes.length <= 1) {
-    // Hide morpheme display for single morpheme (no boundaries to show)
-    $morphemes.style.display = 'none';
+    // If boundaries were removed by the rule, show a visual indicator
+    if (boundariesRemoved && inputCount > 1) {
+      $morphemes.style.display = '';
+      const $indicator = document.createElement('span');
+      $indicator.className = 'morpheme-boundary-removed';
+      $indicator.textContent = `(${inputCount - 1} boundary${inputCount > 2 ? 'ies' : ''} merged by rule)`;
+      $indicator.title = `Input had ${inputCount} morphemes, output has ${outputCount}`;
+      $morphemes.appendChild($indicator);
+    } else {
+      // Hide morpheme display for single morpheme (no boundaries to show)
+      $morphemes.style.display = 'none';
+    }
     return;
   }
 
@@ -934,6 +954,16 @@ function renderMorphemeOutput(ruleId, morphemes, nextRuleId) {
     morphemeBoundaryState[ruleId] = new Set();
   }
   const mergedBoundaries = morphemeBoundaryState[ruleId];
+
+  // Show indicator if some (but not all) boundaries were removed
+  if (boundariesRemoved) {
+    const removedCount = inputCount - outputCount;
+    const $indicator = document.createElement('span');
+    $indicator.className = 'morpheme-boundary-removed';
+    $indicator.textContent = `(-${removedCount})`;
+    $indicator.title = `${removedCount} boundary${removedCount > 1 ? 'ies' : ''} merged by rule`;
+    $morphemes.appendChild($indicator);
+  }
 
   // Render each morpheme with boundaries between them
   for (let i = 0; i < morphemes.length; i++) {
@@ -1146,7 +1176,8 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   // Get morphemes from result, or keep existing morphemes if not returned
   const outputMorphemes = result.morphemes || morphemes;
 
-  // Store morphemes for this rule (needed when toggling rules mid-chain)
+  // Store input and output morphemes for this rule
+  ruleInputMorphemes[ruleId] = morphemes;
   ruleMorphemes[ruleId] = outputMorphemes;
 
   console.log('Rule', getLanguageAcronym(ruleId), rule.orderId, String(ruleId).padStart(10, ' '), 'in:', result.in.padStart(10, '.'), 'out:', output.padStart(10, '.'), 'next:', String(nextRuleId).padStart(10, ' '), 'enabled:', isRuleEffectivelyEnabled(ruleId), 'morphemes:', outputMorphemes);
@@ -1184,7 +1215,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     const staleBoundaries = [...morphemeBoundaryState[ruleId]].filter(i => i > maxBoundary);
     staleBoundaries.forEach(i => morphemeBoundaryState[ruleId].delete(i));
   }
-  renderMorphemeOutput(ruleId, outputMorphemes, nextRuleId);
+  renderMorphemeOutput(ruleId, outputMorphemes, nextRuleId, morphemes);
 
   // Track sandhi rule execution for master rule aggregation
   if (rule.isSandhi) {
@@ -1239,7 +1270,7 @@ function updateSandhiMasterRule(inputValue, outputValue, inputMorphemes, outputM
   // Master rule output uses morpheme rendering too
   // Get next rule after master for click handling
   const nextRuleId = getNextRule(masterRuleId);
-  renderMorphemeOutput(masterRuleId, outputMorphemes, nextRuleId);
+  renderMorphemeOutput(masterRuleId, outputMorphemes, nextRuleId, inputMorphemes);
 
   // Update visual state
   if ($masterRule) {
@@ -1403,6 +1434,13 @@ $originalInput.addEventListener('input', (e) => {
 
   localStorage.setItem(storageKey('original-input'), inputValue);
   updateUrlWithInput(inputValue);
+
+  // Clear all morpheme boundary states when input changes
+  // User's manual merges are no longer relevant to the new input
+  for (const ruleId of Object.keys(morphemeBoundaryState)) {
+    delete morphemeBoundaryState[ruleId];
+  }
+  saveMorphemeBoundaryState();
 
   if (inputValue === '') {
     softResetPage();
