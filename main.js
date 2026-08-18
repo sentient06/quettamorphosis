@@ -669,12 +669,14 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
   const isEffectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
   const hasOptions = rule.hasOwnProperty('input');
   const isSandhi = rule.isSandhi === true;
+  const isExperimental = rule.experimental === true;
   // Start collapsed if enabled (will expand when tripped), but keep conversion rules expanded
   const startCollapsed = isEffectivelyEnabled && !isConversion;
   let ruleClass = isEffectivelyEnabled ? 'rule rule-enabled' : 'rule';
   if (startCollapsed) ruleClass += ' rule-collapsed';
   if (hasOptions) ruleClass += ' rule-has-options';
   if (isSandhi) ruleClass += ' rule-sandhi';
+  if (isExperimental) ruleClass += ' rule-experimental';
   const $rule = draw('div', $parentContainer, { class: ruleClass, id: `rule-${toBase36(ruleId)}` });
 
   // Header row: expand arrow + checkbox + order-id + pattern + description (inline when collapsed)

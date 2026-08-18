@@ -164,6 +164,8 @@ describe('Primitive Elvish rules', () => {
     // [ht] > [xt]:
     // Only Sindarin example:
     expect(primitiveElvishRules['2690267141'].mechanic('jujuɣal').out).toBe('jujual'); // uial
+
+    expect(primitiveElvishRules['2690267141'].mechanic('kahtā').out).toBe('kaxtā');
     
     // Morphemes:
     const compoundA = primitiveElvishRules['2690267141'].mechanic('jujuɣal', { morphemes: ['juju', 'ɣal'] });

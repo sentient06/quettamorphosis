@@ -359,13 +359,17 @@ export const primitiveElvishRules = {
 
       // Process from end to start so indices remain valid
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, prevChar, nextChar } = occurrences[i];
+        const { charIndex, prevChar, nextChar, lastChar } = occurrences[i];
 
         // Exception: before [t] - keep the h/ɣ
-        if (nextChar === 't') continue;
+        // if (nextChar === 't') continue;
+        if (nextChar === 't') {
+          result = result.substring(0, charIndex) + 'x' + result.substring(charIndex + 1);
+          continue;
+        }
 
         // Final h/ɣ - just remove it
-        if (charIndex === result.length - 1) {
+        if (lastChar) {
           result = result.slice(0, -1);
           removedIndices.push(charIndex);
           continue;

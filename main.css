@@ -316,6 +316,16 @@ div + div.smaller-title {
   font-size: 0.95em;
 }
 
+/* Experimental rules - dashed border to indicate uncertainty */
+.rule.rule-experimental {
+  border-style: dashed;
+  border-color: #a0522d;
+}
+
+.rule.rule-experimental.rule-enabled {
+  border-color: #cd853f;
+}
+
 .rule .rule-header {
   display: flex;
   align-items: center;
