@@ -77,6 +77,9 @@ describe('Ancient Telerin rules', () => {
     expect(compoundA.out).toEqual('ṃbarja');
     expect(compoundA.morphemes).toEqual(['ṃbar', 'ja']);
 
+    const compoundB = ancientTelerinRules['171120983'].mechanic('ndaŋkwet', { morphemes: ['ndaŋ', 'kwet'] }); // Non-existent word
+    expect(compoundB.out).toEqual('ndampet');
+    expect(compoundB.morphemes).toEqual(['ndam', 'pet']);
   });
 
   it('00300 - [j] was lost after initial dentals', () => {

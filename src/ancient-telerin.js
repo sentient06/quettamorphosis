@@ -143,13 +143,33 @@ export const ancientTelerinRules = {
         return true;
       });
 
+      // Calculate morpheme boundaries to handle cross-boundary replacements correctly
+      const morphemeBoundaries = options.morphemes?.reduce(
+        (a, c) => [...a, a[a.length - 1] + c.length], [0]
+      ) || [0, str.length];
+
       for (let i = filteredOccurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched } = filteredOccurrences[i];
         if (matched === 'ŋw' && charIndex > 0) continue;
 
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + matched.length);
         if (matched.length > replacements[matched].length) {
-          removedIndices.push(charIndex);
+          // When a character is removed, track which index was removed.
+          // If the match spans a morpheme boundary, the removed char should be
+          // attributed to the second part (after the boundary), not the first.
+          const charsRemoved = matched.length - replacements[matched].length;
+          for (let r = 0; r < charsRemoved; r++) {
+            // Find if this match spans a morpheme boundary
+            const matchEnd = charIndex + matched.length;
+            const boundaryInMatch = morphemeBoundaries.find(b => b > charIndex && b < matchEnd);
+            if (boundaryInMatch !== undefined) {
+              // Match spans boundary - removed char is after the boundary
+              removedIndices.push(boundaryInMatch + r);
+            } else {
+              // Match is within one morpheme - use default position
+              removedIndices.push(charIndex + r);
+            }
+          }
         }
 
         // No idea how the ṃ happens, but I'm assuming it occurs when it's followed by a consonant.
