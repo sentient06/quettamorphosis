@@ -608,6 +608,11 @@ describe('Sandhi rules (05800)', () => {
       .toMatchObject({ out: 'tulūɱ' });
   });
 
+  it('Rule 165: x before f disappeared', () => {
+    expect(sindarinRules[getSandhiRuleId(165)].mechanic('anaxfed'))
+      .toMatchObject({ out: 'anafed' });
+  });
+
   it('Rule 170: Final conversion of sandhi-specific phonetic symbols', () => {
     // ɱ → m (labiodental nasal → bilabial nasal)
     expect(sindarinRules[getSandhiRuleId(170)].mechanic('tulūɱ', { morphemes: ['tulūɱ'] }))

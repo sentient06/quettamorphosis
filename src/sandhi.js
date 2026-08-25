@@ -2076,6 +2076,30 @@ export const sandhiRules = {
       return { in: str, out: result, morphemes: updatedMorphemes };
     },
   },
+  // Experimental rules:
+  [getSandhiRuleId(165)]: {
+    orderId: getOrderId(165),
+    pattern: '[xf] > [f]',
+    description: 'Welsh historically managed the potential encounter of [x] (the voiceless velar fricative, spelled ch) and [f] (the voiceless labiodental fricative, spelled ff or ph) by completely avoiding their adjacent phonetic co-occurrence within words. When morphological compounds or syntactic junctions would otherwise bring [x] and [f] into direct contact, Welsh resolves the clash by eliding (dropping) the velar fricative [x] entirely, ensuring that only the labiodental fricative [f] is pronounced.',
+    info: ['This rule is purely experimental and has no equivalent in any literature that deals with Tolkien languages.'],
+    experimental: true,
+    isSandhi: true,
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['xf'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + result.substring(charIndex + 1);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };  
+    }
+  },
 
   // ---------------------------------------------------------------------------
   // Rule 165: Final conversion of sandhi-specific phonetic symbols
