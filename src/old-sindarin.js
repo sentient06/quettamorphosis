@@ -742,6 +742,12 @@ export const oldSindarinRules = {
         'tꝁ': 'xx',
         'kŧ': 'xθ',
         'kꝁ': 'xx',
+        // Not documented:
+        'tƥ': 'θɸ',
+        'kƥ': 'xɸ',
+        'pꝁ': 'ɸx',
+        // 'tꝁ': 'θx',
+        'kꝁ': 'xx'
       };
       const singleReplacements = {
         'ƥ': 'ɸ',

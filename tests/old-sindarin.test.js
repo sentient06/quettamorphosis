@@ -447,6 +447,10 @@ describe('Old Sindarin rules', () => {
     // [kkʰ] > [xx]:
     expect(oldSindarinRules['883570327'].mechanic('rokꝁo').out).toBe('roxxo');
 
+    // Not documented:
+    // [kpʰ] > [xɸ]:
+    expect(oldSindarinRules['883570327'].mechanic('anakƥe').out).toBe('anaxɸe');
+
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = oldSindarinRules['883570327'].mechanic('abaƥelga', { morphemes: ['aba', 'ƥel', 'ga'] });
     expect(compound.out).toEqual('abaɸelga');
