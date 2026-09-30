@@ -607,6 +607,7 @@ export const oldSindarinRules = {
         'j': 'j̊',
         'w': 'ƕ',
         'l': 'ꝉ',
+        'l': 'λ',
         'r': 'ꞧ',
         'm': 'm',
         'n': 'n',

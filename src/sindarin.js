@@ -1017,7 +1017,7 @@ export const sindarinRules = {
      * [C*yC] > [C*ȳC]
      */
     // Exception sets (defined once, not per call)
-    vowelEndingExceptions: new Set(['hwa', 'ia', 'te', 'θle', 'di', 'ꝉi', 'gli', 'gwi', 'ꞧi', 'ri', 'ti', 'lo', 'no']),
+    vowelEndingExceptions: new Set(['hwa', 'ia', 'te', 'θle', 'di', 'λi', 'gli', 'gwi', 'ꞧi', 'ri', 'ti', 'lo', 'no']),
     unvoicedExceptions: new Set(['hiθ', 'niθ', 'iaθ']),
     voicedExceptions: new Set([
       'bar', 'cef', 'cor', 'del', 'dol', 'el', 'er', 'far', 'fen', 'for', 'gil', 'glad', 'glan', 'gor',

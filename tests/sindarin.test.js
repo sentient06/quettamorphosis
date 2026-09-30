@@ -596,7 +596,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1053424933'].mechanic('te').out).toBe('tē');
     expect(sindarinRules['1053424933'].mechanic('θle').out).toBe('θlē');
     expect(sindarinRules['1053424933'].mechanic('di').out).toBe('dī');
-    expect(sindarinRules['1053424933'].mechanic('ꝉi').out).toBe('ꝉī');
+    expect(sindarinRules['1053424933'].mechanic('λi').out).toBe('λī');
     expect(sindarinRules['1053424933'].mechanic('gli').out).toBe('glī');
     expect(sindarinRules['1053424933'].mechanic('gwi').out).toBe('gwī');
     expect(sindarinRules['1053424933'].mechanic('ꞧi').out).toBe('ꞧī');
@@ -710,7 +710,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['875184187'].mechanic('ahamar').out).toBe('āmar');
     expect(sindarinRules['875184187'].mechanic('ahaum').out).toBe('aum');
     expect(sindarinRules['875184187'].mechanic('goroθūh').out).toBe('goroθū');
-    expect(sindarinRules['875184187'].mechanic('ꝉahu').out).toBe('ꝉau');
+    expect(sindarinRules['875184187'].mechanic('λahu').out).toBe('λau');
     expect(sindarinRules['875184187'].mechanic('odoh').out).toBe('odo');
     expect(sindarinRules['875184187'].mechanic('tindūmihelð').out).toBe('tindūmielð');
     expect(sindarinRules['875184187'].mechanic('θūhon').out).toBe('θūon');

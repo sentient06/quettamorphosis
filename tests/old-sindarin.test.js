@@ -328,7 +328,7 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['3923357111'].mechanic('abc').out).toBe('abc');
     // Output uses single-char forms: ᵯ=mh, ꞃ=nh, ꝉ=lh, ꞧ=rh, ƕ=wh
     expect(oldSindarinRules['3923357111'].mechanic('sjerwa').out).toBe('j̊erwa');
-    expect(oldSindarinRules['3923357111'].mechanic('slasu').out).toBe('ꝉasu');
+    expect(oldSindarinRules['3923357111'].mechanic('slasu').out).toBe('λasu');
     expect(oldSindarinRules['3923357111'].mechanic('snaide').out).toBe('naide');
     expect(oldSindarinRules['3923357111'].mechanic('snaide', { includeNasals: true }).out).toBe('ꞃaide');
     expect(oldSindarinRules['3923357111'].mechanic('srāba').out).toBe('ꞧāba');
