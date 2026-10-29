@@ -223,4 +223,10 @@ describe('Quenya rules', () => {
     expect(quenyaRules['2265073101'].mechanic('baktka').out).toBe('baxθka');
     expect(quenyaRules['2265073101'].mechanic('baptka').out).toBe('baɸθka');
   });
+
+  it('01600 - [pw] > [pp]', () => {
+    expect(quenyaRules['182545135'].mechanic('abc').out).toBe('abc');
+    // Only one example:
+    expect(quenyaRules['182545135'].mechanic('napwa').out).toBe('nappa');
+  });
 });

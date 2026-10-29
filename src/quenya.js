@@ -518,4 +518,25 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '182545135': {
+    orderId: '01600',
+    pattern: '[pw] > [pp]',
+    description: '[pw] became [pp]',
+    url: 'https://eldamo.org/content/words/word-182545135.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['pw'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex } = occurrences[i];
+        result = result.substring(0, charIndex) + 'pp' + result.substring(charIndex + 2);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
