@@ -326,8 +326,8 @@ describe('Old Sindarin rules', () => {
 
   it('01900 - initial [s] unvoiced following consonants', () => {
     expect(oldSindarinRules['3923357111'].mechanic('abc').out).toBe('abc');
-    // Output uses single-char forms: ᵯ=mh, ꞃ=nh, ꝉ=lh, ꞧ=rh, ƕ=wh
-    expect(oldSindarinRules['3923357111'].mechanic('sjerwa').out).toBe('j̊erwa');
+    // Output uses single-char forms: ʝ=hy, ᵯ=mh, ꞃ=nh, λ=lh, ꞧ=rh, ƕ=wh
+    expect(oldSindarinRules['3923357111'].mechanic('sjerwa').out).toBe('ʝerwa');
     expect(oldSindarinRules['3923357111'].mechanic('slasu').out).toBe('λasu');
     expect(oldSindarinRules['3923357111'].mechanic('snaide').out).toBe('naide');
     expect(oldSindarinRules['3923357111'].mechanic('snaide', { includeNasals: true }).out).toBe('ꞃaide');
@@ -504,7 +504,7 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['161840619'].mechanic('aθaja').out).toBe('aθaia');
     expect(oldSindarinRules['161840619'].mechanic('gwajalauto').out).toBe('gwaialauto');
     expect(oldSindarinRules['161840619'].mechanic('kasraja').out).toBe('kasraia');
-    expect(oldSindarinRules['161840619'].mechanic('r̥aja').out).toBe('r̥aia');
+    expect(oldSindarinRules['161840619'].mechanic('ꞧaja').out).toBe('ꞧaia');
     expect(oldSindarinRules['161840619'].mechanic('sarnije').out).toBe('sarnīe');
     expect(oldSindarinRules['161840619'].mechanic('waja').out).toBe('waia');
     expect(oldSindarinRules['161840619'].mechanic('wǭja').out).toBe('wǭia');
@@ -558,7 +558,7 @@ describe('Old Sindarin rules', () => {
     expect(oldSindarinRules['2010669085'].mechanic('oiomalθina').out).toBe('uiomalθina');
     // [ǭi] > [oi]:
     expect(oldSindarinRules['2010669085'].mechanic('gǭia').out).toBe('goia');
-    expect(oldSindarinRules['2010669085'].mechanic('l̥ǭire').out).toBe('l̥oire');
+    expect(oldSindarinRules['2010669085'].mechanic('λǭire').out).toBe('λoire');
     expect(oldSindarinRules['2010669085'].mechanic('ɸanǭia').out).toBe('ɸanoia');
 
     // Morphemes: (non-existent compound for morpheme testing)

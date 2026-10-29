@@ -604,9 +604,8 @@ export const oldSindarinRules = {
 
       const secondChar = str.nth(1);
       const replacements = {
-        'j': 'j̊',
+        'j': 'ʝ',
         'w': 'ƕ',
-        'l': 'ꝉ',
         'l': 'λ',
         'r': 'ꞧ',
         'm': 'm',

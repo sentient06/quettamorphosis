@@ -67,13 +67,15 @@ describe('Sindarin rules', () => {
 
   it('00500 - initial voiceless [j̊] became [x]', () => {
     expect(sindarinRules['3841187313'].mechanic('abc').out).toBe('abc');
-    expect(sindarinRules['2178021811'].mechanic('hyalma').out).toBe('chalma');
-    expect(sindarinRules['2178021811'].mechanic('hyūle').out).toBe('chūle');
+    expect(sindarinRules['2178021811'].mechanic('ʝalma').out).toBe('xalma');
+    expect(sindarinRules['2178021811'].mechanic('ʝūle').out).toBe('xūle');
+    // Only initially:
+    expect(sindarinRules['2178021811'].mechanic('aʝa').out).toBe('aʝa');
 
     // Morphemes: (non-existent compound for morpheme testing)
-    const compound = sindarinRules['2178021811'].mechanic('hyalmabara', { morphemes: ['hyal', 'ma', 'bara'] });
-    expect(compound.out).toEqual('chalmabara');
-    expect(compound.morphemes).toEqual(['chal', 'ma', 'bara']);
+    const compound = sindarinRules['2178021811'].mechanic('ʝalmabara', { morphemes: ['ʝal', 'ma', 'bara'] });
+    expect(compound.out).toEqual('xalmabara');
+    expect(compound.morphemes).toEqual(['xal', 'ma', 'bara']);
   });
 
   it('00600 - voiced stops became spirants after liquids', () => {
@@ -237,7 +239,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3889365613'].mechanic('belekōre').out).toBe('belekūre');
     expect(sindarinRules['3889365613'].mechanic('gōle').out).toBe('gūle');
     expect(sindarinRules['3889365613'].mechanic('gōrikova').out).toBe('gūrikova');
-    expect(sindarinRules['3889365613'].mechanic('l̥ōko').out).toBe('l̥ūko');
+    expect(sindarinRules['3889365613'].mechanic('λōko').out).toBe('λūko');
     expect(sindarinRules['3889365613'].mechanic('oθθōia').out).toBe('oθθūia');
 
     // Morphemes: (non-existent compound for morpheme testing)
@@ -482,13 +484,17 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['4287595571'].mechanic('khaðaud').out).toBe('haðaud'); // Alternative spelling
     expect(sindarinRules['4287595571'].mechanic('χaun').out).toBe('haun'); // Alternative spelling
     expect(sindarinRules['4287595571'].mechanic('khaun').out).toBe('haun'); // Alternative spelling
-    expect(sindarinRules['4287595571'].mechanic('xrass').out).toBe('r̥ass'); // [xr-] > [r̥-] This is Noldorin
-    expect(sindarinRules['4287595571'].mechanic('xlass').out).toBe('l̥ass'); // [xl-] > [l̥-] This word doesn't exist.
+    expect(sindarinRules['4287595571'].mechanic('xrass').out).toBe('ꞧass'); // [xr-] > [r̥-] This is Noldorin
+    expect(sindarinRules['4287595571'].mechanic('xlass').out).toBe('λass'); // [xl-] > [l̥-] This word doesn't exist.
+    expect(sindarinRules['4287595571'].mechanic('khlass').out).toBe('λass');
 
     // Morphemes: (non-existent compound for morpheme testing)
     const compound = sindarinRules['4287595571'].mechanic('xaunbara', { morphemes: ['xaun', 'bara'] });
     expect(compound.out).toEqual('haunbara');
     expect(compound.morphemes).toEqual(['haun', 'bara']);
+    const compoundL = sindarinRules['4287595571'].mechanic('xlassbara', { morphemes: ['xlass', 'bara'] });
+    expect(compoundL.out).toEqual('λassbara');
+    expect(compoundL.morphemes).toEqual(['λass', 'bara']);
   });
 
   it('02800 - voiceless stops voiced after vowels', () => {
@@ -847,7 +853,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['941153689'].mechanic('mairond').out).toBe('maerond');
     expect(sindarinRules['941153689'].mechanic('fanoi').out).toBe('fanoe');
     expect(sindarinRules['941153689'].mechanic('goi').out).toBe('goe');
-    expect(sindarinRules['941153689'].mechanic('l̥oim').out).toBe('l̥oem');
+    expect(sindarinRules['941153689'].mechanic('λoim').out).toBe('λoem');
     expect(sindarinRules['941153689'].mechanic('θoin').out).toBe('θoen');
 
     // Morphemes: (non-existent compound for morpheme testing)
@@ -941,7 +947,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['1531741019'].mechanic('laŋx').out).toBe('laŋk');
     // [-lθ] > [-lt]:
     expect(sindarinRules['1531741019'].mechanic('malθ').out).toBe('malt'); // Only entry in Sindarin, deleted
-    expect(sindarinRules['1531741019'].mechanic('m̥alθ').out).toBe('m̥alt'); // This is Noldorin
+    expect(sindarinRules['1531741019'].mechanic('ᵯalθ').out).toBe('ᵯalt'); // This is Noldorin
     expect(sindarinRules['1531741019'].mechanic('talθ').out).toBe('talt'); // This is Noldorin
 
     // Morphemes: (non-existent compound for morpheme testing)
@@ -1094,13 +1100,11 @@ describe('Sindarin rules', () => {
 
   it('05000 - voiceless nasals were voiced', () => {
     expect(sindarinRules['725943271'].mechanic('abc').out).toBe('abc');
-    expect(sindarinRules['725943271'].mechanic('n̥aeð').out).toBe('naeð');
-    expect(sindarinRules['725943271'].mechanic('m̥alð').out).toBe('malð'); // Noldorin
+    expect(sindarinRules['725943271'].mechanic('ꞃaeð').out).toBe('naeð');
+    expect(sindarinRules['725943271'].mechanic('ᵯalð').out).toBe('malð'); // Noldorin
 
     // Morphemes: (non-existent compound for morpheme testing)
-    // Note: n̥ is 2 chars (n + combining ring) - this is a length-changing rule
-    // Using morpheme boundary that keeps n̥ within one morpheme
-    const compound = sindarinRules['725943271'].mechanic('taln̥aeð', { morphemes: ['tal', 'n̥aeð'] });
+    const compound = sindarinRules['725943271'].mechanic('talꞃaeð', { morphemes: ['tal', 'ꞃaeð'] });
     expect(compound.out).toEqual('talnaeð');
     expect(compound.morphemes).toEqual(['tal', 'naeð']);
   });
@@ -1187,7 +1191,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['567222053'].mechanic('elau').out).toBe('elo');
     expect(sindarinRules['567222053'].mechanic('findraud').out).toBe('findrod');
     expect(sindarinRules['567222053'].mechanic('magalaur').out).toBe('magalor');
-    expect(sindarinRules['567222053'].mechanic('r̥auvan').out).toBe('r̥ovan');
+    expect(sindarinRules['567222053'].mechanic('ꞧauvan').out).toBe('ꞧovan');
     expect(sindarinRules['567222053'].mechanic('θauniel').out).toBe('θoniel');
     expect(sindarinRules['567222053'].mechanic('glaurxaðm', { morphemes: ['glaur', 'xaðm'] }).out).toBe('glorxaðm');
 
@@ -1260,7 +1264,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['868023175'].mechanic('ambarθ').out).toBe('ammarθ');
     expect(sindarinRules['868023175'].mechanic('dymb').out).toBe('dymm');
     expect(sindarinRules['868023175'].mechanic('galaðremben').out).toBe('galaðremmen');
-    expect(sindarinRules['868023175'].mechanic('l̥imb').out).toBe('l̥imm');
+    expect(sindarinRules['868023175'].mechanic('λimb').out).toBe('λimm');
     // Medial nd > nn:
     expect(sindarinRules['868023175'].mechanic('edlandor').out).toBe('edlannor');
     expect(sindarinRules['868023175'].mechanic('gelendil').out).toBe('gelennil');
@@ -1467,7 +1471,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3689144303'].mechanic('eglammar').out).toBe('eglamar');
     expect(sindarinRules['3689144303'].mechanic('galaðremmen').out).toBe('galaðremen');
     expect(sindarinRules['3689144303'].mechanic('kamm').out).toBe('kam');
-    expect(sindarinRules['3689144303'].mechanic('l̥imm').out).toBe('l̥im');
+    expect(sindarinRules['3689144303'].mechanic('λimm').out).toBe('λim');
     expect(sindarinRules['3689144303'].mechanic('remmen').out).toBe('remen');
     expect(sindarinRules['3689144303'].mechanic('tumm').out).toBe('tum');
     // Retain [mm] if the first syllable is stressed: (?)
@@ -1484,7 +1488,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3909760699'].mechanic('abc').out).toBe('abc');
     expect(sindarinRules['3909760699'].mechanic('gwaev').out).toBe('gwaew');
     expect(sindarinRules['3909760699'].mechanic('raev').out).toBe('raew');
-    expect(sindarinRules['3909760699'].mechanic('l̥oev').out).toBe('l̥oew');
+    expect(sindarinRules['3909760699'].mechanic('λoev').out).toBe('λoew');
     expect(sindarinRules['3909760699'].mechanic('oev').out).toBe('oew');
 
     // Morphemes: (non-existent compound for morpheme testing)
@@ -1502,7 +1506,7 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['70600889'].mechanic('drūv').out).toBe('drū');
     expect(sindarinRules['70600889'].mechanic('hiθlūv').out).toBe('hiθlū');
     // [-uw] > [-u]:
-    expect(sindarinRules['70600889'].mechanic('r̥auw').out).toBe('r̥au');
+    expect(sindarinRules['70600889'].mechanic('ꞧauw').out).toBe('ꞧau');
 
     // Morphemes:
     // Non-existent word:
@@ -1518,7 +1522,7 @@ describe('Sindarin rules', () => {
 
   it('07000 - [ou] became [au]', () => {
     expect(sindarinRules['2476983755'].mechanic('abc').out).toBe('abc');
-    expect(sindarinRules['2476983755'].mechanic('l̥ou').out).toBe('l̥aw');
+    expect(sindarinRules['2476983755'].mechanic('λou').out).toBe('λaw');
     expect(sindarinRules['2476983755'].mechanic('lou').out).toBe('law');
     expect(sindarinRules['2476983755'].mechanic('now').out).toBe('naw');
     expect(sindarinRules['2476983755'].mechanic('orou', { useFinalU: true }).out).toBe('orau');

@@ -38,12 +38,21 @@ describe('Conversion Rules', () => {
 
       // Note: lh and rh are commented out in DIGRAPH_MAP
       // expect(rule.mechanic('lh').out).toBe('λ');
-      // expect(rule.mechanic('rh').out).toBe('ꝛ');
+      // expect(rule.mechanic('rh').out).toBe('ꞧ');
 
       // Test aspirated stops (non-ASCII, always convert)
       expect(rule.mechanic('kʰ').out).toBe('ꝁ');
       expect(rule.mechanic('pʰ').out).toBe('ƥ');
       expect(rule.mechanic('tʰ').out).toBe('ŧ');
+
+      // Test voiceless sonorants (IPA, always convert)
+      expect(rule.mechanic('j̊').out).toBe('ʝ');
+      expect(rule.mechanic('l̥').out).toBe('λ');
+      expect(rule.mechanic('m̥').out).toBe('ᵯ');
+      expect(rule.mechanic('n̥').out).toBe('ꞃ');
+      expect(rule.mechanic('r̥').out).toBe('ꞧ');
+      expect(rule.mechanic('r̥aba').out).toBe('ꞧaba');
+      expect(rule.mechanic('m̥al+n̥aeð').morphemes).toEqual(['ᵯal', 'ꞃaeð']);
 
       // Test full word with UPPERCASE digraphs
       expect(rule.mechanic('iTHil').out).toBe('iθil');
@@ -80,7 +89,7 @@ describe('Conversion Rules', () => {
       expect(rule.mechanic('ŋ').out).toBe('ng');
       expect(rule.mechanic('ɸ').out).toBe('ph');
       expect(rule.mechanic('λ').out).toBe('lh');
-      expect(rule.mechanic('ꝛ').out).toBe('rh');
+      expect(rule.mechanic('ꞧ').out).toBe('rh');
       // Note: ʍ maps to 'wh' in SINGLE_TO_DIGRAPH_MAP
       expect(rule.mechanic('ʍ').out).toBe('wh');
       expect(rule.mechanic('ƣ').out).toBe('gw');

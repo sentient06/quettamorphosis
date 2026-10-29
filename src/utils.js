@@ -298,7 +298,12 @@ const DIGRAPH_MAP = {
   'ng': 'ŋ',
   'ph': 'ɸ',   // spirant
   'pʰ': 'ƥ',   // aspirated voiceless stop
-  // 'rh': 'ꝛ',
+  // 'rh': 'ꞧ',
+  'j̊': 'ʝ',   // voiceless j
+  'l̥': 'λ',   // voiceless l
+  'm̥': 'ᵯ',   // voiceless m
+  'n̥': 'ꞃ',   // voiceless n
+  'r̥': 'ꞧ',   // voiceless r
   'ss': 'ſ',
   'th': 'θ',   // spirant
   'tʰ': 'ŧ',   // aspirated voiceless stop
@@ -354,12 +359,11 @@ const SINGLE_TO_DIGRAPH_MAP = {
   'ſ': 'ss',
   // Voiceless sonorants
   'λ': 'lh',   // voiceless l
-  'ꝛ': 'rh',   // voiceless r
-  'ꞧ': 'rh',   // voiceless r (alternate)
+  'ꞧ': 'rh',   // voiceless r
   'ʝ': 'hy',   // voiceless j (palatal)
   'ẘ': 'wh',   // voiceless w
-  'm̥': 'mh',   // voiceless m (multi-codepoint, no single char available)
-  'n̥': 'nh',   // voiceless n (multi-codepoint, no single char available)
+  'ᵯ': 'mh',   // voiceless m
+  'ꞃ': 'nh',   // voiceless n
   // Quenya palatalized / labialized consonants
   'ȶ': 'ty',   // palatalized t
   'ȡ': 'dy',   // palatalized d
@@ -440,12 +444,11 @@ const SINGLE_TO_PHONETIC_MAP = {
   'ſ': 'ss',
   // Voiceless sonorants
   'λ': 'l̥',    // voiceless l
-  'ꝛ': 'r̥',    // voiceless r
-  'ꞧ': 'r̥',    // voiceless r (alternate)
+  'ꞧ': 'r̥',    // voiceless r
   'ʝ': 'j̊',    // voiceless j (palatal)
   'ẘ': 'w̥',    // voiceless w
-  'm̥': 'm̥',   // voiceless m (multi-codepoint, no single char available)
-  'n̥': 'n̥',   // voiceless n (multi-codepoint, no single char available)
+  'ᵯ': 'm̥',    // voiceless m
+  'ꞃ': 'n̥',    // voiceless n
   // Quenya palatalized / labialized consonants
   'ȶ': 'tʲ',   // palatalized t
   'ȡ': 'dʲ',   // palatalized d
@@ -522,7 +525,7 @@ export function removeDigraphs(str) {
     .replaceAll('th', 'θ')
     .replaceAll('ch', 'x')
     .replaceAll('kh', 'x')
-    .replaceAll('rh', 'ꝛ')
+    .replaceAll('rh', 'ꞧ')
     .replaceAll('lh', 'λ')
     .replaceAll('ss', 'ſ')
     .replaceAll('gw', 'ƣ');
@@ -535,7 +538,7 @@ export function restoreDigraphs(str) {
     .replaceAll('x', 'ch')
     .replaceAll('χ', 'kh')
     .replaceAll('λ', 'lh')
-    .replaceAll('ꝛ', 'rh')
+    .replaceAll('ꞧ', 'rh')
     .replaceAll('ſ', 'ss')
     .replaceAll('ƣ', 'gw');
 }
@@ -708,10 +711,10 @@ export const SINDARIN_PROFILE = {
     'ng': 'ŋ',
     'nth': 'ꞥ',
     'ph': 'ɸ',
-    'rh': 'ꝛ',
+    'rh': 'ꞧ',
     'th': 'θ',
   },
-  validInitialConsonants: ['b', 'c', 'd', 'f', 'g', 'h', 'ʍ', 'i', 'l', 'λ', 'm', 'n', 'p', 'r', 'ꝛ', 's', 't', 'θ'],
+  validInitialConsonants: ['b', 'c', 'd', 'f', 'g', 'h', 'ʍ', 'i', 'l', 'λ', 'm', 'n', 'p', 'r', 'ꞧ', 's', 't', 'θ'],
   validInitialClusters: ['bl', 'br', 'cl', 'cr', 'dr', 'fl', 'gl', 'gr', 'gw', 'pr', 'tr'],
   lenitedInitialConsonants: ['b', 'x', 'ꭓ', 'd', 'ð', 'g', 'g', 'h', 'i', 'l', 'm', 'n', 'ŋ', 'r', 'θ', 'v', 'w'],
   lenitedInitialClusters: ['br', 'xl', 'xr', 'dr', 'ðr', 'fl', 'fr', 'ml', 'mr', 'θl', 'θr', 'vl', 'vr'],
@@ -735,7 +738,7 @@ export const QUENYA_PROFILE = {
     'ñ': 'ŋ',
     'nw': 'ɴ', // [ŋʷ]
     'hl': 'λ', // [l̥]
-    'hr': 'ꝛ', // [r̥]
+    'hr': 'ꞧ', // [r̥]
     'hy': 'ʝ', // [j̊]
     'hw': 'ʍ',
   },

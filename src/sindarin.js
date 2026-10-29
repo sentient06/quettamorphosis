@@ -133,9 +133,8 @@ export const sindarinRules = {
     description: 'initial voiceless [j̊] became [x]',
     url: 'https://eldamo.org/content/words/word-2178021811.html',
     mechanic: (str, options = {}) => {
-      const initialJ = str.substring(0, 2) === 'hy';
-      if (initialJ) {
-        const result = str.replace('hy', 'ch');
+      if (str.nth(0) === 'ʝ') {
+        const result = 'x' + str.substring(1);
         const morphemes = (result !== str && options.morphemes)
           ? recalcMorphemes(result, options.morphemes, [])
           : (options.morphemes || [str]);
@@ -931,11 +930,12 @@ export const sindarinRules = {
         initialX = 'x';
       }
       if (['x', 'χ'].includes(initialX)) {
-        const secondPhoneme = str.nth(1).toLowerCase();
+        const secondPhoneme = result.nth(1).toLowerCase();
         if (['l', 'r'].includes(secondPhoneme)) {
-          const finalResult = result.replace('xl', 'l̥').replace('xr', 'r̥');
+          const finalResult = result.replace('xl', 'λ').replace('xr', 'ꞧ');
+          const removedIndices = initial2 === 'kh' ? [1, 2] : [1];
           const morphemes = (finalResult !== str && options.morphemes)
-            ? recalcMorphemes(finalResult, options.morphemes, [])
+            ? recalcMorphemes(finalResult, options.morphemes, removedIndices)
             : (options.morphemes || [str]);
           return { in: str, out: finalResult, morphemes };
         }
@@ -2072,7 +2072,7 @@ export const sindarinRules = {
     description: 'voiceless nasals were voiced',
     url: 'https://eldamo.org/content/words/word-725943271.html',
     mechanic: (str, options = {}) => {
-      const result = str.replace(/m̥/g, 'm').replace(/n̥/g, 'n');
+      const result = str.replaceAll('ᵯ', 'm').replaceAll('ꞃ', 'n');
       const morphemes = (result !== str && options.morphemes)
         ? recalcMorphemes(result, options.morphemes, [])
         : (options.morphemes || [str]);

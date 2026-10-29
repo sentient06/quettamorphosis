@@ -56,11 +56,11 @@ export const sindarinPostProcessingRules = {
     description: 'Convert single characters back to digraphs for final output',
     mechanic: (str) => {
       let result = str;
+      result = result.replace('ꞃ', 'n');
       result = singleToDigraphs(result);
       result = result.replace('k', 'c');
       result = result.replace('j', 'y');
       result = result.replace('ꞥ', 'nth');
-      result = result.replace('ꞃ', 'n');
       if (['j', 'y'].includes(result.nth(0))) {
         if (result !== 'yrch') result = 'i' + result.substring(1);
       }
