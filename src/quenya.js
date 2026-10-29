@@ -468,4 +468,54 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '2265073101': {
+    orderId: '01500',
+    // Eldamo: [{pk}t] > [{ɸx}t]
+    pattern: '[{pk}t|tk] > [{ɸx}t|θk]',
+    description: '[pt], [kt] became [ɸt], [xt], and possibly [tk] became [θk]',
+    url: 'https://eldamo.org/content/words/word-2265073101.html',
+    input: [
+      {
+        name: 'ignoreTk',
+        label: 'Ignore [tk] > [θk]',
+        type: 'boolean',
+        default: false,
+        description: 'Ignore [tk] > [θk], for which the evidence is ambiguous',
+      },
+      {
+        name: 'ptBecamePs',
+        label: 'Use [pt] > [ps]',
+        type: 'boolean',
+        default: false,
+        description: 'Use the 1930s development [pt] > [ps] instead of [pt] > [ɸt]',
+      },
+    ],
+    mechanic: (str, options = { ignoreTk: false, ptBecamePs: false }) => {
+      const clusters = ['pt', 'kt'];
+      if (!options.ignoreTk) clusters.push('tk');
+      const occurrences = findAllOf(clusters, str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      const spirants = {
+        'p': 'ɸ',
+        'k': 'x',
+        't': 'θ',
+      };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched } = occurrences[i];
+        if (matched === 'pt' && options.ptBecamePs) {
+          result = result.substring(0, charIndex + 1) + 's' + result.substring(charIndex + 2);
+        } else {
+          result = result.substring(0, charIndex) + spirants[matched[0]] + result.substring(charIndex + 1);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

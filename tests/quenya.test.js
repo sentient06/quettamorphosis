@@ -195,4 +195,32 @@ describe('Quenya rules', () => {
     // Only one example:
     expect(quenyaRules['1771463731'].mechanic('naβuβa').out).toBe('nauβa');
   });
+
+  it('01500 - [{pk}t|tk] > [{ɸx}t|θk]', () => {
+    expect(quenyaRules['2265073101'].mechanic('abc').out).toBe('abc');
+    // kt > xt:
+    expect(quenyaRules['2265073101'].mechanic('aktō').out).toBe('axtō');
+    expect(quenyaRules['2265073101'].mechanic('makta-').out).toBe('maxta-');
+    expect(quenyaRules['2265073101'].mechanic('ꞃaktē').out).toBe('ꞃaxtē');
+    expect(quenyaRules['2265073101'].mechanic('θaktie').out).toBe('θaxtie');
+    expect(quenyaRules['2265073101'].mechanic('βektē').out).toBe('βextē');
+    // pt > ɸt:
+    expect(quenyaRules['2265073101'].mechanic('apta-').out).toBe('aɸta-');
+    expect(quenyaRules['2265073101'].mechanic('leptā').out).toBe('leɸtā');
+    // tk > θk:
+    expect(quenyaRules['2265073101'].mechanic('otko').out).toBe('oθko');
+    expect(quenyaRules['2265073101'].mechanic('rutkā').out).toBe('ruθkā');
+    // Ignoring tk > θk:
+    expect(quenyaRules['2265073101'].mechanic('otko', { ignoreTk: true }).out).toBe('otko');
+    expect(quenyaRules['2265073101'].mechanic('rutkā', { ignoreTk: true }).out).toBe('rutkā');
+    expect(quenyaRules['2265073101'].mechanic('aktō', { ignoreTk: true }).out).toBe('axtō');
+    // 1930s pt > ps:
+    expect(quenyaRules['2265073101'].mechanic('lepte', { ptBecamePs: true }).out).toBe('lepse');
+    expect(quenyaRules['2265073101'].mechanic('tjelepta', { ptBecamePs: true }).out).toBe('tjelepsa');
+    expect(quenyaRules['2265073101'].mechanic('aktō', { ptBecamePs: true }).out).toBe('axtō');
+
+    // Non-existent words:
+    expect(quenyaRules['2265073101'].mechanic('baktka').out).toBe('baxθka');
+    expect(quenyaRules['2265073101'].mechanic('baptka').out).toBe('baɸθka');
+  });
 });
