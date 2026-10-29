@@ -539,4 +539,45 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '3012528347': {
+    orderId: '01700',
+    pattern: '[{m̥n̥l̥r̥}-] > [{mnlr}-]',
+    description: 'initial voiceless nasals and liquids were voiced',
+    url: 'https://eldamo.org/content/words/word-3012528347.html',
+    info: [
+      'Voiceless [l̥-], [r̥-] (spelled hl-, hr-) were voiced among the Noldor, but retained by the learned and common in words from the 1950s and 60s.',
+      'Voiceless sonorants in compounds (e.g. ohlon) are not affected.',
+    ],
+    input: [
+      {
+        name: 'keepVoicelessLiquids',
+        label: 'Keep initial [l̥], [r̥]',
+        type: 'boolean',
+        default: false,
+        description: 'Keep initial voiceless [l̥-], [r̥-] (spelled hl-, hr-) and only voice [m̥-], [n̥-]',
+      },
+    ],
+    mechanic: (str, options = { keepVoicelessLiquids: false }) => {
+      const replacements = {
+        'ᵯ': 'm',
+        'ꞃ': 'n',
+      };
+      if (!options.keepVoicelessLiquids) {
+        Object.assign(replacements, {
+          'λ': 'l',
+          'ꞧ': 'r',
+        });
+      }
+
+      const firstChar = str.nth(0);
+      if (!replacements[firstChar]) return { in: str, out: str, morphemes: options.morphemes };
+
+      const result = replacements[firstChar] + str.substring(1);
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

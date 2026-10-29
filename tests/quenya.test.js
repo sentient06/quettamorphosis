@@ -229,4 +229,26 @@ describe('Quenya rules', () => {
     // Only one example:
     expect(quenyaRules['182545135'].mechanic('napwa').out).toBe('nappa');
   });
+
+  it('01700 - [{m̥n̥l̥r̥}-] > [{mnlr}-]', () => {
+    expect(quenyaRules['3012528347'].mechanic('abc').out).toBe('abc');
+    // Only examples:
+    expect(quenyaRules['3012528347'].mechanic('λūβo').out).toBe('lūβo');
+    expect(quenyaRules['3012528347'].mechanic('ꞃaxta-').out).toBe('naxta-');
+    expect(quenyaRules['3012528347'].mechanic('ꞃaktē').out).toBe('naktē');
+    // Middle Quenya example:
+    expect(quenyaRules['3012528347'].mechanic('ᵯaldā').out).toBe('maldā');
+    // Non-existent words:
+    expect(quenyaRules['3012528347'].mechanic('ꞧaba').out).toBe('raba');
+    // Only initially:
+    expect(quenyaRules['3012528347'].mechanic('oλōn').out).toBe('oλōn');
+    expect(quenyaRules['3012528347'].mechanic('aꞃa').out).toBe('aꞃa');
+    // Keeping voiceless liquids:
+    expect(quenyaRules['3012528347'].mechanic('λūβo', { keepVoicelessLiquids: true }).out).toBe('λūβo');
+    expect(quenyaRules['3012528347'].mechanic('ꞧaba', { keepVoicelessLiquids: true }).out).toBe('ꞧaba');
+    expect(quenyaRules['3012528347'].mechanic('ꞃaxta-', { keepVoicelessLiquids: true }).out).toBe('naxta-');
+    // Morphemes:
+    expect(quenyaRules['3012528347'].mechanic('λūβo', { morphemes: ['λū', 'βo'] }).morphemes).toEqual(['lū', 'βo']);
+    expect(quenyaRules['3012528347'].mechanic('ꞃaxta-', { morphemes: ['ꞃax', 'ta-'] }).morphemes).toEqual(['nax', 'ta-']);
+  });
 });
