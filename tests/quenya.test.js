@@ -251,4 +251,33 @@ describe('Quenya rules', () => {
     expect(quenyaRules['3012528347'].mechanic('λūβo', { morphemes: ['λū', 'βo'] }).morphemes).toEqual(['lū', 'βo']);
     expect(quenyaRules['3012528347'].mechanic('ꞃaxta-', { morphemes: ['ꞃax', 'ta-'] }).morphemes).toEqual(['nax', 'ta-']);
   });
+
+  it('01800 - [x|xt|lx|rx] > [h|xt|l̥l̥|r̥r̥]', () => {
+    expect(quenyaRules['2071843593'].mechanic('abc').out).toBe('abc');
+    // x > h:
+    expect(quenyaRules['2071843593'].mechanic('xāðo').out).toBe('hāðo');
+    expect(quenyaRules['2071843593'].mechanic('xamnā').out).toBe('hamnā');
+    expect(quenyaRules['2071843593'].mechanic('xaura').out).toBe('haura');
+    expect(quenyaRules['2071843593'].mechanic('xildor').out).toBe('hildor');
+    expect(quenyaRules['2071843593'].mechanic('xīθilōmē').out).toBe('hīθilōmē');
+    expect(quenyaRules['2071843593'].mechanic('maxalma').out).toBe('mahalma');
+    expect(quenyaRules['2071843593'].mechanic('māxanaskað').out).toBe('māhanaskað');
+
+    // xt > xt:
+    expect(quenyaRules['2071843593'].mechanic('xaxtā').out).toBe('haxtā');
+
+    // Non-existent words:
+    // [xt] > [xt]:
+    expect(quenyaRules['2071843593'].mechanic('xtaba').out).toBe('xtaba');
+    expect(quenyaRules['2071843593'].mechanic('baxtaba').out).toBe('baxtaba');
+    expect(quenyaRules['2071843593'].mechanic('baxta').out).toBe('baxta');
+    // [lx] > [l̥l̥]:
+    expect(quenyaRules['2071843593'].mechanic('lxaba').out).toBe('λλaba');
+    expect(quenyaRules['2071843593'].mechanic('balxaba').out).toBe('baλλaba');
+    expect(quenyaRules['2071843593'].mechanic('balxa').out).toBe('baλλa');
+    // [rx] > [r̥r̥]:
+    expect(quenyaRules['2071843593'].mechanic('rxaba').out).toBe('ꞧꞧaba');
+    expect(quenyaRules['2071843593'].mechanic('barxaba').out).toBe('baꞧꞧaba');
+    expect(quenyaRules['2071843593'].mechanic('barxa').out).toBe('baꞧꞧa');
+  });
 });

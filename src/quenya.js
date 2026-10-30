@@ -580,4 +580,34 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '2071843593': {
+    orderId: '01800',
+    pattern: '[x|xt|lx|rx] > [h|xt|l̥l̥|r̥r̥]',
+    description: '[x] became [h] except before [t]',
+    url: 'https://eldamo.org/content/words/word-2071843593.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['x'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        if (['l', 'r'].includes(prevChar)) {
+          if (prevChar === 'l') {
+            result = result.substring(0, charIndex - 1) + 'λλ' + result.substring(charIndex + 1);
+          } else {
+            result = result.substring(0, charIndex - 1) + 'ꞧꞧ' + result.substring(charIndex + 1);
+          }
+          continue;
+        }
+        if (nextChar === 't') continue;
+        result = result.substring(0, charIndex) + 'h' + result.substring(charIndex + 1);
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };
