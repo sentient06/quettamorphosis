@@ -610,4 +610,76 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '455699965': {
+    orderId: '01900',
+    // Eldamo: [rVð|rVz|zVr] > [rVl|rVs|sVr]
+    pattern: '[{rl}Vð|rVz|zVr|-zVð] > [{rl}Vl|rVs|sVr|-sVð]',
+    description: 'medial [ð], [z] dissimilated to [l], [s] after [r]',
+    url: 'https://eldamo.org/content/words/word-455699965.html',
+    info: [
+      '[ð] > [l] happened in both Ñoldorin and Vanyarin, but [z] > [s] only in Ñoldorin.',
+      'The change was sporadic: compare ᴹ√RED > ᴹQ. rer- "to sow" and ᴹ√LAD > ᴹQ. lára "flat".',
+    ],
+    input: [
+      {
+        name: 'vanyarin',
+        label: 'Vanyarin dialect',
+        type: 'boolean',
+        default: false,
+        description: 'Use the Vanyarin dialect, where [z] did not dissimilate to [s]',
+      },
+    ],
+    mechanic: (str, options = { vanyarin: false }) => {
+      const _str = str.normaliseToOne();
+      const occurrences = findAllOf(['ð', 'z'], _str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = _str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, prevChar, nextChar, lastChar } = occurrences[i];
+
+        // Only medial [ð] and [z] are affected:
+        if (charIndex === 0 || lastChar) continue;
+
+        // The consonants on either side of the vowels around [ð] or [z], e.g. [r] and [ð] in [kazār].
+        // (Guarding against negative indices, since nth() counts those from the end of the string.)
+        const consonantBefore = (charIndex >= 2 && prevChar.isVowel()) ? _str.nth(charIndex - 2) : '';
+        const consonantAfter = nextChar.isVowel() ? _str.nth(charIndex + 2) : '';
+
+        if (matched === 'ð') {
+          // [rVð] > [rVl]
+          // Unlike [z], [ð] only dissimilated after [r], never before it:
+          // "it is seen only where r already occurs in the word" (PE19/32).
+          //
+          // [lVð] > [lVl]
+          // Not dissimilation but assimilation, though Eldamo lists it in this rule:
+          // ✶g-lada- > Q. lala- "to laugh" (PM/359).
+          if (consonantBefore === 'r' || consonantBefore === 'l') {
+            result = result.substring(0, charIndex) + 'l' + result.substring(charIndex + 1);
+          }
+          continue;
+        }
+
+        // [z] > [s] only happened among the Ñoldor, after the Exile (PE19/73-74):
+        if (options.vanyarin) continue;
+
+        // [rVz] > [rVs] and [zVr] > [sVr]
+        // Unlike [ð], [z] dissimilated from [r] on either side.
+        //
+        // [-zVð] > [-sVð]
+        // Word-final [ð] had already become [r] by then (it is excluded above for the same reason), so [z] also
+        // dissimilated before it: Kh. khazād > Q. kazār > Casar (PE17/45; WJ/388).
+        const consonantAfterIsFinal = charIndex + 2 === _str.length - 1;
+        const finalð = consonantAfter === 'ð' && consonantAfterIsFinal;
+        if (consonantBefore === 'r' || consonantAfter === 'r' || finalð) {
+          result = result.substring(0, charIndex) + 's' + result.substring(charIndex + 1);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

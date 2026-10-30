@@ -280,4 +280,44 @@ describe('Quenya rules', () => {
     expect(quenyaRules['2071843593'].mechanic('barxaba').out).toBe('baꞧꞧaba');
     expect(quenyaRules['2071843593'].mechanic('barxa').out).toBe('baꞧꞧa');
   });
+
+  it('01900 - [{rl}Vð|rVz|zVr|-zVð] > [{rl}Vl|rVs|sVr|-sVð]', () => {
+    expect(quenyaRules['455699965'].mechanic('abc').out).toBe('abc');
+    // lVð > lVl:
+    expect(quenyaRules['455699965'].mechanic('laða-').out).toBe('lala-');
+    // rVð > rVl:
+    // Eldamo has [rad-], but [d] after a vowel had already become [ð] (AQ. 02900):
+    expect(quenyaRules['455699965'].mechanic('rað-').out).toBe('ral-');
+    // zVr > sVr:
+    // Eldamo labels this one [zVr], because the final [ð] was already pronounced [r]:
+    expect(quenyaRules['455699965'].mechanic('kazāð').out).toBe('kasāð');
+    // Eldamo has [kasar], but the shortening of [ā] is a separate change:
+    expect(quenyaRules['455699965'].mechanic('kazār').out).toBe('kasār');
+    // rVz > rVs, from the explanation: raze (rase) "sticks out" (PE19/73-74):
+    expect(quenyaRules['455699965'].mechanic('raze').out).toBe('rase');
+
+    // Vanyarin: only [ð] dissimilated:
+    expect(quenyaRules['455699965'].mechanic('laða-', { vanyarin: true }).out).toBe('lala-');
+    expect(quenyaRules['455699965'].mechanic('rað-', { vanyarin: true }).out).toBe('ral-');
+    expect(quenyaRules['455699965'].mechanic('kazāð', { vanyarin: true }).out).toBe('kazāð');
+    expect(quenyaRules['455699965'].mechanic('kazār', { vanyarin: true }).out).toBe('kazār');
+    expect(quenyaRules['455699965'].mechanic('raze', { vanyarin: true }).out).toBe('raze');
+
+    // Non-existent words:
+    // [ð] only after [r], not before it:
+    expect(quenyaRules['455699965'].mechanic('baðar').out).toBe('baðar');
+    expect(quenyaRules['455699965'].mechanic('aðar').out).toBe('aðar');
+    // Only medial [ð] and [z]:
+    expect(quenyaRules['455699965'].mechanic('barað').out).toBe('barað');
+    expect(quenyaRules['455699965'].mechanic('baraz').out).toBe('baraz');
+    // Only with a single vowel in between:
+    expect(quenyaRules['455699965'].mechanic('raiða').out).toBe('raiða');
+    expect(quenyaRules['455699965'].mechanic('rabaða').out).toBe('rabaða');
+    // [z] before a medial [ð] is not affected:
+    expect(quenyaRules['455699965'].mechanic('kazaða').out).toBe('kazaða');
+
+    // Morphemes:
+    const compound = quenyaRules['455699965'].mechanic('kazār', { morphemes: ['ka', 'zār'] });
+    expect(compound.morphemes).toEqual(['ka', 'sār']);
+  });
 });
