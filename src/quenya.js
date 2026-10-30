@@ -224,18 +224,45 @@ export const quenyaRules = {
   },
   '3516399115': {
     orderId: '00700',
-    pattern: '[{rl}{ɸθxð}] > [{rl}{ptkd}]',
+    // Eldamo: [{rl}{ɸθxð}] > [{rl}{ptkd}]
+    pattern: '[{rl}{ɸθxð}|lβ] > [{rl}{ptkd}|lb]',
     description: 'spirants became stops after [r], [l]',
     url: 'https://eldamo.org/content/words/word-3516399115.html',
-    mechanic: (str, options = {}) => {
+    input: [
+      {
+        name: 'keepTheta',
+        label: 'Keep [lθ], [rθ]',
+        type: 'boolean',
+        default: false,
+        description: 'Keep [θ] after [l], [r], since most of Tolkien\'s examples show [rθ] > [rs] (e.g. ᴹQ. norsa), and Q. certa is a loan from Sindarin',
+      },
+      {
+        name: 'keepLBeta',
+        label: 'Keep [lβ]',
+        type: 'boolean',
+        default: false,
+        description: 'Keep [lβ] (later [lv]), since Ñoldorin only restopped [lð], [rð]; [lb] was an accepted variant (Q. olba, olva)',
+      },
+    ],
+    mechanic: (str, options = { keepTheta: false, keepLBeta: false }) => {
       const replacements = {
+        'lɸ': 'lp',
+        'lθ': 'lt',
         'lx': 'lk',
         'lð': 'ld',
         'lβ': 'lb',
-        'rx': 'rk',
         'rɸ': 'rp',
         'rθ': 'rt',
+        'rx': 'rk',
+        'rð': 'rd',
       };
+      if (options.keepTheta) {
+        delete replacements['lθ'];
+        delete replacements['rθ'];
+      }
+      if (options.keepLBeta) {
+        delete replacements['lβ'];
+      }
       const occurrences = findAllOf(Object.keys(replacements), str);
       if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
 

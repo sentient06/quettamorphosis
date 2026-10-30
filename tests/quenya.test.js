@@ -86,7 +86,7 @@ describe('Quenya rules', () => {
     expect(quenyaRules['3458631869'].mechanic('mōja').out).toBe('moija');
   });
 
-  it('00700 - [{rl}{ɸθxð}] > [{rl}{ptkd}]', () => {
+  it('00700 - [{rl}{ɸθxð}|lβ] > [{rl}{ptkd}|lb]', () => {
     expect(quenyaRules['3516399115'].mechanic('abc').out).toBe('abc');
     // lx > lk:
     expect(quenyaRules['3516399115'].mechanic('tulxast').out).toBe('tulkast');
@@ -102,6 +102,32 @@ describe('Quenya rules', () => {
     expect(quenyaRules['3516399115'].mechanic('arɸō').out).toBe('arpō');
     // rθ > rt:
     expect(quenyaRules['3516399115'].mechanic('cerθa').out).toBe('certa');
+
+    // Non-existent words:
+    // lɸ > lp:
+    expect(quenyaRules['3516399115'].mechanic('alɸa').out).toBe('alpa');
+    // lθ > lt:
+    expect(quenyaRules['3516399115'].mechanic('alθa').out).toBe('alta');
+    // rð > rd:
+    expect(quenyaRules['3516399115'].mechanic('arða').out).toBe('arda');
+    // rβ remains:
+    expect(quenyaRules['3516399115'].mechanic('arβa').out).toBe('arβa');
+    // Several in one word:
+    expect(quenyaRules['3516399115'].mechanic('arðalθa').out).toBe('ardalta');
+
+    // Keeping [θ] after liquids:
+    // ᴹ√NOROTH > ᴹQ. norsa:
+    expect(quenyaRules['3516399115'].mechanic('norθa', { keepTheta: true }).out).toBe('norθa');
+    expect(quenyaRules['3516399115'].mechanic('cerθa', { keepTheta: true }).out).toBe('cerθa');
+    expect(quenyaRules['3516399115'].mechanic('alθa', { keepTheta: true }).out).toBe('alθa');
+    expect(quenyaRules['3516399115'].mechanic('tulxast', { keepTheta: true }).out).toBe('tulkast');
+    expect(quenyaRules['3516399115'].mechanic('arðalθa', { keepTheta: true }).out).toBe('ardalθa');
+
+    // Keeping [lβ]:
+    // Q. olva (S/45):
+    expect(quenyaRules['3516399115'].mechanic('olβā', { keepLBeta: true }).out).toBe('olβā');
+    expect(quenyaRules['3516399115'].mechanic('ɣalðā', { keepLBeta: true }).out).toBe('ɣaldā');
+    expect(quenyaRules['3516399115'].mechanic('cerθa', { keepLBeta: true }).out).toBe('certa');
   });
 
   it('00800 - [mɸ|nθ|ŋx|nð] > [mp|nt|ŋk|nd]', () => {
