@@ -13,18 +13,12 @@ const {
   isConversionRule,
   getRulesObject,
   getLanguage,
-  getPreviousRule,
-  getNextRule,
   formatTripped,
   formatSkipped,
   isRuleEffectivelyEnabled: _isRuleEffectivelyEnabled,
 } = logicModule;
 
-import { SANDHI_MASTER_RULE_ID, getSandhiRuleId, shouldSkipSandhi } from './src/sandhi.js';
-
-// Sandhi rule range constants
-const FIRST_SANDHI_RULE_ID = getSandhiRuleId(116);
-const LAST_SANDHI_RULE_ID = getSandhiRuleId(170);
+import { SANDHI_MASTER_RULE_ID, shouldSkipSandhi } from './src/sandhi.js';
 import {
   preProcessingRuleKeys,
   interLanguageRuleKeys,
@@ -102,6 +96,10 @@ const storageKey = (key) => `${storagePrefix}${key}`;
 
 // Track morphemes for each rule (needed when toggling rules mid-chain)
 const ruleMorphemes = {};
+// Track what each rule handed to the next one: ruleId -> { value, morphemes }
+// The output field can't be used for this: skipped rules don't fill it, and the
+// sandhi master rule's output shows the aggregate of all sandhi rules.
+const ruleHandoff = {};
 // Track input morphemes for each rule (to detect rule-removed boundaries)
 const ruleInputMorphemes = {};
 // Track morpheme boundary states: ruleId -> Set<mergedBoundaryIndex>
@@ -212,6 +210,31 @@ function getOrderedRuleKeys(language) {
   return orderState[language] || [];
 }
 
+// Execution order of every rule, and the sandhi range within it.
+// Must be refreshed whenever orderState changes.
+let orderedRuleKeys = [];
+let firstSandhiRuleId = null;
+let lastSandhiRuleId = null;
+
+function refreshOrderedRuleKeys() {
+  orderedRuleKeys = getAllOrderedRuleKeys();
+  const sandhiKeys = sandhiStage
+    ? getOrderedRuleKeys(sandhiStage.id).filter(id => sandhiStage.rules[id].isSandhi)
+    : [];
+  firstSandhiRuleId = sandhiKeys[0] ?? null;
+  lastSandhiRuleId = sandhiKeys.at(-1) ?? null;
+}
+
+function getNextRule(ruleId) {
+  const index = orderedRuleKeys.indexOf(ruleId);
+  return index === -1 ? undefined : orderedRuleKeys[index + 1];
+}
+
+function getPreviousRule(ruleId) {
+  const index = orderedRuleKeys.indexOf(ruleId);
+  return index <= 0 ? undefined : orderedRuleKeys[index - 1];
+}
+
 // Build the complete ordered list of all rule keys
 function getAllOrderedRuleKeys() {
   const keys = [...preProcessingRuleKeys];
@@ -225,6 +248,8 @@ function getAllOrderedRuleKeys() {
   keys.push(...postProcessingRuleKeys);
   return keys;
 }
+
+refreshOrderedRuleKeys();
 
 // Save order state to localStorage
 function saveOrderState() {
@@ -278,6 +303,7 @@ function moveRuleUp(ruleId) {
   // Swap with previous rule
   [order[index - 1], order[index]] = [order[index], order[index - 1]];
   saveOrderState();
+  refreshOrderedRuleKeys();
 
   // Move DOM element
   const $rule = document.getElementById(`rule-${toBase36(ruleId)}`);
@@ -289,8 +315,8 @@ function moveRuleUp(ruleId) {
   // Update button states
   updateReorderButtons(language);
 
-  // Re-run rules from the earlier position
-  rerunFromPosition(language, index - 1);
+  // Re-run from the moved rule, which is now the earlier of the two
+  rerunFromRule(ruleId);
 }
 
 // Move a rule down (later in execution order)
@@ -305,6 +331,7 @@ function moveRuleDown(ruleId) {
   // Swap with next rule
   [order[index], order[index + 1]] = [order[index + 1], order[index]];
   saveOrderState();
+  refreshOrderedRuleKeys();
 
   // Move DOM element
   const $rule = document.getElementById(`rule-${toBase36(ruleId)}`);
@@ -316,137 +343,32 @@ function moveRuleDown(ruleId) {
   // Update button states
   updateReorderButtons(language);
 
-  // Re-run rules from the current position (which is now earlier)
-  rerunFromPosition(language, index);
+  // Re-run from the rule that is now in the moved rule's old position
+  rerunFromRule(order[index]);
 }
 
-// Re-run rules starting from a specific position in a language
-function rerunFromPosition(language, startIndex) {
-  const order = orderState[language];
-  if (startIndex >= order.length) return;
-
-  // Get the input value for the first rule to re-run
-  const firstRuleToRerun = order[startIndex];
-  const $input = document.getElementById(`input-${firstRuleToRerun}`);
-
-  if ($input && $input.value) {
-    // Find what the next rule should be after the last rule in this language
-    const allOrdered = getAllOrderedRuleKeys();
-    const lastRuleInLanguage = order[order.length - 1];
-    const lastIndex = allOrdered.indexOf(lastRuleInLanguage);
-    const nextRuleAfterLanguage = allOrdered[lastIndex + 1];
-
-    // Re-run the chain starting from this rule
-    runRuleChain(firstRuleToRerun, $input.value, nextRuleAfterLanguage);
+// Get the value and morphemes that the rule before ruleId (in execution order) handed on
+function getChainInput(ruleId) {
+  const previousRuleId = getPreviousRule(ruleId);
+  if (!previousRuleId) {
+    return { value: $originalInput.value, morphemes: null };
   }
+  return ruleHandoff[previousRuleId]
+    || { value: getOutputValue(previousRuleId), morphemes: ruleMorphemes[previousRuleId] || null };
 }
 
-// Run a chain of rules within a language, then continue to the next rule after
-function runRuleChain(startRuleId, inputValue, nextRuleAfterChain, morphemes = null) {
-  const language = getLanguage(startRuleId);
-  const order = orderState[language];
-  const startIndex = order.indexOf(startRuleId);
-
-  let currentInput = inputValue;
-  let currentMorphemes = morphemes;
-
-  // Track sandhi aggregation within the chain
-  let chainSandhiInput = null;
-  let chainSandhiInputMorphemes = null;
-  let chainAnySandhiTripped = false;
-
-  // Run each rule in sequence within the language
-  for (let i = startIndex; i < order.length; i++) {
-    const ruleId = order[i];
-
-    // Update the input field
-    const $input = document.getElementById(`input-${ruleId}`);
-    if ($input) {
-      $input.value = currentInput;
-    }
-
-    // Run the rule and capture output for next iteration
-    const rulesObj = getRulesObject(ruleId);
-    const rule = rulesObj[ruleId];
-    const options = getOptions(ruleId, rule);
-
-    // Pass morphemes to rule via options (if available)
-    const inputMorphemes = currentMorphemes; // Save for visual comparison
-    if (currentMorphemes) {
-      options.morphemes = currentMorphemes;
-    }
-
-    const isEnabled = isRuleEffectivelyEnabled(ruleId);
-    const compoundsOnly = rule.isSandhi && getSandhiMasterRule() ? getOptions(SANDHI_MASTER_RULE_ID, getSandhiMasterRule()).compoundsOnly !== false : false;
-    const sandhiCheck = shouldSkipSandhi(rule, currentInput, options, compoundsOnly);
-    const result = !isEnabled ? { in: currentInput, out: currentInput }
-      : sandhiCheck.skip ? sandhiCheck.result
-      : rule.mechanic(currentInput, options);
-    const output = result.out;
-
-    // Get morphemes from result, or keep existing morphemes if not returned
-    currentMorphemes = result.morphemes || currentMorphemes;
-
-    // Update visual state
-    const isTripped = result.in !== result.out;
-    const resultsObj = getResultsObject(ruleId);
-    if (isTripped) {
-      resultsObj[ruleId] = result;
-    } else {
-      delete resultsObj[ruleId];
-    }
-
-    const $ruleElement = document.getElementById(`rule-${toBase36(ruleId)}`);
-    if ($ruleElement) {
-      $ruleElement.classList.toggle('rule-tripped', isTripped);
-      const hasFocus = $ruleElement.contains(document.activeElement);
-      if (isTripped || !hasFocus) {
-        $ruleElement.classList.toggle('rule-collapsed', !isTripped);
-      }
-    }
-
-    // Update output field with morpheme-aware rendering
-    // Clear any stale boundary state if morpheme count changed
-    if (morphemeBoundaryState[ruleId] && currentMorphemes) {
-      const maxBoundary = currentMorphemes.length - 2;
-      const staleBoundaries = [...morphemeBoundaryState[ruleId]].filter(i => i > maxBoundary);
-      staleBoundaries.forEach(i => morphemeBoundaryState[ruleId].delete(i));
-    }
-    renderMorphemeOutput(ruleId, currentMorphemes, nextRuleInChain, inputMorphemes);
-
-    // Track sandhi rule execution for master rule aggregation
-    if (rule.isSandhi) {
-      // First sandhi rule: capture input value
-      if (ruleId === FIRST_SANDHI_RULE_ID) {
-        chainSandhiInput = currentInput;
-        chainSandhiInputMorphemes = currentMorphemes;
-        chainAnySandhiTripped = false;
-      }
-      // Track if any sandhi rule tripped
-      if (isTripped) {
-        chainAnySandhiTripped = true;
-      }
-      // Last sandhi rule: update master rule's visual state and output
-      if (ruleId === LAST_SANDHI_RULE_ID) {
-        updateSandhiMasterRule(chainSandhiInput, output, chainSandhiInputMorphemes, currentMorphemes, chainAnySandhiTripped);
-      }
-    }
-
-    currentInput = output;
-  }
-
-  // Continue to next rule after this language's chain
-  if (nextRuleAfterChain) {
-    const $nextInput = document.getElementById(`input-${nextRuleAfterChain}`);
-    if ($nextInput) {
-      $nextInput.value = currentInput;
-    }
-    runRule(nextRuleAfterChain, currentInput, getNextRule(nextRuleAfterChain), currentMorphemes);
-  } else {
-    // This was the last chain, update final output
-    $originalOutput.value = currentInput;
+// Re-run the pipeline from ruleId onwards, feeding it the previous rule's handoff
+function rerunFromRule(ruleId) {
+  if (!$originalInput.value) {
     printResults();
+    return;
   }
+  const { value, morphemes } = getChainInput(ruleId);
+  const $input = document.getElementById(`input-${ruleId}`);
+  if ($input) {
+    $input.value = value;
+  }
+  runRule(ruleId, value, getNextRule(ruleId), morphemes);
 }
 
 // =============================================================================
@@ -578,11 +500,9 @@ function toggleLanguage(langId, isEnabled) {
 function rerunRule(ruleId) {
   const $input = document.getElementById(`input-${ruleId}`);
   if ($input && $input.value) {
-    const nextRuleId = getNextRule(ruleId);
-    // Get morphemes from the previous rule (needed to preserve morpheme boundaries)
-    const previousRuleId = getPreviousRule(ruleId);
-    const morphemes = previousRuleId ? ruleMorphemes[previousRuleId] : null;
-    runRule(ruleId, $input.value, nextRuleId, morphemes);
+    // Morphemes from the previous rule are needed to preserve morpheme boundaries
+    const { morphemes } = getChainInput(ruleId);
+    runRule(ruleId, $input.value, getNextRule(ruleId), morphemes);
   }
 }
 
@@ -618,51 +538,16 @@ function toggleRule(ruleId, isEnabled) {
     });
   }
 
-  const previousRuleId = getPreviousRule(ruleId);
-  const nextRuleId = getNextRule(ruleId);
-
-  const outputValue = previousRuleId
-    ? getOutputValue(previousRuleId)
-    : $originalInput.value;
-
-  // Get morphemes from the previous rule (if any)
-  const previousMorphemes = previousRuleId ? ruleMorphemes[previousRuleId] : null;
-
-  // Check effective enabled state for execution
-  const effectivelyEnabled = isRuleEffectivelyEnabled(ruleId);
-
-  if (!effectivelyEnabled) {
-    // Clear this rule's result since it's now disabled
+  // Clear this rule's result if it's now disabled
+  if (!isRuleEffectivelyEnabled(ruleId)) {
     delete resultsObj[ruleId];
-
-    // Pass input to next rule (skipping this one)
-    if (outputValue && nextRuleId) {
-      const $nextInput = document.getElementById(`input-${nextRuleId}`);
-      $nextInput.value = outputValue;
-      runRule(nextRuleId, outputValue, getNextRule(nextRuleId), previousMorphemes);
-      return; // runRule will call printResults() at the end
-    } else if (outputValue) {
-      // This was the last rule - update output
-      $originalOutput.value = outputValue;
-    }
-  } else {
-    // Rule is enabled - re-run it using the previous rule's output
-    if (outputValue) {
-      // Update this rule's input field with the correct value from previous rule
-      const $input = document.getElementById(`input-${ruleId}`);
-      if ($input) {
-        $input.value = outputValue;
-      }
-      runRule(ruleId, outputValue, nextRuleId, previousMorphemes);
-      return; // runRule will call printResults() at the end
-    }
   }
 
-  // Always update the skipped results display
-  printResults();
+  // Re-run from this rule (a disabled rule passes its input through unchanged)
+  rerunFromRule(ruleId);
 }
 
-function drawRule(ruleId, nextRuleId, $parentContainer) {
+function drawRule(ruleId, $parentContainer) {
   const rulesObj = getRulesObject(ruleId);
   const rule = rulesObj[ruleId];
   const isConversion = isConversionRule(ruleId);
@@ -874,7 +759,7 @@ function drawRule(ruleId, nextRuleId, $parentContainer) {
     placeholder: 'Input',
     callback: {
       trigger: 'input',
-      callback: (e) => runRule(ruleId, e.target.value, nextRuleId),
+      callback: (e) => runRule(ruleId, e.target.value, getNextRule(ruleId)),
     },
   });
 
@@ -910,10 +795,9 @@ function getOutputValue(ruleId) {
  * Shows visual cues when morpheme boundaries were removed by the rule transformation.
  * @param {string} ruleId - The rule ID
  * @param {string[]} morphemes - Array of morpheme strings (output morphemes)
- * @param {string|null} nextRuleId - ID of the next rule in the chain (for re-running)
  * @param {string[]|null} inputMorphemes - Array of input morphemes (to detect rule-removed boundaries)
  */
-function renderMorphemeOutput(ruleId, morphemes, nextRuleId, inputMorphemes = null) {
+function renderMorphemeOutput(ruleId, morphemes, inputMorphemes = null) {
   const $output = document.getElementById(`output-${ruleId}`);
   const $morphemes = document.getElementById(`morphemes-${ruleId}`);
 
@@ -992,7 +876,7 @@ function renderMorphemeOutput(ruleId, morphemes, nextRuleId, inputMorphemes = nu
       // Click handler to toggle boundary
       const boundaryIndex = i;
       $boundary.addEventListener('click', () => {
-        toggleMorphemeBoundary(ruleId, boundaryIndex, nextRuleId);
+        toggleMorphemeBoundary(ruleId, boundaryIndex);
       });
 
       $morphemes.appendChild($boundary);
@@ -1019,9 +903,8 @@ function saveMorphemeBoundaryState() {
  * When toggled, re-run the pipeline from this rule with updated morphemes.
  * @param {string} ruleId - The rule ID
  * @param {number} boundaryIndex - Index of the boundary to toggle
- * @param {string|null} nextRuleId - ID of the next rule in the chain
  */
-function toggleMorphemeBoundary(ruleId, boundaryIndex, nextRuleId) {
+function toggleMorphemeBoundary(ruleId, boundaryIndex) {
   // Initialize if needed
   if (!morphemeBoundaryState[ruleId]) {
     morphemeBoundaryState[ruleId] = new Set();
@@ -1052,11 +935,13 @@ function toggleMorphemeBoundary(ruleId, boundaryIndex, nextRuleId) {
   const effectiveMorphemes = applyMorphemeMerges(currentMorphemes, mergedBoundaries);
 
   // Re-render this rule's output with updated boundary states
-  renderMorphemeOutput(ruleId, currentMorphemes, nextRuleId);
+  renderMorphemeOutput(ruleId, currentMorphemes, ruleInputMorphemes[ruleId]);
 
   // Run the next rule with merged morphemes
+  const outputValue = getOutputValue(ruleId);
+  ruleHandoff[ruleId] = { value: outputValue, morphemes: effectiveMorphemes };
+  const nextRuleId = getNextRule(ruleId);
   if (nextRuleId) {
-    const outputValue = getOutputValue(ruleId);
     runRule(nextRuleId, outputValue, getNextRule(nextRuleId), effectiveMorphemes);
   }
 }
@@ -1110,19 +995,23 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     if ($ruleElement) {
       $ruleElement.classList.remove('rule-tripped');
     }
+    if (resultsObj) {
+      delete resultsObj[ruleId];
+    }
     // Store morphemes even for skipped rules (needed when toggling rules mid-chain)
     ruleMorphemes[ruleId] = morphemes;
+    ruleHandoff[ruleId] = { value: input, morphemes };
 
     // Track sandhi rule skipping for master rule aggregation
     if (rule.isSandhi) {
       // First sandhi rule: capture input value
-      if (ruleId === FIRST_SANDHI_RULE_ID) {
+      if (ruleId === firstSandhiRuleId) {
         sandhiInputValue = input;
         sandhiInputMorphemes = morphemes;
         anySandhiTripped = false;
       }
-      // Last sandhi rule: update master rule (no rules tripped since all skipped)
-      if (ruleId === LAST_SANDHI_RULE_ID) {
+      // Last sandhi rule: update master rule
+      if (ruleId === lastSandhiRuleId) {
         updateSandhiMasterRule(sandhiInputValue, input, sandhiInputMorphemes, morphemes, anySandhiTripped);
       }
     }
@@ -1217,12 +1106,12 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     const staleBoundaries = [...morphemeBoundaryState[ruleId]].filter(i => i > maxBoundary);
     staleBoundaries.forEach(i => morphemeBoundaryState[ruleId].delete(i));
   }
-  renderMorphemeOutput(ruleId, outputMorphemes, nextRuleId, morphemes);
+  renderMorphemeOutput(ruleId, outputMorphemes, morphemes);
 
   // Track sandhi rule execution for master rule aggregation
   if (rule.isSandhi) {
     // First sandhi rule: capture input value
-    if (ruleId === FIRST_SANDHI_RULE_ID) {
+    if (ruleId === firstSandhiRuleId) {
       sandhiInputValue = input;
       sandhiInputMorphemes = morphemes;
       anySandhiTripped = false;
@@ -1232,16 +1121,9 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
       anySandhiTripped = true;
     }
     // Last sandhi rule: update master rule's visual state and output
-    if (ruleId === LAST_SANDHI_RULE_ID) {
+    if (ruleId === lastSandhiRuleId) {
       updateSandhiMasterRule(sandhiInputValue, output, sandhiInputMorphemes, outputMorphemes, anySandhiTripped);
     }
-  }
-
-  // Continue to next rule or finish
-  if (!nextRuleId) {
-    $originalOutput.value = output;
-    printResults();
-    return;
   }
 
   // Apply any merged boundaries before passing to next rule
@@ -1249,6 +1131,14 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   const effectiveMorphemes = mergedBoundaries && mergedBoundaries.size > 0
     ? applyMorphemeMerges(outputMorphemes, mergedBoundaries)
     : outputMorphemes;
+  ruleHandoff[ruleId] = { value: output, morphemes: effectiveMorphemes };
+
+  // Continue to next rule or finish
+  if (!nextRuleId) {
+    $originalOutput.value = output;
+    printResults();
+    return;
+  }
 
   const $nextInput = document.getElementById(`input-${nextRuleId}`);
   $nextInput.value = output;
@@ -1270,9 +1160,7 @@ function updateSandhiMasterRule(inputValue, outputValue, inputMorphemes, outputM
     $masterInput.value = inputValue || '';
   }
   // Master rule output uses morpheme rendering too
-  // Get next rule after master for click handling
-  const nextRuleId = getNextRule(masterRuleId);
-  renderMorphemeOutput(masterRuleId, outputMorphemes, nextRuleId, inputMorphemes);
+  renderMorphemeOutput(masterRuleId, outputMorphemes, inputMorphemes);
 
   // Update visual state
   if ($masterRule) {
@@ -1317,6 +1205,7 @@ function resetRule(ruleId) {
 
   // Clear morpheme boundary state for this rule
   delete morphemeBoundaryState[ruleId];
+  delete ruleHandoff[ruleId];
 
   // Clear tripped visual state
   const $rule = document.getElementById(`rule-${toBase36(ruleId)}`);
@@ -1382,10 +1271,8 @@ function buildEvolutionChain() {
 
   PIPELINE.forEach(stage => {
     const resultsObj = stageResults[stage.id];
-    // Sort tripped rules by orderId
-    const trippedIds = Object.keys(resultsObj).sort((a, b) => {
-      return stage.rules[a].orderId.localeCompare(stage.rules[b].orderId);
-    });
+    // List tripped rules in execution order so each step's output feeds the next
+    const trippedIds = getOrderedRuleKeys(stage.id).filter(ruleId => ruleId in resultsObj);
 
     for (const ruleId of trippedIds) {
       const result = resultsObj[ruleId];
@@ -1693,21 +1580,13 @@ $closeNotes.addEventListener('click', (e) => {
 // Set sticky header height CSS variable for scroll-margin-top
 document.documentElement.style.setProperty('--sticky-h', $topWrapper.offsetHeight + 'px');
 
-// Helper to calculate the next rule ID for a given index in ordered keys
-function getNextRuleIdAtIndex(orderedKeys, index) {
-  return orderedKeys[index + 1];
-}
-
 // Create conversion and language wrappers in execution order
-const allOrderedKeys = getAllOrderedRuleKeys();
 
 // 1. Pre-processing conversions
 if (preProcessingRuleKeys.length > 0) {
   const $preWrapper = createConversionWrapper('pre-processing', 'Pre-processing');
   preProcessingRuleKeys.forEach((ruleId) => {
-    const globalIndex = allOrderedKeys.indexOf(ruleId);
-    const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-    drawRule(ruleId, nextRuleId, $preWrapper);
+    drawRule(ruleId, $preWrapper);
   });
 }
 
@@ -1718,17 +1597,13 @@ PIPELINE.forEach((stage, i) => {
     const prevStage = PIPELINE[i - 1];
     const $interWrapper = createConversionWrapper('inter-language', `${prevStage.name} → ${stage.name} Transition`);
     interLanguageRuleKeys.forEach((ruleId) => {
-      const globalIndex = allOrderedKeys.indexOf(ruleId);
-      const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-      drawRule(ruleId, nextRuleId, $interWrapper);
+      drawRule(ruleId, $interWrapper);
     });
   }
 
   const $stageWrapper = createLanguageWrapper(stage.id, stage.name);
   getOrderedRuleKeys(stage.id).forEach((ruleId) => {
-    const globalIndex = allOrderedKeys.indexOf(ruleId);
-    const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-    drawRule(ruleId, nextRuleId, $stageWrapper);
+    drawRule(ruleId, $stageWrapper);
   });
 });
 
@@ -1736,9 +1611,7 @@ PIPELINE.forEach((stage, i) => {
 if (postProcessingRuleKeys.length > 0) {
   const $postWrapper = createConversionWrapper('post-processing', 'Post-processing');
   postProcessingRuleKeys.forEach((ruleId) => {
-    const globalIndex = allOrderedKeys.indexOf(ruleId);
-    const nextRuleId = getNextRuleIdAtIndex(allOrderedKeys, globalIndex);
-    drawRule(ruleId, nextRuleId, $postWrapper);
+    drawRule(ruleId, $postWrapper);
   });
 }
 
