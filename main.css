@@ -504,6 +504,34 @@ div + div.smaller-title {
   font-size: 0.7rem;
 }
 
+.morpheme-selector {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.morpheme-chip {
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 0 5px;
+  border: 1px solid #6a9a6a;
+  border-radius: 3px;
+  background-color: #e6f2e6;
+  color: #234;
+  cursor: pointer;
+}
+
+.morpheme-chip:hover {
+  border-color: #080;
+}
+
+.morpheme-chip.morpheme-chip-off {
+  border-color: #ccc;
+  background-color: #f0f0f0;
+  color: #999;
+  text-decoration: line-through;
+}
+
 .rule .rule-inputs {
   display: flex;
   flex-direction: row;

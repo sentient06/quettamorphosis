@@ -462,6 +462,15 @@ export function encodeRuleInputs(ruleInputs, allRules) {
       const currentValue = inputs[inputDef.name];
       const defaultValue = inputDef.default;
 
+      if (inputDef.type === 'morphemes') {
+        // Encode one 1/0 digit per morpheme; a selection with every morpheme affected is the default
+        if (Array.isArray(currentValue) && currentValue.some(affected => affected === false)) {
+          const encodedValue = currentValue.map(affected => (affected === false ? '0' : '1')).join('');
+          nonDefaultInputs.push(`${inputDef.name}=${encodedValue}`);
+        }
+        continue;
+      }
+
       // Only include if different from default
       if (currentValue !== undefined && currentValue !== defaultValue) {
         // Encode value: booleans as 1/0, strings as-is
@@ -529,6 +538,8 @@ export function parseRuleInputs(riParam, allRules) {
       // Decode value based on type
       if (inputDef.type === 'boolean') {
         inputs[name] = rawValue === '1';
+      } else if (inputDef.type === 'morphemes') {
+        inputs[name] = rawValue.split('').map(digit => digit !== '0');
       } else {
         inputs[name] = decodeURIComponent(rawValue);
       }

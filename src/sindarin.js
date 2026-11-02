@@ -342,114 +342,67 @@ export const sindarinRules = {
     pattern: '[{ăŏŭ}{C|CC}i] > [{eœy}{C|CC}i]',
     description: 'short [a], [o], [u] became [e], [œ], [y] preceding [i]',
     url: 'https://eldamo.org/content/words/word-3958031275.html',
+    info: [
+      'Fronting spreads leftwards from [i] through every short [a], [o], [u] separated by one or two consonants, stopping at any other vowel or a diphthong.',
+      'Single inherited words and ancient compounds: keep every morpheme selected. Late or remodelled compounds: deselect the constituents that kept (or were restored to) their unaffected form, e.g. S. Taengyl < taina·kulli, S. rochbin < roch·pini.',
+    ],
+    input: [
+      {
+        name: 'affectedMorphemes',
+        label: 'Affected morphemes',
+        type: 'morphemes',
+        default: null,
+        description: 'Click a morpheme to toggle whether i-fronting applies to it',
+      },
+    ],
     mechanic: (str, options = {}) => {
-      // Pattern configurations: longest to shortest
-      // Each has: the VC string, positions of vowels to transform, and whether it's multi-vowel
-      const patterns = [
-        { str: 'VCCVCCV', vowelPos: [0, 3], multi: true },  // e.g., andundi
-        { str: 'VCVCCV', vowelPos: [0, 2], multi: true },
-        { str: 'VCCVCV', vowelPos: [0, 3], multi: true },
-        { str: 'VCVCV', vowelPos: [0, 2], multi: true },    // e.g., balania
-        { str: 'VCCV', vowelPos: [0], multi: false },       // e.g., balθil
-        { str: 'VCV', vowelPos: [0], multi: false },        // e.g., bania
-      ];
-
+      const frontings = { a: 'e', o: 'œ', u: 'j' };
       const unmarkedStr = str.removeMarks();
       const vcPattern = breakIntoVowelsAndConsonants(str);
-      let result = str;
 
-      // Helper to check if a pattern is valid
-      // Returns: false (invalid), 'single' (only transform closest vowel), 'multi' (transform all)
-      const isValidStart = (start, isMultiVowel) => {
-        // Don't cross diphthong boundaries (no vowel immediately before start)
-        if (start > 0 && vcPattern.charAt(start - 1) === 'V') {
-          return false;
-        }
-        // For multi-vowel patterns, check vowels before start
-        if (isMultiVowel) {
-          let hasVowelBefore = false;
-          for (let k = 0; k < start; k++) {
-            if (vcPattern.charAt(k) === 'V') {
-              const vowel = unmarkedStr.charAt(k);
-              // Blocking vowels (i, e, y) invalidate the pattern entirely
-              if (vowel === 'i' || vowel === 'e' || vowel === 'y' || vowel === 'j') {
-                return false;
-              }
-              hasVowelBefore = true;
-            }
-          }
-          // If there's a non-blocking vowel before, only transform closest vowel to 'i'
-          if (hasVowelBefore) {
-            return 'single';
-          }
-        }
-        return 'multi';
+      // affectedMorphemes[n] === false preserves the nth morpheme; missing entries are affected
+      const morphemeEnds = [];
+      (options.morphemes || [str]).reduce((end, m) => {
+        morphemeEnds.push(end + m.length);
+        return end + m.length;
+      }, 0);
+      const isAffected = (pos) => {
+        if (!options.affectedMorphemes) return true;
+        const morphemeIndex = morphemeEnds.findIndex(end => pos < end);
+        return options.affectedMorphemes[morphemeIndex] !== false;
       };
 
-      // Find all positions where 'i' appears as a vowel
+      // Short a/o/u only: long vowels (macron ¯ or combining macron \u0304) are unaffected
+      const isFrontable = (pos) => {
+        if (!frontings[unmarkedStr.charAt(pos)]) return false;
+        const mark = str.charAt(pos).getMark();
+        return !(mark && (mark.includes('¯') || mark.includes('\u0304')));
+      };
+
+      const toFront = new Set();
       for (let i = 0; i < unmarkedStr.length; i++) {
-        if (unmarkedStr.charAt(i) !== 'i' || vcPattern.charAt(i) !== 'V') {
-          continue;
+        if (unmarkedStr.charAt(i) !== 'i' || vcPattern.charAt(i) !== 'V') continue;
+
+        // Walk left: {ăŏŭ}{C|CC}{ăŏŭ}{C|CC}...i
+        let pos = i;
+        while (pos > 0) {
+          let vowelPos = pos - 1;
+          while (vowelPos >= 0 && vcPattern.charAt(vowelPos) === 'C') vowelPos--;
+          const consonantCount = pos - 1 - vowelPos;
+          if (vowelPos < 0 || consonantCount < 1 || consonantCount > 2) break;
+          if (!isFrontable(vowelPos)) break;
+          // Second element of a diphthong
+          if (vowelPos > 0 && vcPattern.charAt(vowelPos - 1) === 'V') break;
+
+          if (isAffected(vowelPos)) toFront.add(vowelPos);
+          pos = vowelPos;
         }
+      }
 
-        // Find the longest matching pattern
-        let bestMatch = null;
-        for (const { str: patternStr, vowelPos, multi } of patterns) {
-          const len = patternStr.length;
-          if (i < len - 1) continue;
-
-          const start = i - (len - 1);
-          const pattern = vcPattern.substring(start, i + 1);
-          const validResult = isValidStart(start, multi);
-          if (pattern !== patternStr || !validResult) continue;
-
-          // Check all vowels in the pattern are transformable (short a/o/u only)
-          // Long vowels (with macron ¯ or combining macron \u0304) should NOT be transformed
-          const allTransformable = vowelPos.every(pos => {
-            const v = unmarkedStr.charAt(start + pos);
-            if (v !== 'a' && v !== 'o' && v !== 'u') return false;
-            // Check if vowel has a length mark (macron) - if so, it's long and shouldn't transform
-            const mark = str.charAt(start + pos).getMark();
-            if (mark && (mark.includes('¯') || mark.includes('\u0304'))) return false;
-            return true;
-          });
-
-          if (allTransformable) {
-            // If 'single', only use the last vowel position (closest to 'i')
-            const positionsToUse = validResult === 'single' ? [vowelPos[vowelPos.length - 1]] : vowelPos;
-            bestMatch = { start, vowelPositions: positionsToUse };
-            break; // Found longest match, stop searching
-          }
-        }
-
-        if (bestMatch) {
-          const { start, vowelPositions } = bestMatch;
-          const segment = result.substring(start, i + 1);
-          const unmarkedSegment = unmarkedStr.substring(start, i + 1);
-          let newSegment = segment;
-
-          // Transform each vowel at the specified positions
-          for (const pos of vowelPositions) {
-            const vowel = unmarkedSegment.charAt(pos);
-            const originalChar = segment.charAt(pos);
-            const mark = originalChar.getMark();
-            let replacement = '';
-            if (vowel === 'a') {
-              replacement = 'e'.addMark(mark);
-            } else if (vowel === 'o') {
-              replacement = 'œ'.addMark(mark);
-            } else if (vowel === 'u') {
-              replacement = 'j'.addMark(mark);
-            }
-            if (replacement) {
-              newSegment = newSegment.substring(0, pos) + replacement + newSegment.substring(pos + 1);
-            }
-          }
-
-          if (newSegment !== segment) {
-            result = result.substring(0, start) + newSegment + result.substring(i + 1);
-          }
-        }
+      let result = str;
+      for (const pos of toFront) {
+        const mark = str.charAt(pos).getMark();
+        result = result.replaceAt(pos, frontings[unmarkedStr.charAt(pos)].addMark(mark), 1);
       }
 
       const morphemes = (result !== str && options.morphemes)

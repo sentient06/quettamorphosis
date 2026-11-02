@@ -256,11 +256,30 @@ function saveOrderState() {
   localStorage.setItem(storageKey('order'), JSON.stringify(orderState));
 }
 
+// Morpheme selections have no form field: their state lives in optionState only
+function getMorphemeSelection(ruleId, inputDef) {
+  return optionState[`${ruleId}-${inputDef.name}`] ?? inputDef.default;
+}
+
+// Morpheme selections are word-specific, so they are dropped when the input word changes
+function clearMorphemeSelections() {
+  for (const [ruleId, rule] of Object.entries(allRulesMap)) {
+    (rule.input || [])
+      .filter(inputDef => inputDef.type === 'morphemes')
+      .forEach(inputDef => delete optionState[`${ruleId}-${inputDef.name}`]);
+  }
+  localStorage.setItem(storageKey('options'), JSON.stringify(optionState));
+}
+
 // Get options for a rule from DOM inputs
 function getOptions(ruleId, rule) {
   const options = {};
   if (rule.input) {
     rule.input.forEach((inputDef) => {
+      if (inputDef.type === 'morphemes') {
+        options[inputDef.name] = getMorphemeSelection(ruleId, inputDef);
+        return;
+      }
       const $input = document.getElementById(`input-${ruleId}-${inputDef.name}`);
       if ($input) {
         options[inputDef.name] = inputDef.type === 'boolean'
@@ -666,9 +685,17 @@ function drawRule(ruleId, $parentContainer) {
     rule.input.forEach((input) => {
       // { name: 'guess', label: 'Guess', type: 'boolean', default: true, description: 'Whether to guess boundary if no marker' },
       // { name: 'boundaryChar', label: 'Boundary', type: 'string', default: '-', description: 'The morpheme boundary marker' },
-      const inputType = input.type === 'boolean' ? 'checkbox' : 'text';
+      // { name: 'affectedMorphemes', label: 'Affected', type: 'morphemes', default: null, description: 'Morphemes this rule applies to' },
       const label = input.label || input.name;
       const description = input.description || label;
+      if (input.type === 'morphemes') {
+        // Chips are filled in by renderMorphemeSelectors once the rule receives its morphemes
+        const $optWrapper = draw('div', $inputRules, { class: 'rule-option' });
+        draw('span', $optWrapper, { innerHtml: label + ':', title: description });
+        draw('span', $optWrapper, { id: `input-${ruleId}-${input.name}`, class: 'morpheme-selector', title: description });
+        return;
+      }
+      const inputType = input.type === 'boolean' ? 'checkbox' : 'text';
       const optionKey = `${ruleId}-${input.name}`;
       const savedValue = optionState[optionKey];
       const inputAttrs = {
@@ -885,6 +912,54 @@ function renderMorphemeOutput(ruleId, morphemes, inputMorphemes = null) {
 }
 
 /**
+ * Render the clickable morpheme chips of every 'morphemes' input of a rule.
+ * Clicking a chip toggles whether the rule applies to that morpheme and re-runs the rule.
+ * @param {string} ruleId - The rule ID
+ * @param {Object} rule - The rule definition
+ * @param {string[]} morphemes - The morphemes the rule receives as input
+ */
+function renderMorphemeSelectors(ruleId, rule, morphemes) {
+  (rule.input || []).filter(inputDef => inputDef.type === 'morphemes').forEach((inputDef) => {
+    const $selector = document.getElementById(`input-${ruleId}-${inputDef.name}`);
+    if (!$selector) return;
+
+    const optionKey = `${ruleId}-${inputDef.name}`;
+    // A selection made for a different segmentation no longer lines up with the morphemes
+    const stored = optionState[optionKey];
+    if (stored && stored.length !== morphemes.length) {
+      delete optionState[optionKey];
+      localStorage.setItem(storageKey('options'), JSON.stringify(optionState));
+    }
+    const selection = getMorphemeSelection(ruleId, inputDef);
+
+    $selector.innerHTML = '';
+    morphemes.forEach((morpheme, index) => {
+      const isAffected = !selection || selection[index] !== false;
+      const $chip = draw('button', $selector, {
+        type: 'button',
+        class: isAffected ? 'morpheme-chip' : 'morpheme-chip morpheme-chip-off',
+        title: isAffected ? 'Click to preserve this morpheme' : 'Click to apply this rule to this morpheme',
+        callback: {
+          trigger: 'click',
+          callback: () => {
+            const updated = morphemes.map((_, i) => !selection || selection[i] !== false);
+            updated[index] = !updated[index];
+            if (updated.every(Boolean)) {
+              delete optionState[optionKey];
+            } else {
+              optionState[optionKey] = updated;
+            }
+            localStorage.setItem(storageKey('options'), JSON.stringify(optionState));
+            rerunRule(ruleId);
+          },
+        },
+      });
+      $chip.textContent = morpheme;
+    });
+  });
+}
+
+/**
  * Save morpheme boundary state to localStorage.
  * Converts Sets to arrays for JSON serialization.
  */
@@ -1028,28 +1103,10 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     return;
   }
 
-  // Collect extra parameters from input fields
-  const options = {};
-  if (rule.input) {
-    rule.input.forEach((inputDef) => {
-      const $input = document.getElementById(`input-${ruleId}-${inputDef.name}`);
-      if ($input) {
-        options[inputDef.name] = inputDef.type === 'boolean'
-          ? $input.checked
-          : ($input.value || inputDef.default);
-      }
-    });
-  }
+  renderMorphemeSelectors(ruleId, rule, morphemes || [input]);
 
-  // Collect dependency overrides
-  if (rule.dependsOn) {
-    rule.dependsOn.forEach((dependency) => {
-      const $checkbox = document.getElementById(`dep-${ruleId}-${dependency.param}`);
-      if ($checkbox) {
-        options[dependency.param] = $checkbox.checked;
-      }
-    });
-  }
+  // Collect extra parameters from input fields and dependency overrides
+  const options = getOptions(ruleId, rule);
 
   // Pass morphemes to rule via options (if available)
   if (morphemes) {
@@ -1330,6 +1387,7 @@ $originalInput.addEventListener('input', (e) => {
     delete morphemeBoundaryState[ruleId];
   }
   saveMorphemeBoundaryState();
+  clearMorphemeSelections();
 
   if (inputValue === '') {
     softResetPage();
@@ -1413,6 +1471,10 @@ $shareUrlButton.addEventListener('click', async () => {
     if (rule && rule.input) {
       const inputs = {};
       rule.input.forEach(inputDef => {
+        if (inputDef.type === 'morphemes') {
+          inputs[inputDef.name] = getMorphemeSelection(ruleId, inputDef);
+          return;
+        }
         const $input = document.getElementById(`input-${ruleId}-${inputDef.name}`);
         if ($input) {
           const value = inputDef.type === 'boolean' ? $input.checked : $input.value;
@@ -1619,6 +1681,11 @@ if (postProcessingRuleKeys.length > 0) {
 if (shareModeRuleInputs) {
   for (const [ruleId, inputs] of Object.entries(shareModeRuleInputs)) {
     for (const [inputName, value] of Object.entries(inputs)) {
+      const inputDef = allRulesMap[ruleId].input.find(i => i.name === inputName);
+      if (inputDef.type === 'morphemes') {
+        optionState[`${ruleId}-${inputName}`] = value;
+        continue;
+      }
       const $input = document.getElementById(`input-${ruleId}-${inputName}`);
       if ($input) {
         if ($input.type === 'checkbox') {

@@ -418,7 +418,32 @@ describe('Disabled rules query string', () => {
           { name: 'guess', type: 'boolean', default: true },
         ],
       },
+      '3958031275': {
+        input: [
+          { name: 'affectedMorphemes', type: 'morphemes', default: null },
+        ],
+      },
     };
+
+    it('should encode morpheme selections as one 1/0 digit per morpheme', () => {
+      const ruleInputs = {
+        '3958031275': { affectedMorphemes: [false, true, true] },
+      };
+      const encoded = encodeRuleInputs(ruleInputs, mockRules);
+      const ruleB36 = toBase36(3958031275);
+      expect(encoded).toBe(`${ruleB36}:affectedMorphemes=011`);
+    });
+
+    it('should not encode default morpheme selections', () => {
+      expect(encodeRuleInputs({ '3958031275': { affectedMorphemes: null } }, mockRules)).toBe('');
+      expect(encodeRuleInputs({ '3958031275': { affectedMorphemes: [true, true] } }, mockRules)).toBe('');
+    });
+
+    it('should parse morpheme selections', () => {
+      const ruleB36 = toBase36(3958031275);
+      const parsed = parseRuleInputs(`${ruleB36}:affectedMorphemes=0110`, mockRules);
+      expect(parsed['3958031275']).toEqual({ affectedMorphemes: [false, true, true, false] });
+    });
 
     it('should encode boolean inputs as 1/0', () => {
       const ruleInputs = {
@@ -524,6 +549,7 @@ describe('Disabled rules query string', () => {
         '876455981': { monosyllables: true },
         '567222053': { transformUnstressedMonosyllables: true, forceAeToE: true },
         '123456789': { boundaryChar: '+', guess: false },
+        '3958031275': { affectedMorphemes: [false, true] },
       };
       const encoded = encodeRuleInputs(ruleInputs, mockRules);
       const parsed = parseRuleInputs(encoded, mockRules);

@@ -118,7 +118,7 @@ Each rule is an object with:
 - **`mechanic`** — function that applies the transformation
 - **`isSandhi`** — if `true`, only runs when the sandhi master switch is enabled
 - **`skip`** — if `true`, the rule is disabled by default (opt-in)
-- **`input`** — optional array of configurable parameters (checkboxes, text fields)
+- **`input`** — optional array of configurable parameters (checkboxes, text fields, or morpheme selections: clickable morphemes that toggle whether the rule applies to each one, passed to the mechanic as an array of booleans)
 
 Internally, digraphs like `th`, `ph`, `ng` are converted to single Unicode characters (θ, ɸ, ŋ) for simpler string processing, then converted back for display.
 

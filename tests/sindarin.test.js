@@ -215,11 +215,9 @@ describe('Sindarin rules', () => {
     });
     it('[ŭCCi] > [yCCi]', () => {
       expect(sindarinRules['3958031275'].mechanic('dumbi').out).toBe('djmbi');
-      expect(sindarinRules['3958031275'].mechanic('tainakulli').out).toBe('tainakjlli');
       expect(sindarinRules['3958031275'].mechanic('ukli').out).toBe('jkli');
     });
     it('others', () => {
-      expect(sindarinRules['3958031275'].mechanic('calatariɣell').out).toBe('calateriɣell');
       expect(sindarinRules['3958031275'].mechanic('galatǭriɣer').out).toBe('galatǭriɣer');
     });
     it('morphemes', () => {
@@ -228,6 +226,55 @@ describe('Sindarin rules', () => {
       const compound = sindarinRules['3958031275'].mechanic('tilbania', { morphemes: ['til', 'ba', 'nia'] });
       expect(compound.out).toEqual('tilbenia');
       expect(compound.morphemes).toEqual(['til', 'be', 'nia']);
+    });
+    it('fronting', () => {
+      const front = (word) =>
+        sindarinRules['3958031275'].mechanic(word).out;
+
+      // Earlier [e] and [i] don't block fronting of the vowels between them and [i]:
+      expect(front('elembarathi')).toBe('elemberethi');
+      expect(front('galadandil')).toBe('geledendil');
+      expect(front('nestaki')).toBe('nesteki');
+      // Long vowels and diphthongs stop the chain:
+      expect(front('roumali')).toBe('roumeli');
+      expect(front('xalatǭri')).toBe('xalatǭri');
+      // Single inherited words front every vowel in the chain:
+      expect(front('tannakulli')).toBe('tennekjlli'); // S. Tengyl
+      expect(front('tainakulli')).toBe('tainekjlli');
+      expect(front('calatariɣell')).toBe('celeteriɣell');
+    });
+    describe('affected morphemes', () => {
+      const front = (word, morphemes, affectedMorphemes) =>
+        sindarinRules['3958031275'].mechanic(word, { morphemes, affectedMorphemes });
+
+      it('ancient compounds are affected across morphemes', () => {
+        expect(front('balθil', ['bal', 'θil']).out).toBe('belθil'); // S. Belthil
+        expect(front('faradīr', ['fara', 'dīr']).out).toBe('feredīr'); // N. feredir
+        expect(front('elembarathi', ['elem', 'barathi'], [true, true]).out).toBe('elemberethi'); // S. Elbereth
+      });
+      it('late or remodelled compounds preserve deselected morphemes', () => {
+        // S. Taengyl: tainakulli > tainakylli
+        const taengyl = front('tainakulli', ['taina', 'kulli'], [false, true]);
+        expect(taengyl.out).toBe('tainakjlli');
+        expect(taengyl.morphemes).toEqual(['taina', 'kjlli']);
+        // S. † Caladriel: calatariɣell > caladariɣell (no fronting)
+        expect(front('calatariɣell', ['calata', 'riɣell'], [false, true]).out).toBe('calatariɣell');
+        // S. rochbin, reformed from † rœchbin to match its singular rochben
+        expect(front('roxpini', ['rox', 'pini'], [false, true]).out).toBe('roxpini');
+        expect(front('roxpini', ['rox', 'pini']).out).toBe('rœxpini');
+        // N. randir
+        expect(front('randīr', ['ran', 'dīr'], [false, true]).out).toBe('randīr');
+      });
+      it('a deselected morpheme does not stop fronting of earlier morphemes', () => {
+        expect(front('galadandil', ['gala', 'dan', 'dil'], [true, false, true]).out).toBe('geledandil');
+      });
+      it('missing entries default to affected', () => {
+        expect(front('galadandil', ['gala', 'dan', 'dil'], [false]).out).toBe('galadendil');
+        expect(front('galadandil', ['gala', 'dan', 'dil'], null).out).toBe('geledendil');
+      });
+      it('a single deselected morpheme disables the rule', () => {
+        expect(front('balania', ['balania'], [false]).out).toBe('balania');
+      });
     });
   });
 
