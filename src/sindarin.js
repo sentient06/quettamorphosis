@@ -1380,7 +1380,8 @@ export const sindarinRules = {
       }
 
       const result = newMorphemes.join('');
-      return { in: str, out: result, morphemes: newMorphemes };
+      const updatedMorphemes = newMorphemes.filter((m) => m !== '');
+      return { in: str, out: result, morphemes: updatedMorphemes };
     },
     /**
      * @param {string} str - The input string
