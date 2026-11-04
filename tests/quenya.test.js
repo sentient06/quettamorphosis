@@ -346,4 +346,19 @@ describe('Quenya rules', () => {
     const compound = quenyaRules['455699965'].mechanic('kazār', { morphemes: ['ka', 'zār'] });
     expect(compound.morphemes).toEqual(['ka', 'sār']);
   });
+
+  it('02000 - [V̄CC|V̄tj|V̄kw] > [V̆CC|V̄tj|V̄kw]', () => {
+    expect(quenyaRules['4125237087'].mechanic('abc').out).toBe('abc');
+    // Only one example:
+
+    // āCC > ăCC:
+    expect(quenyaRules['4125237087'].mechanic('mānwen').out).toBe('manwen');
+    expect(quenyaRules['4125237087'].mechanic('matuβānjē').out).toBe('matuβanjē');
+
+    // Non-existent word:
+    expect(quenyaRules['4125237087'].mechanic('bānbānbānbān').out).toBe('banbanbanbān');
+    
+    expect(quenyaRules['4125237087'].mechanic('lākwet', { skipCW: true }).out).toBe('lākwet');
+    expect(quenyaRules['4125237087'].mechanic('mātja', { skipCY: true }).out).toBe('mātja');
+  });
 });

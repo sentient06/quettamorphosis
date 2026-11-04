@@ -5,6 +5,7 @@ import {
   SyllableAnalyser,
   QUENYA_PROFILE,
   findFirstOf,
+  breakIntoVowelsAndConsonants,
 } from './utils.js';
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -703,6 +704,64 @@ export const quenyaRules = {
         }
       }
 
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
+  '4125237087': {
+    orderId: '02000',
+    pattern: '[V̄CC|V̄tj|V̄kw] > [V̆CC|V̄tj|V̄kw]',
+    description: 'long vowels shortened before consonant clusters',
+    url: 'https://eldamo.org/content/words/word-4125237087.html',
+    input: [
+      {
+        name: 'skipW',
+        label: 'Skip [Cw]',
+        type: 'boolean',
+        default: false,
+        description: 'Skip [Cw]',
+      },
+      {
+        name: 'skipY',
+        label: 'Skip [Cy]',
+        type: 'boolean',
+        default: false,
+        description: 'Skip [Cy]',
+      },
+    ],
+    mechanic: (str, options = { skipCW: false, skipCY: false }) => {
+      const vcPattern = breakIntoVowelsAndConsonants(str);
+      const vcIndices = vcPattern.split('').reduce((p, c, i, a) => {
+        if (i > 1) {
+          const vcc1 = a[i - 2];
+          const vcc2 = a[i - 1];
+          const vcc3 = c;
+          if (vcc1 === 'V' && vcc2 === 'C' && vcc3 === 'C') {
+            p.push(i - 2);
+          }
+        }
+        return p;
+      }, []);
+
+      if (vcIndices.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+
+      for (let i = vcIndices.length - 1; i >= 0; i--) {
+        const index = vcIndices[i];
+        const vowel = result.charAt(index);
+        const secondConsonant = result.charAt(index + 2);
+        if (options.skipCW && secondConsonant === 'w') continue;
+        if (options.skipCY && secondConsonant === 'j') continue;
+
+        const mark = vowel.getMark();
+        if ('¯´^'.includes(mark)) {
+          result = result.substring(0, index) + vowel.removeVowelMarks() + result.substring(index + 1);
+        }
+      }
+      
       const morphemes = (result !== str && options.morphemes)
         ? recalcMorphemes(result, options.morphemes, [])
         : (options.morphemes || [str]);
