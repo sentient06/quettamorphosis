@@ -495,6 +495,7 @@ export const oldSindarinRules = {
     },
   },
   '2753394075': {
+    // Identical to Quenya rule 2821506177.
     orderId: '01600',
     pattern: '[-SV̄] > [-SV̆]',
     description: 'long final vowels were shortened',
@@ -504,7 +505,7 @@ export const oldSindarinRules = {
         name: 'applyToMorphemes',
         label: 'Perform on each morpheme',
         type: 'boolean',
-        default: true,
+        default: false,
         description: 'Perform this rule on each morpheme instead of the whole word',
       },
     ],

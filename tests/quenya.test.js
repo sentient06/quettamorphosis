@@ -361,4 +361,17 @@ describe('Quenya rules', () => {
     expect(quenyaRules['4125237087'].mechanic('lākwet', { skipCW: true }).out).toBe('lākwet');
     expect(quenyaRules['4125237087'].mechanic('mātja', { skipCY: true }).out).toBe('mātja');
   });
+
+  it('02100 - [-SV̄] > [-SV̆]', () => {
+    expect(quenyaRules['2821506177'].mechanic('abc').out).toBe('abc');
+    // Only one example:
+    expect(quenyaRules['2821506177'].mechanic('aikā').out).toBe('aika');
+    expect(quenyaRules['2821506177'].mechanic('ājā').out).toBe('āja');
+    expect(quenyaRules['2821506177'].mechanic('hāβā').out).toBe('hāβa');
+    expect(quenyaRules['2821506177'].mechanic('kārimā').out).toBe('kārima');
+    expect(quenyaRules['2821506177'].mechanic('hīθilōmē').out).toBe('hīθilōme');
+    expect(quenyaRules['2821506177'].mechanic('umbē').out).toBe('umbe');
+    expect(quenyaRules['2821506177'].mechanic('sartō').out).toBe('sarto');
+    expect(quenyaRules['2821506177'].mechanic('ainū').out).toBe('ainu');
+  });
 });

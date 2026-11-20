@@ -768,4 +768,48 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '2821506177': {
+    // Identical to Old-Sindarin rule 2753394075.
+    orderId: '02100',
+    pattern: '[-SV̄] > [-SV̆]',
+    description: 'long final vowels were shortened',
+    url: 'https://eldamo.org/content/words/word-2821506177.html',
+    input: [
+      {
+        name: 'applyToMorphemes',
+        label: 'Perform on each morpheme',
+        type: 'boolean',
+        default: false,
+        description: 'Perform this rule on each morpheme instead of the whole word',
+      },
+    ],
+    mechanic: (str, options = { applyToMorphemes: true }) => {
+      const morphemes = options.morphemes || [str];
+
+      const applyRule = (_str) => {
+        const lastChar = _str.nth(-1);
+        const mark = lastChar.getMark();
+        if (['¯', '´', '^'].includes(mark)) {
+          const result = _str.substring(0, _str.length - 1) + lastChar.removeMarks();
+          return result;
+        }
+        return _str;
+      };
+
+      let result = str;
+      let newMorphemes = morphemes;
+
+      if (options.applyToMorphemes) {
+        newMorphemes = morphemes.map(applyRule);
+        result = newMorphemes.join('');
+      } else {
+        result = applyRule(str);
+        newMorphemes = (result !== str && morphemes)
+          ? recalcMorphemes(result, morphemes, [str.length - 1], [str.length - 1])
+          : (morphemes || [str]);
+      }
+      
+      return { in: str, out: result, morphemes: newMorphemes };
+    },
+  },
 };
