@@ -112,9 +112,10 @@ export const ancientQuenyaRules = {
       };
       let result = str;
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex, matched, prevChar } = occurrences[i];
-        if (prevChar.isVowel() === false) continue;
-        result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+        const { charIndex, matched, nextChar } = occurrences[i];
+        if (nextChar.isConsonant()) {
+          result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);
+        }
       }
 
       const morphemes = (result !== str && options.morphemes)
@@ -938,6 +939,9 @@ export const ancientQuenyaRules = {
         if (allowedClusters[matched].includes(prevChar2 + prevChar)) continue;
         // Matching allowed clusters with 3 characters:
         if (allowedClusters[matched].includes(prevChar3 + prevChar2 + prevChar)) continue;
+
+        // Preventing matching a vowel:
+        if (prevChar.isVowel()) continue;
 
         // If we got this far, it means the character mutates:
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 1);

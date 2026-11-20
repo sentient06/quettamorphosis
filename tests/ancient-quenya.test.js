@@ -56,11 +56,11 @@ describe('Ancient Quenya rules', () => {
 
   it('00400 - [VjC|VwC] > [ViC|VuC]', () => {
     // [VjC] > [ViC]:
-    expect(ancientQuenyaRules['2232975397'].mechanic('ajna-').out).toBe('aina-');
+    expect(ancientQuenyaRules['2232975397'].mechanic('ajnū').out).toBe('ainū');
     expect(ancientQuenyaRules['2232975397'].mechanic('gajkā').out).toBe('gaikā');
     // [VwC] > [VuC]:
     expect(ancientQuenyaRules['2232975397'].mechanic('glawrē').out).toBe('glaurē');
-    expect(ancientQuenyaRules['2232975397'].mechanic('wāwā').out).toBe('wāuā');
+    expect(ancientQuenyaRules['2232975397'].mechanic('wāwlā').out).toBe('wāulā'); // Non-existent word
   });
 
   it('00500 - [ls] > [ll]', () => {
@@ -531,6 +531,9 @@ describe('Ancient Quenya rules', () => {
     expect(ancientQuenyaRules['1408301067'].mechanic('badkwba').out).toBe('badkuba');
     expect(ancientQuenyaRules['1408301067'].mechanic('barkjba').out).toBe('barkiba');
     expect(ancientQuenyaRules['1408301067'].mechanic('bandwba').out).toBe('banduba');
+    
+    // Bug fixing for vowel-matching:
+    expect(ancientQuenyaRules['1408301067'].mechanic('maija').out).toBe('maija'); // It was yielding "maiia"
   });
 
   it('03300 - [ę̄|ǭ] > [ē|ō]', () => {

@@ -812,4 +812,27 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes: newMorphemes };
     },
   },
+  '1619715205': {
+    orderId: '02200',
+    pattern: '[ijV|uwV] > [iV|uV]',
+    description: '[ij], [uw] became [i], [u]',
+    url: 'https://eldamo.org/content/words/word-1619715205.html',
+    mechanic: (str, options = {}) => {
+      const occurrences = findAllOf(['ij', 'uw'], str);
+      if (occurrences.length === 0) return { in: str, out: str, morphemes: options.morphemes };
+
+      let result = str;
+      for (let i = occurrences.length - 1; i >= 0; i--) {
+        const { charIndex, matched, nextChar } = occurrences[i];
+        if (nextChar.isVowel()) {
+          result = result.substring(0, charIndex) + matched[0] + result.substring(charIndex + 2);
+        }
+      }
+
+      const morphemes = (result !== str && options.morphemes)
+        ? recalcMorphemes(result, options.morphemes, [])
+        : (options.morphemes || [str]);
+      return { in: str, out: result, morphemes };
+    },
+  },
 };

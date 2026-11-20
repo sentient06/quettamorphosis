@@ -364,7 +364,7 @@ describe('Quenya rules', () => {
 
   it('02100 - [-SV̄] > [-SV̆]', () => {
     expect(quenyaRules['2821506177'].mechanic('abc').out).toBe('abc');
-    // Only one example:
+    
     expect(quenyaRules['2821506177'].mechanic('aikā').out).toBe('aika');
     expect(quenyaRules['2821506177'].mechanic('ājā').out).toBe('āja');
     expect(quenyaRules['2821506177'].mechanic('hāβā').out).toBe('hāβa');
@@ -373,5 +373,15 @@ describe('Quenya rules', () => {
     expect(quenyaRules['2821506177'].mechanic('umbē').out).toBe('umbe');
     expect(quenyaRules['2821506177'].mechanic('sartō').out).toBe('sarto');
     expect(quenyaRules['2821506177'].mechanic('ainū').out).toBe('ainu');
+  });
+
+  it('02200 - [ijV|uwV] > [iV|uV]', () => {
+    expect(quenyaRules['1619715205'].mechanic('abc').out).toBe('abc');
+    
+    expect(quenyaRules['1619715205'].mechanic('aija').out).toBe('aia');
+    expect(quenyaRules['1619715205'].mechanic('laija').out).toBe('laia');
+    expect(quenyaRules['1619715205'].mechanic('maija').out).toBe('maia');
+    expect(quenyaRules['1619715205'].mechanic('sarnije').out).toBe('sarnie');
+    expect(quenyaRules['1619715205'].mechanic('nauwe').out).toBe('naue');
   });
 });
