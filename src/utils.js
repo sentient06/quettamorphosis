@@ -657,6 +657,76 @@ export function recalcMorphemes(result, originalMorphemes, removedIndices, added
   });
 }
 
+/**
+ * Align two strings with a minimum edit (Levenshtein) alignment.
+ * Substituted characters stay aligned; only inserted/deleted characters break the link.
+ * Between identical neighbours (e.g. [mm] > [m]) it is arbitrary which one survives.
+ * @param {string} before - The string before a rule ran
+ * @param {string} after - The string after the rule ran
+ * @returns {number[]} For each index of `before`, its index in `after`, or -1 if deleted
+ */
+export function alignIndices(before, after) {
+  const rows = before.length + 1;
+  const cols = after.length + 1;
+  const cost = Array.from({ length: rows }, (_, i) => {
+    const row = new Array(cols).fill(0);
+    row[0] = i;
+    return row;
+  });
+  for (let j = 0; j < cols; j++) cost[0][j] = j;
+  for (let i = 1; i < rows; i++) {
+    for (let j = 1; j < cols; j++) {
+      const substitution = before[i - 1] === after[j - 1] ? 0 : 1;
+      cost[i][j] = Math.min(
+        cost[i - 1][j - 1] + substitution,
+        cost[i - 1][j] + 1,
+        cost[i][j - 1] + 1,
+      );
+    }
+  }
+
+  const map = new Array(before.length).fill(-1);
+  let i = before.length;
+  let j = after.length;
+  while (i > 0 && j > 0) {
+    const substitution = before[i - 1] === after[j - 1] ? 0 : 1;
+    if (cost[i][j] === cost[i - 1][j - 1] + substitution) {
+      map[i - 1] = j - 1;
+      i--;
+      j--;
+    } else if (cost[i][j] === cost[i - 1][j] + 1) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+  return map;
+}
+
+/**
+ * Carry position marks across one rule: move each marked index from `before` to `after`
+ * (dropping deleted characters), then add the marks the rule itself set on `after`.
+ * Marks let a rule flag positions it changed (e.g. [mm] that came from [mb]) for later rules.
+ * @param {Object<string, number[]>} marks - Marks on `before`: name -> indices
+ * @param {string} before - The string before the rule ran
+ * @param {string} after - The string after the rule ran
+ * @param {Object<string, number[]>} newMarks - Marks set by the rule, as indices of `after`
+ * @returns {Object<string, number[]>} Marks on `after`
+ */
+export function carryMarks(marks = {}, before, after, newMarks = {}) {
+  const map = before === after ? null : alignIndices(before, after);
+  const carried = {};
+  for (const name of new Set([...Object.keys(marks), ...Object.keys(newMarks)])) {
+    const indices = new Set(newMarks[name] || []);
+    for (const index of marks[name] || []) {
+      const mapped = map ? map[index] : index;
+      if (mapped !== undefined && mapped !== -1) indices.add(mapped);
+    }
+    if (indices.size > 0) carried[name] = [...indices].sort((a, b) => a - b);
+  }
+  return carried;
+}
+
 export function morphemeAtIndex(morphemes = [], index) {
   let pos = 0;
   for (const m of morphemes) {

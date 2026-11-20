@@ -2445,6 +2445,8 @@ export const sindarinRules = {
       }
 
       let result = str;
+      // Both [m] of every [mm] from [mb], for [mm] shortening (06700)
+      const fromMB = [];
       for (let i = occurrences.length - 1; i >= 0; i--) {
         const { charIndex, matched, nextChar } = occurrences[i];
         if (matched === 'nd') {
@@ -2456,13 +2458,14 @@ export const sindarinRules = {
           // Multiple syllables:
           if (nextChar === 'r') continue;
         }
+        if (matched === 'mb') fromMB.unshift(charIndex, charIndex + 1);
         result = result.substring(0, charIndex) + replacements[matched] + result.substring(charIndex + 2);
       }
 
       const morphemes = (result !== str && options.morphemes)
         ? recalcMorphemes(result, options.morphemes, [])
         : (options.morphemes || [str]);
-      return { in: str, out: result, morphemes };
+      return { in: str, out: result, morphemes, marks: { fromMB } };
     },
   },
   '3868328117': {
@@ -2731,18 +2734,31 @@ export const sindarinRules = {
     pattern: '[mm] > [m]',
     description: '[mm] shortened',
     url: 'https://eldamo.org/content/words/word-3689144303.html',
-    exceptions: new Set([
-      'ammor',
-    ]),
-    mechanic(str, options = {}) {
+    info: [
+      '[mm] from [mb] (05700) still counted as long for stress, and is kept as [mm] between vowels after the stressed syllable: galadhremmen, rammas, ammor.',
+    ],
+    input: [
+      {
+        name: 'shortenFromMB',
+        label: 'Shorten [mm] from [mb]',
+        type: 'boolean',
+        default: false,
+        description: 'Also shorten [mm] from [mb] after the stressed syllable (e.g. ammar > amar)',
+      },
+    ],
+    mechanic: (str, options = {}) => {
       // mm (2 chars) → m (1 char): -1 char per occurrence
       if (str.includes('mm') === false) {
         return { in: str, out: str, morphemes: options.morphemes || [str] };
       }
 
-      if (this.exceptions.has(str)) {
-        return { in: str, out: str, morphemes: options.morphemes || [str] };
-      }
+      const fromMB = new Set(options.shortenFromMB ? [] : options.marks?.fromMB);
+      const syllableData = new SyllableAnalyser().analyse(str);
+      const isAfterStressedSyllable = (charIndex) => {
+        let end = 0;
+        const syllable = syllableData.find(s => (end += s.syllable.length) > charIndex);
+        return syllable?.stressed === true && end === charIndex + 1;
+      };
 
       const occurrences = findAllOf(['mm'], str);
       let result = str;
@@ -2750,7 +2766,11 @@ export const sindarinRules = {
 
       // Process from end to start so indices remain valid
       for (let i = occurrences.length - 1; i >= 0; i--) {
-        const { charIndex } = occurrences[i];
+        const { charIndex, prevChar, nextChar } = occurrences[i];
+        const isFromMB = fromMB.has(charIndex) || fromMB.has(charIndex + 1);
+        const isIntervocalic = prevChar?.isVowel() && nextChar?.isVowel();
+        if (isFromMB && isIntervocalic && isAfterStressedSyllable(charIndex)) continue;
+
         result = result.substring(0, charIndex) + 'm' + result.substring(charIndex + 2);
         // The second 'm' is removed
         removedIndices.unshift(charIndex + 1);

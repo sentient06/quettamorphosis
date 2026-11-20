@@ -44,7 +44,7 @@ import {
   encodeMorphemeBoundaries,
   getMorphemeBoundariesFromUrl,
 } from './src/query-string.js';
-import { toBase36, singleToPhonetic } from './src/utils.js';
+import { toBase36, singleToPhonetic, carryMarks } from './src/utils.js';
 
 // =============================================================================
 // Pipeline-derived helpers
@@ -1014,7 +1014,7 @@ function toggleMorphemeBoundary(ruleId, boundaryIndex) {
 
   // Run the next rule with merged morphemes
   const outputValue = getOutputValue(ruleId);
-  ruleHandoff[ruleId] = { value: outputValue, morphemes: effectiveMorphemes };
+  ruleHandoff[ruleId] = { ...ruleHandoff[ruleId], value: outputValue, morphemes: effectiveMorphemes };
   const nextRuleId = getNextRule(ruleId);
   if (nextRuleId) {
     runRule(nextRuleId, outputValue, getNextRule(nextRuleId), effectiveMorphemes);
@@ -1061,6 +1061,9 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   const rulesObj = getRulesObject(ruleId);
   const resultsObj = getResultsObject(ruleId);
   const rule = rulesObj[ruleId];
+  // Marks only describe the chained value, not a value typed into this rule's input field
+  const chainInput = getChainInput(ruleId);
+  const marks = (chainInput.value === input && chainInput.marks) || {};
 
   // Skip if rule is not effectively enabled (language disabled OR rule disabled)
   if (!isRuleEffectivelyEnabled(ruleId)) {
@@ -1075,7 +1078,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
     }
     // Store morphemes even for skipped rules (needed when toggling rules mid-chain)
     ruleMorphemes[ruleId] = morphemes;
-    ruleHandoff[ruleId] = { value: input, morphemes };
+    ruleHandoff[ruleId] = { value: input, morphemes, marks };
 
     // Track sandhi rule skipping for master rule aggregation
     if (rule.isSandhi) {
@@ -1112,6 +1115,7 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   if (morphemes) {
     options.morphemes = morphemes;
   }
+  options.marks = marks;
 
   const isEnabled = isRuleEffectivelyEnabled(ruleId);
   const compoundsOnly = rule.isSandhi && getSandhiMasterRule() ? getOptions(SANDHI_MASTER_RULE_ID, getSandhiMasterRule()).compoundsOnly !== false : false;
@@ -1188,7 +1192,11 @@ function runRule(ruleId, input, nextRuleId, morphemes = null) {
   const effectiveMorphemes = mergedBoundaries && mergedBoundaries.size > 0
     ? applyMorphemeMerges(outputMorphemes, mergedBoundaries)
     : outputMorphemes;
-  ruleHandoff[ruleId] = { value: output, morphemes: effectiveMorphemes };
+  ruleHandoff[ruleId] = {
+    value: output,
+    morphemes: effectiveMorphemes,
+    marks: carryMarks(marks, input, output, result.marks),
+  };
 
   // Continue to next rule or finish
   if (!nextRuleId) {

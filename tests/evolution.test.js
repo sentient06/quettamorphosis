@@ -251,6 +251,23 @@ describe('Word Evolution', () => {
     });
   });
 
+  describe('[mm] from [mb] (position marks)', () => {
+    it('lambasse → lammas ([mm] from [mb] kept after the stressed syllable)', () => {
+      expect(evolveWord('lambasse').output).toBe('lammas');
+    });
+
+    it('immā + ambārē → imammor (only the [mm] from [mb] is kept)', () => {
+      expect(evolveWord('immā+ambārē').output).toBe('imammor');
+    });
+
+    it('ambārē → amor when [mm] from [mb] is shortened too', () => {
+      const result = evolveWord('ambārē', {
+        ruleOptions: { 'S 06700': { shortenFromMB: true } },
+      });
+      expect(result.output).toBe('amor');
+    });
+  });
+
   describe('Rule option overrides', () => {
     it('should apply custom rule options', () => {
       // Test with a rule that has options (like North Sindarin for rule 06500)

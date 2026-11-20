@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { SyllableAnalyser, SINDARIN_PROFILE, breakIntoVowelsAndConsonants, findFirstOf, findAllOf, syllabify, recalcMorphemes } from "../src/utils.js";
+import { SyllableAnalyser, SINDARIN_PROFILE, breakIntoVowelsAndConsonants, findFirstOf, findAllOf, syllabify, recalcMorphemes, alignIndices, carryMarks } from "../src/utils.js";
 
 describe('Array extended functions', () => {
   it('last should return last', () => {
@@ -477,5 +477,40 @@ describe('syllabify', () => {
   it('should preserve original case', () => {
     expect(syllabify('MELLON')).toEqual(['MEL', 'LON']);
     expect(syllabify('Galadriel')).toEqual(['Ga', 'lad', 'ri', 'el']);
+  });
+});
+
+describe('alignIndices', () => {
+  it('maps unchanged and substituted characters to the same index', () => {
+    expect(alignIndices('ammor', 'ammor')).toEqual([0, 1, 2, 3, 4]);
+    expect(alignIndices('kamma', 'kavva')).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('marks deleted characters with -1 and shifts the rest', () => {
+    expect(alignIndices('gwomma', 'gomma')).toEqual([0, -1, 1, 2, 3, 4]);
+    expect(alignIndices('ammarθe', 'ammarθ')).toEqual([0, 1, 2, 3, 4, 5, -1]);
+  });
+
+  it('shifts characters after an insertion', () => {
+    expect(alignIndices('amma', 'eamma')).toEqual([1, 2, 3, 4]);
+  });
+});
+
+describe('carryMarks', () => {
+  it('moves marks to their new positions', () => {
+    expect(carryMarks({ fromMB: [3, 4] }, 'gwomma', 'gomma')).toEqual({ fromMB: [2, 3] });
+  });
+
+  it('drops marks on deleted characters and empty mark lists', () => {
+    expect(carryMarks({ fromMB: [1] }, 'gwomma', 'gomma')).toEqual({});
+  });
+
+  it('adds marks set by the rule on the output', () => {
+    expect(carryMarks({ fromMB: [1, 2] }, 'ammanda', 'ammanna', { fromND: [4, 5] }))
+      .toEqual({ fromMB: [1, 2], fromND: [4, 5] });
+  });
+
+  it('keeps one mark of a pair whose characters merged', () => {
+    expect(carryMarks({ fromMB: [1, 2] }, 'ammor', 'amor').fromMB).toHaveLength(1);
   });
 });

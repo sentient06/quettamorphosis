@@ -14,7 +14,7 @@ import {
   preProcessingRuleKeys,
   interLanguageRuleKeys,
 } from './conversions.js';
-import { toBase36 } from './utils.js';
+import { toBase36, carryMarks } from './utils.js';
 import { SANDHI_MASTER_RULE_ID, shouldSkipSandhi } from './sandhi.js';
 
 /**
@@ -155,6 +155,7 @@ export function createPipelineLogic(PIPELINE, postProcessingRules, postProcessin
 
     let currentValue = input;
     let currentMorphemes = initialMorphemes || [input];
+    let currentMarks = {};
     const tripped = [];
     const steps = [];
 
@@ -182,7 +183,7 @@ export function createPipelineLogic(PIPELINE, postProcessingRules, postProcessin
         if (!isMasterExplicitlyEnabled || isMasterDisabled) continue;
       }
 
-      const options = { morphemes: currentMorphemes };
+      const options = { morphemes: currentMorphemes, marks: currentMarks };
       if (rule.input) {
         rule.input.forEach(inputDef => {
           options[inputDef.name] = inputDef.default;
@@ -209,11 +210,12 @@ export function createPipelineLogic(PIPELINE, postProcessingRules, postProcessin
         tripped.push({ ruleId, orderId: rule.orderId, language, in: result.in, out: result.out });
       }
 
+      currentMarks = carryMarks(currentMarks, currentValue, result.out, result.marks);
       currentValue = result.out;
       currentMorphemes = result.morphemes || currentMorphemes;
     }
 
-    return { input, output: currentValue, morphemes: currentMorphemes, tripped, steps };
+    return { input, output: currentValue, morphemes: currentMorphemes, marks: currentMarks, tripped, steps };
   }
 
   return {

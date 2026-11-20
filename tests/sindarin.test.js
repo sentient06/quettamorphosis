@@ -1339,6 +1339,11 @@ describe('Sindarin rules', () => {
     const compound = sindarinRules['868023175'].mechanic('abaambara', { morphemes: ['aba', 'am', 'bara'] });
     expect(compound.out).toEqual('abaammara');
     expect(compound.morphemes).toEqual(['aba', 'am', 'mara']);
+
+    // Both [m] of every [mm] from [mb] are marked for 06700, but not [nn] from [nd]:
+    expect(sindarinRules['868023175'].mechanic('ambar').marks).toEqual({ fromMB: [1, 2] });
+    expect(sindarinRules['868023175'].mechanic('lambemmanda').marks).toEqual({ fromMB: [2, 3] });
+    expect(sindarinRules['868023175'].mechanic('pelendor').marks).toEqual({ fromMB: [] });
   });
 
   it('05800 - sandhi master switch (no transformation)', () => {
@@ -1521,8 +1526,22 @@ describe('Sindarin rules', () => {
     expect(sindarinRules['3689144303'].mechanic('λimm').out).toBe('λim');
     expect(sindarinRules['3689144303'].mechanic('remmen').out).toBe('remen');
     expect(sindarinRules['3689144303'].mechanic('tumm').out).toBe('tum');
-    // Retain [mm] if the first syllable is stressed: (?)
-    expect(sindarinRules['3689144303'].mechanic('ammor').out).toBe('ammor');
+
+    // [mm] from [mb] (marked by 05700) is retained between vowels after the stressed syllable:
+    const shorten = (word, fromMB, extra = {}) =>
+      sindarinRules['3689144303'].mechanic(word, { marks: { fromMB }, ...extra }).out;
+    expect(shorten('ammor', [1, 2])).toBe('ammor');
+    expect(shorten('galaðremmen', [6, 7])).toBe('galaðremmen');
+    expect(shorten('rammas', [2, 3])).toBe('rammas');
+    // ...but not word-finally, or when stress falls elsewhere:
+    expect(shorten('kamm', [2, 3])).toBe('kam');
+    expect(shorten('emmenemmar', [1, 2])).toBe('emenemar'); // stress on [nem]
+    // Only the marked [mm] is retained when a word has [mm] of both origins:
+    expect(shorten('ammamma', [4, 5])).toBe('amamma'); // stress on [mam]
+    expect(shorten('emmenemmar', [6, 7])).toBe('emenemmar');
+    // Override:
+    expect(shorten('ammor', [1, 2], { shortenFromMB: true })).toBe('amor');
+    expect(shorten('ammor', [1, 2], { shortenFromMB: false })).toBe('ammor');
 
     // Morphemes: (non-existent compound for morpheme testing)
     // 'talammara' - 'mm' spans morpheme boundary, second 'm' removed from 'mara'
