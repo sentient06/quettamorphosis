@@ -384,4 +384,18 @@ describe('Quenya rules', () => {
     expect(quenyaRules['1619715205'].mechanic('sarnije').out).toBe('sarnie');
     expect(quenyaRules['1619715205'].mechanic('nauwe').out).toBe('naue');
   });
+
+  it('02300 - [-SSS{ăĕŏ}] > [-SSSø]', () => {
+    expect(quenyaRules['3904029624'].mechanic('abc').out).toBe('abc');
+
+    expect(quenyaRules['3904029624'].mechanic('eldakāza').out).toBe('eldakāz');
+    expect(quenyaRules['3904029624'].mechanic('kwenede').out).toBe('kwenede');
+    expect(quenyaRules['3904029624'].mechanic('morikwenede').out).toBe('morikwened');
+    expect(quenyaRules['3904029624'].mechanic('tindōmiselde').out).toBe('tindōmiseld');
+
+    // Testing bespoke number of syllables:
+    expect(quenyaRules['3904029624'].mechanic('kwenede', { numberOfSyllables: 3 }).out).toBe('kwened');
+    // Testing bad input:
+    expect(quenyaRules['3904029624'].mechanic('kwenede', { numberOfSyllables: -2 }).out).toBe('kwened');
+  });
 });

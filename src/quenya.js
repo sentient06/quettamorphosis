@@ -835,4 +835,37 @@ export const quenyaRules = {
       return { in: str, out: result, morphemes };
     },
   },
+  '3904029624': {
+    orderId: '02300',
+    pattern: '[-SSS{ăĕŏ}] > [-SSSø]',
+    description: 'short final [a], [e], [o] lost in long compounds',
+    url: 'https://eldamo.org/content/words/word-3904029624.html',
+    input: [
+      {
+        name: 'numberOfSyllables',
+        label: 'Number of syllables',
+        type: 'number',
+        default: 4,
+        description: 'Number of syllables to apply this rule to',
+      },
+    ],
+    mechanic: (str, options = { numberOfSyllables: 4 }) => {
+      const analyser = new SyllableAnalyser();
+      const syllableData = analyser.analyse(str);
+      if (options.numberOfSyllables < 0) options.numberOfSyllables = 0;
+      if (syllableData.length < options.numberOfSyllables) return { in: str, out: str, morphemes: options.morphemes };
+
+      const lastChar = str.nth(-1);
+
+      if (['a', 'e', 'o'].includes(lastChar)) {
+        const result = str.substring(0, str.length - 1);
+        const morphemes = (result !== str && options.morphemes)
+          ? recalcMorphemes(result, options.morphemes, [])
+          : (options.morphemes || [str]);
+        return { in: str, out: result, morphemes };
+      }
+
+      return { in: str, out: str, morphemes: options.morphemes };
+    },
+  },
 };
